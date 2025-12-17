@@ -26,6 +26,14 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    signingConfigs {
+        create("release") {
+            storeFile = file("../keystore/keystore.jks")
+            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "fallback"
+            keyAlias = System.getenv("ALIAS") ?: "key0"
+            keyPassword = System.getenv("ALIAS_PASSWORD") ?: "fallback"
+        }
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -33,6 +41,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

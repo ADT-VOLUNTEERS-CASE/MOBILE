@@ -1,68 +1,60 @@
-name: Build & Publish Release APK
-
+name: Build & Publish APK
 on:
   push:
-    tags:
-      - '*'
+    tags: ['v*']
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
-
-      - name: Checkout submodule
-        run: git submodule sync --recursive && git submodule update --init --recursive
-
-      - name: Before build
-        uses: xdtianyu/actions-android-ci@master
-        env:
-          ENCRYPTED_KEY: ${{ secrets.ENCRYPTED_KEY }}
-          ENCRYPTED_IV: ${{ secrets.ENCRYPTED_IV }}
+        uses: actions/checkout@v4
         with:
-          args: '"
-        . ./env.sh;
-        openssl aes-256-cbc -K $ENCRYPTED_KEY -iv $ENCRYPTED_IV -in secrets.tar.enc -out secrets.tar -d;
-        tar xvf secrets.tar;
-        touch local.properties
-        "'
+          fetch-depth: 0
 
-      - name: Cache gradle and sdk
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-gradle-and-sdk
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
         with:
           path: |
-            ${{ github.workspace }}/.opt/cache/gradle/wrapper
-            ${{ github.workspace }}/.opt/cache/gradle/caches
-            ${{ github.workspace }}/.opt/sdk
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/wrapper/gradle-wrapper.properties', '**/build.gradle') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
 
-      - name: Build
-        uses: xdtianyu/actions-android-ci@master
+      - name: Build Release APK
+        run: ./gradlew assembleRelease
         env:
-          ENCRYPTED_KEY: ${{ secrets.ENCRYPTED_KEY }}
-          ENCRYPTED_IV: ${{ secrets.ENCRYPTED_IV }}
-          ALIAS: ${{ secrets.ALIAS }}
-          ALIAS_PASSWORD: ${{ secrets.ALIAS_PASSWORD }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        with:
-          args: '"
-        umask 000;
-        . ./env.sh;
-        . /opt/setup-android-sdk.sh;
-        ./gradlew assembleRelease
-        "'
+          ALIAS_PASSWORD: ${{ secrets.ALIAS_PASSWORD }}
+          ALIAS: ${{ secrets.ALIAS }}
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: artifacts
+          name: app-release
           path: |
-            presentation/**/apk/release/*
-            presentation/**/mapping/release/mapping.txt
+            presentation/build/outputs/apk/release/*.apk
+            presentation/build/outputs/mapping/release/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download APK
+        uses: actions/download-artifact@v4
+        with:
+          name: app-release
+          path: app-release/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: app-release/*.apk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
