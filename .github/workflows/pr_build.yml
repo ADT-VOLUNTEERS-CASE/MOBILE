@@ -56,11 +56,10 @@ jobs:
         with:
           api-level: 33
           target: google_apis
-          script: system-images;android-33;google_apis;x86_64
+          arch: x86_64
           ram-size: 2048M
-
-      - name: Run Integration Tests
-        run: ./gradlew connectedDebugAndroidTest
+          profile: pixel_5
+          script: ./gradlew connectedDebugAndroidTest
 
       - name: Upload Test Reports
         if: always()
