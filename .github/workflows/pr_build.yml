@@ -51,14 +51,10 @@ jobs:
       - name: Run Unit Tests
         run: ./gradlew testDebugUnitTest
 
-      - name: Create Android Emulator
+      - name: Run Instrumental Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 33
-          target: google_apis
-          arch: x86_64
-          ram-size: 2048M
-          profile: pixel_5
           script: ./gradlew connectedDebugAndroidTest
 
       - name: Upload Test Reports
