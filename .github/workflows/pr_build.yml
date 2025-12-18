@@ -60,7 +60,9 @@ jobs:
       - name: Run Instrumental Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 33
+          api-level: 34
+          arch: x86_64
+          target: default
           script: ./gradlew connectedDebugAndroidTest
 
       - name: Upload Test Reports
