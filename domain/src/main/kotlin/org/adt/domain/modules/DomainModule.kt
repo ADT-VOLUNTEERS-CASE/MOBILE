@@ -7,7 +7,7 @@ import org.adt.domain.abstraction.IDomainRepository
 import org.adt.domain.repository.ExampleDomainRepository
 
 @Module
-class DomainModule(private val isDebug: Boolean = false) {
+internal class DomainModule(private val isDebug: Boolean = false) {
     @Provides
     @ImplicitUsage
     fun provide(

@@ -5,7 +5,7 @@ import org.adt.domain.abstraction.IDataRepository
 import org.adt.domain.abstraction.IDomainRepository
 import javax.inject.Inject
 
-class ExampleDomainRepository @Inject constructor(private val dataRepository: IDataRepository) :
+internal class ExampleDomainRepository @Inject constructor(private val dataRepository: IDataRepository) :
     IDomainRepository {
     override suspend fun getExampleName(): String {
         var message = dataRepository.getExampleString()
