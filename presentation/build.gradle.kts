@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.screenshot)
 
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
@@ -10,6 +11,9 @@ plugins {
 
 android {
     namespace = "org.adt.presentation"
+
+    experimentalProperties["android.experimental.enableScreenshotTest"] = true
+
     compileSdk {
         version = release(33)
     }
@@ -75,6 +79,9 @@ dependencies {
 
     implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.core.splashscreen)
+
+    screenshotTestImplementation(libs.screenshot.validation.api)
+    screenshotTestImplementation(libs.androidx.ui.tooling)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
