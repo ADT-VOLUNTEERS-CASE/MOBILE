@@ -1,33 +1,43 @@
 [versions]
 agp = "8.13.2"
+android = "0.8.1"
+androidxJunit = "1.3.0"
 dagger = "2.57.2"
 javaxInject = "1"
-kotlin = "2.2.21"
-coreKtx = "1.10.1"
+kotlin = "2.2.0"
+coreKtx = "1.17.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
-espressoCore = "3.7.0"
+espressoCore = "3.5.0"
 kotlinpoetKsp = "2.2.0"
-lifecycleRuntimeKtx = "2.6.2"
-activityCompose = "1.7.2"
-composeBom = "2023.05.01"
-jetbrainsKotlinJvm = "2.2.21"
+lifecycleRuntimeKtx = "2.10.0"
+activityCompose = "1.12.2"
+composeBom = "2025.12.01"
+jetbrainsKotlinJvm = "2.2.0"
+roborazzi = "1.52.0"
+roborazziCompose = "1.52.0"
+roborazziComposePreviewScannerSupport = "1.52.0"
+robolectric = "4.16"
+roborazziJunitRule = "1.52.0"
 screenshot = "0.0.1-alpha12"
 
-coreSplashscreen = "1.0.1"
+coreSplashscreen = "1.2.0"
 hiltAndroid = "2.57.2"
-hiltNavigationCompose = "1.0.0"
+hiltNavigationCompose = "1.3.0"
 
 kotlinxSerializationJson = "1.9.0"
 converterGson = "3.0.0"
-navigationCompose = "2.5.3"
+navigationCompose = "2.9.6"
 
 ksp = "2.3.3"
-serialization = "2.2.21"
+serialization = "2.2.0"
 symbolProcessingApi = "2.3.3"
+uiTestJunit4 = "1.10.0"
 
 [libraries]
+android = { module = "io.github.sergio-sastre.ComposablePreviewScanner:android", version.ref = "android" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "uiTestJunit4" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
 javax-inject = { module = "javax.inject:javax.inject", version.ref = "javaxInject" }
@@ -58,6 +68,11 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "converte
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+roborazzi-compose = { module = "io.github.takahirom.roborazzi:roborazzi-compose", version.ref = "roborazziCompose" }
+roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = "roborazzi" }
+roborazzi-compose-preview-scanner-support = { module = "io.github.takahirom.roborazzi:roborazzi-compose-preview-scanner-support", version.ref = "roborazziComposePreviewScannerSupport" }
+roborazzi-junit-rule = { module = "io.github.takahirom.roborazzi:roborazzi-junit-rule", version.ref = "roborazziJunitRule" }
 symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "symbolProcessingApi" }
 
 screenshot-validation-api = { group = "com.android.tools.screenshot", name = "screenshot-validation-api", version.ref = "screenshot"}
@@ -65,12 +80,11 @@ androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version = "2.2.0" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp"}
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serialization"}
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid"}
-screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot"}
 

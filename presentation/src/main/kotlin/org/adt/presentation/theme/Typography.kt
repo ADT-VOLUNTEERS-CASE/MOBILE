@@ -5,14 +5,16 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import org.adt.presentation.R
 
 
 //Example values
 
-private val UnboundedFontFamily = FontFamily()
+private val UnboundedFontFamily = FontFamily.SansSerif
 
 @Immutable
 data class AppTypography(
