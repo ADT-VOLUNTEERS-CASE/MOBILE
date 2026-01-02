@@ -3,8 +3,8 @@ name: Roborazzi Compose Preview
 on:
   pull_request:
     paths:
-      - 'presentation/src/main/java/org/adt/presentation/screens/**'
-      - 'presentation/src/main/java/org/adt/presentation/composable/**'
+      - 'presentation/src/main/kotlin/org/adt/presentation/screens/**'
+      - 'presentation/src/main/kotlin/org/adt/presentation/composable/**'
 
 permissions:
   contents: read
