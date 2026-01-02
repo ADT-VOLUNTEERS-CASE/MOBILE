@@ -60,7 +60,7 @@ jobs:
           if [ -d "$IMAGES_DIR" ]; then
             # Find all PNG files
             IMAGES=$(find "$IMAGES_DIR" -name "*.png" -type f | sort)
-            
+          
             if [ -z "$IMAGES" ]; then
               echo "image_count=0" >> $GITHUB_OUTPUT
               echo "No PNG files found in $IMAGES_DIR"
@@ -76,6 +76,96 @@ jobs:
             echo "Directory $IMAGES_DIR not found"
           fi
 
+      - name: Upload preview images to IMGBB
+        if: steps.changed-files.outputs.has_changes == 'true' && steps.find-images.outputs.image_count != '0'
+        id: upload-images
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const https = require('https');
+            const querystring = require('querystring');
+            
+            const IMAGES_DIR = 'presentation/build/outputs/roborazzi';
+            const IMGBB_API_KEY = '${{ secrets.IMGBB_API_KEY }}';
+            
+            if (!IMGBB_API_KEY) {
+              throw new Error('IMGBB_API_KEY secret not set');
+            }
+            
+            // Get all PNG files
+            const files = fs.readdirSync(IMAGES_DIR)
+              .filter(file => file.endsWith('.png'))
+              .sort();
+            
+            if (files.length === 0) {
+              console.log('No PNG files found');
+              return;
+            }
+            
+            // Upload each image
+            const uploadedUrls = {};
+            
+            for (const file of files) {
+              const filePath = path.join(IMAGES_DIR, file);
+              const imageBuffer = fs.readFileSync(filePath);
+              const base64Image = imageBuffer.toString('base64');
+            
+              try {
+                // Upload to IMGBB
+                const postData = querystring.stringify({
+                  key: IMGBB_API_KEY,
+                  image: base64Image,
+                  expiration: 604800
+                });
+            
+                const response = await new Promise((resolve, reject) => {
+                  const options = {
+                    hostname: 'api.imgbb.com',
+                    path: '/1/upload',
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/x-www-form-urlencoded',
+                      'Content-Length': Buffer.byteLength(postData)
+                    }
+                  };
+            
+                  const req = https.request(options, (res) => {
+                    let data = '';
+                    res.on('data', chunk => data += chunk);
+                    res.on('end', () => {
+                      try {
+                        const json = JSON.parse(data);
+                        if (json.success) {
+                          resolve(json.data.url);
+                        } else {
+                          reject(new Error(json.error?.message || 'Upload failed'));
+                        }
+                      } catch (e) {
+                        reject(e);
+                      }
+                    });
+                  });
+            
+                  req.on('error', reject);
+                  req.write(postData);
+                  req.end();
+                });
+            
+                uploadedUrls[file] = response;
+                console.log(`Uploaded: ${file}`);
+              } catch (error) {
+                console.error(`Failed to upload ${file}:`, error.message);
+                uploadedUrls[file] = '';
+              }
+            }
+            
+            // Store URLs for next step
+            core.setOutput('uploaded-urls', JSON.stringify(uploadedUrls));
+            console.log('All images uploaded');
+
       - name: Generate PR comment with previews
         if: steps.changed-files.outputs.has_changes == 'true' && steps.find-images.outputs.image_count != '0'
         uses: actions/github-script@v7
@@ -86,6 +176,7 @@ jobs:
             const path = require('path');
             
             const IMAGES_DIR = 'presentation/build/outputs/roborazzi';
+            const uploadedUrls = JSON.parse('${{ steps.upload-images.outputs.uploaded-urls }}');
             
             // Get all PNG files
             const files = fs.readdirSync(IMAGES_DIR)
@@ -106,20 +197,20 @@ jobs:
               if (match) {
                 const baseName = match[1];
                 const variant = match[2];
-                
+            
                 if (!groupedImages[baseName]) {
                   groupedImages[baseName] = [];
                 }
                 groupedImages[baseName].push({
                   variant: variant,
                   file: file,
-                  path: path.join(IMAGES_DIR, file)
+                  url: uploadedUrls[file] || ''
                 });
               }
             });
             
-            // Build comment body
-            let commentBody = '##Roborazzi Preview\n\n';
+            // Build comment body with uploaded image URLs in collapsible sections
+            let commentBody = '## Roborazzi Preview \n\n';
             commentBody += `Found **${files.length}** preview image(s) from modified composables.\n\n`;
             
             Object.entries(groupedImages).forEach(([screenName, images]) => {
@@ -127,17 +218,17 @@ jobs:
                 .split('.')
                 .slice(-2)
                 .join('.');
-              
-              commentBody += `### ${displayName}\n\n`;
-              
+            
               images.forEach(img => {
                 commentBody += `<details>\n`;
-                commentBody += `<summary>${img.variant}</summary>\n\n`;
-                
-                const imageBuffer = fs.readFileSync(img.path);
-                const base64Image = imageBuffer.toString('base64');
-                
-                commentBody += `![${img.file}](data:image/png;base64,${base64Image})\n\n`;
+                commentBody += `<summary><h3>${displayName}_${img.variant}</h3></summary>\n\n`;
+            
+                if (img.url) {
+                  commentBody += `<img src="${img.url}" width="400" alt="${img.file}"/>\n\n`;
+                } else {
+                  commentBody += `Failed to upload\n\n`;
+                }
+            
                 commentBody += `</details>\n\n`;
               });
             });
@@ -154,7 +245,7 @@ jobs:
             
             const botComment = comments.find(comment => 
               comment.user.type === 'Bot' && 
-              comment.body.includes('Roborazzi Preview Screenshots')
+              comment.body.includes('Roborazzi Preview')
             );
             
             if (botComment) {
