@@ -8,4 +8,6 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.serialization)
     alias(libs.plugins.jetbrains.kotlin.jvm) apply false
+
+    alias(libs.plugins.roborazzi) apply false
 }

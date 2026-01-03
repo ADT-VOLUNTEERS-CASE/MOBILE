@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.sp
 
 //Example values
 
-private val UnboundedFontFamily = FontFamily()
+private val UnboundedFontFamily = FontFamily.SansSerif
 
 @Immutable
 data class AppTypography(

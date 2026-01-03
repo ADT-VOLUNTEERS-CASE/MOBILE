@@ -1,9 +1,9 @@
 package org.adt.data.modules.configuration
 
-import org.adt.data.sources.DataSourceConfig
 import dagger.Module
 import dagger.Provides
 import org.adt.core.annotations.ImplicitUsage
+import org.adt.data.sources.DataSourceConfig
 
 @Module
 object DataSourceConfigModule {

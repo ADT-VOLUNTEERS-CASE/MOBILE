@@ -1,11 +1,11 @@
 package org.adt.data.modules
 
-import org.adt.data.abstraction.IDataSource
-import org.adt.data.sources.ExampleDataSource
-import org.adt.data.sources.DataSourceConfig
 import dagger.Module
 import dagger.Provides
 import org.adt.core.annotations.ImplicitUsage
+import org.adt.data.abstraction.IDataSource
+import org.adt.data.sources.DataSourceConfig
+import org.adt.data.sources.ExampleDataSource
 
 @Module
 internal class DataSourceModule() {
