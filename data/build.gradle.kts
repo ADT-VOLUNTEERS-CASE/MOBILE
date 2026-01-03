@@ -28,6 +28,9 @@ dependencies{
     implementation(project("::domain"))
     implementation(project("::core"))
 
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)
 

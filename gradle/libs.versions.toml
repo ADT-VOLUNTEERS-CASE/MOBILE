@@ -19,7 +19,6 @@ roborazziCompose = "1.52.0"
 roborazziComposePreviewScannerSupport = "1.52.0"
 robolectric = "4.16"
 roborazziJunitRule = "1.52.0"
-screenshot = "0.0.1-alpha12"
 
 coreSplashscreen = "1.2.0"
 hiltAndroid = "2.57.2"
@@ -74,9 +73,6 @@ roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = 
 roborazzi-compose-preview-scanner-support = { module = "io.github.takahirom.roborazzi:roborazzi-compose-preview-scanner-support", version.ref = "roborazziComposePreviewScannerSupport" }
 roborazzi-junit-rule = { module = "io.github.takahirom.roborazzi:roborazzi-junit-rule", version.ref = "roborazziJunitRule" }
 symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "symbolProcessingApi" }
-
-screenshot-validation-api = { group = "com.android.tools.screenshot", name = "screenshot-validation-api", version.ref = "screenshot"}
-androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

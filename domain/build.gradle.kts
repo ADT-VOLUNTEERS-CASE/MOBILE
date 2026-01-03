@@ -1,5 +1,3 @@
-import org.gradle.kotlin.dsl.support.kotlinCompilerOptions
-
 plugins {
     id("java-library")
     alias(libs.plugins.jetbrains.kotlin.jvm)
