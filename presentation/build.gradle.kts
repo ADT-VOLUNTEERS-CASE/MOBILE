@@ -66,11 +66,6 @@ roborazzi {
     @OptIn(ExperimentalRoborazziApi::class) generateComposePreviewRobolectricTests {
         enable = true
         packages = listOf("org.adt.presentation")
-        //robolectricConfig = mapOf(
-        //    "sdk" to "[32]",
-        //    "qualifiers" to "RobolectricDeviceQualifiers.Pixel5",
-        //)
-        //testerQualifiedClassName = "com.example.MyCustomComposePreviewTester"
     }
 }
 

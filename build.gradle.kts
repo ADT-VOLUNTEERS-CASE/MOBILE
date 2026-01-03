@@ -9,5 +9,5 @@ plugins {
     alias(libs.plugins.serialization)
     alias(libs.plugins.jetbrains.kotlin.jvm) apply false
 
-    id("io.github.takahirom.roborazzi") version "1.52.0" apply false
+    alias(libs.plugins.roborazzi) apply false
 }
