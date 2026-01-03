@@ -28,14 +28,18 @@ jobs:
           java-version: '21'
           cache: 'gradle'
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Detect changed files
         id: changed-files
         run: |
-          git fetch origin ${{ github.base_ref }}
+          set -e
+          git fetch origin ${{ github.base_ref }} || exit 1
           CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
           
           # Filter for composable and screens directories
-          COMPOSABLE_CHANGES=$(echo "$CHANGED_FILES" | grep -E '(screens/|composable/)' || echo "")
+          COMPOSABLE_CHANGES=$(echo "$CHANGED_FILES" | grep -E 'presentation/src/main/kotlin/org/adt/presentation/(screens|composable)/' || echo "")
           
           if [ -z "$COMPOSABLE_CHANGES" ]; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
@@ -49,6 +53,7 @@ jobs:
       - name: Run recordRoborazziDebug task
         if: steps.changed-files.outputs.has_changes == 'true'
         run: |
+          chmod +x ./gradlew
           ./gradlew presentation:recordRoborazziDebug --stacktrace
 
       - name: Find generated preview images
@@ -148,7 +153,12 @@ jobs:
                       }
                     });
                   });
-            
+                  
+                  req.setTimeout(30000, () => {
+                    req.destroy();
+                    reject(new Error('Request timeout'));
+                  });
+
                   req.on('error', reject);
                   req.write(postData);
                   req.end();
@@ -176,7 +186,20 @@ jobs:
             const path = require('path');
             
             const IMAGES_DIR = 'presentation/build/outputs/roborazzi';
-            const uploadedUrls = JSON.parse('${{ steps.upload-images.outputs.uploaded-urls }}');
+            const uploadedUrlsRaw = '${{ steps.upload-images.outputs.uploaded-urls }}';
+            
+            if (!uploadedUrlsRaw || uploadedUrlsRaw === '') {
+              console.error('No uploaded URLs available');
+              return;
+            }
+  
+            let uploadedUrls;
+            try {
+              uploadedUrls = JSON.parse(uploadedUrlsRaw);
+            } catch (e) {
+              console.error('Failed to parse uploaded URLs:', e.message);
+              return;
+            }
             
             // Get all PNG files
             const files = fs.readdirSync(IMAGES_DIR)
@@ -190,6 +213,7 @@ jobs:
             
             // Group images by test/screen name
             const groupedImages = {};
+            const unmatchedFiles = [];
             files.forEach(file => {
               // Extract screen name from filename
               // Example: org.adt.presentation.screens.example.ExampleScreenKt.ExampleScreenPreview.WITH_BACKGROUND.png
@@ -206,8 +230,13 @@ jobs:
                   file: file,
                   url: uploadedUrls[file] || ''
                 });
+              } else {
+                unmatchedFiles.push(file);
               }
             });
+            if (unmatchedFiles.length > 0) {
+              console.warn('Files not matching expected pattern:', unmatchedFiles);
+            }
             
             // Build comment body with uploaded image URLs in collapsible sections
             let commentBody = '## Roborazzi Preview \n\n';
