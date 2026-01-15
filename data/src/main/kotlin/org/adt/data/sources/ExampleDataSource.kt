@@ -1,7 +1,7 @@
 package org.adt.data.sources
 
-import org.adt.data.abstraction.IDataSource
 import org.adt.core.entities.ExampleEntity
+import org.adt.data.abstraction.IDataSource
 import javax.inject.Inject
 
 internal class ExampleDataSource @Inject constructor(): IDataSource {

@@ -1,0 +1,304 @@
+name: Roborazzi Compose Preview
+
+on:
+  pull_request:
+    paths:
+      - 'presentation/src/main/kotlin/org/adt/presentation/screens/**'
+      - 'presentation/src/main/kotlin/org/adt/presentation/composable/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  roborazzi-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Detect changed files
+        id: changed-files
+        run: |
+          set -e
+          git fetch origin ${{ github.base_ref }} || exit 1
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          
+          # Filter for composable and screens directories
+          COMPOSABLE_CHANGES=$(echo "$CHANGED_FILES" | grep -E 'presentation/src/main/kotlin/org/adt/presentation/(screens|composable)/' || echo "")
+          
+          if [ -z "$COMPOSABLE_CHANGES" ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No changes in composable or screens directories"
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Changed composable/screens files:"
+            echo "$COMPOSABLE_CHANGES"
+          fi
+
+      - name: Run recordRoborazziDebug task
+        if: steps.changed-files.outputs.has_changes == 'true'
+        run: |
+          chmod +x ./gradlew
+          ./gradlew presentation:recordRoborazziDebug --stacktrace
+
+      - name: Find generated preview images
+        if: steps.changed-files.outputs.has_changes == 'true'
+        id: find-images
+        run: |
+          IMAGES_DIR="presentation/build/outputs/roborazzi"
+          
+          if [ -d "$IMAGES_DIR" ]; then
+            # Find all PNG files
+            IMAGES=$(find "$IMAGES_DIR" -name "*.png" -type f | sort)
+          
+            if [ -z "$IMAGES" ]; then
+              echo "image_count=0" >> $GITHUB_OUTPUT
+              echo "No PNG files found in $IMAGES_DIR"
+            else
+              # Count images
+              COUNT=$(echo "$IMAGES" | wc -l)
+              echo "image_count=$COUNT" >> $GITHUB_OUTPUT
+              echo "Found $COUNT preview images"
+              echo "$IMAGES"
+            fi
+          else
+            echo "image_count=0" >> $GITHUB_OUTPUT
+            echo "Directory $IMAGES_DIR not found"
+          fi
+
+      - name: Upload preview images to IMGBB
+        if: steps.changed-files.outputs.has_changes == 'true' && steps.find-images.outputs.image_count != '0'
+        id: upload-images
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const https = require('https');
+            const querystring = require('querystring');
+            
+            const IMAGES_DIR = 'presentation/build/outputs/roborazzi';
+            const IMGBB_API_KEY = '${{ secrets.IMGBB_API_KEY }}';
+            
+            if (!IMGBB_API_KEY) {
+              throw new Error('IMGBB_API_KEY secret not set');
+            }
+            
+            // Get all PNG files
+            const files = fs.readdirSync(IMAGES_DIR)
+              .filter(file => file.endsWith('.png'))
+              .sort();
+            
+            if (files.length === 0) {
+              console.log('No PNG files found');
+              return;
+            }
+            
+            // Upload each image
+            const uploadedUrls = {};
+            
+            for (const file of files) {
+              const filePath = path.join(IMAGES_DIR, file);
+              const imageBuffer = fs.readFileSync(filePath);
+              const base64Image = imageBuffer.toString('base64');
+            
+              try {
+                // Upload to IMGBB
+                const postData = querystring.stringify({
+                  key: IMGBB_API_KEY,
+                  image: base64Image,
+                  expiration: 604800
+                });
+            
+                const response = await new Promise((resolve, reject) => {
+                  const options = {
+                    hostname: 'api.imgbb.com',
+                    path: '/1/upload',
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/x-www-form-urlencoded',
+                      'Content-Length': Buffer.byteLength(postData)
+                    }
+                  };
+            
+                  const req = https.request(options, (res) => {
+                    let data = '';
+                    res.on('data', chunk => data += chunk);
+                    res.on('end', () => {
+                      try {
+                        const json = JSON.parse(data);
+                        if (json.success) {
+                          resolve(json.data.url);
+                        } else {
+                          reject(new Error(json.error?.message || 'Upload failed'));
+                        }
+                      } catch (e) {
+                        reject(e);
+                      }
+                    });
+                  });
+                  
+                  req.setTimeout(30000, () => {
+                    req.destroy();
+                    reject(new Error('Request timeout'));
+                  });
+
+                  req.on('error', reject);
+                  req.write(postData);
+                  req.end();
+                });
+            
+                uploadedUrls[file] = response;
+                console.log(`Uploaded: ${file}`);
+              } catch (error) {
+                console.error(`Failed to upload ${file}:`, error.message);
+                uploadedUrls[file] = '';
+              }
+            }
+            
+            // Store URLs for next step
+            core.setOutput('uploaded-urls', JSON.stringify(uploadedUrls));
+            console.log('All images uploaded');
+
+      - name: Generate PR comment with previews
+        if: steps.changed-files.outputs.has_changes == 'true' && steps.find-images.outputs.image_count != '0'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            const IMAGES_DIR = 'presentation/build/outputs/roborazzi';
+            const uploadedUrlsRaw = '${{ steps.upload-images.outputs.uploaded-urls }}';
+            
+            if (!uploadedUrlsRaw || uploadedUrlsRaw === '') {
+              console.error('No uploaded URLs available');
+              return;
+            }
+  
+            let uploadedUrls;
+            try {
+              uploadedUrls = JSON.parse(uploadedUrlsRaw);
+            } catch (e) {
+              console.error('Failed to parse uploaded URLs:', e.message);
+              return;
+            }
+            
+            // Get all PNG files
+            const files = fs.readdirSync(IMAGES_DIR)
+              .filter(file => file.endsWith('.png'))
+              .sort();
+            
+            if (files.length === 0) {
+              console.log('No PNG files found');
+              return;
+            }
+            
+            // Group images by test/screen name
+            const groupedImages = {};
+            const unmatchedFiles = [];
+            files.forEach(file => {
+              // Extract screen name from filename
+              // Example: org.adt.presentation.screens.example.ExampleScreenKt.ExampleScreenPreview.WITH_BACKGROUND.png
+              const match = file.match(/^(.+?)\.([^.]+)\.png$/);
+              if (match) {
+                const baseName = match[1];
+                const variant = match[2];
+            
+                if (!groupedImages[baseName]) {
+                  groupedImages[baseName] = [];
+                }
+                groupedImages[baseName].push({
+                  variant: variant,
+                  file: file,
+                  url: uploadedUrls[file] || ''
+                });
+              } else {
+                unmatchedFiles.push(file);
+              }
+            });
+            if (unmatchedFiles.length > 0) {
+              console.warn('Files not matching expected pattern:', unmatchedFiles);
+            }
+            
+            // Build comment body with uploaded image URLs in collapsible sections
+            let commentBody = '## Roborazzi Preview \n\n';
+            commentBody += `Found **${files.length}** preview image(s) from modified composables.\n\n`;
+            
+            Object.entries(groupedImages).forEach(([screenName, images]) => {
+              const displayName = screenName
+                .split('.')
+                .slice(-2)
+                .join('.');
+            
+              images.forEach(img => {
+                commentBody += `<details>\n`;
+                commentBody += `<summary><h3>${displayName}_${img.variant}</h3></summary>\n\n`;
+            
+                if (img.url) {
+                  commentBody += `<img src="${img.url}" width="400" alt="${img.file}"/>\n\n`;
+                } else {
+                  commentBody += `Failed to upload\n\n`;
+                }
+            
+                commentBody += `</details>\n\n`;
+              });
+            });
+            
+            commentBody += '---\n';
+            commentBody += '_Generated by Roborazzi CI/CD workflow_\n';
+            
+            // Find existing comment or create new one
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('Roborazzi Preview')
+            );
+            
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: commentBody,
+              });
+              console.log('Updated existing comment');
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody,
+              });
+              console.log('Created new comment');
+            }
+
+      - name: No changes message
+        if: steps.changed-files.outputs.has_changes == 'false'
+        run: |
+          echo "No changes detected in screens/** or composable/** directories"
+          echo "Skipping Roborazzi preview generation"

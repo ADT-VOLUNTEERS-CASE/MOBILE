@@ -1,7 +1,7 @@
 package org.adt.data.repository
 
-import org.adt.data.abstraction.IDataSource
 import org.adt.core.entities.ExampleEntity
+import org.adt.data.abstraction.IDataSource
 import org.adt.domain.abstraction.IDataRepository
 import javax.inject.Inject
 

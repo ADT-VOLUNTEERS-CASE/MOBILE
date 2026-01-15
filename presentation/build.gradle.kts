@@ -1,3 +1,5 @@
+import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,26 +8,25 @@ plugins {
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     id("kotlinx-serialization")
+
+    id("io.github.takahirom.roborazzi")
 }
 
 android {
     namespace = "org.adt.presentation"
-    compileSdk {
-        version = release(33)
-    }
+
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "org.adt.presentation"
         minSdk = 33
-        targetSdk = 33
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
+
     signingConfigs {
         create("release") {
             storeFile = file("../keystore/keystore.jks")
@@ -34,6 +35,7 @@ android {
             keyPassword = System.getenv("ALIAS_PASSWORD") ?: "fallback"
         }
     }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -44,16 +46,42 @@ android {
             signingConfig = signingConfigs.getByName("release")
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
+
     buildFeatures {
         compose = true
     }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            all {
+                it.systemProperties["robolectric.pixelCopyRenderMode"] = "hardware"
+            }
+        }
+    }
+
 }
 
+roborazzi {
+    @OptIn(ExperimentalRoborazziApi::class) generateComposePreviewRobolectricTests {
+        enable = true
+        packages = listOf("org.adt.presentation")
+    }
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
 kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
+    }
+
     sourceSets.main {
         kotlin.srcDir("build/generated/ksp/main/kotlin")
     }
@@ -68,6 +96,8 @@ dependencies {
     implementation(project("::core"))
 
     implementation(libs.hilt.android)
+    implementation(libs.androidx.core.ktx)
+
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.navigation.compose)
@@ -75,6 +105,16 @@ dependencies {
 
     implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.core.splashscreen)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.roborazzi.compose.preview.scanner.support)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.android)
+    testImplementation(libs.androidx.compose.ui.test.junit4)
+
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.roborazzi.junit.rule)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -84,7 +124,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    testImplementation(libs.junit)
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
