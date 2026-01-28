@@ -30,6 +30,9 @@ navigationCompose = "2.9.6"
 ksp = "2.3.3"
 symbolProcessingApi = "2.3.3"
 
+riflesso = "2.2.20-0.0.2"
+stability-analyzer = "0.6.6"
+
 [libraries]
 android = { module = "io.github.sergio-sastre.ComposablePreviewScanner:android", version.ref = "android" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -70,6 +73,8 @@ roborazzi-compose-preview-scanner-support = { module = "io.github.takahirom.robo
 roborazzi-junit-rule = { module = "io.github.takahirom.roborazzi:roborazzi-junit-rule", version.ref = "roborazziJunitRule" }
 symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "symbolProcessingApi" }
 
+riflesso = { module = "ru.ivk1800.riflesso:client", version.ref = "riflesso" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -81,3 +86,5 @@ serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref 
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid"}
 
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
+riflesso = { id = "ru.ivk1800.riflesso", version.ref = "riflesso" }
+stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version.ref = "stability-analyzer" }

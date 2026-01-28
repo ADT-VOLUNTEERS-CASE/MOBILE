@@ -10,6 +10,9 @@ plugins {
     id("kotlinx-serialization")
 
     id("io.github.takahirom.roborazzi")
+    id("ru.ivk1800.riflesso")
+
+    alias(libs.plugins.stability.analyzer)
 }
 
 android {
@@ -77,7 +80,9 @@ java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
 }
+/*
 kotlin {
+
     compilerOptions {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
     }
@@ -88,7 +93,11 @@ kotlin {
     sourceSets.test {
         kotlin.srcDir("build/generated/ksp/test/kotlin")
     }
+
+
 }
+
+     */
 
 dependencies {
     implementation(project("::domain"))
@@ -115,6 +124,8 @@ dependencies {
     testImplementation(libs.roborazzi)
     testImplementation(libs.roborazzi.compose)
     testImplementation(libs.roborazzi.junit.rule)
+
+    implementation(libs.riflesso)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
