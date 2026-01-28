@@ -27,7 +27,7 @@ kotlinxSerializationJson = "1.9.0"
 converterGson = "3.0.0"
 navigationCompose = "2.9.6"
 
-ksp = "2.3.3"
+ksp = "2.3.4"
 symbolProcessingApi = "2.3.3"
 
 [libraries]
