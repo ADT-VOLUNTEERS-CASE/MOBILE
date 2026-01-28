@@ -4,17 +4,16 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    //id("ru.ivk1800.riflesso")
 
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     id("kotlinx-serialization")
 
     id("io.github.takahirom.roborazzi")
-    id("ru.ivk1800.riflesso")
 
     alias(libs.plugins.stability.analyzer)
 }
-
 android {
     namespace = "org.adt.presentation"
 
@@ -98,6 +97,9 @@ kotlin {
 }
 
      */
+//riflesso {
+//    isEnabled = true
+//}
 
 dependencies {
     implementation(project("::domain"))
@@ -125,7 +127,8 @@ dependencies {
     testImplementation(libs.roborazzi.compose)
     testImplementation(libs.roborazzi.junit.rule)
 
-    implementation(libs.riflesso)
+    //implementation(libs.riflesso)
+    //implementation("ru.ivk1800.riflesso:client-android:2.2.20-0.0.2")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -135,6 +138,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+
+    implementation(libs.shadowglow)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
