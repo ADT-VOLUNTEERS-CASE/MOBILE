@@ -16,10 +16,10 @@ import org.adt.presentation.theme.VolunteersCaseTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //Riflesso.initialize()
         setContent {
             //Example model
             val model = hiltViewModel<ExampleViewModel>()
-
             VolunteersCaseTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     ExampleScreen(innerPadding)
