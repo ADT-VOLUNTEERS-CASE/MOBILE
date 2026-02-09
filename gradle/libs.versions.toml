@@ -75,8 +75,6 @@ roborazzi-junit-rule = { module = "io.github.takahirom.roborazzi:roborazzi-junit
 shadowglow = { module = "me.trishiraj:shadowglow", version.ref = "shadowglow" }
 symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "symbolProcessingApi" }
 
-riflesso = { module = "ru.ivk1800.riflesso:client", version.ref = "riflesso" }
-
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -88,5 +86,4 @@ serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref 
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid"}
 
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
-riflesso = { id = "ru.ivk1800.riflesso", version.ref = "riflesso" }
 stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version.ref = "stability-analyzer" }
