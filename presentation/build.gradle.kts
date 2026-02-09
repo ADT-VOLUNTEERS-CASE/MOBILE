@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    //id("ru.ivk1800.riflesso")
 
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
@@ -79,27 +78,6 @@ java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
 }
-/*
-kotlin {
-
-    compilerOptions {
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
-    }
-
-    sourceSets.main {
-        kotlin.srcDir("build/generated/ksp/main/kotlin")
-    }
-    sourceSets.test {
-        kotlin.srcDir("build/generated/ksp/test/kotlin")
-    }
-
-
-}
-
-     */
-//riflesso {
-//    isEnabled = true
-//}
 
 dependencies {
     implementation(project("::domain"))
@@ -126,9 +104,6 @@ dependencies {
     testImplementation(libs.roborazzi)
     testImplementation(libs.roborazzi.compose)
     testImplementation(libs.roborazzi.junit.rule)
-
-    //implementation(libs.riflesso)
-    //implementation("ru.ivk1800.riflesso:client-android:2.2.20-0.0.2")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
