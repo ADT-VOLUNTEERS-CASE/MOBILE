@@ -1,5 +1,5 @@
 [versions]
-agp = "8.13.2"
+agp = "9.0.0"
 android = "0.8.1"
 dagger = "2.57.2"
 javaxInject = "1"
