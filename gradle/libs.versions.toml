@@ -27,8 +27,12 @@ kotlinxSerializationJson = "1.9.0"
 converterGson = "3.0.0"
 navigationCompose = "2.9.6"
 
+shadowglow = "2.0.0"
+
 ksp = "2.3.4"
 symbolProcessingApi = "2.3.3"
+
+stability-analyzer = "0.6.6"
 
 [libraries]
 android = { module = "io.github.sergio-sastre.ComposablePreviewScanner:android", version.ref = "android" }
@@ -68,6 +72,7 @@ roborazzi-compose = { module = "io.github.takahirom.roborazzi:roborazzi-compose"
 roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = "roborazzi" }
 roborazzi-compose-preview-scanner-support = { module = "io.github.takahirom.roborazzi:roborazzi-compose-preview-scanner-support", version.ref = "roborazziComposePreviewScannerSupport" }
 roborazzi-junit-rule = { module = "io.github.takahirom.roborazzi:roborazzi-junit-rule", version.ref = "roborazziJunitRule" }
+shadowglow = { module = "me.trishiraj:shadowglow", version.ref = "shadowglow" }
 symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "symbolProcessingApi" }
 
 [plugins]
@@ -81,3 +86,4 @@ serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref 
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid"}
 
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
+stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version.ref = "stability-analyzer" }

@@ -10,4 +10,5 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.jvm) apply false
 
     alias(libs.plugins.roborazzi) apply false
+    alias(libs.plugins.stability.analyzer) apply false
 }

@@ -10,8 +10,9 @@ plugins {
     id("kotlinx-serialization")
 
     id("io.github.takahirom.roborazzi")
-}
 
+    alias(libs.plugins.stability.analyzer)
+}
 android {
     namespace = "org.adt.presentation"
 
@@ -77,18 +78,6 @@ java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
 }
-kotlin {
-    compilerOptions {
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
-    }
-
-    sourceSets.main {
-        kotlin.srcDir("build/generated/ksp/main/kotlin")
-    }
-    sourceSets.test {
-        kotlin.srcDir("build/generated/ksp/test/kotlin")
-    }
-}
 
 dependencies {
     implementation(project("::domain"))
@@ -124,6 +113,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+
+    implementation(libs.shadowglow)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
