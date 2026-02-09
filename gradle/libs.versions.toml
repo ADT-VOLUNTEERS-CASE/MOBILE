@@ -27,11 +27,11 @@ kotlinxSerializationJson = "1.9.0"
 converterGson = "3.0.0"
 navigationCompose = "2.9.6"
 
-ksp = "2.3.3"
 shadowglow = "2.0.0"
+
+ksp = "2.3.4"
 symbolProcessingApi = "2.3.3"
 
-riflesso = "2.2.20-0.0.2"
 stability-analyzer = "0.6.6"
 
 [libraries]

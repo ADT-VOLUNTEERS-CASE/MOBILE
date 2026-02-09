@@ -30,7 +30,7 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("../keystore/keystore.jks")
+            storeFile = file("../keystore/volunteerscase.jks")
             storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "fallback"
             keyAlias = System.getenv("ALIAS") ?: "key0"
             keyPassword = System.getenv("ALIAS_PASSWORD") ?: "fallback"
