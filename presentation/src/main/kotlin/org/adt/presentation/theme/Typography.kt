@@ -5,14 +5,30 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import org.adt.presentation.R
 
 
 //Example values
 
 private val UnboundedFontFamily = FontFamily.SansSerif
+
+private val InterDisplayFontFamily = FontFamily(
+    Font(R.font.inter_display_black, FontWeight.Black),
+    Font(R.font.inter_display_bold, FontWeight.Bold),
+    Font(R.font.inter_display_semibold, FontWeight.SemiBold),
+    Font(R.font.inter_display_medium, FontWeight.Medium),
+    Font(R.font.inter_display_regular, FontWeight.Normal),
+    Font(R.font.inter_display_light, FontWeight.Light),
+    Font(R.font.inter_display_thin, FontWeight.Thin)
+)
+
+private val GerhausFontFamily = FontFamily(
+    Font(R.font.gerhaus_regular, FontWeight.Normal),
+)
 
 @Immutable
 data class AppTypography(
@@ -82,5 +98,38 @@ val extendedTypography = AppTypography(
         lineHeight = 24.sp,
         letterSpacing = 0.7.sp,
         color = Golden
-    ),
     )
+)
+
+val mainTypography = AppTypography(
+    titleLarge = TextStyle(
+        fontFamily = InterDisplayFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 19.sp,
+        lineHeight = 22.sp,
+        letterSpacing = 0.sp,
+        color = Graphite
+    ),
+    titleMedium = TextStyle(
+        fontFamily = InterDisplayFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 15.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.sp,
+        color = Graphite
+    ),
+    titleSmall = TextStyle.Default,
+    displayLarge = TextStyle(
+        fontFamily = GerhausFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 19.sp,
+        lineHeight = 22.sp,
+        letterSpacing = 0.sp,
+        color = Graphite
+    ),
+    displayMedium = TextStyle.Default,
+    displaySmall = TextStyle.Default,
+    labelLarge = TextStyle.Default,
+    labelMedium = TextStyle.Default,
+    labelSmall = TextStyle.Default
+)

@@ -35,3 +35,11 @@ val extendedColor = AppColors(
     tertiaryBackground = LightBrown,
     text = Color.White
 )
+
+val Arctic = Color(0xFFFFFFFF)
+val Graphite = Color(0xFF353535)
+val Abyss = Color(0xFF24504F)
+val Mint = Color(0xFFA7D9D9)
+val Lagoon = Color(0xFF479391)
+val Silver = Color(0xFFA1A4B2)
+val Aqua = Color(0xFFCBEBEB)
