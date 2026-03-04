@@ -1,4 +1,4 @@
-package org.adt.presentation.screens
+package org.adt.presentation.screens.example
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf

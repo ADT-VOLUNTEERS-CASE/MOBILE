@@ -5,8 +5,7 @@ import org.adt.data.abstraction.IDataSource
 import org.adt.domain.abstraction.IDataRepository
 import javax.inject.Inject
 
-internal class ExampleDataRepository @Inject constructor(private val source: IDataSource) :
-    IDataRepository {
+internal class ExampleDataRepository @Inject constructor(private val source: IDataSource) : IDataRepository {
     override suspend fun getExampleString(): String {
         val helloString = source.getExampleString()
         val newString = "$helloString\n Hello from data repository!"

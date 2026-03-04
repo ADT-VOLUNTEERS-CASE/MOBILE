@@ -5,14 +5,12 @@ import org.adt.domain.abstraction.IDataRepository
 import org.adt.domain.abstraction.IDomainRepository
 import javax.inject.Inject
 
-internal class ExampleDomainRepository @Inject constructor(private val dataRepository: IDataRepository) : IDomainRepository {
+internal class DomainRepository @Inject constructor(private val dataRepository: IDataRepository) : IDomainRepository {
     override suspend fun getExampleName(): String {
-        var message = dataRepository.getExampleString()
-        message += "\n Hello from domain repository!"
-        return message
+        TODO("Not yet implemented")
     }
 
     override suspend fun getExampleEntity(): ExampleEntity {
-        return dataRepository.getExampleEntity()
+        TODO("Not yet implemented")
     }
 }
