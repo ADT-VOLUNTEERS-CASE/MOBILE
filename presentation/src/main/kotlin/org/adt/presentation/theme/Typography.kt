@@ -121,11 +121,11 @@ val mainTypography = AppTypography(
     titleSmall = TextStyle.Default,
     displayLarge = TextStyle(
         fontFamily = GerhausFontFamily,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Normal,
         fontSize = 19.sp,
         lineHeight = 22.sp,
         letterSpacing = 0.sp,
-        color = Graphite
+        color = Arctic
     ),
     displayMedium = TextStyle.Default,
     displaySmall = TextStyle.Default,
