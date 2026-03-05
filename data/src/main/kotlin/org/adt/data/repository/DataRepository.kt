@@ -2,10 +2,14 @@ package org.adt.data.repository
 
 import org.adt.core.entities.ExampleEntity
 import org.adt.data.abstraction.IDataSource
+import org.adt.data.abstraction.INetworkRepository
 import org.adt.domain.abstraction.IDataRepository
 import javax.inject.Inject
 
-internal class ExampleDataRepository @Inject constructor(private val source: IDataSource) : IDataRepository {
+internal class DataRepository @Inject constructor(
+    private val source: IDataSource,
+    private val networkRepository: INetworkRepository
+) : IDataRepository {
     override suspend fun getExampleString(): String {
         val helloString = source.getExampleString()
         val newString = "$helloString\n Hello from data repository!"
@@ -17,7 +21,11 @@ internal class ExampleDataRepository @Inject constructor(private val source: IDa
         return entity
     }
 
-    override suspend fun ping(): String {
-        TODO("Not yet implemented")
+    override suspend fun ping() : String {
+        return try {
+            networkRepository.ping()
+        } catch (e: Exception) {
+            "Error: ${e.message ?: "Unknown"}"
+        }
     }
 }

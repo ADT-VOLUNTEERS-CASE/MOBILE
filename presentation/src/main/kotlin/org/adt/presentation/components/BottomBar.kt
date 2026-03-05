@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.adt.data.model.UserRole
+import org.adt.core.entities.UserRole
 import org.adt.presentation.R
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Lagoon

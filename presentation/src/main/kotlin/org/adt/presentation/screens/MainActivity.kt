@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
             val model = hiltViewModel<ExampleViewModel>()
             VolunteersCaseTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    NavigationGraph(navController, innerPadding)
+                    ExampleScreen(innerPadding)
                 }
             }
         }
