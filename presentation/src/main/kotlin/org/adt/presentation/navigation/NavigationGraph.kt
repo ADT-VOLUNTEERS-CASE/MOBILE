@@ -6,6 +6,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import org.adt.presentation.screens.home.HomeScreen
+import org.adt.presentation.screens.home.HomeViewModel
 import org.adt.presentation.screens.splash.SplashScreen
 import org.adt.presentation.screens.splash.SplashViewModel
 
@@ -15,6 +17,10 @@ fun NavigationGraph(navController: NavHostController, innerPadding: PaddingValue
         composable<Destinations.Splash> {
             val viewModel: SplashViewModel = hiltViewModel()
             SplashScreen(navController, viewModel)
+        }
+        composable<Destinations.Home> {
+            val viewModel: HomeViewModel = hiltViewModel()
+            HomeScreen(navController, viewModel)
         }
     }
 }

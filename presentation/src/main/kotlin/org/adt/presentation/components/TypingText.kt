@@ -31,7 +31,7 @@ fun TypingText(
     }
 
     Text(
-        text = displayedText,
+        text = displayedText.uppercase(),
         style = mainTypography.displayLarge
     )
 }

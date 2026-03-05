@@ -62,7 +62,7 @@ val extendedTypography = AppTypography(
     displayLarge = TextStyle(),
     displayMedium = TextStyle(
         fontFamily = UnboundedFontFamily, fontWeight = FontWeight.Bold, fontSize = 18.sp,
-        lineHeight = 24.sp, letterSpacing = 0.5.sp, color = Brown
+        lineHeight = 24.sp, letterSpacing = 0.5.sp, color = Arctic
     ),
     displaySmall = TextStyle(
         fontFamily = UnboundedFontFamily,
@@ -97,7 +97,7 @@ val extendedTypography = AppTypography(
         fontSize = 14.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.7.sp,
-        color = Golden
+        color = Abyss
     )
 )
 
