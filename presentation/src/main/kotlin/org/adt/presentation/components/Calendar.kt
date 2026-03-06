@@ -157,7 +157,7 @@ private fun MonthHeader(daysOfWeek: List<DayOfWeek>) {
 }
 
 @Composable
-fun Day(day: CalendarDay) {
+private fun Day(day: CalendarDay) {
     val isWeekend =
         day.date.dayOfWeek == DayOfWeek.SATURDAY || day.date.dayOfWeek == DayOfWeek.SUNDAY
     val isCurrentMonth = day.position == DayPosition.MonthDate

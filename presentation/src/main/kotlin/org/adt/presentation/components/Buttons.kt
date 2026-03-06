@@ -76,7 +76,7 @@ fun CustomWideButton(value: String, onClick: () -> Unit) {
 }
 
 @Composable
-fun SquaredIconButton(resId: Int, sizeDp: Dp, onClick: () -> Unit) {
+fun SquaredIconButton(resId: Int, sizeDp: Dp, contentDescription: String, onClick: () -> Unit) {
     IconButton(
         onClick,
         Modifier
@@ -88,7 +88,7 @@ fun SquaredIconButton(resId: Int, sizeDp: Dp, onClick: () -> Unit) {
     ) {
         Icon(
             painterResource(resId),
-            "Button",
+            contentDescription,
             Modifier.fillMaxSize(),
             Abyss
         )
@@ -116,5 +116,5 @@ private fun CustomWideButtonPreview() {
 @Preview
 @Composable
 private fun SquaredIconButtonPreview() {
-    SquaredIconButton(R.drawable.ic_trash, 45.dp) { }
+    SquaredIconButton(R.drawable.ic_trash, 45.dp, "Delete") { }
 }
