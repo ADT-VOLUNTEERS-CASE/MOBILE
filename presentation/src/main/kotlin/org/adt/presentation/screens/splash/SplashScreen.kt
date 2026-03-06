@@ -74,7 +74,7 @@ fun SplashScreen(navController: NavHostController, viewModel: SplashViewModel) {
                 .offset { IntOffset(offsetIconX.value.toInt(), offsetIconY.value.toInt()) },
             contentAlignment = Alignment.Center
         ) {
-            Icon(painterResource(R.drawable.ic_leaf), null, tint = Arctic)
+            Icon(painterResource(R.drawable.ic_leaf), null, tint = Arctic) // TODO: Change to actual logo icon
         }
 
         Box(

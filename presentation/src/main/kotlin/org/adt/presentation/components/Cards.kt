@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.sp
 import org.adt.presentation.R
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Silver
-import org.adt.presentation.theme.mainTypography
+import org.adt.presentation.theme.extendedTypography
 
 @Composable
 fun NoteCard(title: String, date: String, time: String, onDeleteClick: () -> Unit) {
@@ -34,11 +34,11 @@ fun NoteCard(title: String, date: String, time: String, onDeleteClick: () -> Uni
         Arrangement.SpaceBetween, Alignment.CenterVertically
     ) {
         Column(Modifier, Arrangement.spacedBy(8.dp)) {
-            Text(title, style = mainTypography.titleLarge.copy(fontWeight = FontWeight.Normal))
-            Text(date, style = mainTypography.titleMedium.copy(color = Silver, fontWeight = FontWeight.Normal))
+            Text(title, style = extendedTypography.titleLarge.copy(fontWeight = FontWeight.Normal))
+            Text(date, style = extendedTypography.titleMedium.copy(color = Silver, fontWeight = FontWeight.Normal))
         }
 
-        Text(time, style = mainTypography.titleLarge.copy(fontSize = 40.sp))
+        Text(time, style = extendedTypography.titleLarge.copy(fontSize = 40.sp))
 
         SquaredIconButton(R.drawable.ic_trash, 45.dp) { onDeleteClick() }
     }

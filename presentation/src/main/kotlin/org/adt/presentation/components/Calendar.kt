@@ -38,7 +38,7 @@ import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Aqua
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Mint
-import org.adt.presentation.theme.mainTypography
+import org.adt.presentation.theme.extendedTypography
 import java.time.DayOfWeek
 import java.time.YearMonth
 import java.time.format.TextStyle
@@ -123,7 +123,7 @@ private fun CalendarHeader(
         Text(
             text = currentMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
                 .replaceFirstChar { it.uppercase() } + " ${currentMonth.year}",
-            style = mainTypography.titleLarge.copy(color = Abyss)
+            style = extendedTypography.titleLarge.copy(color = Abyss)
         )
 
         IconButton(onClick = onNextClick) {
@@ -143,7 +143,7 @@ private fun MonthHeader(daysOfWeek: List<DayOfWeek>) {
         daysOfWeek.forEach { dayOfWeek ->
             Text(
                 modifier = Modifier.weight(1f),
-                style = mainTypography.titleMedium.copy(
+                style = extendedTypography.titleMedium.copy(
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center
                 ),
@@ -180,7 +180,7 @@ fun Day(day: CalendarDay) {
         ) {
             Text(
                 text = day.date.dayOfMonth.toString(),
-                style = mainTypography.titleMedium.copy(
+                style = extendedTypography.titleMedium.copy(
                     color = if (isCurrentMonth) Graphite else Graphite.copy(0.5f),
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center

@@ -10,7 +10,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.adt.presentation.theme.mainTypography
+import org.adt.presentation.theme.extendedTypography
 
 @Composable
 fun TypingText(
@@ -32,6 +32,6 @@ fun TypingText(
 
     Text(
         text = displayedText.uppercase(),
-        style = mainTypography.displayLarge
+        style = extendedTypography.displayLarge
     )
 }
