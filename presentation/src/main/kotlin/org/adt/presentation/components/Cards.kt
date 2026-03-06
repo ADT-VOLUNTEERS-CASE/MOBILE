@@ -40,7 +40,7 @@ fun NoteCard(title: String, date: String, time: String, onDeleteClick: () -> Uni
 
         Text(time, style = extendedTypography.titleLarge.copy(fontSize = 40.sp))
 
-        SquaredIconButton(R.drawable.ic_trash, 45.dp) { onDeleteClick() }
+        SquaredIconButton(R.drawable.ic_trash, 45.dp, "Delete") { onDeleteClick() }
     }
 }
 
