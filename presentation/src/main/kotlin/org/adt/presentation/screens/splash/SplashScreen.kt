@@ -58,6 +58,7 @@ fun SplashScreen(navController: NavHostController, viewModel: SplashViewModel) {
 
         delay(200)
 
+        viewModel.ping()
         navController.navigate(Destinations.Home)
     }
 

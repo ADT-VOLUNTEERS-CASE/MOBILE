@@ -3,18 +3,12 @@ package org.adt.presentation.theme
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import org.adt.presentation.R
-
-
-//Example values
-
-private val UnboundedFontFamily = FontFamily.SansSerif
 
 private val InterDisplayFontFamily = FontFamily(
     Font(R.font.inter_display_black, FontWeight.Black),
@@ -59,49 +53,6 @@ val LocalAppTypography = staticCompositionLocalOf {
 }
 
 val extendedTypography = AppTypography(
-    displayLarge = TextStyle(),
-    displayMedium = TextStyle(
-        fontFamily = UnboundedFontFamily, fontWeight = FontWeight.Bold, fontSize = 18.sp,
-        lineHeight = 24.sp, letterSpacing = 0.5.sp, color = Arctic
-    ),
-    displaySmall = TextStyle(
-        fontFamily = UnboundedFontFamily,
-        fontWeight = FontWeight.Normal,
-        fontSize = 15.sp,
-        lineHeight = 14.sp,
-        letterSpacing = 0.7.sp,
-        color = Color.White
-    ),
-    titleLarge = TextStyle(
-        fontFamily = UnboundedFontFamily,
-        fontWeight = FontWeight.Bold,
-        fontSize = 38.sp,
-        lineHeight = 38.sp,
-        letterSpacing = 0.sp,
-        color = Color.White
-    ),
-    titleMedium = TextStyle(
-        fontFamily = UnboundedFontFamily,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 26.sp,
-        lineHeight = 26.sp,
-        letterSpacing = 0.sp,
-        color = Color.White
-    ),
-    titleSmall = TextStyle(),
-    labelLarge = TextStyle(),
-    labelMedium = TextStyle(),
-    labelSmall = TextStyle(
-        fontFamily = UnboundedFontFamily,
-        fontWeight = FontWeight.Normal,
-        fontSize = 14.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.7.sp,
-        color = Abyss
-    )
-)
-
-val mainTypography = AppTypography(
     titleLarge = TextStyle(
         fontFamily = InterDisplayFontFamily,
         fontWeight = FontWeight.Medium,

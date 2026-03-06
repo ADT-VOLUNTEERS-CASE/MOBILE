@@ -1,7 +1,6 @@
 package org.adt.presentation.theme
 
 import android.annotation.SuppressLint
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
