@@ -114,7 +114,7 @@ private fun CalendarHeader(
         IconButton(onClick = onPreviousClick) {
             Icon(
                 painterResource(R.drawable.ic_left),
-                null,
+                "Left",
                 Modifier.size(18.dp),
                 Abyss
             )
@@ -129,7 +129,7 @@ private fun CalendarHeader(
         IconButton(onClick = onNextClick) {
             Icon(
                 painterResource(R.drawable.ic_right),
-                null,
+                "Right",
                 Modifier.size(18.dp),
                 Abyss
             )

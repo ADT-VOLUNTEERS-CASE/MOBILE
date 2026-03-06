@@ -40,7 +40,7 @@ fun CustomBottomBar(role: UserRole) {
                 IconButton({ TODO() }, shape = RectangleShape) {
                     Icon(
                         painterResource(R.drawable.ic_home), 
-                        null,
+                        "Home",
                         Modifier.height(24.dp), 
                         Arctic)
                 }
@@ -48,7 +48,7 @@ fun CustomBottomBar(role: UserRole) {
                 IconButton({ TODO() }, shape = RectangleShape) {
                     Icon(
                         painterResource(R.drawable.ic_group),
-                        null,
+                        "Group",
                         Modifier.height(24.dp),
                         Color.Unspecified)
                 }
@@ -56,7 +56,7 @@ fun CustomBottomBar(role: UserRole) {
                 IconButton({ TODO() }, shape = RectangleShape) {
                     Icon(
                         painterResource(R.drawable.ic_calendar),
-                        null,
+                        "Calendar",
                         Modifier.height(24.dp),
                         Arctic
                     )
@@ -65,7 +65,7 @@ fun CustomBottomBar(role: UserRole) {
                 IconButton({ TODO() }, shape = RectangleShape) {
                     Icon(
                         painterResource(R.drawable.ic_settings),
-                        null,
+                        "Settings",
                         Modifier.height(24.dp),
                         Arctic)
                 }
@@ -74,7 +74,7 @@ fun CustomBottomBar(role: UserRole) {
                 IconButton({ TODO() }, shape = RectangleShape) {
                     Icon(
                         painterResource(R.drawable.ic_home),
-                        null,
+                        "Home",
                         Modifier.height(24.dp),
                         Arctic)
                 }
@@ -82,7 +82,7 @@ fun CustomBottomBar(role: UserRole) {
                 IconButton({ TODO() }, shape = RectangleShape) {
                     Icon(
                         painterResource(R.drawable.ic_search_bold),
-                        null,
+                        "Search",
                         Modifier.height(24.dp),
                         Color.Unspecified)
                 }
@@ -90,7 +90,7 @@ fun CustomBottomBar(role: UserRole) {
                 IconButton({ TODO() }, shape = RectangleShape) {
                     Icon(
                         painterResource(R.drawable.ic_schedule),
-                        null,
+                        "Schedule",
                         Modifier.height(24.dp),
                         Arctic
                     )
@@ -99,7 +99,7 @@ fun CustomBottomBar(role: UserRole) {
                 IconButton({ TODO() }, shape = RectangleShape) {
                     Icon(
                         painterResource(R.drawable.ic_single),
-                        null,
+                        "Profile",
                         Modifier.height(24.dp),
                         Arctic)
                 }
@@ -108,7 +108,7 @@ fun CustomBottomBar(role: UserRole) {
                 IconButton({ TODO() }, shape = RectangleShape) {
                     Icon(
                         painterResource(R.drawable.ic_home),
-                        null,
+                        "Home",
                         Modifier.height(24.dp),
                         Arctic)
                 }
@@ -116,7 +116,7 @@ fun CustomBottomBar(role: UserRole) {
                 IconButton({ TODO() }, shape = RectangleShape) {
                     Icon(
                         painterResource(R.drawable.ic_pencil),
-                        null,
+                        "Edit",
                         Modifier.height(24.dp),
                         Color.Unspecified)
                 }
@@ -124,7 +124,7 @@ fun CustomBottomBar(role: UserRole) {
                 IconButton({ TODO() }, shape = RectangleShape) {
                     Icon(
                         painterResource(R.drawable.ic_schedule),
-                        null,
+                        "Schedule",
                         Modifier.height(24.dp),
                         Arctic
                     )
@@ -133,7 +133,7 @@ fun CustomBottomBar(role: UserRole) {
                 IconButton({ TODO() }, shape = RectangleShape) {
                     Icon(
                         painterResource(R.drawable.ic_single),
-                        null,
+                        "Profile",
                         Modifier.height(24.dp),
                         Arctic)
                 }

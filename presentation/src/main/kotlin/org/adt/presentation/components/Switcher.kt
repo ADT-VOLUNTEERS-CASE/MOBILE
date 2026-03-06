@@ -46,7 +46,7 @@ fun CustomSwitcher(switched: Boolean, onSwitchedChange: (Boolean) -> Unit) {
         ) {
             Icon(
                 painterResource(R.drawable.ic_wrong),
-                null,
+                "N",
                 Modifier.size(8.dp),
                 Arctic
             )
@@ -63,7 +63,7 @@ fun CustomSwitcher(switched: Boolean, onSwitchedChange: (Boolean) -> Unit) {
         ) {
             Icon(
                 painterResource(R.drawable.ic_correct),
-                null,
+                "Y",
                 Modifier.size(width = 10.dp, height = 8.dp),
                 Arctic
             )

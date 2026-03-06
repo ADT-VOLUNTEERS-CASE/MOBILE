@@ -20,8 +20,13 @@ class SplashViewModel @Inject constructor(
 
     fun ping() {
         viewModelScope.launch(Dispatchers.IO) {
-            _pongString.value = _dataRepository.ping()
-            Log.d("ping", _pongString.value)
+            val result = _dataRepository.ping()
+            result.onSuccess { value ->
+                _pongString.value = value
+                Log.d("ping", value)
+            }.onFailure { error ->
+                Log.e("ping", "Ping failed", error)
+            }
         }
     }
 }

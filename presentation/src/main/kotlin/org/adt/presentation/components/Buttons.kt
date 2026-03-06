@@ -88,7 +88,7 @@ fun SquaredIconButton(resId: Int, sizeDp: Dp, onClick: () -> Unit) {
     ) {
         Icon(
             painterResource(resId),
-            null,
+            "Button",
             Modifier.fillMaxSize(),
             Abyss
         )

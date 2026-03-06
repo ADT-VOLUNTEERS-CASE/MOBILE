@@ -59,7 +59,11 @@ fun SplashScreen(navController: NavHostController, viewModel: SplashViewModel) {
         delay(200)
 
         viewModel.ping()
-        navController.navigate(Destinations.Home)
+
+        navController.navigate(Destinations.Home) {
+            popUpTo(Destinations.Splash) { inclusive = true }
+            launchSingleTop = true
+        }
     }
 
     Box(
@@ -74,7 +78,11 @@ fun SplashScreen(navController: NavHostController, viewModel: SplashViewModel) {
                 .offset { IntOffset(offsetIconX.value.toInt(), offsetIconY.value.toInt()) },
             contentAlignment = Alignment.Center
         ) {
-            Icon(painterResource(R.drawable.ic_leaf), null, tint = Arctic) // TODO: Change to actual logo icon
+            Icon(
+                painterResource(R.drawable.ic_leaf),
+                null,
+                tint = Arctic
+            ) // TODO: Change to actual logo icon
         }
 
         Box(

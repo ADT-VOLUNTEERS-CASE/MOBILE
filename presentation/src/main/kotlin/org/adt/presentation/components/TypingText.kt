@@ -6,10 +6,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.adt.presentation.theme.extendedTypography
 
 @Composable
@@ -18,15 +16,12 @@ fun TypingText(
     charDelay: Long = 40L,
 ) {
     var displayedText by remember { mutableStateOf("") }
-    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(text) {
+    LaunchedEffect(text, charDelay) {
         displayedText = ""
-        scope.launch {
-            for (char in text) {
-                displayedText += char
-                delay(charDelay)
-            }
+        for (char in text) {
+            displayedText += char
+            delay(charDelay)
         }
     }
 

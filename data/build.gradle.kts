@@ -30,7 +30,7 @@ dependencies{
 
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
-    implementation("com.squareup.retrofit2:converter-scalars:2.11.0")
+    implementation(libs.converter.scalars)
 
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)
