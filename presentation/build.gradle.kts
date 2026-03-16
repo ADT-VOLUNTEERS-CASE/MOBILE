@@ -30,10 +30,19 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("../keystore/volunteerscase.jks")
-            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "fallback"
-            keyAlias = System.getenv("ALIAS") ?: "key0"
-            keyPassword = System.getenv("ALIAS_PASSWORD") ?: "fallback"
+            val path = System.getenv("ANDROID_KEYSTORE_PATH")
+            val ksPass = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+            val alias = System.getenv("ANDROID_KEY_ALIAS")
+            val keyPass = System.getenv("ANDROID_KEY_PASSWORD")
+
+            if (!path.isNullOrBlank() && !ksPass.isNullOrBlank()
+                && !alias.isNullOrBlank() && !keyPass.isNullOrBlank()
+            ) {
+                storeFile = file(path)
+                storePassword = ksPass
+                keyAlias = alias
+                keyPassword = keyPass
+            }
         }
     }
 
