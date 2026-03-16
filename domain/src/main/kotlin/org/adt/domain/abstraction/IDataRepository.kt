@@ -2,4 +2,13 @@ package org.adt.domain.abstraction
 
 interface IDataRepository {
     suspend fun ping(): Result<String>
+    suspend fun authenticate(email: String, password: String): Int
+    suspend fun register(
+        firstname: String,
+        lastname: String,
+        patronymic: String,
+        phoneNumber: String,
+        email: String,
+        password: String
+    ): Int
 }

@@ -83,6 +83,8 @@ dependencies {
     implementation(project("::domain"))
     implementation(project("::data"))
     implementation(project("::core"))
+    implementation(project("::storage"))
+
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.core.ktx)
@@ -105,7 +107,6 @@ dependencies {
     testImplementation(libs.roborazzi.compose)
     testImplementation(libs.roborazzi.junit.rule)
 
-    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -127,4 +128,6 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+
+    implementation(libs.androidx.datastore.preferences)
 }

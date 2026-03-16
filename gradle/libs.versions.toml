@@ -25,6 +25,7 @@ coreSplashscreen = "1.2.0"
 hiltAndroid = "2.57.2"
 hiltNavigationCompose = "1.3.0"
 
+datastorePreferences = "1.1.7"
 kotlinxCoroutinesAndroid = "1.10.2"
 kotlinxCoroutinesCore = "1.10.2"
 
@@ -38,6 +39,8 @@ ksp = "2.3.4"
 symbolProcessingApi = "2.3.3"
 
 stability-analyzer = "0.6.6"
+appcompat = "1.7.1"
+material = "1.13.0"
 
 [libraries]
 android = { module = "io.github.sergio-sastre.ComposablePreviewScanner:android", version.ref = "android" }
@@ -84,6 +87,9 @@ symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-ap
 
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -97,3 +103,4 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid"}
 
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
 stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version.ref = "stability-analyzer" }
+android-library = { id = "com.android.library", version.ref = "agp" }

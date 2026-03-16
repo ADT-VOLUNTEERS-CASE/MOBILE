@@ -6,6 +6,7 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import org.adt.core.annotations.ImplicitUsage
+import org.adt.data.abstraction.IConfigRepository
 import org.adt.data.abstraction.INetworkRepository
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -49,9 +50,13 @@ internal object NetworkModule {
     @Provides
     @Singleton
     @ImplicitUsage
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideRetrofit(
+        okHttpClient: OkHttpClient,
+        configRepository: IConfigRepository
+    ): Retrofit {
+        val url = configRepository.getApiBaseUrl()
         return Retrofit.Builder()
-            .baseUrl("https://adt.rss14.ru/api/v1/")
+            .baseUrl(url) //"https://adt.rss14.ru/api/v1/"
             .client(okHttpClient)
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create()).build()
