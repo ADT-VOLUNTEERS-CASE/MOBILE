@@ -1,6 +1,10 @@
 package org.adt.core.entities.response
 
-data class AuthResponse(
-    val access_token: String,
-    val refresh_token: String
+import kotlinx.serialization.SerialName
+
+data class AuthResponse (
+    @SerialName("access_token")
+    val accessToken: String,
+    @SerialName("refresh_token")
+    val refreshToken: String
 )

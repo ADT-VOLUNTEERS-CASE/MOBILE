@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.profs.storage.BuildConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -12,7 +13,6 @@ import kotlinx.coroutines.flow.map
 import org.adt.data.abstraction.IConfigRepository
 import javax.inject.Inject
 import javax.inject.Singleton
-import com.profs.storage.BuildConfig
 
 private val Context.dataStore by preferencesDataStore("token_prefs")
 
@@ -20,7 +20,6 @@ private val Context.dataStore by preferencesDataStore("token_prefs")
 class ConfigRepository @Inject constructor(
     @param: ApplicationContext private val context: Context
 ) : IConfigRepository {
-
     companion object {
         private val KEY_TOKEN = stringPreferencesKey("accessToken")
     }
