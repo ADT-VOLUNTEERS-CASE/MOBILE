@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'presentation/src/main/kotlin/org/adt/presentation/screens/**'
-      - 'presentation/src/main/kotlin/org/adt/presentation/composable/**'
+      - 'presentation/src/main/kotlin/org/adt/presentation/components/**'
 
 permissions:
   contents: read
@@ -38,16 +38,16 @@ jobs:
           git fetch origin ${{ github.base_ref }} || exit 1
           CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
           
-          # Filter for composable and screens directories
-          COMPOSABLE_CHANGES=$(echo "$CHANGED_FILES" | grep -E 'presentation/src/main/kotlin/org/adt/presentation/(screens|composable)/' || echo "")
+          # Filter for components and screens directories
+          COMPONENTS_CHANGES=$(echo "$CHANGED_FILES" | grep -E 'presentation/src/main/kotlin/org/adt/presentation/(screens|components)/' || echo "")
           
-          if [ -z "$COMPOSABLE_CHANGES" ]; then
+          if [ -z "$COMPONENTS_CHANGES" ]; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
-            echo "No changes in composable or screens directories"
+            echo "No changes in component or screens directories"
           else
             echo "has_changes=true" >> $GITHUB_OUTPUT
-            echo "Changed composable/screens files:"
-            echo "$COMPOSABLE_CHANGES"
+            echo "Changed components/screens files:"
+            echo "$COMPONENTS_CHANGES"
           fi
 
       - name: Run recordRoborazziDebug task
@@ -300,5 +300,5 @@ jobs:
       - name: No changes message
         if: steps.changed-files.outputs.has_changes == 'false'
         run: |
-          echo "No changes detected in screens/** or composable/** directories"
+          echo "No changes detected in screens/** or components/** directories"
           echo "Skipping Roborazzi preview generation"
