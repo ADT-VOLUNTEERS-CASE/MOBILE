@@ -67,6 +67,7 @@ roborazzi {
     @OptIn(ExperimentalRoborazziApi::class) generateComposePreviewRobolectricTests {
         enable = true
         packages = listOf("org.adt.presentation")
+        includePrivatePreviews = true
     }
 }
 
