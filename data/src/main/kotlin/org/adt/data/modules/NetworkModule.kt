@@ -13,7 +13,6 @@ import org.adt.data.abstraction.INetworkStatusProvider
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
-import java.io.IOException
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
