@@ -17,7 +17,6 @@ class SplashViewModel @Inject constructor(
     private val _dataRepository: IDataRepository,
 ) : ViewModel() {
     private val _pongString = MutableStateFlow("")
-
     fun ping() {
         viewModelScope.launch(Dispatchers.IO) {
             val result = _dataRepository.ping()
@@ -26,6 +25,13 @@ class SplashViewModel @Inject constructor(
                 Log.d("ping", value)
             }.onFailure { error ->
                 Log.e("ping", "Ping failed", error)
+            }
+
+            val authResult = _dataRepository.authenticate("", "")
+            authResult.onSuccess { value ->
+                Log.d("auth", "HTTP $value")
+            }.onFailure { error ->
+                Log.e("auth", "Auth failed", error)
             }
         }
     }

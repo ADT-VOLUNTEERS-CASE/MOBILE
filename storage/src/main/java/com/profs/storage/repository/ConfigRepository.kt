@@ -48,9 +48,9 @@ class ConfigRepository @Inject constructor(
         return bearerToken
     }
 
-    override suspend fun removeToken(){
+    override suspend fun removeToken() {
         context.dataStore.edit { prefs ->
-            prefs[KEY_TOKEN] = ""
+            prefs.remove(KEY_TOKEN)
         }
     }
 }

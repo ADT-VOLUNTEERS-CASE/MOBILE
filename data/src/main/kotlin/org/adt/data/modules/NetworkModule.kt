@@ -3,14 +3,17 @@ package org.adt.data.modules
 import dagger.Module
 import dagger.Provides
 import okhttp3.Interceptor
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
-import okhttp3.Response
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.adt.core.annotations.ImplicitUsage
 import org.adt.data.abstraction.IConfigRepository
 import org.adt.data.abstraction.INetworkRepository
+import org.adt.data.abstraction.INetworkStatusProvider
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -19,16 +22,27 @@ internal object NetworkModule {
     @Provides
     @Singleton
     @ImplicitUsage
-    fun provideInterceptor(): Interceptor {
-        return object : Interceptor {
-            override fun intercept(chain: Interceptor.Chain): Response {
-                val request = chain.request()
-                    .newBuilder()
-                    .addHeader("Accept", "application/json")
-                    .addHeader("Content-Type", "application/json")
+    fun provideInterceptor(
+        networkStatusProvider: INetworkStatusProvider
+    ): Interceptor {
+        return Interceptor { chain ->
+            val request = chain.request()
+            if (!networkStatusProvider.isInternetAvailable()) {
+                val emptyBody = "{}".toResponseBody("application/json".toMediaTypeOrNull())
+
+                return@Interceptor okhttp3.Response.Builder()
+                    .request(request)
+                    .protocol(okhttp3.Protocol.HTTP_1_1)
+                    .code(503)
+                    .message("No internet connection")
+                    .body(emptyBody)
                     .build()
-                return chain.proceed(request)
             }
+            val newRequest = request.newBuilder()
+                .addHeader("Accept", "application/json")
+                .addHeader("Content-Type", "application/json")
+                .build()
+            chain.proceed(newRequest)
         }
     }
 
