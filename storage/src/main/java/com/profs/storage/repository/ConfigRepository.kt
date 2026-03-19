@@ -29,7 +29,7 @@ class ConfigRepository @Inject constructor(
     }
 
     override fun getApiBaseUrl(): String {
-        return  BuildConfig.API_BASE_URL
+        return BuildConfig.API_BASE_URL
     }
 
     override suspend fun saveToken(token: String) {

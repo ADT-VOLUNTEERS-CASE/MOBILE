@@ -26,13 +26,6 @@ class SplashViewModel @Inject constructor(
             }.onFailure { error ->
                 Log.e("ping", "Ping failed", error)
             }
-
-            val authResult = _dataRepository.authenticate("", "")
-            authResult.onSuccess { value ->
-                Log.d("auth", "HTTP $value")
-            }.onFailure { error ->
-                Log.e("auth", "Auth failed", error)
-            }
         }
     }
 }

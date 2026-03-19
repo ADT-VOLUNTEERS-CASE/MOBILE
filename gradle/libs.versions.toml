@@ -4,6 +4,7 @@ android = "0.8.1"
 compose = "2.10.0"
 converterScalars = "2.11.0"
 dagger = "2.57.2"
+gson = "2.13.2"
 javaxInject = "1"
 kotlin = "2.2.0" # Not available: awaiting Dagger issue resolution (https://github.com/google/dagger/issues/5001)
 serialization = "2.2.0" # Not available: awaiting Dagger issue resolution (https://github.com/google/dagger/issues/5001)
@@ -49,6 +50,7 @@ compose = { module = "com.kizitonwose.calendar:compose", version.ref = "compose"
 converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "converterScalars" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 javax-inject = { module = "javax.inject:javax.inject", version.ref = "javaxInject" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

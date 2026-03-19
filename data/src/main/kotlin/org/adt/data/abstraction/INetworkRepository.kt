@@ -13,8 +13,6 @@ interface INetworkRepository {
     suspend fun ping(): Response<String>
 
     /**
-     * Return codes:
-     *
      * 200 - Success
      * 400 - Invalid credentials
      * 401 - Invalid password
@@ -31,7 +29,27 @@ interface INetworkRepository {
      * 409 - User already exists
      */
     @POST("/api/v1/auth/register")
-    suspend fun register(
+    suspend fun registerVolunteer(
+        @Body request: RegisterRequest
+    ): Response<AuthResponse>
+
+    /**
+     * 200 - Success
+     * 400 - Invalid data
+     * 409 - User already exists
+     */
+    @POST("/api/v1/auth/register/coordinator")
+    suspend fun registerCoordinator(
+        @Body request: RegisterRequest
+    ): Response<AuthResponse>
+
+    /**
+     * 200 - Success
+     * 400 - Invalid data
+     * 409 - User already exists
+     */
+    @POST("/api/v1/auth/register/admin")
+    suspend fun registerAdmin(
         @Body request: RegisterRequest
     ): Response<AuthResponse>
 }
