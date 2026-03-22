@@ -2,20 +2,21 @@ package org.adt.data.modules
 
 import dagger.Module
 import dagger.Provides
+import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.adt.core.annotations.ImplicitUsage
 import org.adt.data.abstraction.IConfigRepository
-import org.adt.data.abstraction.INetworkRepository
+import org.adt.data.repository.INetworkRepository
 import org.adt.data.abstraction.INetworkStatusProvider
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
-
 @Module
 internal object NetworkModule {
     @Provides
@@ -72,7 +73,10 @@ internal object NetworkModule {
             .baseUrl(url) //"https://adt.rss14.ru/api/v1/"
             .client(okHttpClient)
             .addConverterFactory(ScalarsConverterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create()).build()
+            .addConverterFactory(
+                Json.asConverterFactory(
+                    "application/json; charset=utf-8".toMediaType())
+            ).build()
     }
 
     @Provides

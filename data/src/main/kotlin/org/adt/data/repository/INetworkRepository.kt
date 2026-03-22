@@ -1,4 +1,4 @@
-package org.adt.data.abstraction
+package org.adt.data.repository
 
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.RegisterRequest

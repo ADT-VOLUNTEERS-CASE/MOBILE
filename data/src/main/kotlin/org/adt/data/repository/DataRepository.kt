@@ -6,7 +6,7 @@ import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.response.ErrorResponse
 import org.adt.data.abstraction.IConfigRepository
-import org.adt.data.abstraction.INetworkRepository
+import org.adt.data.repository.INetworkRepository
 import org.adt.domain.abstraction.IDataRepository
 import javax.inject.Inject
 

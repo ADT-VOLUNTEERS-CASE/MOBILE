@@ -24,5 +24,4 @@ dependencies {
     implementation(libs.kotlinpoet.ksp)
 
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.gson)
 }

@@ -29,8 +29,8 @@ dependencies{
     implementation(project("::core"))
 
     implementation(libs.retrofit)
-    implementation(libs.converter.gson)
     implementation(libs.converter.scalars)
+    implementation(libs.converter.serialization)
 
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)
