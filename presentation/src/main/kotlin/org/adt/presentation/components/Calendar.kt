@@ -68,7 +68,6 @@ fun CustomCalendar() {
             .background(Aqua)
             .padding(horizontal = 6.dp, vertical = 8.dp)
     ) {
-
         CalendarHeader(
             currentMonth = state.firstVisibleMonth.yearMonth,
             onPreviousClick = {
