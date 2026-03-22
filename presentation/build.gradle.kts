@@ -15,8 +15,11 @@ plugins {
 }
 android {
     namespace = "org.adt.presentation"
-
     compileSdk = 36
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "org.adt.presentation"
@@ -26,6 +29,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "API_BASE_URL", "\"https://adt.rss14.ru/api/v1/\"")
     }
 
     signingConfigs {
@@ -45,6 +50,7 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
+            buildConfigField("String", "API_BASE_URL", "\"https://prod-api.example.com/\"")
         }
     }
 

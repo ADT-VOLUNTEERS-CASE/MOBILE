@@ -7,7 +7,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import org.adt.data.abstraction.NetworkStatusProvider
 import javax.inject.Inject
 
-class NetworkStatusProvider @Inject constructor(
+class NetworkStatusProviderImpl @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) : NetworkStatusProvider {
     override fun isInternetAvailable(): Boolean {

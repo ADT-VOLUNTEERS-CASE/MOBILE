@@ -23,6 +23,7 @@ kotlin {
     sourceSets.test {
         kotlin.srcDir("build/generated/ksp/test/kotlin")
     }
+
 }
 dependencies{
     implementation(project("::domain"))

@@ -5,9 +5,9 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.adt.core.annotations.ImplicitUsage
-import org.adt.presentation.di.configuration.BuildConfigurationModule
+import org.adt.data.DataFacade
 
-@Module
+@Module(includes = [StorageFacade::class])
 @InstallIn(SingletonComponent::class)
 @ImplicitUsage
-class AppModule
+interface StorageFacadeHiltModule

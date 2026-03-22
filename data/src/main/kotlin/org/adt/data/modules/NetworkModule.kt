@@ -8,6 +8,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody.Companion.toResponseBody
+import org.adt.core.abstraction.BuildConfigurationRepository
 import org.adt.core.annotations.ImplicitUsage
 import org.adt.data.repository.RetrofitRepository
 import org.adt.data.abstraction.NetworkStatusProvider
@@ -66,9 +67,9 @@ internal object NetworkModule {
     @ImplicitUsage
     fun provideRetrofit(
         okHttpClient: OkHttpClient,
-        configRepository: ConfigRepository
+        buildConfigurationRepository: BuildConfigurationRepository
     ): Retrofit {
-        val url = configRepository.getApiBaseUrl()
+        val url = buildConfigurationRepository.getApiBaseUrl()
         return Retrofit.Builder()
             .baseUrl(url) //"https://adt.rss14.ru/api/v1/"
             .client(okHttpClient)
@@ -81,7 +82,7 @@ internal object NetworkModule {
 
     @Provides
     @ImplicitUsage
-    fun provideNetworkRepository(retrofit: Retrofit): NetworkRepository {
-        return retrofit.create(NetworkRepository::class.java)
+    fun provideNetworkRepository(retrofit: Retrofit): RetrofitRepository {
+        return retrofit.create(RetrofitRepository::class.java)
     }
 }

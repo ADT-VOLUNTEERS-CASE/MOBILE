@@ -11,17 +11,11 @@ android {
     namespace = "com.profs.storage"
     compileSdk = 36
 
-    buildFeatures {
-        buildConfig = true
-    }
-
     defaultConfig {
         minSdk = 29
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-
-        buildConfigField("String", "API_BASE_URL", "\"https://adt.rss14.ru/api/v1/\"")
     }
 
     buildTypes {
@@ -31,7 +25,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "API_BASE_URL", "\"https://prod-api.example.com/\"")
         }
     }
     compileOptions {
