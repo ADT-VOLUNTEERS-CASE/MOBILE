@@ -2,7 +2,7 @@ package org.adt.domain.abstraction
 
 import org.adt.core.entities.UserRole
 
-interface IDataRepository {
+interface DataRepository {
     suspend fun ping(): Result<String>
 
     suspend fun register(

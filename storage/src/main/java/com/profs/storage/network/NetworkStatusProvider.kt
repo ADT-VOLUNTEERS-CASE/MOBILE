@@ -4,12 +4,12 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import dagger.hilt.android.qualifiers.ApplicationContext
-import org.adt.data.abstraction.INetworkStatusProvider
+import org.adt.data.abstraction.NetworkStatusProvider
 import javax.inject.Inject
 
 class NetworkStatusProvider @Inject constructor(
     @param:ApplicationContext private val context: Context
-) : INetworkStatusProvider {
+) : NetworkStatusProvider {
     override fun isInternetAvailable(): Boolean {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 

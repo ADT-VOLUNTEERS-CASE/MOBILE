@@ -9,21 +9,21 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.adt.core.annotations.ImplicitUsage
-import org.adt.data.abstraction.IConfigRepository
-import org.adt.data.repository.INetworkRepository
-import org.adt.data.abstraction.INetworkStatusProvider
+import org.adt.data.repository.RetrofitRepository
+import org.adt.data.abstraction.NetworkStatusProvider
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
+
 @Module
 internal object NetworkModule {
     @Provides
     @Singleton
     @ImplicitUsage
     fun provideInterceptor(
-        networkStatusProvider: INetworkStatusProvider
+        networkStatusProvider: NetworkStatusProvider
     ): Interceptor {
         return Interceptor { chain ->
             val request = chain.request()
@@ -66,7 +66,7 @@ internal object NetworkModule {
     @ImplicitUsage
     fun provideRetrofit(
         okHttpClient: OkHttpClient,
-        configRepository: IConfigRepository
+        configRepository: ConfigRepository
     ): Retrofit {
         val url = configRepository.getApiBaseUrl()
         return Retrofit.Builder()
@@ -81,7 +81,7 @@ internal object NetworkModule {
 
     @Provides
     @ImplicitUsage
-    fun provideNetworkRepository(retrofit: Retrofit): INetworkRepository {
-        return retrofit.create(INetworkRepository::class.java)
+    fun provideNetworkRepository(retrofit: Retrofit): NetworkRepository {
+        return retrofit.create(NetworkRepository::class.java)
     }
 }

@@ -10,7 +10,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import org.adt.data.abstraction.IConfigRepository
+import org.adt.data.abstraction.ConfigRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,7 +19,7 @@ private val Context.dataStore by preferencesDataStore("token_prefs")
 @Singleton
 class ConfigRepository @Inject constructor(
     @param: ApplicationContext private val context: Context
-) : IConfigRepository {
+) : ConfigRepository {
     companion object {
         private val KEY_TOKEN = stringPreferencesKey("accessToken")
     }

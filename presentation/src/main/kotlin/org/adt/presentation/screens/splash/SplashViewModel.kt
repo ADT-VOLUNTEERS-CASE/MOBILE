@@ -7,14 +7,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import org.adt.domain.abstraction.IDataRepository
-import org.adt.domain.abstraction.IDomainRepository
+import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.abstraction.DomainRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    private val _domainRepository: IDomainRepository,
-    private val _dataRepository: IDataRepository,
+    private val _domainRepository: DomainRepository,
+    private val _dataRepository: DataRepository,
 ) : ViewModel() {
     private val _pongString = MutableStateFlow("")
     fun ping() {

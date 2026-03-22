@@ -1,5 +1,5 @@
 package org.adt.data.abstraction
 
-interface INetworkStatusProvider {
+interface NetworkStatusProvider {
     fun isInternetAvailable(): Boolean
 }

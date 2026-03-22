@@ -8,7 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import org.adt.core.annotations.ImplicitUsage
-import org.adt.data.abstraction.INetworkStatusProvider
+import org.adt.data.abstraction.NetworkStatusProvider
 import javax.inject.Singleton
 
 @Module
@@ -19,7 +19,7 @@ object NetworkStatusModule {
     @ImplicitUsage
     fun provideNetworkStatusProvider(
         @ApplicationContext context: Context
-    ): INetworkStatusProvider {
+    ): org.adt.data.abstraction.NetworkStatusProvider {
         return NetworkStatusProvider(context)
     }
 }

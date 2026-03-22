@@ -8,7 +8,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 
-interface INetworkRepository {
+interface RetrofitRepository {
     @GET("ping")
     suspend fun ping(): Response<String>
 

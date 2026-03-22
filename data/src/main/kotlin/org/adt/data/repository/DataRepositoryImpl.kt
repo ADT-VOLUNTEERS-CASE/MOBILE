@@ -5,15 +5,14 @@ import org.adt.core.entities.UserRole
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.response.ErrorResponse
-import org.adt.data.abstraction.IConfigRepository
-import org.adt.data.repository.INetworkRepository
-import org.adt.domain.abstraction.IDataRepository
+import org.adt.data.abstraction.PersistenceRepository
+import org.adt.domain.abstraction.DataRepository
 import javax.inject.Inject
 
-internal class DataRepository @Inject constructor(
-    private val networkRepository: INetworkRepository,
-    private val configRepository: IConfigRepository
-) : IDataRepository {
+internal class DataRepositoryImpl @Inject constructor(
+    private val networkRepository: RetrofitRepository,
+    private val persistenceRepository: PersistenceRepository
+) : DataRepository {
     private val json = Json { ignoreUnknownKeys = true }
     private fun parseError(errorBody: okhttp3.ResponseBody?): ErrorResponse? {
         return try {
@@ -55,7 +54,7 @@ internal class DataRepository @Inject constructor(
             UserRole.ADMIN -> networkRepository.registerAdmin(request)
         }
         return if (response.isSuccessful) {
-            configRepository.saveToken(response.body()!!.accessToken)
+            persistenceRepository.saveToken(response.body()!!.accessToken)
             Pair(response.code(), Result.success("Success Auth"))
         } else if (response.code() == 400 || response.code() == 401 || response.code() == 404) {
             val error = parseError(response.errorBody())
@@ -72,7 +71,7 @@ internal class DataRepository @Inject constructor(
         val request = AuthRequest(email, password)
         val response = networkRepository.authenticate(request)
         return if (response.isSuccessful) {
-            configRepository.saveToken(response.body()!!.accessToken)
+            persistenceRepository.saveToken(response.body()!!.accessToken)
             Pair(response.code(), Result.success("Success Auth"))
         } else if (response.code() == 400 || response.code() == 401 || response.code() == 404) {
             val error = parseError(response.errorBody())
