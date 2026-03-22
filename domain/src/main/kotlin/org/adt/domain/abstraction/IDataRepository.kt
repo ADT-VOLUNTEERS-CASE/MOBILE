@@ -1,9 +1,12 @@
 package org.adt.domain.abstraction
 
 import org.adt.core.entities.UserRole
+import org.adt.core.entities.response.UserResponse
 
 interface IDataRepository {
     suspend fun ping(): Result<String>
+
+    suspend fun authorized(): Boolean
 
     suspend fun register(
         firstname: String,
@@ -16,4 +19,8 @@ interface IDataRepository {
     ): Pair<Int, Result<String>>
 
     suspend fun authenticate(email: String, password: String): Pair<Int, Result<String>>
+
+    suspend fun deauthenticate()
+
+    suspend fun userInfo(): Result<UserResponse>
 }

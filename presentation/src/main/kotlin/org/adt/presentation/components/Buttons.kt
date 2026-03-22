@@ -1,13 +1,16 @@
 package org.adt.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -95,6 +98,29 @@ fun SquaredIconButton(resId: Int, sizeDp: Dp, contentDescription: String, onClic
     }
 }
 
+@Composable
+fun CustomTranslucentButton(value: String, enabled: Boolean = true, isLoading: Boolean = false, onClick: () -> Unit) {
+    Button(
+        onClick,
+        Modifier
+            .fillMaxWidth()
+            .height(55.dp)
+            .clip(RoundedCornerShape(35.dp))
+            .border(2.dp, if (enabled) Lagoon else Lagoon.copy(0.5f), RoundedCornerShape(35.dp)),
+        enabled,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Lagoon.copy(0.5f),
+            disabledContainerColor = Abyss.copy(0.5f),
+        )
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator(Modifier.size(35.dp), Abyss)
+        } else {
+            Text(value.uppercase(), style = extendedTypography.displayLarge.copy(if (enabled) Arctic else Arctic.copy(0.5f)))
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun CustomLiteRoundedButtonPreview() {
@@ -117,4 +143,10 @@ private fun CustomWideButtonPreview() {
 @Composable
 private fun SquaredIconButtonPreview() {
     SquaredIconButton(R.drawable.ic_trash, 45.dp, "Delete") { }
+}
+
+@Preview(showBackground = true, backgroundColor = 353535)
+@Composable
+private fun CustomTranslucentButtonPreview() {
+    CustomTranslucentButton("Начать") { }
 }

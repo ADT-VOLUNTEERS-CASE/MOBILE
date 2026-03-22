@@ -32,6 +32,13 @@ class ConfigRepository @Inject constructor(
         return BuildConfig.API_BASE_URL
     }
 
+    override suspend fun authorized(): Boolean {
+        val token = context.dataStore.data
+            .map { prefs -> prefs[KEY_TOKEN] }
+            .firstOrNull()
+        return !token.isNullOrBlank()
+    }
+
     override suspend fun saveToken(token: String) {
         Log.d("TokenHelper", "Saving token: $token")
         context.dataStore.edit { prefs ->

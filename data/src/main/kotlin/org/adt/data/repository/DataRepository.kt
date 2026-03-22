@@ -5,6 +5,7 @@ import org.adt.core.entities.UserRole
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.response.ErrorResponse
+import org.adt.core.entities.response.UserResponse
 import org.adt.data.abstraction.IConfigRepository
 import org.adt.data.abstraction.INetworkRepository
 import org.adt.domain.abstraction.IDataRepository
@@ -32,6 +33,10 @@ internal class DataRepository @Inject constructor(
         }
     }
 
+    override suspend fun authorized(): Boolean {
+        return configRepository.authorized()
+    }
+
     override suspend fun register(
         firstname: String,
         lastname: String,
@@ -50,9 +55,9 @@ internal class DataRepository @Inject constructor(
             password = password
         )
         val response = when (role) {
-            UserRole.VOLUNTEER -> networkRepository.registerVolunteer(request)
-            UserRole.COORDINATOR -> networkRepository.registerCoordinator(request)
             UserRole.ADMIN -> networkRepository.registerAdmin(request)
+            UserRole.COORDINATOR -> networkRepository.registerCoordinator(request)
+            else -> networkRepository.registerVolunteer(request)
         }
         return if (response.isSuccessful) {
             configRepository.saveToken(response.body()!!.accessToken)
@@ -79,6 +84,20 @@ internal class DataRepository @Inject constructor(
             Pair(response.code(), Result.failure(Exception(error?.message ?: "Unknown error (${response.code()})")))
         } else {
             Pair(response.code(), Result.failure(Exception("HTTP ${response.code()}: No internet connection")))
+        }
+    }
+
+    override suspend fun deauthenticate() {
+       configRepository.removeToken()
+    }
+
+    override suspend fun userInfo(): Result<UserResponse> {
+        val token = configRepository.getToken() ?: throw Exception("Not authorized")
+        val response = networkRepository.userInfo(token)
+        return if (response.isSuccessful) {
+            Result.success(response.body()!!)
+        } else {
+            Result.failure(Exception("HTTP ${response.code()}"))
         }
     }
 }

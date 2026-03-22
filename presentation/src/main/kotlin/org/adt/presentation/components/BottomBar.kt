@@ -138,6 +138,7 @@ fun CustomBottomBar(role: UserRole) {
                         Arctic)
                 }
             }
+            UserRole.NONE -> {}
         }
     }
 }

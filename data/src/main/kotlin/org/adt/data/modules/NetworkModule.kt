@@ -77,7 +77,7 @@ internal object NetworkModule {
 
     @Provides
     @ImplicitUsage
-    fun provideNetworkRepository(retrofit: Retrofit): INetworkRepository {
+    fun provideNetworkRepository(retrofit: Retrofit): INetworkRepository{
         return retrofit.create(INetworkRepository::class.java)
     }
 }

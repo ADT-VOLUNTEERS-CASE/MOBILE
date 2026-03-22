@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -60,7 +61,10 @@ fun SplashScreen(navController: NavHostController, viewModel: SplashViewModel) {
 
         viewModel.ping()
 
-        navController.navigate(Destinations.Home) {
+        val destination = viewModel.getDestination()
+        navController.navigate(
+            destination
+        ) {
             popUpTo(Destinations.Splash) { inclusive = true }
             launchSingleTop = true
         }
@@ -74,15 +78,15 @@ fun SplashScreen(navController: NavHostController, viewModel: SplashViewModel) {
     ) {
         Box(
             Modifier
-                .size(100.dp)
+                .size(200.dp)
                 .offset { IntOffset(offsetIconX.value.toInt(), offsetIconY.value.toInt()) },
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painterResource(R.drawable.ic_leaf),
+                painterResource(R.drawable.icon_main),
                 null,
                 tint = Arctic
-            ) // TODO: Change to actual logo icon
+            )
         }
 
         Box(
@@ -91,7 +95,7 @@ fun SplashScreen(navController: NavHostController, viewModel: SplashViewModel) {
                 .padding(horizontal = 40.dp),
             contentAlignment = Alignment.Center
         ) {
-            TypingText("Твоё следующее доброе дело ждёт своего момента", 80L)
+            TypingText("Твоё следующее доброе дело ждёт своего момента", TextAlign.Center, 80L)
         }
     }
 }
