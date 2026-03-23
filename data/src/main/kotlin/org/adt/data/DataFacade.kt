@@ -2,14 +2,10 @@ package org.adt.data
 
 import dagger.Module
 import org.adt.data.modules.DataRepositoryModule
-import org.adt.data.modules.DataSourceModule
-import org.adt.data.modules.configuration.DataRepositoryConfigModule
-import org.adt.data.modules.configuration.DataSourceConfigModule
+import org.adt.data.modules.NetworkModule
 
 @Module(includes = [
-    DataSourceConfigModule::class,
-    DataRepositoryConfigModule::class,
-    DataSourceModule::class,
-    DataRepositoryModule::class
+    DataRepositoryModule::class,
+    NetworkModule::class
 ])
 class DataFacade

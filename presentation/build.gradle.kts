@@ -15,8 +15,11 @@ plugins {
 }
 android {
     namespace = "org.adt.presentation"
-
     compileSdk = 36
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "org.adt.presentation"
@@ -26,6 +29,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "API_BASE_URL", "\"https://adt.rss14.ru/api/v1/\"")
     }
 
     signingConfigs {
@@ -54,6 +59,7 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
+            buildConfigField("String", "API_BASE_URL", "\"https://prod-api.example.com/\"")
         }
     }
 
@@ -76,6 +82,7 @@ roborazzi {
     @OptIn(ExperimentalRoborazziApi::class) generateComposePreviewRobolectricTests {
         enable = true
         packages = listOf("org.adt.presentation")
+        includePrivatePreviews = true
     }
 }
 
@@ -92,6 +99,8 @@ dependencies {
     implementation(project("::domain"))
     implementation(project("::data"))
     implementation(project("::core"))
+    implementation(project("::storage"))
+
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.core.ktx)
@@ -114,7 +123,6 @@ dependencies {
     testImplementation(libs.roborazzi.compose)
     testImplementation(libs.roborazzi.junit.rule)
 
-    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -131,4 +139,11 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    implementation(libs.compose)
+
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+
+    implementation(libs.androidx.datastore.preferences)
 }
