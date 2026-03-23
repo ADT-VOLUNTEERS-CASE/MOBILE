@@ -71,7 +71,6 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
     val rotationIcon = remember { Animatable(0f) }
     val alphaDialog = remember { Animatable(0f) }
 
-
     LaunchedEffect(Unit) {
         coroutineScope {
             launch {
@@ -150,7 +149,7 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
                                 UserRole.COORDINATOR -> "Координатор"
                                 UserRole.VOLUNTEER -> "Волонтер"
                                 UserRole.NONE -> "Роль не выбрана"
-                            }, style = extendedTypography.titleSmall.copy(Lagoon)
+                            }, style = extendedTypography.titleMedium.copy(Lagoon)
                         )
 
                         Spacer(Modifier.width(4.dp))

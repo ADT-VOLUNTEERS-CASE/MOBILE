@@ -46,7 +46,7 @@ fun SplashScreen(navController: NavHostController, viewModel: SplashViewModel) {
             }
         }
 
-        delay(3600)
+        delay(1800)
 
         coroutineScope {
             launch {
@@ -95,7 +95,7 @@ fun SplashScreen(navController: NavHostController, viewModel: SplashViewModel) {
                 .padding(horizontal = 40.dp),
             contentAlignment = Alignment.Center
         ) {
-            TypingText("Твоё следующее доброе дело ждёт своего момента", TextAlign.Center, 80L)
+            TypingText("Твоё следующее доброе дело ждёт своего момента", TextAlign.Center, 40L)
         }
     }
 }
