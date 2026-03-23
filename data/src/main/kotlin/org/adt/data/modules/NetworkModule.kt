@@ -10,8 +10,8 @@ import okhttp3.OkHttpClient
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.adt.core.abstraction.BuildConfigurationRepository
 import org.adt.core.annotations.ImplicitUsage
-import org.adt.data.repository.RetrofitRepository
 import org.adt.data.abstraction.NetworkStatusProvider
+import org.adt.data.repository.RetrofitRepository
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
@@ -28,6 +28,7 @@ internal object NetworkModule {
     ): Interceptor {
         return Interceptor { chain ->
             val request = chain.request()
+
             if (!networkStatusProvider.isInternetAvailable()) {
                 val emptyBody = "{}".toResponseBody("application/json".toMediaTypeOrNull())
 
@@ -39,6 +40,7 @@ internal object NetworkModule {
                     .body(emptyBody)
                     .build()
             }
+
             val newRequest = request.newBuilder()
                 .addHeader("Accept", "application/json")
                 .addHeader("Content-Type", "application/json")
@@ -70,6 +72,7 @@ internal object NetworkModule {
         buildConfigurationRepository: BuildConfigurationRepository
     ): Retrofit {
         val url = buildConfigurationRepository.getApiBaseUrl()
+
         return Retrofit.Builder()
             .baseUrl(url) //"https://adt.rss14.ru/api/v1/"
             .client(okHttpClient)

@@ -1,6 +1,8 @@
 package org.adt.data.repository
 
 import kotlinx.serialization.json.Json
+import okhttp3.ResponseBody
+import okio.IOException
 import org.adt.core.entities.UserRole
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.RegisterRequest
@@ -14,7 +16,8 @@ internal class DataRepositoryImpl @Inject constructor(
     private val persistenceRepository: PersistenceRepository
 ) : DataRepository {
     private val json = Json { ignoreUnknownKeys = true }
-    private fun parseError(errorBody: okhttp3.ResponseBody?): ErrorResponse? {
+
+    private fun parseError(errorBody: ResponseBody?): ErrorResponse? {
         return try {
             errorBody?.string()?.let { json.decodeFromString<ErrorResponse>(it) }
         } catch (_: Exception) {
@@ -24,11 +27,12 @@ internal class DataRepositoryImpl @Inject constructor(
 
     override suspend fun ping(): Result<String> {
         val response = networkRepository.ping()
-        return if (response.isSuccessful) {
-            Result.success(response.body().orEmpty())
-        } else {
-            Result.failure(Exception("HTTP ${response.code()}: No internet connection"))
+
+        if (response.isSuccessful) {
+            return Result.success(response.body().orEmpty())
         }
+
+        return Result.failure(IOException("HTTP ${response.code()}: No internet connection"))
     }
 
     override suspend fun register(
@@ -48,20 +52,24 @@ internal class DataRepositoryImpl @Inject constructor(
             email = email,
             password = password
         )
+
         val response = when (role) {
             UserRole.VOLUNTEER -> networkRepository.registerVolunteer(request)
             UserRole.COORDINATOR -> networkRepository.registerCoordinator(request)
             UserRole.ADMIN -> networkRepository.registerAdmin(request)
         }
-        return if (response.isSuccessful) {
+
+        if (response.isSuccessful) {
             persistenceRepository.saveToken(response.body()!!.accessToken)
-            Pair(response.code(), Result.success("Success Auth"))
-        } else if (response.code() == 400 || response.code() == 401 || response.code() == 404) {
-            val error = parseError(response.errorBody())
-            Pair(response.code(), Result.failure(Exception(error?.message ?: "Unknown error (${response.code()})")))
-        } else {
-            Pair(response.code(), Result.failure(Exception("HTTP ${response.code()}: No internet connection")))
+            return Pair(response.code(), Result.success("Success Auth"))
         }
+
+        val error = parseError(response.errorBody())
+
+        return Pair(
+            response.code(),
+            Result.failure(Exception(error?.message ?: "HTTP ${response.code()}"))
+        )
     }
 
     override suspend fun authenticate(
@@ -70,14 +78,17 @@ internal class DataRepositoryImpl @Inject constructor(
     ): Pair<Int, Result<String>> {
         val request = AuthRequest(email, password)
         val response = networkRepository.authenticate(request)
-        return if (response.isSuccessful) {
+
+        if (response.isSuccessful) {
             persistenceRepository.saveToken(response.body()!!.accessToken)
-            Pair(response.code(), Result.success("Success Auth"))
-        } else if (response.code() == 400 || response.code() == 401 || response.code() == 404) {
-            val error = parseError(response.errorBody())
-            Pair(response.code(), Result.failure(Exception(error?.message ?: "Unknown error (${response.code()})")))
-        } else {
-            Pair(response.code(), Result.failure(Exception("HTTP ${response.code()}: No internet connection")))
+            return Pair(response.code(), Result.success("Success Auth"))
         }
+
+        val error = parseError(response.errorBody())
+
+        return Pair(
+            response.code(),
+            Result.failure(Exception(error?.message ?: "HTTP ${response.code()}"))
+        )
     }
 }
