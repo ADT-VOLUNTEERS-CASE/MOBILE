@@ -61,7 +61,7 @@ class AdminRegisterViewModel @Inject constructor(
     }
 
     fun onStartClick() {
-        if (_uiState.value.isFormValid) {
+        if (_uiState.value.isFormValid && _uiState.value.chosenRole != UserRole.NONE) {
             viewModelScope.launch(Dispatchers.Main) {
                 _uiState.value = _uiState.value.copy(isLoading = true)
                 val response = _dataRepository.register(
@@ -89,6 +89,6 @@ class AdminRegisterViewModel @Inject constructor(
                 }
                 _uiState.value = _uiState.value.copy(isLoading = false)
             }
-        }
+        } else _uiState.value = _uiState.value.copy(registerResult = "Выберите роль")
     }
 }

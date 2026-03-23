@@ -148,7 +148,8 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
                             when (uiState.value.chosenRole) {
                                 UserRole.ADMIN -> "Админ"
                                 UserRole.COORDINATOR -> "Координатор"
-                                else -> "Волонтер"
+                                UserRole.VOLUNTEER -> "Волонтер"
+                                UserRole.NONE -> "Роль не выбрана"
                             }, style = extendedTypography.titleSmall.copy(Lagoon)
                         )
 

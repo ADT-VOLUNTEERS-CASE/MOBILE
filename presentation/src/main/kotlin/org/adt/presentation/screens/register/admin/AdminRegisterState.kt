@@ -9,7 +9,7 @@ data class AdminRegisterState(
     val phoneNumber: String = "",
     val email: String = "",
     val password: String = "",
-    val chosenRole: UserRole = UserRole.VOLUNTEER,
+    val chosenRole: UserRole = UserRole.NONE,
     val isRoleDialogVisible: Boolean = false,
     val isLoading: Boolean = false,
     val registerResult: String? = null,
