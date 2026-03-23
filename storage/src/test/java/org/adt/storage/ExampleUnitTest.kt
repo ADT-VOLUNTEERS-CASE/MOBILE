@@ -1,4 +1,4 @@
-package com.profs.storage
+package org.adt.storage
 
 import org.junit.Test
 

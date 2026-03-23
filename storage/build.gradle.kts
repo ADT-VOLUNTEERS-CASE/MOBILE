@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.profs.storage"
+    namespace = "org.adt.storage"
     compileSdk = 36
 
     defaultConfig {

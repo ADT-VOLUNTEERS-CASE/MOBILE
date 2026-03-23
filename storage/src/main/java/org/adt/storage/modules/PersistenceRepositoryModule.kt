@@ -1,16 +1,13 @@
-package com.profs.storage.modules
+package org.adt.storage.modules
 
 import android.content.Context
-import com.profs.storage.repository.PersistenceRepositoryImpl
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
 import dagger.hilt.migration.DisableInstallInCheck
 import org.adt.core.annotations.ImplicitUsage
 import org.adt.data.abstraction.PersistenceRepository
-import javax.inject.Singleton
+import org.adt.storage.repository.PersistenceRepositoryImpl
 
 @Module
 @DisableInstallInCheck

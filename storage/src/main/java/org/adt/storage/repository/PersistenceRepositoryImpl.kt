@@ -1,4 +1,4 @@
-package com.profs.storage.repository
+package org.adt.storage.repository
 
 import android.content.Context
 import android.util.Log
