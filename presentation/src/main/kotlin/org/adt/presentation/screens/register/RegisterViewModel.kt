@@ -64,7 +64,8 @@ class RegisterViewModel @Inject constructor(
                     _uiState.value.phoneNumber,
                     _uiState.value.email,
                     _uiState.value.password,
-                    UserRole.VOLUNTEER
+                    UserRole.VOLUNTEER,
+                    true
                 )
                 if (response.first == 200) {
                     _uiState.value.copy(registerError = null)

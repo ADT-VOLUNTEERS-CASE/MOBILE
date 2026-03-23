@@ -42,6 +42,7 @@ interface INetworkRepository {
      */
     @POST("auth/register/coordinator")
     suspend fun registerCoordinator(
+        @Header("Authorization") auth: String,
         @Body request: RegisterRequest
     ): Response<AuthResponse>
 
@@ -52,6 +53,7 @@ interface INetworkRepository {
      */
     @POST("auth/register/admin")
     suspend fun registerAdmin(
+        @Header("Authorization") auth: String,
         @Body request: RegisterRequest
     ): Response<AuthResponse>
 

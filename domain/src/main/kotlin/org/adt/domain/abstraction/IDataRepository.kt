@@ -15,7 +15,8 @@ interface IDataRepository {
         phoneNumber: String,
         email: String,
         password: String,
-        role: UserRole
+        role: UserRole,
+        autologin: Boolean
     ): Pair<Int, Result<String>>
 
     suspend fun authenticate(email: String, password: String): Pair<Int, Result<String>>

@@ -29,7 +29,7 @@ internal class DataRepository @Inject constructor(
         return if (response.isSuccessful) {
             Result.success(response.body().orEmpty())
         } else {
-            Result.failure(Exception("HTTP ${response.code()}: No internet connection"))
+            Result.failure(Exception("HTTP ${response.code()}"))
         }
     }
 
@@ -44,7 +44,8 @@ internal class DataRepository @Inject constructor(
         phoneNumber: String,
         email: String,
         password: String,
-        role: UserRole
+        role: UserRole,
+        autologin: Boolean
     ): Pair<Int, Result<String>> {
         val request = RegisterRequest(
             firstname = firstname,
@@ -55,18 +56,32 @@ internal class DataRepository @Inject constructor(
             password = password
         )
         val response = when (role) {
-            UserRole.ADMIN -> networkRepository.registerAdmin(request)
-            UserRole.COORDINATOR -> networkRepository.registerCoordinator(request)
+            UserRole.ADMIN -> {
+                val token = configRepository.getToken()
+                networkRepository.registerAdmin(token!!, request)
+            }
+            UserRole.COORDINATOR -> {
+                val token = configRepository.getToken()
+                networkRepository.registerCoordinator(token!!, request)
+            }
             else -> networkRepository.registerVolunteer(request)
         }
         return if (response.isSuccessful) {
-            configRepository.saveToken(response.body()!!.accessToken)
-            Pair(response.code(), Result.success("Success Auth"))
+            if (autologin) {
+                configRepository.saveToken(response.body()!!.accessToken)
+            }
+            Pair(response.code(), Result.success("Success Registration"))
         } else if (response.code() == 400 || response.code() == 401 || response.code() == 404) {
             val error = parseError(response.errorBody())
-            Pair(response.code(), Result.failure(Exception(error?.message ?: "Unknown error (${response.code()})")))
+            Pair(
+                response.code(),
+                Result.failure(Exception(error?.message ?: "Unknown error (${response.code()})"))
+            )
         } else {
-            Pair(response.code(), Result.failure(Exception("HTTP ${response.code()}: No internet connection")))
+            Pair(
+                response.code(),
+                Result.failure(Exception("HTTP ${response.code()}"))
+            )
         }
     }
 
@@ -81,14 +96,20 @@ internal class DataRepository @Inject constructor(
             Pair(response.code(), Result.success("Success Auth"))
         } else if (response.code() == 400 || response.code() == 401 || response.code() == 404) {
             val error = parseError(response.errorBody())
-            Pair(response.code(), Result.failure(Exception(error?.message ?: "Unknown error (${response.code()})")))
+            Pair(
+                response.code(),
+                Result.failure(Exception(error?.message ?: "Unknown error (${response.code()})"))
+            )
         } else {
-            Pair(response.code(), Result.failure(Exception("HTTP ${response.code()}: No internet connection")))
+            Pair(
+                response.code(),
+                Result.failure(Exception("HTTP ${response.code()}"))
+            )
         }
     }
 
     override suspend fun deauthenticate() {
-       configRepository.removeToken()
+        configRepository.removeToken()
     }
 
     override suspend fun userInfo(): Result<UserResponse> {

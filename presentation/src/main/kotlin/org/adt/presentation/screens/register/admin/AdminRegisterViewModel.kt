@@ -71,15 +71,11 @@ class AdminRegisterViewModel @Inject constructor(
                     _uiState.value.phoneNumber,
                     _uiState.value.email,
                     _uiState.value.password,
-                    _uiState.value.chosenRole
+                    _uiState.value.chosenRole,
+                    false
                 )
                 if (response.first == 200) {
-                    _uiState.value.copy(registerResult = null)
-                    response.second.onSuccess {
-                        _uiState.value.copy(registerResult = "Пользователь зарегистрирован")
-                    }.onFailure { exception ->
-                        Log.e("register", "Failure", exception)
-                    }
+                    _uiState.value = _uiState.value.copy(registerResult = "Пользователь успешно зарегистрирован")
                 } else {
                     val error = when (response.first) {
                         400 -> "Невалидные данные"
@@ -87,6 +83,9 @@ class AdminRegisterViewModel @Inject constructor(
                         else -> "Неизвестная ошибка"
                     }
                     _uiState.value = _uiState.value.copy(registerResult = error)
+                    response.second.onFailure { exception ->
+                        Log.e("register", "HTTP ${response.first}", exception)
+                    }
                 }
                 _uiState.value = _uiState.value.copy(isLoading = false)
             }

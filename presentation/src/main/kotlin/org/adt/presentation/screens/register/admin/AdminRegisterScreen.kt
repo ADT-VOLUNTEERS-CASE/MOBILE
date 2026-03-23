@@ -2,6 +2,7 @@ package org.adt.presentation.screens.register.admin
 
 import android.widget.Toast
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,7 +31,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -65,21 +68,38 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
     val context = LocalContext.current
     val offsetYText = remember { Animatable(-2000f) }
     val offsetYContent = remember { Animatable(2600f) }
+    val rotationIcon = remember { Animatable(0f) }
+    val alphaDialog = remember { Animatable(0f) }
+
 
     LaunchedEffect(Unit) {
         coroutineScope {
             launch {
-                offsetYText.animateTo(-700f, tween(durationMillis = 1200))
+                offsetYText.animateTo(-700f, tween(1200))
             }
             launch {
-                offsetYContent.animateTo(0f, tween(durationMillis = 900))
+                offsetYContent.animateTo(0f, tween(900))
+            }
+        }
+    }
+
+    LaunchedEffect(uiState.value.isRoleDialogVisible) {
+        if (uiState.value.isRoleDialogVisible) {
+            coroutineScope {
+                launch { alphaDialog.animateTo(1f, tween(300, easing = FastOutSlowInEasing)) }
+                launch { rotationIcon.animateTo(-90f, tween(400)) }
+            }
+        } else {
+            coroutineScope {
+                launch { alphaDialog.animateTo(0f, tween(200)) }
+                launch { rotationIcon.animateTo(0f, tween(400)) }
             }
         }
     }
 
     LaunchedEffect(uiState.value.registerResult) {
-        uiState.value.registerResult?.let { error ->
-            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+        uiState.value.registerResult?.let { result ->
+            Toast.makeText(context, result, Toast.LENGTH_LONG).show()
         }
     }
 
@@ -135,9 +155,11 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
                         Spacer(Modifier.width(4.dp))
 
                         Icon(
-                            painterResource(R.drawable.icon_down),
+                            painterResource(R.drawable.ic_down),
                             "Open role choice",
-                            Modifier.size(12.dp),
+                            Modifier
+                                .size(12.dp)
+                                .rotate(rotationIcon.value),
                             Lagoon
                         )
                     }
@@ -199,7 +221,7 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
         ) {
             IconButton({ navController.navigateUp() }, Modifier.size(32.dp)) {
                 Icon(
-                    painterResource(R.drawable.icon_expand_left),
+                    painterResource(R.drawable.ic_expand_left),
                     "Return",
                     Modifier.fillMaxSize(),
                     Graphite
@@ -210,8 +232,16 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
         if (uiState.value.isRoleDialogVisible) {
             Box(
                 Modifier
-                    .fillMaxWidth(0.6f)
-                    .background(Graphite, RoundedCornerShape(15.dp))
+                    .fillMaxSize()
+                    .clickable(
+                        interactionSource = null,
+                        indication = null
+                    ) { viewModel.onRoleDialogToggle() })
+
+            Box(
+                Modifier
+                    .fillMaxWidth(0.6f).alpha(alphaDialog.value)
+                    .background(Graphite.copy(0.8f), RoundedCornerShape(15.dp))
                     .border(2.dp, Silver, RoundedCornerShape(15.dp))
                     .padding(20.dp)
             ) {
@@ -223,7 +253,7 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
                                 UserRole.ADMIN -> "Админ"
                                 UserRole.COORDINATOR -> "Координатор"
                                 else -> "Волонтер"
-                            }, Modifier.clickable{ viewModel.onRoleSelected(userRole) },
+                            }, Modifier.clickable { viewModel.onRoleSelected(userRole) },
                             style = extendedTypography.titleMedium.copy(
                                 if (chosen) Lagoon else Arctic,
                                 fontWeight = if (chosen) FontWeight.Bold else FontWeight.Medium

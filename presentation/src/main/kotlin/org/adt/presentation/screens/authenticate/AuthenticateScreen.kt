@@ -1,7 +1,6 @@
 package org.adt.presentation.screens.authenticate
 
 import android.widget.Toast
-import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -83,7 +82,7 @@ fun AuthenticateScreen(navController: NavHostController, viewModel: Authenticate
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painterResource(R.drawable.icon_main_heart_light),
+            painterResource(R.drawable.ic_main_heart_light),
             null,
             Modifier
                 .fillMaxSize(0.6f)

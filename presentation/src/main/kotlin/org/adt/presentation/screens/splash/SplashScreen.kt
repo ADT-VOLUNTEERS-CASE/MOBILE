@@ -83,7 +83,7 @@ fun SplashScreen(navController: NavHostController, viewModel: SplashViewModel) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painterResource(R.drawable.icon_main),
+                painterResource(R.drawable.ic_main),
                 null,
                 tint = Arctic
             )
