@@ -86,12 +86,12 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
     LaunchedEffect(uiState.value.isRoleDialogVisible) {
         if (uiState.value.isRoleDialogVisible) {
             coroutineScope {
-                launch { alphaDialog.animateTo(1f, tween(300, easing = FastOutSlowInEasing)) }
+                launch { alphaDialog.animateTo(1f, tween(400, easing = FastOutSlowInEasing)) }
                 launch { rotationIcon.animateTo(-90f, tween(400)) }
             }
         } else {
             coroutineScope {
-                launch { alphaDialog.animateTo(0f, tween(200)) }
+                launch { alphaDialog.animateTo(0f, tween(400, easing = FastOutSlowInEasing)) }
                 launch { rotationIcon.animateTo(0f, tween(400)) }
             }
         }
@@ -205,7 +205,7 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
                 Spacer(Modifier.height(15.dp))
 
                 CustomTranslucentButton(
-                    "Начать",
+                    "Зарегистрировать",
                     uiState.value.isFormValid,
                     uiState.value.isLoading
                 ) { viewModel.onStartClick() }
@@ -241,7 +241,7 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
             Box(
                 Modifier
                     .fillMaxWidth(0.6f).alpha(alphaDialog.value)
-                    .background(Graphite.copy(0.8f), RoundedCornerShape(15.dp))
+                    .background(Graphite.copy(0.9f), RoundedCornerShape(15.dp))
                     .border(2.dp, Silver, RoundedCornerShape(15.dp))
                     .padding(20.dp)
             ) {
