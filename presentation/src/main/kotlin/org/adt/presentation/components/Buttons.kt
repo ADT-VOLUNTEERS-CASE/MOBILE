@@ -1,5 +1,6 @@
 package org.adt.presentation.components
 
+import android.widget.Button
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -42,12 +43,13 @@ import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.theme.mainTypography
+import java.nio.file.WatchEvent
 
 @Composable
-fun CustomLiteRoundedButton(value: String, onClick: () -> Unit) {
+fun CustomLiteRoundedButton(modifier: Modifier,value: String, onClick: () -> Unit) {
     Button(
         onClick,
-        Modifier
+        modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(48.dp)),
         true,
@@ -59,10 +61,10 @@ fun CustomLiteRoundedButton(value: String, onClick: () -> Unit) {
 }
 
 @Composable
-fun CustomRoundedButton(value: String, onClick: () -> Unit) {
+fun CustomRoundedButton(modifier: Modifier,value: String, onClick: () -> Unit) {
     Button(
         onClick,
-        Modifier
+        modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(17.dp)),
         true,
@@ -74,10 +76,10 @@ fun CustomRoundedButton(value: String, onClick: () -> Unit) {
 }
 
 @Composable
-fun CustomWideButton(value: String, onClick: () -> Unit) {
+fun CustomWideButton(modifier: Modifier,value: String, onClick: () -> Unit) {
     Button(
         onClick,
-        Modifier
+        modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(7.dp)),
         true,
@@ -93,10 +95,10 @@ fun CustomWideButton(value: String, onClick: () -> Unit) {
 }
 
 @Composable
-fun SquaredIconButton(resId: Int, sizeDp: Dp, onClick: () -> Unit) {
+fun SquaredIconButton(modifier: Modifier,resId: Int, sizeDp: Dp, onClick: () -> Unit) {
     IconButton(
         onClick,
-        Modifier
+        modifier
             .size(sizeDp)
             .clip(RoundedCornerShape(10.dp))
             .background(Mint)
@@ -118,23 +120,25 @@ fun SquaredIconButton(resId: Int, sizeDp: Dp, onClick: () -> Unit) {
 @Preview
 @Composable
 private fun CustomLiteRoundedButtonPreview() {
-    CustomLiteRoundedButton("Смотреть все") { }
+    CustomLiteRoundedButton(modifier = Modifier,"Смотреть все") { }
 }
 
 @Preview
 @Composable
 private fun CustomRoundedButtonPreview() {
-    CustomRoundedButton("Создать заметку") { }
+    CustomRoundedButton(modifier = Modifier,"Создать заметку") { }
 }
 
 @Preview
 @Composable
 private fun CustomWideButtonPreview() {
-    CustomWideButton("Добавить") { }
+    CustomWideButton(modifier = Modifier,"Добавить") { }
 }
 
 @Preview
 @Composable
 private fun SquaredIconButtonPreview() {
-    SquaredIconButton(R.drawable.ic_trash, 45.dp) { }
+    SquaredIconButton(modifier = Modifier,R.drawable.ic_trash, 45.dp) { }
 }
+
+

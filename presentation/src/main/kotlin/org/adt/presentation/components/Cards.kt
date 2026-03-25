@@ -1,5 +1,6 @@
 package org.adt.presentation.components
 
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,11 +23,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.savedstate.serialization.decodeFromSavedState
@@ -64,7 +67,7 @@ fun NoteCard(title: String, date: String, time: String, onDeleteClick: () -> Uni
 
         Text(time, style = mainTypography.titleLarge.copy(fontSize = 40.sp))
 
-        SquaredIconButton(R.drawable.ic_trash, 45.dp) { onDeleteClick() }
+        SquaredIconButton(Modifier, R.drawable.ic_trash, 45.dp) { onDeleteClick() }
     }
 }
 
@@ -308,38 +311,6 @@ fun CardAddEvent(onClick: () -> Unit) {
 
         }
     }
-    @Composable
-    fun CardEvent(image: Int, title: String, date: String, time: String) {
-        Box(
-            modifier = Modifier
-                .width(145.dp)
-                .height(190.dp)
-                .background(color = Abyss, shape = RoundedCornerShape(8.dp))
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                Image(
-                    painter = painterResource(R.drawable.ic_launcher_background),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(134.dp)
-                        .height(125.dp)
-                        .padding(top = 6.dp)
-                        .clip(shape = RoundedCornerShape(8.dp)), contentScale = ContentScale.Crop
-                )
-
-
-
-                Text(text = title, modifier = Modifier.padding(top = 7.dp))
-                Text(text = date)
-                Text(text = time)
-            }
-        }
-    }
-
 }
 
 @Composable
@@ -426,14 +397,157 @@ fun CardDescriptionEvent(
         }
         Text(text = title)
         Text(text = description)
+        CustomRoundedButton(modifier = Modifier, "Приступить!") { {} }
+    }
+}
 
-        CustomRoundedButton("Приступить!") { {} }
+@Composable
+fun CardAllDescriptionEvent(
+    modifier: Modifier = Modifier,
+    imae: Int,
+    title: String,
+    description: String
+) {
+    Column(
+        modifier = modifier
+            .width(321.dp)
+            .height(492.dp)
+            .background(color = Arctic, RoundedCornerShape(17.dp)),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(top = 20.dp)
+                .width(300.dp)
+                .height(281.dp)
+                .background(color = Abyss, shape = RoundedCornerShape(17.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = imae),
+                contentDescription = null,
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(17.dp))
+                    .width(279.dp)
+                    .height(259.dp),
+                contentScale = ContentScale.Crop
+            )
+        }
+        Text(
+            text = title,
+            style = mainTypography.titleLarge.copy(fontSize = 19.sp, color = Black),
+            modifier = Modifier.padding(top = 15.dp)
+        )
+        Text(
+            text = description,
+            style = mainTypography.titleMedium.copy(fontSize = 15.sp, color = Grey),
+            modifier = Modifier
+                .padding(top = 9.dp)
+                .width(300.dp)
+                .height(61.dp)
+        )
+        CustomLiteRoundedButton(
+            modifier = Modifier.padding(
+                start = 11.dp,
+                end = 10.dp,
+                top = 28.dp
+            ), "Приступить!"
+        ) { }
+    }
+
+}
+
+@Composable
+fun CardEventMonitoring(modifier: Modifier = Modifier, color: Color, count: String, text: String) {
+    Row(
+        modifier = modifier
+            .width(300.dp)
+            .height(85.dp)
+            .background(color = color, shape = RoundedCornerShape(14.dp)),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = count,
+            style = mainTypography.titleMedium.copy(fontSize = 48.sp, color = Arctic),
+            modifier = Modifier.padding(start = 35.dp, top = 14.dp)
+        )
+        Text(
+            text = text,
+            style = mainTypography.titleMedium.copy(fontSize = 22.sp, color = Arctic),
+            modifier = Modifier.padding(end = 15.dp, top = 18.dp, start = 22.dp),
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+fun CardCountUser(
+    modifier: Modifier = Modifier,
+    countAll: String,
+    countNew: String,
+    countActive:String, 
+    size: Dp
+) {
+    Column(
+        modifier = Modifier
+            .width(size)
+            .height(100.dp)
+            .background(color = Abyss, shape = RoundedCornerShape(10.dp))
+    ) {
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 13.dp)) {
+            Text(
+                text = "Всего:",
+                style = mainTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+                modifier = Modifier.padding(start = 5.dp, end = 5.dp)
+            )
+            Text(
+                text = countAll,
+                style = mainTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
+            )
+        }
+
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 10.dp)) {
+            Text(
+                text = "Новые:",
+                style = mainTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+                modifier = Modifier.padding(start = 5.dp, end = 5.dp)
+            )
+            Text(
+                text = countNew,
+                style = mainTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
+            )
+        }
+
+
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 10.dp)) {
+            Text(
+                text = "Активные:",
+                style = mainTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+                modifier = Modifier.padding(start = 5.dp, end = 5.dp)
+            )
+            Text(
+                text = countActive,
+                style = mainTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
+            )
+        }
 
     }
 
 }
 
 
+
+@Preview
+@Composable
+private fun CardCountUserPreview() {
+    CardCountUser(modifier = Modifier, "150", "14", "24", 172.dp)
+}
 
 @Preview
 @Composable
@@ -451,7 +565,7 @@ private fun CardEventPrev() {
 @Preview
 @Composable
 private fun CardAddEventPreview() {
-    VolunteersCaseTheme {CardAddEvent { } }
+    VolunteersCaseTheme { CardAddEvent { } }
 }
 
 @Preview
@@ -497,4 +611,24 @@ private fun CardHoursGoodWorkPreview() {
 @Composable
 private fun CardAchievementOfTheWeekPreview() {
     CardAchievementOfTheWeek(modifier = Modifier, "эко-герой")
+}
+
+@Preview
+@Composable
+private fun CardAllDescriptionEventPrev() {
+    VolunteersCaseTheme {
+        CardAllDescriptionEvent(
+            modifier = Modifier,
+            R.drawable.ic_launcher_background,
+            "Соседский книжный шкаф",
+            "Создай в своём дворе библиотеку для всех желающих: поставь полку, делись книгами и поддерживай в ней порядок."
+        )
+    }
+
+}
+
+@Preview
+@Composable
+private fun CardEventMonitoringPreview() {
+    CardEventMonitoring(modifier = Modifier, Abyss, "10", "подозрительных входа")
 }
