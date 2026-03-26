@@ -11,8 +11,11 @@
 
 ## Types of changes
 <!--- What types of changes does your code introduce? Put an `x` in all the boxes that apply: -->
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
+
+<!-- (non-compactible with previous versions, e.g. repository logic or api-interface-related changes) !-->
+- [ ] Breaking change
+- [ ] Bug fix (fixes an issue)
+- [ ] New feature (adds functionality)
 
 ## Checklist:
 <!--- Go over all the following points, and put an `x` in all the boxes that apply. -->
