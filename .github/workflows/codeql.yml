@@ -20,6 +20,7 @@ jobs:
       packages: read
 
     env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
       ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
       ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
@@ -36,12 +37,14 @@ jobs:
 
       - name: Setup Gradle cache
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true
 
       # Recreate keystore from base64 secret
       - name: Restore Android keystore
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        if: env.ANDROID_KEYSTORE_BASE64 != ''
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > release.jks
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > release.jks
           echo "ANDROID_KEYSTORE_PATH=$PWD/release.jks" >> $GITHUB_ENV
 
       - name: Initialize CodeQL
@@ -53,7 +56,7 @@ jobs:
       - name: Build Android release variant
         run: |
           chmod +x ./gradlew
-          ./gradlew clean assembleProdRelease --stacktrace --no-daemon
+          ./gradlew buildRelease --no-build-cache --no-daemon
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
