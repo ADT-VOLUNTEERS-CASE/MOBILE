@@ -54,7 +54,7 @@ jobs:
       - name: Build Android release variant
         run: |
           chmod +x ./gradlew
-          ./gradlew clean assembleProdRelease --stacktrace --no-daemon
+          ./gradlew clean assembleRelease --stacktrace --no-daemon
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
