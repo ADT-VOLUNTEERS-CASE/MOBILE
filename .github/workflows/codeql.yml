@@ -37,6 +37,8 @@ jobs:
 
       - name: Setup Gradle cache
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true
 
       # Recreate keystore from base64 secret
       - name: Restore Android keystore
@@ -54,7 +56,7 @@ jobs:
       - name: Build Android release variant
         run: |
           chmod +x ./gradlew
-          ./gradlew buildRelease
+          ./gradlew buildRelease --no-build-cache --no-daemon
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
