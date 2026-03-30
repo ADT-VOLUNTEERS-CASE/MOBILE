@@ -137,7 +137,11 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
 
                 Spacer(Modifier.height(4.dp))
 
-                Row(Modifier.fillMaxWidth(), Arrangement.Center, Alignment.CenterVertically) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    Arrangement.Center,
+                    Alignment.CenterVertically
+                ) {
                     Row(
                         Modifier.clickable { viewModel.onRoleDialogToggle() },
                         Arrangement.Center,

@@ -1,9 +1,9 @@
-package org.adt.core.entities.response
+package org.adt.core.entities
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class TagResponse(
+data class Tag(
     val tagId: Long,
     val tagName: String
 )

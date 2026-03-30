@@ -1,6 +1,7 @@
 package org.adt.core.entities.response
 
 import kotlinx.serialization.Serializable
+import org.adt.core.entities.Tag
 
 @Serializable
 data class UserResponse(
@@ -10,7 +11,7 @@ data class UserResponse(
     val patronymic: String?,
     val phoneNumber: String?,
     val email: String?,
-    val tags: List<TagResponse>,
+    val tags: List<Tag>,
     val admin: Boolean,
     val coordinator: Boolean
 )

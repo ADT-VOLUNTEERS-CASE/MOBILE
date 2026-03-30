@@ -14,7 +14,7 @@ import org.adt.presentation.theme.extendedTypography
 @Composable
 fun TypingText(
     text: String,
-    align: TextAlign,
+    align: TextAlign = TextAlign.Start,
     charDelay: Long = 40L,
     delay: Long = 0
 ) {

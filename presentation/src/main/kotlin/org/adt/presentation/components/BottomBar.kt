@@ -17,17 +17,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.adt.core.entities.UserRole
 import org.adt.presentation.R
+import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Lagoon
 
 @Composable
-fun CustomBottomBar(role: UserRole) {
+fun CustomBottomBar(role: UserRole, currentDestination: Destinations, horizontalPadding: Dp) {
     Row(
         Modifier
             .fillMaxWidth()
+            .padding(horizontal = horizontalPadding)
             .height(50.dp)
             .clip(RoundedCornerShape(32.dp))
             .background(Lagoon)
@@ -37,15 +40,18 @@ fun CustomBottomBar(role: UserRole) {
     ) {
         when (role) {
             UserRole.ADMIN -> {
-                IconButton({ TODO() }, shape = RectangleShape) {
+                IconButton(
+                    { if (currentDestination != Destinations.AdminHome) Destinations.AdminHome },
+                    shape = RoundedCornerShape(5.dp)
+                ) {
                     Icon(
-                        painterResource(R.drawable.ic_home), 
+                        painterResource(R.drawable.ic_home),
                         "Home",
-                        Modifier.height(24.dp), 
+                        Modifier.height(24.dp),
                         Arctic)
                 }
 
-                IconButton({ TODO() }, shape = RectangleShape) {
+                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
                     Icon(
                         painterResource(R.drawable.ic_group),
                         "Group",
@@ -53,7 +59,7 @@ fun CustomBottomBar(role: UserRole) {
                         Color.Unspecified)
                 }
 
-                IconButton({ TODO() }, shape = RectangleShape) {
+                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
                     Icon(
                         painterResource(R.drawable.ic_calendar),
                         "Calendar",
@@ -62,7 +68,7 @@ fun CustomBottomBar(role: UserRole) {
                     )
                 }
 
-                IconButton({ TODO() }, shape = RectangleShape) {
+                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
                     Icon(
                         painterResource(R.drawable.ic_settings),
                         "Settings",
@@ -71,7 +77,7 @@ fun CustomBottomBar(role: UserRole) {
                 }
             }
             UserRole.VOLUNTEER -> {
-                IconButton({ TODO() }, shape = RectangleShape) {
+                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
                     Icon(
                         painterResource(R.drawable.ic_home),
                         "Home",
@@ -79,7 +85,7 @@ fun CustomBottomBar(role: UserRole) {
                         Arctic)
                 }
 
-                IconButton({ TODO() }, shape = RectangleShape) {
+                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
                     Icon(
                         painterResource(R.drawable.ic_search_bold),
                         "Search",
@@ -87,7 +93,7 @@ fun CustomBottomBar(role: UserRole) {
                         Color.Unspecified)
                 }
 
-                IconButton({ TODO() }, shape = RectangleShape) {
+                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
                     Icon(
                         painterResource(R.drawable.ic_schedule),
                         "Schedule",
@@ -96,7 +102,7 @@ fun CustomBottomBar(role: UserRole) {
                     )
                 }
 
-                IconButton({ TODO() }, shape = RectangleShape) {
+                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
                     Icon(
                         painterResource(R.drawable.ic_single),
                         "Profile",
@@ -105,7 +111,7 @@ fun CustomBottomBar(role: UserRole) {
                 }
             }
             UserRole.COORDINATOR -> {
-                IconButton({ TODO() }, shape = RectangleShape) {
+                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
                     Icon(
                         painterResource(R.drawable.ic_home),
                         "Home",
@@ -113,7 +119,7 @@ fun CustomBottomBar(role: UserRole) {
                         Arctic)
                 }
 
-                IconButton({ TODO() }, shape = RectangleShape) {
+                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
                     Icon(
                         painterResource(R.drawable.ic_pencil),
                         "Edit",
@@ -121,7 +127,7 @@ fun CustomBottomBar(role: UserRole) {
                         Color.Unspecified)
                 }
 
-                IconButton({ TODO() }, shape = RectangleShape) {
+                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
                     Icon(
                         painterResource(R.drawable.ic_schedule),
                         "Schedule",
@@ -130,7 +136,7 @@ fun CustomBottomBar(role: UserRole) {
                     )
                 }
 
-                IconButton({ TODO() }, shape = RectangleShape) {
+                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
                     Icon(
                         painterResource(R.drawable.ic_single),
                         "Profile",
@@ -146,5 +152,5 @@ fun CustomBottomBar(role: UserRole) {
 @Preview
 @Composable
 private fun CustomBottomBarPreview() {
-    CustomBottomBar(UserRole.ADMIN)
+    CustomBottomBar(UserRole.ADMIN, Destinations.AdminHome,0.dp)
 }
