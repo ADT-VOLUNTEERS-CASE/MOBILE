@@ -41,7 +41,7 @@ class AuthenticateViewModel @Inject constructor(
                     _uiState.value.password
                 )
                 if (response.first == 200) {
-                    _uiState.value.copy(authError = null)
+                    _uiState.value = _uiState.value.copy(authError = null)
                     response.second.onSuccess {
                         val result = _dataRepository.userInfo()
                         result.onSuccess { value ->

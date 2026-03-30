@@ -68,7 +68,7 @@ class RegisterViewModel @Inject constructor(
                     true
                 )
                 if (response.first == 200) {
-                    _uiState.value.copy(registerError = null)
+                    _uiState.value = _uiState.value.copy(registerError = null)
                     response.second.onSuccess {
                         val result = _dataRepository.userInfo()
                         result.onSuccess { value ->

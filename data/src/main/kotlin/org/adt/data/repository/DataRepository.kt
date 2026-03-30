@@ -8,7 +8,6 @@ import org.adt.core.entities.request.FindLocationRequest
 import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.response.ErrorResponse
-import org.adt.core.entities.response.FindLocationResponse
 import org.adt.core.entities.response.UserResponse
 import org.adt.data.abstraction.IConfigRepository
 import org.adt.data.abstraction.INetworkRepository

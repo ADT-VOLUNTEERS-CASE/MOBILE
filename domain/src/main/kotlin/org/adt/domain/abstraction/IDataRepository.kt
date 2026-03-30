@@ -2,7 +2,6 @@ package org.adt.domain.abstraction
 
 import org.adt.core.entities.Location
 import org.adt.core.entities.UserRole
-import org.adt.core.entities.response.FindLocationResponse
 import org.adt.core.entities.response.UserResponse
 
 interface IDataRepository {

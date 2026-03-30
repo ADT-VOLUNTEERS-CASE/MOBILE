@@ -91,7 +91,7 @@ interface INetworkRepository {
     suspend fun createLocation(
         @Header("Authorization") auth: String,
         @Body request: LocationRequest
-    ): Result<Int>
+    ): Response<Int>
 
     /**
      * 200 - Success
