@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">presentation</string>
+    <string name="base_title">Мероприятие</string>
+    <string name="base_description">Описание</string>
 </resources>

@@ -1,4 +1,4 @@
-package org.adt.presentation.components
+package org.adt.presentation.components.cards
 
 
 import androidx.compose.foundation.Image
@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,14 +28,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.savedstate.serialization.decodeFromSavedState
+import org.adt.data.model.AllDescriptionEvent
 import org.adt.presentation.R
+import org.adt.presentation.components.CustomLiteRoundedButton
+import org.adt.presentation.components.CustomRoundedButton
+import org.adt.presentation.components.SquaredIconButton
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Black
@@ -44,9 +50,15 @@ import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.theme.mainTypography
 
 @Composable
-fun NoteCard(title: String, date: String, time: String, onDeleteClick: () -> Unit) {
+fun NoteCard(
+    modifier: Modifier = Modifier,
+    title: String,
+    date: String,
+    time: String,
+    onDeleteClick: () -> Unit
+) {
     Row(
-        Modifier
+        modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
             .background(Arctic)
@@ -72,9 +84,9 @@ fun NoteCard(title: String, date: String, time: String, onDeleteClick: () -> Uni
 }
 
 @Composable
-fun CardStatistics(onClick: () -> Unit) {
+fun CardStatistics(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .width(155.dp)
             .height(120.dp)
             .background(color = Arctic, shape = RoundedCornerShape(18.dp))
@@ -108,9 +120,9 @@ fun CardStatistics(onClick: () -> Unit) {
 
 
 @Composable
-fun CardCalendar(onClick: () -> Unit) {
+fun CardCalendar(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .width(155.dp)
             .height(120.dp)
             .background(color = Arctic, shape = RoundedCornerShape(18.dp))
@@ -172,7 +184,7 @@ fun CardStatisticsCountGoodWork(modifier: Modifier = Modifier, count: String) {
 @Composable
 fun CardAllCountGoodWork(modifier: Modifier = Modifier, countGoodWork: String) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .width(300.dp)
             .height(123.dp)
             .background(color = Lagoon, shape = RoundedCornerShape(14.dp))
@@ -205,7 +217,7 @@ fun CardAllCountGoodWork(modifier: Modifier = Modifier, countGoodWork: String) {
 @Composable
 fun CardHoursGoodWork(modifier: Modifier = Modifier, hoursGoodWork: String) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .width(300.dp)
             .height(133.dp)
             .background(
@@ -241,7 +253,7 @@ fun CardHoursGoodWork(modifier: Modifier = Modifier, hoursGoodWork: String) {
 @Composable
 fun CardAchievementOfTheWeek(modifier: Modifier = Modifier, achievement: String) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .width(145.dp)
             .height(124.dp)
             .background(color = Lagoon, shape = RoundedCornerShape(14.dp)),
@@ -270,9 +282,9 @@ fun CardAchievementOfTheWeek(modifier: Modifier = Modifier, achievement: String)
 }
 
 @Composable
-fun CardAddEvent(onClick: () -> Unit) {
+fun CardAddEvent(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .width(155.dp)
             .height(120.dp)
             .background(color = Arctic, shape = RoundedCornerShape(18.dp))
@@ -314,9 +326,15 @@ fun CardAddEvent(onClick: () -> Unit) {
 }
 
 @Composable
-fun CardEvent(image: Int, title: String, date: String, time: String) {
+fun CardEvent(
+    modifier: Modifier = Modifier,
+    image: Int,
+    title: String,
+    date: String,
+    time: String
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .height(190.dp)
             .width(145.dp)
             .background(color = Abyss, shape = RoundedCornerShape(8.dp))
@@ -375,7 +393,7 @@ fun CardDescriptionEvent(
     onClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .padding(start = 39.dp, end = 40.dp, top = 219.dp, bottom = 149.dp)
             .fillMaxSize()
     ) {
@@ -404,10 +422,10 @@ fun CardDescriptionEvent(
 @Composable
 fun CardAllDescriptionEvent(
     modifier: Modifier = Modifier,
-    imae: Int,
-    title: String,
-    description: String
+    allDescriptionEvent: AllDescriptionEvent,
+    onClick: () -> Unit
 ) {
+    val state = rememberScrollState()
     Column(
         modifier = modifier
             .width(321.dp)
@@ -424,7 +442,7 @@ fun CardAllDescriptionEvent(
             contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(id = imae),
+                painter = painterResource(id = if (allDescriptionEvent.image == 0) R.drawable.baseimage else allDescriptionEvent.image),
                 contentDescription = null,
                 modifier = Modifier
                     .clip(shape = RoundedCornerShape(17.dp))
@@ -434,17 +452,20 @@ fun CardAllDescriptionEvent(
             )
         }
         Text(
-            text = title,
+            text = (if (allDescriptionEvent.title == "") stringResource(R.string.base_title) else allDescriptionEvent.title),
             style = mainTypography.titleLarge.copy(fontSize = 19.sp, color = Black),
-            modifier = Modifier.padding(top = 15.dp)
+            modifier = Modifier
+                .padding(top = 15.dp, start = 10.dp)
+                .fillMaxWidth()
         )
         Text(
-            text = description,
+            text = (if (allDescriptionEvent.description == "") stringResource(R.string.base_description) else allDescriptionEvent.description),
             style = mainTypography.titleMedium.copy(fontSize = 15.sp, color = Grey),
             modifier = Modifier
                 .padding(top = 9.dp)
                 .width(300.dp)
                 .height(61.dp)
+                .verticalScroll(state)
         )
         CustomLiteRoundedButton(
             modifier = Modifier.padding(
@@ -485,18 +506,20 @@ fun CardCountUser(
     modifier: Modifier = Modifier,
     countAll: String,
     countNew: String,
-    countActive:String, 
+    countActive: String,
     size: Dp
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .width(size)
             .height(100.dp)
             .background(color = Abyss, shape = RoundedCornerShape(10.dp))
     ) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 13.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 13.dp)
+        ) {
             Text(
                 text = "Всего:",
                 style = mainTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
@@ -508,9 +531,11 @@ fun CardCountUser(
             )
         }
 
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 10.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp)
+        ) {
             Text(
                 text = "Новые:",
                 style = mainTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
@@ -523,9 +548,11 @@ fun CardCountUser(
         }
 
 
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 10.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp)
+        ) {
             Text(
                 text = "Активные:",
                 style = mainTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
@@ -542,7 +569,6 @@ fun CardCountUser(
 }
 
 
-
 @Preview
 @Composable
 private fun CardCountUserPreview() {
@@ -552,13 +578,13 @@ private fun CardCountUserPreview() {
 @Preview
 @Composable
 private fun NoteCardPreview() {
-    NoteCard("Уборка", "14 апреля", "15:30") { }
+    NoteCard(Modifier, "Уборка", "14 апреля", "15:30") { }
 }
 
 @Preview
 @Composable
 private fun CardEventPrev() {
-    CardEvent(R.drawable.ic_launcher_background, "Название", "12.04.1989", "11:00")
+    CardEvent(Modifier, R.drawable.ic_launcher_background, "Название", "12.04.1989", "11:00")
 
 }
 
@@ -584,7 +610,7 @@ private fun CardStatisticsPreview() {
 @Preview
 @Composable
 private fun CardEventPreview() {
-    CardEvent(R.drawable.ic_launcher_background, "М1", "Дата", "Время")
+    CardEvent(Modifier, image = R.drawable.ic_launcher_background, "М1", "Дата", "Время")
 
 }
 
@@ -619,9 +645,14 @@ private fun CardAllDescriptionEventPrev() {
     VolunteersCaseTheme {
         CardAllDescriptionEvent(
             modifier = Modifier,
-            R.drawable.ic_launcher_background,
-            "Соседский книжный шкаф",
-            "Создай в своём дворе библиотеку для всех желающих: поставь полку, делись книгами и поддерживай в ней порядок."
+            AllDescriptionEvent(
+                R.drawable.ic_launcher_background,
+                "Соседский книжный шкаф",
+                "Создай в своём дворе библиотеку для всех желающих: поставь полку, делись книгами и поддерживай в ней порядок.",
+                time = "13:40",
+                date = "01.01"
+            ),
+            {}
         )
     }
 
