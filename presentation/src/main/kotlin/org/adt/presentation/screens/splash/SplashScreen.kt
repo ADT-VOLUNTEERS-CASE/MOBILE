@@ -95,7 +95,7 @@ fun SplashScreen(navController: NavHostController, viewModel: SplashViewModel) {
                 .padding(horizontal = 40.dp),
             contentAlignment = Alignment.Center
         ) {
-            TypingText("Твоё следующее доброе дело ждёт своего момента", TextAlign.Center, 40L)
+            TypingText(Modifier,"Твоё следующее доброе дело ждёт своего момента", TextAlign.Center, 40L)
         }
     }
 }

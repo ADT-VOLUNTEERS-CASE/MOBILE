@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.adt.domain.abstraction.IDataRepository
 import org.adt.domain.abstraction.IDomainRepository
 import org.adt.presentation.navigation.Destinations
@@ -34,7 +35,7 @@ class AuthenticateViewModel @Inject constructor(
 
     fun onContinueClick(navController: NavHostController) {
         if (_uiState.value.isFormValid) {
-            viewModelScope.launch(Dispatchers.Main) {
+            viewModelScope.launch(Dispatchers.IO) {
                 _uiState.value = _uiState.value.copy(isLoading = true)
                 val response = _dataRepository.authenticate(
                     _uiState.value.email,
@@ -50,12 +51,15 @@ class AuthenticateViewModel @Inject constructor(
                                 value.coordinator -> Destinations.CoordinatorHome
                                 else -> Destinations.VolunteerHome
                             }
-                            navController.navigate(destination) {
-                                popUpTo(Destinations.Authenticate) { inclusive = true }
-                                launchSingleTop = true
+                            withContext(Dispatchers.Main) {
+                                navController.navigate(destination) {
+                                    popUpTo(Destinations.Authenticate) { inclusive = true }
+                                    launchSingleTop = true
+                                }
                             }
                         }.onFailure { exception ->
                             Log.e("role", "Role check failed", exception)
+                            _uiState.value = _uiState.value.copy(authError = "Не удалось получить данные пользователя")
                         }
                     }.onFailure { exception ->
                         Log.e("auth", "Failure", exception)

@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.adt.core.entities.UserRole
 import org.adt.domain.abstraction.IDataRepository
 import org.adt.domain.abstraction.IDomainRepository
@@ -50,12 +51,13 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun onAcceptedChange() {
-        _uiState.value = _uiState.value.copy(accepted = !_uiState.value.accepted, registerError = null)
+        _uiState.value =
+            _uiState.value.copy(accepted = !_uiState.value.accepted, registerError = null)
     }
 
     fun onStartClick(navController: NavHostController) {
         if (_uiState.value.isFormValid) {
-            viewModelScope.launch(Dispatchers.Main) {
+            viewModelScope.launch(Dispatchers.IO) {
                 _uiState.value = _uiState.value.copy(isLoading = true)
                 val response = _dataRepository.register(
                     _uiState.value.firstname,
@@ -77,12 +79,15 @@ class RegisterViewModel @Inject constructor(
                                 value.coordinator -> Destinations.CoordinatorHome
                                 else -> Destinations.VolunteerHome
                             }
-                            navController.navigate(destination) {
-                                popUpTo(Destinations.Register) { inclusive = true }
-                                launchSingleTop = true
+                            withContext(Dispatchers.Main) {
+                                navController.navigate(destination) {
+                                    popUpTo(Destinations.Register) { inclusive = true }
+                                    launchSingleTop = true
+                                }
                             }
                         }.onFailure { exception ->
                             Log.e("role", "Role check failed", exception)
+                            _uiState.value = _uiState.value.copy(authError = "Не удалось получить данные пользователя")
                         }
                     }.onFailure { exception ->
                         Log.e("register", "Failure", exception)

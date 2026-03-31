@@ -52,7 +52,7 @@ fun CustomCalendar(modifier: Modifier = Modifier) {
     val startMonth = remember { currentMonth.minusMonths(100) }
     val endMonth = remember { currentMonth.plusMonths(100) }
     val firstDayOfWeek = remember { firstDayOfWeekFromLocale() }
-    val daysOfWeek = remember { daysOfWeek() }
+    val daysOfWeek = remember { daysOfWeek(firstDayOfWeek) }
 
     val state = rememberCalendarState(
         startMonth = startMonth,

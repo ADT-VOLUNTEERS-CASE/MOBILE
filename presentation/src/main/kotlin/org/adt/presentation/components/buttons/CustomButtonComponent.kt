@@ -26,7 +26,8 @@ fun CustomButton(
     onClick: () -> Unit,
 ) {
     val config = ButtonDefaultsProvider.config(variant, style)
-    val defaultColors = ButtonDefaultsProvider.colors(variant, style, enabled)
+    val isInteractable = enabled && !isLoading
+    val defaultColors = ButtonDefaultsProvider.colors(variant, style, isInteractable)
     val finalColors = colors ?: defaultColors
     val finalText = if (config.uppercase) text.uppercase() else text
 
@@ -41,7 +42,7 @@ fun CustomButton(
                     Modifier.border(2.dp, finalColors.borderColor, config.shape)
                 } else Modifier
             ),
-        enabled = enabled,
+        enabled = isInteractable,
         shape = config.shape,
         colors = ButtonDefaults.buttonColors(
             containerColor = finalColors.containerColor,

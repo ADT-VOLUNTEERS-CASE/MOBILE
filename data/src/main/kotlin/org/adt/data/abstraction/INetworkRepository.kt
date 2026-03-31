@@ -14,6 +14,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface INetworkRepository {
@@ -110,10 +111,10 @@ interface INetworkRepository {
      * 400 - Invalid data
      * 404 - Does not exist
      */
-    @POST("location/all")
+    @POST("location/update/{locationId}")
     suspend fun updateLocation(
         @Header("Authorization") auth: String,
-        @Query("locationId") locationId: Int,
+        @Path("locationId") locationId: Int,
         @Body request: LocationRequest
     ): Response<Location>
 

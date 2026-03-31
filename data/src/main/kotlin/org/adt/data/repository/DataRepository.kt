@@ -140,7 +140,7 @@ internal class DataRepository @Inject constructor(
     }
 
     override suspend fun refreshToken(): Pair<Int, Result<String>> {
-        val refreshToken = configRepository.getRefreshToken() ?: throw Exception("Not authorized")
+        val refreshToken = configRepository.getRefreshToken() ?: return Pair(401, Result.failure(Exception("Not authorized")))
         val request = RefreshRequest(refreshToken)
         val response = networkRepository.refreshToken(request)
 
@@ -166,7 +166,7 @@ internal class DataRepository @Inject constructor(
     }
 
     override suspend fun findLocation(address: String) : Result<List<Location>> {
-        val token = configRepository.getToken() ?: throw Exception("Not authorized")
+        val token = configRepository.getToken() ?: return Result.failure(Exception("Not authorized"))
         val request = FindLocationRequest(address)
         val response = networkRepository.findLocation(token, 0, 10, request)
 
