@@ -1,4 +1,4 @@
-package org.adt.presentation.components
+package org.adt.presentation.components.cards
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.adt.presentation.R
+import org.adt.presentation.components.buttons.SquaredIconButton
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Silver
 import org.adt.presentation.theme.extendedTypography

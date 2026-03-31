@@ -45,7 +45,7 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
-fun CustomCalendar() {
+fun CustomCalendar(modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
 
     val currentMonth = remember { YearMonth.now() }
@@ -62,7 +62,7 @@ fun CustomCalendar() {
     )
 
     Column(
-        modifier = Modifier
+        modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
             .background(Aqua)

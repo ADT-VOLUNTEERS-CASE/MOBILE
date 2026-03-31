@@ -25,131 +25,77 @@ import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Lagoon
 
 @Composable
-fun CustomBottomBar(role: UserRole, currentDestination: Destinations, horizontalPadding: Dp) {
+fun CustomBottomBar(
+    modifier: Modifier = Modifier,
+    role: UserRole,
+    currentDestination: Destinations,
+    onNavigate: (Destinations) -> Unit
+) {
     Row(
-        Modifier
+        modifier
             .fillMaxWidth()
-            .padding(horizontal = horizontalPadding)
             .height(50.dp)
             .clip(RoundedCornerShape(32.dp))
             .background(Lagoon)
             .padding(horizontal = 32.dp),
-        Arrangement.SpaceBetween,
-        Alignment.CenterVertically
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         when (role) {
             UserRole.ADMIN -> {
-                IconButton(
-                    { if (currentDestination != Destinations.AdminHome) Destinations.AdminHome },
-                    shape = RoundedCornerShape(5.dp)
-                ) {
-                    Icon(
-                        painterResource(R.drawable.ic_home),
-                        "Home",
-                        Modifier.height(24.dp),
-                        Arctic)
+                BottomBarItem(icon = R.drawable.ic_home) {
+                    if (currentDestination != Destinations.AdminHome) onNavigate(Destinations.AdminHome)
                 }
-
-                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
-                    Icon(
-                        painterResource(R.drawable.ic_group),
-                        "Group",
-                        Modifier.height(24.dp),
-                        Color.Unspecified)
-                }
-
-                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
-                    Icon(
-                        painterResource(R.drawable.ic_calendar),
-                        "Calendar",
-                        Modifier.height(24.dp),
-                        Arctic
-                    )
-                }
-
-                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
-                    Icon(
-                        painterResource(R.drawable.ic_settings),
-                        "Settings",
-                        Modifier.height(24.dp),
-                        Arctic)
-                }
+                BottomBarItem(icon = R.drawable.ic_group) { }
+                BottomBarItem(icon = R.drawable.ic_calendar) { }
+                BottomBarItem(icon = R.drawable.ic_settings) { }
             }
+
             UserRole.VOLUNTEER -> {
-                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
-                    Icon(
-                        painterResource(R.drawable.ic_home),
-                        "Home",
-                        Modifier.height(24.dp),
-                        Arctic)
-                }
-
-                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
-                    Icon(
-                        painterResource(R.drawable.ic_search_bold),
-                        "Search",
-                        Modifier.height(24.dp),
-                        Color.Unspecified)
-                }
-
-                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
-                    Icon(
-                        painterResource(R.drawable.ic_schedule),
-                        "Schedule",
-                        Modifier.height(24.dp),
-                        Arctic
-                    )
-                }
-
-                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
-                    Icon(
-                        painterResource(R.drawable.ic_single),
-                        "Profile",
-                        Modifier.height(24.dp),
-                        Arctic)
-                }
+                BottomBarItem(icon = R.drawable.ic_home) { }
+                BottomBarItem(icon = R.drawable.ic_search_bold) { }
+                BottomBarItem(icon = R.drawable.ic_schedule) { }
+                BottomBarItem(icon = R.drawable.ic_single) { }
             }
+
             UserRole.COORDINATOR -> {
-                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
-                    Icon(
-                        painterResource(R.drawable.ic_home),
-                        "Home",
-                        Modifier.height(24.dp),
-                        Arctic)
-                }
-
-                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
-                    Icon(
-                        painterResource(R.drawable.ic_pencil),
-                        "Edit",
-                        Modifier.height(24.dp),
-                        Color.Unspecified)
-                }
-
-                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
-                    Icon(
-                        painterResource(R.drawable.ic_schedule),
-                        "Schedule",
-                        Modifier.height(24.dp),
-                        Arctic
-                    )
-                }
-
-                IconButton({ TODO() }, shape = RoundedCornerShape(5.dp)) {
-                    Icon(
-                        painterResource(R.drawable.ic_single),
-                        "Profile",
-                        Modifier.height(24.dp),
-                        Arctic)
-                }
+                BottomBarItem(icon = R.drawable.ic_home) { }
+                BottomBarItem(icon = R.drawable.ic_pencil) { }
+                BottomBarItem(icon = R.drawable.ic_schedule) { }
+                BottomBarItem(icon = R.drawable.ic_single) { }
             }
-            UserRole.NONE -> {}
+
+            UserRole.NONE -> Unit
         }
+    }
+}
+
+@Composable
+private fun BottomBarItem(
+    modifier: Modifier = Modifier,
+    icon: Int,
+    onClick: () -> Unit
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(5.dp)
+    ) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = null,
+            modifier = Modifier.height(24.dp),
+            tint = Arctic
+        )
     }
 }
 
 @Preview
 @Composable
 private fun CustomBottomBarPreview() {
-    CustomBottomBar(UserRole.ADMIN, Destinations.AdminHome,0.dp)
+    CustomBottomBar(
+        Modifier.padding(horizontal = 20.dp),
+        UserRole.ADMIN,
+        Destinations.AdminHome
+    ) {}
 }

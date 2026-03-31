@@ -26,29 +26,29 @@ import org.adt.presentation.theme.extendedTypography
 
 @Composable
 fun CustomQuestionCheckComponent(
-    text: String, textLink: String, onChecked: (Boolean) -> Unit, onClick: () -> Unit
+    modifier: Modifier = Modifier,
+    text: String,
+    textLink: String,
+    checked: Boolean,
+    onChecked: (Boolean) -> Unit,
+    onLinkClick: () -> Unit
 ) {
-    var checked by remember { mutableStateOf(false) }
-
     Row(
-        Modifier.fillMaxWidth(),
+        modifier.fillMaxWidth(),
         Arrangement.SpaceBetween,
         Alignment.CenterVertically
     ) {
         Row(Modifier) {
             Text("$text ", style = extendedTypography.titleSmall.copy(Silver))
             Text(
-                textLink, Modifier.clickable(onClick = onClick),
+                textLink, Modifier.clickable { onLinkClick() },
                 style = extendedTypography.titleSmall.copy(Lagoon),
             )
         }
 
         Checkbox(
             checked,
-            {
-                checked = !checked
-                onChecked(checked)
-            },
+            onChecked,
             Modifier
                 .size(25.dp)
                 .clip(RoundedCornerShape(3.5.dp)),
@@ -65,5 +65,14 @@ fun CustomQuestionCheckComponent(
 @Preview(showBackground = true, backgroundColor = 353535)
 @Composable
 private fun CustomQuestionCheckComponentPreview() {
-    CustomQuestionCheckComponent("я ознакомился с ", "политикой конфиденциальности", {}) {}
+    var checked by remember { mutableStateOf(false) }
+
+    CustomQuestionCheckComponent(
+        Modifier,
+        "я ознакомился с ",
+        "политикой конфиденциальности",
+        checked,
+        {},
+        {}
+    )
 }

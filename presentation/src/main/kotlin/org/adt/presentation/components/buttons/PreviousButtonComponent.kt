@@ -1,4 +1,4 @@
-package org.adt.presentation.components
+package org.adt.presentation.components.buttons
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -105,8 +106,8 @@ fun CustomTranslucentButton(value: String, enabled: Boolean = true, isLoading: B
         Modifier
             .fillMaxWidth()
             .height(55.dp)
-            .clip(RoundedCornerShape(35.dp))
-            .border(2.dp, if (enabled) Lagoon else Lagoon.copy(0.5f), RoundedCornerShape(35.dp)),
+            .clip(CircleShape)
+            .border(2.dp, if (enabled) Lagoon else Lagoon.copy(0.5f), CircleShape),
         enabled,
         colors = ButtonDefaults.buttonColors(
             containerColor = Lagoon.copy(0.5f),

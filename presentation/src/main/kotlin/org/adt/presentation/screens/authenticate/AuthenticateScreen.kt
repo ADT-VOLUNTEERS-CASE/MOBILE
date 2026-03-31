@@ -43,7 +43,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.adt.presentation.R
 import org.adt.presentation.components.CustomTextField
-import org.adt.presentation.components.CustomTranslucentButton
+import org.adt.presentation.components.buttons.CustomTranslucentButton
 import org.adt.presentation.components.TypingText
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Milk
@@ -115,12 +115,14 @@ fun AuthenticateScreen(navController: NavHostController, viewModel: Authenticate
                 Spacer(Modifier.height(42.dp))
 
                 CustomTextField(
+                    Modifier,
                     "Почта"
                 ) { viewModel.onEmailChange(it) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
+                    Modifier,
                     "Пароль",
                     type = "password"
                 ) { viewModel.onPasswordChange(it) }

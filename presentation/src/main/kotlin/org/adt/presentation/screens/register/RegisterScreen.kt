@@ -41,7 +41,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.adt.presentation.components.CustomQuestionCheckComponent
 import org.adt.presentation.components.CustomTextField
-import org.adt.presentation.components.CustomTranslucentButton
+import org.adt.presentation.components.buttons.CustomTranslucentButton
 import org.adt.presentation.components.TypingText
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
@@ -110,36 +110,42 @@ fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewMode
                 Spacer(Modifier.height(42.dp))
 
                 CustomTextField(
+                    Modifier,
                     "Имя"
                 ) { viewModel.onFirstnameChange(it) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
+                    Modifier,
                     "Фамилия",
                 ) { viewModel.onLastnameChange(it) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
+                    Modifier,
                     "Отчество",
                 ) { viewModel.onPatronymicChange(it) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
+                    Modifier,
                     "Телефон",
                 ) { viewModel.onPhoneNumberChange(it) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
+                    Modifier,
                     "Почта",
                 ) { viewModel.onEmailChange(it) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
+                    Modifier,
                     "Пароль",
                     type = "password"
                 ) { viewModel.onPasswordChange(it) }
@@ -147,9 +153,12 @@ fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewMode
                 Spacer(Modifier.height(15.dp))
 
                 CustomQuestionCheckComponent(
+                    Modifier,
                     "я ознакомился с",
                     "политикой конфиденциальности",
-                    { viewModel.onAcceptedChange() }, { TODO() }
+                    uiState.value.accepted,
+                    { viewModel.onAcceptedChange() },
+                    { }
                 )
 
                 Spacer(Modifier.height(15.dp))

@@ -49,9 +49,9 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.adt.core.entities.UserRole
 import org.adt.presentation.R
-import org.adt.presentation.components.CustomLiteRoundedButton
+import org.adt.presentation.components.buttons.CustomLiteRoundedButton
 import org.adt.presentation.components.CustomTextField
-import org.adt.presentation.components.CustomTranslucentButton
+import org.adt.presentation.components.buttons.CustomTranslucentButton
 import org.adt.presentation.components.TypingText
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
@@ -172,36 +172,42 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
                 Spacer(Modifier.height(24.dp))
 
                 CustomTextField(
+                    Modifier,
                     "Имя"
                 ) { viewModel.onFirstnameChange(it) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
+                    Modifier,
                     "Фамилия",
                 ) { viewModel.onLastnameChange(it) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
+                    Modifier,
                     "Отчество",
                 ) { viewModel.onPatronymicChange(it) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
+                    Modifier,
                     "Телефон",
                 ) { viewModel.onPhoneNumberChange(it) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
+                    Modifier,
                     "Почта",
                 ) { viewModel.onEmailChange(it) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
+                    Modifier,
                     "Пароль",
                     type = "password"
                 ) { viewModel.onPasswordChange(it) }
@@ -244,7 +250,8 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
 
             Box(
                 Modifier
-                    .fillMaxWidth(0.6f).alpha(alphaDialog.value)
+                    .fillMaxWidth(0.6f)
+                    .alpha(alphaDialog.value)
                     .background(Graphite.copy(0.9f), RoundedCornerShape(15.dp))
                     .border(2.dp, Silver, RoundedCornerShape(15.dp))
                     .padding(20.dp)

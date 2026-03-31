@@ -42,6 +42,7 @@ import org.adt.presentation.theme.extendedTypography
 
 @Composable
 fun CustomTextField(
+    modifier: Modifier = Modifier,
     label: String,
     value: String = "",
     type: String = "",
@@ -57,7 +58,7 @@ fun CustomTextField(
             textFieldValue = it
             onValueChange(it)
         },
-        Modifier
+        modifier
             .fillMaxWidth()
             .height(55.dp)
             .clip(RoundedCornerShape(16.dp)),
@@ -99,6 +100,7 @@ fun CustomTextField(
 
 @Composable
 fun CustomSearchTextField(
+    modifier: Modifier = Modifier,
     label: String,
     value: String = "",
     onValueChange: (String) -> Unit,
@@ -113,7 +115,7 @@ fun CustomSearchTextField(
             textFieldValue = it
             onValueChange(it)
         },
-        Modifier
+        modifier
             .fillMaxWidth()
             .height(35.dp)
             .clip(RoundedCornerShape(8.dp))
@@ -154,11 +156,11 @@ fun CustomSearchTextField(
 @Preview
 @Composable
 private fun CustomTextFieldPreview() {
-    CustomTextField("CustomTextField") { }
+    CustomTextField(Modifier, "CustomTextField") { }
 }
 
 @Preview
 @Composable
 private fun CustomSearchTextFieldPreview() {
-    CustomSearchTextField("CustomSearchTextField", "", {}, {})
+    CustomSearchTextField(Modifier, "CustomSearchTextField", "", {}, {})
 }

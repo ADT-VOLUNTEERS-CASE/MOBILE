@@ -66,6 +66,7 @@ fun AdminScreen(navController: NavHostController, viewModel: AdminViewModel) {
                 TypingText("Твоё следующее доброе дело ждёт своего момента")
 
                 CustomSearchTextField(
+                    Modifier,
                     "Поиск по адресу",
                     uiState.value.searchValue,
                     { viewModel.onSearchValueChange(it) },
@@ -124,7 +125,11 @@ fun AdminScreen(navController: NavHostController, viewModel: AdminViewModel) {
         }
 
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-            CustomBottomBar(UserRole.ADMIN, Destinations.AdminHome, 40.dp)
+            CustomBottomBar(
+                Modifier.padding(horizontal = 40.dp),
+                UserRole.ADMIN,
+                Destinations.AdminHome
+            ) { navController.navigate(it) }
         }
     }
 }

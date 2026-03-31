@@ -7,12 +7,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import kotlinx.coroutines.delay
 import org.adt.presentation.theme.extendedTypography
 
 @Composable
 fun TypingText(
+    modifier: Modifier = Modifier,
     text: String,
     align: TextAlign = TextAlign.Start,
     charDelay: Long = 40L,
@@ -33,5 +35,6 @@ fun TypingText(
         text = displayedText.uppercase(),
         style = extendedTypography.displayLarge,
         textAlign = align,
+        modifier = modifier
     )
 }
