@@ -105,7 +105,7 @@ fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewMode
             ) {
                 Spacer(Modifier.height(58.dp))
 
-                TypingText("Познакомимся?", TextAlign.Center, 40L, 900)
+                TypingText(Modifier, "Познакомимся?", TextAlign.Center, 40L, 900)
 
                 Spacer(Modifier.height(42.dp))
 

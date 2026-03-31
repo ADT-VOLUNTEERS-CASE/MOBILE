@@ -63,7 +63,7 @@ fun AdminScreen(navController: NavHostController, viewModel: AdminViewModel) {
                 Arrangement.spacedBy(20.dp),
                 Alignment.CenterHorizontally
             ) {
-                TypingText("Твоё следующее доброе дело ждёт своего момента")
+                TypingText(Modifier,"Твоё следующее доброе дело ждёт своего момента")
 
                 CustomSearchTextField(
                     Modifier,

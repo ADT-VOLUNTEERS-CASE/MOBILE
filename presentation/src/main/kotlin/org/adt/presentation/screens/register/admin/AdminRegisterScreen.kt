@@ -133,7 +133,7 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
             ) {
                 Spacer(Modifier.height(58.dp))
 
-                TypingText("Познакомите?", TextAlign.Center, 40L, 900)
+                TypingText(Modifier, "Познакомите?", TextAlign.Center, 40L, 900)
 
                 Spacer(Modifier.height(4.dp))
 

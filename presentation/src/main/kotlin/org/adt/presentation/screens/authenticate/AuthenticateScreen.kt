@@ -110,7 +110,7 @@ fun AuthenticateScreen(navController: NavHostController, viewModel: Authenticate
             ) {
                 Spacer(Modifier.height(58.dp))
 
-                TypingText("Добро пожаловать!", TextAlign.Center, 40L, 900)
+                TypingText(Modifier, "Добро пожаловать!", TextAlign.Center, 40L, 900)
 
                 Spacer(Modifier.height(42.dp))
 
