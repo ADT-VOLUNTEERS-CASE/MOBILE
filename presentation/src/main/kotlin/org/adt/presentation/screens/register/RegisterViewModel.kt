@@ -87,7 +87,7 @@ class RegisterViewModel @Inject constructor(
                             }
                         }.onFailure { exception ->
                             Log.e("role", "Role check failed", exception)
-                            _uiState.value = _uiState.value.copy(authError = "Не удалось получить данные пользователя")
+                            _uiState.value = _uiState.value.copy(registerError = "Не удалось получить данные пользователя")
                         }
                     }.onFailure { exception ->
                         Log.e("register", "Failure", exception)
