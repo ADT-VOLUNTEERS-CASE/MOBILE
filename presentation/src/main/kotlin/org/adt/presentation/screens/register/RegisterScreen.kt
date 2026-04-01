@@ -36,13 +36,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.adt.presentation.components.CustomQuestionCheckComponent
 import org.adt.presentation.components.CustomTextField
-import org.adt.presentation.components.buttons.CustomTranslucentButton
 import org.adt.presentation.components.TypingText
+import org.adt.presentation.components.buttons.CustomTranslucentButton
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Milk
@@ -50,7 +49,7 @@ import org.adt.presentation.theme.extendedColor
 import org.adt.presentation.theme.extendedTypography
 
 @Composable
-fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewModel) {
+fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewModel = viewModel()) {
     val uiState = viewModel.uiState.collectAsState()
 
     val context = LocalContext.current
@@ -211,5 +210,5 @@ fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewMode
 @Preview
 @Composable
 private fun RegisterScreenPreview() {
-    RegisterScreen(rememberNavController(), viewModel())
+    //RegisterScreen(rememberNavController(), mock)
 }

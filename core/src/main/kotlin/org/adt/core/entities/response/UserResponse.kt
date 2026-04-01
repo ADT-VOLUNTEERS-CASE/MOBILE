@@ -5,13 +5,13 @@ import org.adt.core.entities.Tag
 
 @Serializable
 data class UserResponse(
-    val id: Long,
-    val firstname: String?,
-    val lastname: String?,
-    val patronymic: String?,
-    val phoneNumber: String?,
-    val email: String?,
-    val tags: List<Tag>,
-    val admin: Boolean,
-    val coordinator: Boolean
+    val id: Long = -1,
+    val firstname: String? = null,
+    val lastname: String? = null,
+    val patronymic: String? = null,
+    val phoneNumber: String? = null,
+    val email: String? = null,
+    val tags: List<Tag> = listOf(),
+    val admin: Boolean = false,
+    val coordinator: Boolean = false
 )

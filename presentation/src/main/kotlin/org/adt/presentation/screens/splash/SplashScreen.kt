@@ -13,12 +13,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -27,10 +30,34 @@ import org.adt.presentation.R
 import org.adt.presentation.components.TypingText
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Arctic
+import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.theme.extendedColor
 
 @Composable
-fun SplashScreen(navController: NavHostController, viewModel: SplashViewModel) {
+fun SplashScreen(
+    navController: NavHostController,
+    viewModel: SplashViewModel = hiltViewModel<SplashViewModel>()
+) {
+    val scope = rememberCoroutineScope()
+
+    SplashContent(pingAction = { viewModel.ping() }, navigateAction = {
+            scope.launch {
+                navController.navigate(
+                    viewModel.getDestination()
+                ) {
+                    popUpTo(Destinations.Splash) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+    })
+}
+
+@Composable
+fun SplashContent(
+    pingAction: () -> Unit,
+    navigateAction: () -> Unit,
+    textAnimationDelayOverride: Long = 40L
+) {
     val offsetIconX = remember { Animatable(0f) }
     val offsetIconY = remember { Animatable(-1000f) }
     val offsetTextX = remember { Animatable(0f) }
@@ -59,15 +86,9 @@ fun SplashScreen(navController: NavHostController, viewModel: SplashViewModel) {
 
         delay(200)
 
-        viewModel.ping()
+        pingAction.invoke()
 
-        val destination = viewModel.getDestination()
-        navController.navigate(
-            destination
-        ) {
-            popUpTo(Destinations.Splash) { inclusive = true }
-            launchSingleTop = true
-        }
+        navigateAction.invoke()
     }
 
     Box(
@@ -95,7 +116,15 @@ fun SplashScreen(navController: NavHostController, viewModel: SplashViewModel) {
                 .padding(horizontal = 40.dp),
             contentAlignment = Alignment.Center
         ) {
-            TypingText(Modifier,"Твоё следующее доброе дело ждёт своего момента", TextAlign.Center, 40L)
+            TypingText(Modifier,"Твоё следующее доброе дело ждёт своего момента", TextAlign.Center, textAnimationDelayOverride)
         }
+    }
+}
+
+@Preview
+@Composable
+private fun SplashContentPreview() {
+    VolunteersCaseTheme {
+        SplashContent({}, {}, textAnimationDelayOverride = 0L)
     }
 }

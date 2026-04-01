@@ -18,6 +18,7 @@ import org.adt.presentation.screens.register.RegisterScreen
 import org.adt.presentation.screens.register.RegisterViewModel
 import org.adt.presentation.screens.register.admin.AdminRegisterScreen
 import org.adt.presentation.screens.register.admin.AdminRegisterViewModel
+import org.adt.presentation.screens.splash.SplashContent
 import org.adt.presentation.screens.splash.SplashScreen
 import org.adt.presentation.screens.splash.SplashViewModel
 

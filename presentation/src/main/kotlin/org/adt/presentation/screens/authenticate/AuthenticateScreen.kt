@@ -36,15 +36,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.adt.presentation.R
 import org.adt.presentation.components.CustomTextField
-import org.adt.presentation.components.buttons.CustomTranslucentButton
 import org.adt.presentation.components.TypingText
+import org.adt.presentation.components.buttons.CustomTranslucentButton
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.extendedColor
@@ -177,5 +175,10 @@ fun AuthenticateScreen(navController: NavHostController, viewModel: Authenticate
 @Preview
 @Composable
 private fun AuthenticateScreenPreview() {
-    AuthenticateScreen(rememberNavController(), viewModel())
+    /*
+    AuthenticateScreen(
+        rememberNavController(),
+        mockk(relaxed = true)
+    )
+    */
 }
