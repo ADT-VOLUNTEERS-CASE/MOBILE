@@ -2,16 +2,18 @@ package org.adt.data.modules
 
 import dagger.Module
 import dagger.Provides
+import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody.Companion.toResponseBody
+import org.adt.core.abstraction.BuildConfigurationRepository
 import org.adt.core.annotations.ImplicitUsage
-import org.adt.data.abstraction.IConfigRepository
-import org.adt.data.abstraction.INetworkRepository
-import org.adt.data.abstraction.INetworkStatusProvider
+import org.adt.data.abstraction.NetworkStatusProvider
+import org.adt.data.repository.RetrofitRepository
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
@@ -22,10 +24,11 @@ internal object NetworkModule {
     @Singleton
     @ImplicitUsage
     fun provideInterceptor(
-        networkStatusProvider: INetworkStatusProvider
+        networkStatusProvider: NetworkStatusProvider
     ): Interceptor {
         return Interceptor { chain ->
             val request = chain.request()
+
             if (!networkStatusProvider.isInternetAvailable()) {
                 val emptyBody = "{}".toResponseBody("application/json".toMediaTypeOrNull())
 
@@ -37,6 +40,7 @@ internal object NetworkModule {
                     .body(emptyBody)
                     .build()
             }
+
             val newRequest = request.newBuilder()
                 .addHeader("Accept", "application/json")
                 .addHeader("Content-Type", "application/json")
@@ -65,19 +69,23 @@ internal object NetworkModule {
     @ImplicitUsage
     fun provideRetrofit(
         okHttpClient: OkHttpClient,
-        configRepository: IConfigRepository
+        buildConfigurationRepository: BuildConfigurationRepository
     ): Retrofit {
-        val url = configRepository.getApiBaseUrl()
+        val url = buildConfigurationRepository.getApiBaseUrl()
+
         return Retrofit.Builder()
             .baseUrl(url) //"https://adt.rss14.ru/api/v1/"
             .client(okHttpClient)
             .addConverterFactory(ScalarsConverterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create()).build()
+            .addConverterFactory(
+                Json.asConverterFactory(
+                    "application/json; charset=utf-8".toMediaType())
+            ).build()
     }
 
     @Provides
     @ImplicitUsage
-    fun provideNetworkRepository(retrofit: Retrofit): INetworkRepository{
-        return retrofit.create(INetworkRepository::class.java)
+    fun provideNetworkRepository(retrofit: Retrofit): RetrofitRepository {
+        return retrofit.create(RetrofitRepository::class.java)
     }
 }

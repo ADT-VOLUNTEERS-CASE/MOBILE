@@ -1,11 +1,14 @@
 package org.adt.core.entities.response
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+
+@Serializable
 data class AuthResponse(
-    @SerializedName("access_token")
+    @SerialName("access_token")
     val accessToken: String,
 
-    @SerializedName("refresh_token")
+    @SerialName("refresh_token")
     val refreshToken: String
 )

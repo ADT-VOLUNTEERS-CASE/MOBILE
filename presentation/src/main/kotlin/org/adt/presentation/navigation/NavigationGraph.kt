@@ -44,7 +44,6 @@ fun NavigationGraph(navController: NavHostController, innerPadding: PaddingValue
             AdminRegisterScreen(navController, viewModel)
         }
 
-
         composable<Destinations.AdminHome> {
             val viewModel: AdminViewModel = hiltViewModel()
             AdminScreen(navController, viewModel)

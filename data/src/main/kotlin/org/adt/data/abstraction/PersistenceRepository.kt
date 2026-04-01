@@ -1,7 +1,6 @@
 package org.adt.data.abstraction
 
-interface IConfigRepository {
-    fun getApiBaseUrl(): String
+interface PersistenceRepository {
     suspend fun authorized(): Boolean
     suspend fun saveTokens(accessToken: String, refreshToken: String)
     suspend fun getToken(): String?

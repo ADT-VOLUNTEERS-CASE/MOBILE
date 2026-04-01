@@ -6,11 +6,7 @@ import dagger.hilt.components.SingletonComponent
 import org.adt.core.annotations.ImplicitUsage
 import org.adt.domain.DomainFacade
 
-@Module(
-    includes = [
-        DomainFacade::class
-    ]
-)
+@Module(includes = [DomainFacade::class])
 @InstallIn(SingletonComponent::class)
 @ImplicitUsage
 interface DomainFacadeHiltModule

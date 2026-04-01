@@ -1,4 +1,4 @@
-package org.adt.data.abstraction
+package org.adt.data.repository
 
 import org.adt.core.entities.Location
 import org.adt.core.entities.request.AuthRequest
@@ -17,7 +17,7 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-interface INetworkRepository {
+interface RetrofitRepository {
     @GET("ping")
     suspend fun ping(): Response<String>
 

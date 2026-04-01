@@ -1,6 +1,8 @@
 package org.adt.data.repository
 
 import kotlinx.serialization.json.Json
+import okhttp3.ResponseBody
+import okio.IOException
 import org.adt.core.entities.Location
 import org.adt.core.entities.UserRole
 import org.adt.core.entities.request.AuthRequest
@@ -9,17 +11,17 @@ import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.response.ErrorResponse
 import org.adt.core.entities.response.UserResponse
-import org.adt.data.abstraction.IConfigRepository
-import org.adt.data.abstraction.INetworkRepository
-import org.adt.domain.abstraction.IDataRepository
+import org.adt.data.abstraction.PersistenceRepository
+import org.adt.domain.abstraction.DataRepository
 import javax.inject.Inject
 
-internal class DataRepository @Inject constructor(
-    private val networkRepository: INetworkRepository,
-    private val configRepository: IConfigRepository
-) : IDataRepository {
+internal class DataRepositoryImpl @Inject constructor(
+    private val networkRepository: RetrofitRepository,
+    private val persistenceRepository: PersistenceRepository
+) : DataRepository {
     private val json = Json { ignoreUnknownKeys = true }
-    private fun parseError(errorBody: okhttp3.ResponseBody?): ErrorResponse? {
+
+    private fun parseError(errorBody: ResponseBody?): ErrorResponse? {
         return try {
             errorBody?.string()?.let { json.decodeFromString<ErrorResponse>(it) }
         } catch (_: Exception) {
@@ -29,15 +31,16 @@ internal class DataRepository @Inject constructor(
 
     override suspend fun ping(): Result<String> {
         val response = networkRepository.ping()
-        return if (response.isSuccessful) {
-            Result.success(response.body().orEmpty())
-        } else {
-            Result.failure(Exception("HTTP ${response.code()}"))
+
+        if (response.isSuccessful) {
+            return Result.success(response.body().orEmpty())
         }
+
+        return Result.failure(IOException("HTTP ${response.code()}: No internet connection"))
     }
 
     override suspend fun authorized(): Boolean {
-        return configRepository.authorized()
+        return persistenceRepository.authorized()
     }
 
     override suspend fun register(
@@ -62,13 +65,13 @@ internal class DataRepository @Inject constructor(
 
         val response = when (role) {
             UserRole.ADMIN -> {
-                val token = configRepository.getToken()
+                val token = persistenceRepository.getToken()
                     ?: return Pair(403, Result.failure(Exception("Not authorized")))
                 networkRepository.registerAdmin(token, request)
             }
 
             UserRole.COORDINATOR -> {
-                val token = configRepository.getToken()
+                val token = persistenceRepository.getToken()
                     ?: return Pair(403, Result.failure(Exception("Not authorized")))
                 networkRepository.registerCoordinator(token, request)
             }
@@ -79,7 +82,7 @@ internal class DataRepository @Inject constructor(
         if (response.isSuccessful) {
             response.body()?.let {
                 if (autologin) {
-                    configRepository.saveTokens(it.accessToken, it.refreshToken)
+                    persistenceRepository.saveTokens(it.accessToken, it.refreshToken)
                 }
             } ?: return Pair(response.code(), Result.failure(Exception("Empty body")))
 
@@ -101,7 +104,7 @@ internal class DataRepository @Inject constructor(
                     retried = true
                 )
             }
-            configRepository.removeToken()
+            persistenceRepository.removeToken()
             return Pair(
                 refreshResult.first,
                 Result.failure(refreshResult.second.exceptionOrNull() ?: Exception("Refresh failed"))
@@ -124,7 +127,7 @@ internal class DataRepository @Inject constructor(
         val response = networkRepository.authenticate(request)
 
         if (response.isSuccessful) {
-            configRepository.saveTokens(
+            persistenceRepository.saveTokens(
                 response.body()!!.accessToken,
                 response.body()!!.refreshToken
             )
@@ -140,12 +143,12 @@ internal class DataRepository @Inject constructor(
     }
 
     override suspend fun refreshToken(): Pair<Int, Result<String>> {
-        val refreshToken = configRepository.getRefreshToken() ?: return Pair(401, Result.failure(Exception("Not authorized")))
+        val refreshToken = persistenceRepository.getRefreshToken() ?: return Pair(401, Result.failure(Exception("Not authorized")))
         val request = RefreshRequest(refreshToken)
         val response = networkRepository.refreshToken(request)
 
         if (response.isSuccessful) {
-            configRepository.saveTokens(
+            persistenceRepository.saveTokens(
                 response.body()!!.accessToken,
                 response.body()!!.refreshToken
             )
@@ -162,11 +165,11 @@ internal class DataRepository @Inject constructor(
     }
 
     override suspend fun deauthenticate() {
-        configRepository.removeToken()
+        persistenceRepository.removeToken()
     }
 
     override suspend fun findLocation(address: String) : Result<List<Location>> {
-        val token = configRepository.getToken() ?: return Result.failure(Exception("Not authorized"))
+        val token = persistenceRepository.getToken() ?: return Result.failure(Exception("Not authorized"))
         val request = FindLocationRequest(address)
         val response = networkRepository.findLocation(token, 0, 10, request)
 
@@ -182,7 +185,7 @@ internal class DataRepository @Inject constructor(
             }
 
             val error = parseError(response.errorBody())
-            configRepository.removeToken()
+            persistenceRepository.removeToken()
 
             return Result.failure(Exception(error?.message ?: "HTTP ${response.code()}"))
         }
@@ -191,7 +194,7 @@ internal class DataRepository @Inject constructor(
     }
 
     override suspend fun userInfo(): Result<UserResponse> {
-        val token = configRepository.getToken() ?: throw Exception("Not authorized")
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
         val response = networkRepository.userInfo(token)
 
         if (response.isSuccessful) {
@@ -206,7 +209,7 @@ internal class DataRepository @Inject constructor(
             }
 
             val error = parseError(response.errorBody())
-            configRepository.removeToken()
+            persistenceRepository.removeToken()
 
             return Result.failure(Exception(error?.message ?: "HTTP ${response.code()}"))
         }

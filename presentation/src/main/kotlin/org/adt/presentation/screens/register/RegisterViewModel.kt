@@ -12,15 +12,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.adt.core.entities.UserRole
-import org.adt.domain.abstraction.IDataRepository
-import org.adt.domain.abstraction.IDomainRepository
+import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.abstraction.DomainRepository
 import org.adt.presentation.navigation.Destinations
 import javax.inject.Inject
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    private val _domainRepository: IDomainRepository,
-    private val _dataRepository: IDataRepository,
+    private val _dataRepository: DataRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RegisterState())
@@ -60,14 +59,15 @@ class RegisterViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.IO) {
                 _uiState.value = _uiState.value.copy(isLoading = true)
                 val response = _dataRepository.register(
-                    _uiState.value.firstname,
-                    _uiState.value.lastname,
-                    _uiState.value.patronymic,
-                    _uiState.value.phoneNumber,
-                    _uiState.value.email,
-                    _uiState.value.password,
-                    UserRole.VOLUNTEER,
-                    true
+                    firstname = _uiState.value.firstname,
+                    lastname = _uiState.value.lastname,
+                    patronymic = _uiState.value.patronymic,
+                    phoneNumber = _uiState.value.phoneNumber,
+                    email = _uiState.value.email,
+                    password = _uiState.value.password,
+                    role = UserRole.VOLUNTEER,
+                    autologin = true,
+                    retried = false
                 )
                 if (response.first == 200) {
                     _uiState.value = _uiState.value.copy(registerError = null)

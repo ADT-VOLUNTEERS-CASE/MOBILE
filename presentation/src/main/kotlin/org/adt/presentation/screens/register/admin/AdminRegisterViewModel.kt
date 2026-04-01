@@ -10,14 +10,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.adt.core.entities.UserRole
-import org.adt.domain.abstraction.IDataRepository
-import org.adt.domain.abstraction.IDomainRepository
+import org.adt.domain.abstraction.DataRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class AdminRegisterViewModel @Inject constructor(
-    private val _domainRepository: IDomainRepository,
-    private val _dataRepository: IDataRepository,
+    private val _dataRepository: DataRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdminRegisterState())
@@ -65,14 +63,15 @@ class AdminRegisterViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.Main) {
                 _uiState.value = _uiState.value.copy(isLoading = true)
                 val response = _dataRepository.register(
-                    _uiState.value.firstname,
-                    _uiState.value.lastname,
-                    _uiState.value.patronymic,
-                    _uiState.value.phoneNumber,
-                    _uiState.value.email,
-                    _uiState.value.password,
-                    _uiState.value.chosenRole,
-                    false
+                    firstname = _uiState.value.firstname,
+                    lastname = _uiState.value.lastname,
+                    patronymic = _uiState.value.patronymic,
+                    phoneNumber = _uiState.value.phoneNumber,
+                    email = _uiState.value.email,
+                    password = _uiState.value.password,
+                    role = _uiState.value.chosenRole,
+                    autologin = false,
+                    retried = false
                 )
                 if (response.first == 200) {
                     _uiState.value = _uiState.value.copy(registerResult = "Пользователь успешно зарегистрирован")

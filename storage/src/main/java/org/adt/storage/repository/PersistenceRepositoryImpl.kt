@@ -1,25 +1,22 @@
-package com.profs.storage.repository
-
 import android.content.Context
 import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.profs.storage.BuildConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import org.adt.data.abstraction.IConfigRepository
+import org.adt.data.abstraction.PersistenceRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
 private val Context.dataStore by preferencesDataStore("token_prefs")
 
 @Singleton
-class ConfigRepository @Inject constructor(
+class PersistenceRepositoryImpl @Inject constructor(
     @param: ApplicationContext private val context: Context
-) : IConfigRepository {
+) : PersistenceRepository {
     companion object {
         private val KEY_TOKEN = stringPreferencesKey("accessToken")
         private val KEY_REFRESH_TOKEN = stringPreferencesKey("refreshToken")
@@ -27,10 +24,6 @@ class ConfigRepository @Inject constructor(
 
     val tokenFlow: Flow<String?> = context.dataStore.data.map { prefs ->
         prefs[KEY_TOKEN]?.let { "Bearer $it" }
-    }
-
-    override fun getApiBaseUrl(): String {
-        return BuildConfig.API_BASE_URL
     }
 
     override suspend fun authorized(): Boolean {

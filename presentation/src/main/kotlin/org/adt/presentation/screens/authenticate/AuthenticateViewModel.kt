@@ -11,15 +11,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.adt.domain.abstraction.IDataRepository
-import org.adt.domain.abstraction.IDomainRepository
+import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.abstraction.DomainRepository
 import org.adt.presentation.navigation.Destinations
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthenticateViewModel @Inject constructor(
-    private val _domainRepository: IDomainRepository,
-    private val _dataRepository: IDataRepository,
+    private val _domainRepository: DomainRepository,
+    private val _dataRepository: DataRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AuthenticateState())

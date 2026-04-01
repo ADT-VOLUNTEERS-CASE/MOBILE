@@ -39,7 +39,7 @@ val LocalAppColors = staticCompositionLocalOf {
 
 val extendedColor = AppColors(
     primaryBackground = Abyss,
-    secondaryBackground = Arctic,
+    secondaryBackground = Lagoon,
     tertiaryBackground = Mint,
     text = Arctic,
     background = Graphite,

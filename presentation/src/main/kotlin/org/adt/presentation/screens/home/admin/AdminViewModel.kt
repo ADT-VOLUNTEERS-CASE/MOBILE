@@ -9,14 +9,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.adt.domain.abstraction.IDataRepository
-import org.adt.domain.abstraction.IDomainRepository
+import org.adt.domain.abstraction.DataRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class AdminViewModel @Inject constructor(
-    private val _domainRepository: IDomainRepository,
-    private val _dataRepository: IDataRepository,
+    private val _dataRepository: DataRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AdminState())
     val uiState: StateFlow<AdminState> = _uiState.asStateFlow()

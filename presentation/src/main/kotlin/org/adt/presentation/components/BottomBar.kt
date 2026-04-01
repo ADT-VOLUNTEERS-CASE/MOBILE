@@ -13,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -27,10 +29,10 @@ fun CustomBottomBar(
     modifier: Modifier = Modifier,
     role: UserRole,
     currentDestination: Destinations,
-    onNavigate: (Destinations) -> Unit
+    onNavigate: (Destinations) -> Unit,
 ) {
     Row(
-        modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(50.dp)
             .clip(RoundedCornerShape(32.dp))

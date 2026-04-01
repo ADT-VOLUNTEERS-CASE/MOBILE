@@ -15,8 +15,11 @@ plugins {
 }
 android {
     namespace = "org.adt.presentation"
-
     compileSdk = 36
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "org.adt.presentation"
@@ -26,14 +29,25 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "API_BASE_URL", "\"https://adt.rss14.ru/api/v1/\"")
     }
 
     signingConfigs {
         create("release") {
-            storeFile = file("../keystore/volunteerscase.jks")
-            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "fallback"
-            keyAlias = System.getenv("ALIAS") ?: "key0"
-            keyPassword = System.getenv("ALIAS_PASSWORD") ?: "fallback"
+            val path = System.getenv("ANDROID_KEYSTORE_PATH")
+            val ksPass = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+            val alias = System.getenv("ANDROID_KEY_ALIAS")
+            val keyPass = System.getenv("ANDROID_KEY_PASSWORD")
+
+            if (!path.isNullOrBlank() && !ksPass.isNullOrBlank()
+                && !alias.isNullOrBlank() && !keyPass.isNullOrBlank()
+            ) {
+                storeFile = file(path)
+                storePassword = ksPass
+                keyAlias = alias
+                keyPassword = keyPass
+            }
         }
     }
 
@@ -45,6 +59,7 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
+            buildConfigField("String", "API_BASE_URL", "\"https://prod-api.example.com/\"")
         }
     }
 

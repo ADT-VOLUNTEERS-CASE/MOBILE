@@ -4,7 +4,7 @@ import org.adt.core.entities.Location
 import org.adt.core.entities.UserRole
 import org.adt.core.entities.response.UserResponse
 
-interface IDataRepository {
+interface DataRepository {
     suspend fun ping(): Result<String>
 
     suspend fun authorized(): Boolean
@@ -18,7 +18,7 @@ interface IDataRepository {
         password: String,
         role: UserRole,
         autologin: Boolean,
-        retried: Boolean = false
+        retried: Boolean
     ): Pair<Int, Result<String>>
 
     suspend fun authenticate(email: String, password: String): Pair<Int, Result<String>>
