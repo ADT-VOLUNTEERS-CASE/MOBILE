@@ -45,13 +45,36 @@ import org.adt.presentation.components.buttons.CustomTranslucentButton
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Milk
+import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.theme.extendedColor
 import org.adt.presentation.theme.extendedTypography
 
-@Composable
-fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewModel = viewModel()) {
-    val uiState = viewModel.uiState.collectAsState()
 
+@Composable
+fun RegisterScreen(
+    navController: NavHostController,
+    viewModel: RegisterViewModel = viewModel()
+) {
+    val uiState = viewModel.uiState.collectAsState().value
+    val fieldsState = viewModel.fieldsState.collectAsState().value
+
+    RegisterScreenContent(
+        uiState = uiState,
+        fieldsState = fieldsState,
+        updateFieldsAction = { state -> viewModel.updateInputs(state) },
+        onStartButtonClickAction = { viewModel.onStartClick(navController) },
+        navigateToAuthenticateAction = { navController.navigate(Destinations.Authenticate) }
+    )
+}
+
+@Composable
+fun RegisterScreenContent(
+    uiState: RegisterState = RegisterState(),
+    fieldsState: RegisterFieldsState = RegisterFieldsState(),
+    updateFieldsAction: (state: RegisterFieldsState) -> Unit = {},
+    onStartButtonClickAction: () -> Unit = {},
+    navigateToAuthenticateAction: () -> Unit = {}
+) {
     val context = LocalContext.current
     val offsetYText = remember { Animatable(-3000f) }
     val offsetYContent = remember { Animatable(2600f) }
@@ -67,8 +90,8 @@ fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewMode
         }
     }
 
-    LaunchedEffect(uiState.value.registerError) {
-        uiState.value.registerError?.let { error ->
+    LaunchedEffect(uiState.registerError) {
+        uiState.registerError?.let { error ->
             Toast.makeText(context, error, Toast.LENGTH_LONG).show()
         }
     }
@@ -111,35 +134,39 @@ fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewMode
                 CustomTextField(
                     Modifier,
                     "Имя"
-                ) { viewModel.onFirstnameChange(it) }
+                ) {
+                    updateFieldsAction.invoke(fieldsState.copy(firstName = it))
+                }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
                     Modifier,
                     "Фамилия",
-                ) { viewModel.onLastnameChange(it) }
+                ) {
+                    updateFieldsAction.invoke(fieldsState.copy(lastName = it))
+                }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
                     Modifier,
                     "Отчество",
-                ) { viewModel.onPatronymicChange(it) }
+                ) { updateFieldsAction.invoke(fieldsState.copy(patronymic = it)) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
                     Modifier,
                     "Телефон",
-                ) { viewModel.onPhoneNumberChange(it) }
+                ) { updateFieldsAction.invoke(fieldsState.copy(phoneNumber = it)) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
                     Modifier,
                     "Почта",
-                ) { viewModel.onEmailChange(it) }
+                ) { updateFieldsAction.invoke(fieldsState.copy(email = it)) }
 
                 Spacer(Modifier.height(15.dp))
 
@@ -147,7 +174,7 @@ fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewMode
                     Modifier,
                     "Пароль",
                     type = "password"
-                ) { viewModel.onPasswordChange(it) }
+                ) { updateFieldsAction.invoke(fieldsState.copy(password = it)) }
 
                 Spacer(Modifier.height(15.dp))
 
@@ -155,8 +182,8 @@ fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewMode
                     Modifier,
                     "я ознакомился с",
                     "политикой конфиденциальности",
-                    uiState.value.accepted,
-                    { viewModel.onAcceptedChange() },
+                    fieldsState.isPolicyAccepted,
+                    { updateFieldsAction.invoke(fieldsState.copy(isPolicyAccepted = !fieldsState.isPolicyAccepted)) },
                     { }
                 )
 
@@ -164,9 +191,10 @@ fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewMode
 
                 CustomTranslucentButton(
                     "Начать",
-                    uiState.value.isFormValid,
-                    uiState.value.isLoading
-                ) { viewModel.onStartClick(navController) }
+                    fieldsState.isFormValid,
+                    uiState.isLoading,
+                    onStartButtonClickAction
+                )
 
                 Spacer(Modifier.height(15.dp))
 
@@ -176,7 +204,7 @@ fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewMode
                     Alignment.CenterVertically
                 ) {
                     TextButton(
-                        { navController.navigate(Destinations.Authenticate) },
+                        navigateToAuthenticateAction,
                         contentPadding = PaddingValues(0.dp)
                     ) {
                         Text(
@@ -210,5 +238,7 @@ fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewMode
 @Preview
 @Composable
 private fun RegisterScreenPreview() {
-    //RegisterScreen(rememberNavController(), mock)
+    VolunteersCaseTheme {
+        RegisterScreenContent()
+    }
 }

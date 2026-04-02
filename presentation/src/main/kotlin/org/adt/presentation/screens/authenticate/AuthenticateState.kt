@@ -5,6 +5,4 @@ data class AuthenticateState(
     val password: String = "",
     val isLoading: Boolean = false,
     val authError: String? = null
-) {
-    val isFormValid: Boolean get() = email.isNotBlank() && password.isNotBlank()
-}
+)

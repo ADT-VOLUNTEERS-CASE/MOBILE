@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.adt.domain.abstraction.DataRepository
@@ -23,18 +24,17 @@ class AuthenticateViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AuthenticateState())
+    private val _fieldsState = MutableStateFlow(AuthenticateFieldsState())
+
     val uiState: StateFlow<AuthenticateState> = _uiState.asStateFlow()
+    val fieldsState: StateFlow<AuthenticateFieldsState> = _fieldsState.asStateFlow()
 
-    fun onEmailChange(value: String) {
-        _uiState.value = _uiState.value.copy(email = value, authError = null)
-    }
-
-    fun onPasswordChange(value: String) {
-        _uiState.value = _uiState.value.copy(password = value, authError = null)
+    fun updateInputFields(newState: AuthenticateFieldsState) {
+        _fieldsState.update { newState }
     }
 
     fun onContinueClick(navController: NavHostController) {
-        if (_uiState.value.isFormValid) {
+        if (_fieldsState.value.isFormValid) {
             viewModelScope.launch(Dispatchers.IO) {
                 _uiState.value = _uiState.value.copy(isLoading = true)
                 val response = _dataRepository.authenticate(

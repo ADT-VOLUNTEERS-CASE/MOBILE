@@ -6,20 +6,37 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
+import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.theme.extendedTypography
 
 @Composable
-fun CoordinatorScreen(navController: NavHostController, viewModel: CoordinatorViewModel) {
-    Column {
-        Text("Coordinator".uppercase())
-        TextButton({
+fun CoordinatorScreen(
+    navController: NavHostController,
+    viewModel: CoordinatorViewModel,
+) {
+    CoordinatorScreenContent(
+        logoutAction = {
             viewModel.deauthenticate()
             navController.navigate(Destinations.Splash)
-        }, contentPadding = PaddingValues(2.dp)) {
+        },
+    )
+}
+
+@Composable
+fun CoordinatorScreenContent(
+    logoutAction: () -> Unit = {},
+) {
+    Column {
+        Text("Coordinator".uppercase())
+        TextButton(
+            logoutAction,
+            contentPadding = PaddingValues(2.dp)
+        ) {
             Text(
                 "Выйти",
                 style = extendedTypography.titleMedium.copy(
@@ -28,5 +45,13 @@ fun CoordinatorScreen(navController: NavHostController, viewModel: CoordinatorVi
                 )
             )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun CoordinatorScreenPreview() {
+    VolunteersCaseTheme {
+        CoordinatorScreenContent()
     }
 }

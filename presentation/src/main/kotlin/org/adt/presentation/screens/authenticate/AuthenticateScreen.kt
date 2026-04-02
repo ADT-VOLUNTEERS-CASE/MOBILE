@@ -45,13 +45,32 @@ import org.adt.presentation.components.TypingText
 import org.adt.presentation.components.buttons.CustomTranslucentButton
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Milk
+import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.theme.extendedColor
 import org.adt.presentation.theme.extendedTypography
 
 @Composable
 fun AuthenticateScreen(navController: NavHostController, viewModel: AuthenticateViewModel) {
-    val uiState = viewModel.uiState.collectAsState()
+    val uiState = viewModel.uiState.collectAsState().value
+    val fieldsState = viewModel.fieldsState.collectAsState().value
 
+    AuthenticateScreenContent(
+        uiState = uiState,
+        fieldsState = fieldsState,
+        navigateToRegisterAction = { navController.navigate(Destinations.Register) },
+        updateFieldsAction = {newState -> viewModel.updateInputFields(newState)},
+        continueAction = { viewModel.onContinueClick(navController) }
+    )
+}
+
+@Composable
+fun AuthenticateScreenContent(
+    uiState: AuthenticateState = AuthenticateState(),
+    fieldsState: AuthenticateFieldsState= AuthenticateFieldsState(),
+    navigateToRegisterAction: () -> Unit = {},
+    updateFieldsAction: (newState: AuthenticateFieldsState) -> Unit= {},
+    continueAction: () -> Unit = {},
+    ) {
     val context = LocalContext.current
     val offsetYImage = remember { Animatable(-2000f) }
     val offsetYContent = remember { Animatable(2000f) }
@@ -67,8 +86,8 @@ fun AuthenticateScreen(navController: NavHostController, viewModel: Authenticate
         }
     }
 
-    LaunchedEffect(uiState.value.authError) {
-        uiState.value.authError?.let { error ->
+    LaunchedEffect(uiState.authError) {
+        uiState.authError?.let { error ->
             Toast.makeText(context, error, Toast.LENGTH_LONG).show()
         }
     }
@@ -115,7 +134,7 @@ fun AuthenticateScreen(navController: NavHostController, viewModel: Authenticate
                 CustomTextField(
                     Modifier,
                     "Почта"
-                ) { viewModel.onEmailChange(it) }
+                ) { updateFieldsAction.invoke(fieldsState.copy(email = it)) }
 
                 Spacer(Modifier.height(15.dp))
 
@@ -123,15 +142,16 @@ fun AuthenticateScreen(navController: NavHostController, viewModel: Authenticate
                     Modifier,
                     "Пароль",
                     type = "password"
-                ) { viewModel.onPasswordChange(it) }
+                ) { updateFieldsAction.invoke(fieldsState.copy(password = it)) }
 
                 Spacer(Modifier.height(25.dp))
 
                 CustomTranslucentButton(
                     "Продолжить",
-                    uiState.value.isFormValid,
-                    uiState.value.isLoading
-                ) { viewModel.onContinueClick(navController) }
+                    fieldsState.isFormValid,
+                    uiState.isLoading,
+                    continueAction
+                )
 
                 Spacer(Modifier.height(15.dp))
 
@@ -141,7 +161,7 @@ fun AuthenticateScreen(navController: NavHostController, viewModel: Authenticate
                     Alignment.CenterVertically
                 ) {
                     TextButton(
-                        { navController.navigate(Destinations.Register) },
+                        navigateToRegisterAction,
                         contentPadding = PaddingValues(2.dp)
                     ) {
                         Text(
@@ -175,10 +195,7 @@ fun AuthenticateScreen(navController: NavHostController, viewModel: Authenticate
 @Preview
 @Composable
 private fun AuthenticateScreenPreview() {
-    /*
-    AuthenticateScreen(
-        rememberNavController(),
-        mockk(relaxed = true)
-    )
-    */
+    VolunteersCaseTheme {
+        AuthenticateScreenContent()
+    }
 }

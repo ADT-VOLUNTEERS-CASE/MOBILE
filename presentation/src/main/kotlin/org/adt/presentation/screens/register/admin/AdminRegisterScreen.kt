@@ -49,22 +49,45 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.adt.core.entities.UserRole
 import org.adt.presentation.R
-import org.adt.presentation.components.buttons.CustomLiteRoundedButton
 import org.adt.presentation.components.CustomTextField
-import org.adt.presentation.components.buttons.CustomTranslucentButton
 import org.adt.presentation.components.TypingText
+import org.adt.presentation.components.buttons.CustomLiteRoundedButton
+import org.adt.presentation.components.buttons.CustomTranslucentButton
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Silver
+import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.theme.extendedColor
 import org.adt.presentation.theme.extendedTypography
 
 @Composable
 fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegisterViewModel) {
-    val uiState = viewModel.uiState.collectAsState()
+    val uiState = viewModel.uiState.collectAsState().value
+    val fieldsState = viewModel.fieldsState.collectAsState().value
 
+    AdminRegisterScreenContent(
+        uiState,
+        fieldsState,
+        { newState -> viewModel.updateInputs(newState) },
+        { viewModel.onStartClick() },
+        { viewModel.onRoleDialogToggle() },
+        { navController.navigateUp() },
+        { role -> viewModel.onRoleSelected(role) }
+    )
+}
+
+@Composable
+fun AdminRegisterScreenContent(
+    uiState: AdminRegisterState = AdminRegisterState(),
+    fieldsState: AdminRegisterFieldsState = AdminRegisterFieldsState(),
+    updateFieldsAction: (newState: AdminRegisterFieldsState) -> Unit= {},
+    onStartButtonClickAction: () -> Unit = {},
+    roleDialogToggleAction: () -> Unit= {},
+    navigateUpAction: () -> Unit= {},
+    roleSelectedAction: (role: UserRole) -> Unit = {},
+) {
     val context = LocalContext.current
     val offsetYText = remember { Animatable(-2000f) }
     val offsetYContent = remember { Animatable(2600f) }
@@ -82,8 +105,8 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
         }
     }
 
-    LaunchedEffect(uiState.value.isRoleDialogVisible) {
-        if (uiState.value.isRoleDialogVisible) {
+    LaunchedEffect(uiState.isRoleDialogVisible) {
+        if (uiState.isRoleDialogVisible) {
             coroutineScope {
                 launch { alphaDialog.animateTo(1f, tween(400, easing = FastOutSlowInEasing)) }
                 launch { rotationIcon.animateTo(-90f, tween(400)) }
@@ -96,8 +119,8 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
         }
     }
 
-    LaunchedEffect(uiState.value.registerResult) {
-        uiState.value.registerResult?.let { result ->
+    LaunchedEffect(uiState.registerResult) {
+        uiState.registerResult?.let { result ->
             Toast.makeText(context, result, Toast.LENGTH_LONG).show()
         }
     }
@@ -143,12 +166,12 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
                     Alignment.CenterVertically
                 ) {
                     Row(
-                        Modifier.clickable { viewModel.onRoleDialogToggle() },
+                        Modifier.clickable { roleDialogToggleAction.invoke() },
                         Arrangement.Center,
                         Alignment.CenterVertically
                     ) {
                         Text(
-                            when (uiState.value.chosenRole) {
+                            when (uiState.chosenRole) {
                                 UserRole.ADMIN -> "Админ"
                                 UserRole.COORDINATOR -> "Координатор"
                                 UserRole.VOLUNTEER -> "Волонтер"
@@ -174,35 +197,35 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
                 CustomTextField(
                     Modifier,
                     "Имя"
-                ) { viewModel.onFirstnameChange(it) }
+                ) { updateFieldsAction.invoke(fieldsState.copy(firstName = it)) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
                     Modifier,
                     "Фамилия",
-                ) { viewModel.onLastnameChange(it) }
+                ) { updateFieldsAction.invoke(fieldsState.copy(lastName = it)) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
                     Modifier,
                     "Отчество",
-                ) { viewModel.onPatronymicChange(it) }
+                ) { updateFieldsAction.invoke(fieldsState.copy(patronymic = it)) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
                     Modifier,
                     "Телефон",
-                ) { viewModel.onPhoneNumberChange(it) }
+                ) { updateFieldsAction.invoke(fieldsState.copy(phoneNumber = it)) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
                     Modifier,
                     "Почта",
-                ) { viewModel.onEmailChange(it) }
+                ) { updateFieldsAction.invoke(fieldsState.copy(email = it)) }
 
                 Spacer(Modifier.height(15.dp))
 
@@ -210,15 +233,15 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
                     Modifier,
                     "Пароль",
                     type = "password"
-                ) { viewModel.onPasswordChange(it) }
+                ) { updateFieldsAction.invoke(fieldsState.copy(password = it)) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTranslucentButton(
                     "Зарегистрировать",
-                    uiState.value.isFormValid,
-                    uiState.value.isLoading
-                ) { viewModel.onStartClick() }
+                    uiState.isFormValid,
+                    uiState.isLoading
+                ) { onStartButtonClickAction.invoke() }
 
                 Spacer(Modifier.height(60.dp))
             }
@@ -229,7 +252,7 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
                 .fillMaxSize()
                 .padding(start = 12.dp, top = 24.dp)
         ) {
-            IconButton({ navController.navigateUp() }, Modifier.size(32.dp)) {
+            IconButton({ navigateUpAction.invoke() }, Modifier.size(32.dp)) {
                 Icon(
                     painterResource(R.drawable.ic_expand_left),
                     "Return",
@@ -239,14 +262,13 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
             }
         }
 
-        if (uiState.value.isRoleDialogVisible) {
+        if (uiState.isRoleDialogVisible) {
             Box(
                 Modifier
                     .fillMaxSize()
                     .clickable(
-                        interactionSource = null,
-                        indication = null
-                    ) { viewModel.onRoleDialogToggle() })
+                        interactionSource = null, indication = null
+                    ) { roleDialogToggleAction.invoke() })
 
             Box(
                 Modifier
@@ -258,13 +280,13 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
             ) {
                 Column(Modifier.fillMaxWidth(), Arrangement.spacedBy(8.dp)) {
                     UserRole.entries.take(3).forEach { userRole ->
-                        val chosen = userRole == uiState.value.chosenRole
+                        val chosen = userRole == uiState.chosenRole
                         Text(
                             when (userRole) {
                                 UserRole.ADMIN -> "Админ"
                                 UserRole.COORDINATOR -> "Координатор"
                                 else -> "Волонтер"
-                            }, Modifier.clickable { viewModel.onRoleSelected(userRole) },
+                            }, Modifier.clickable { roleSelectedAction.invoke(userRole) },
                             style = extendedTypography.titleMedium.copy(
                                 if (chosen) Lagoon else Arctic,
                                 fontWeight = if (chosen) FontWeight.Bold else FontWeight.Medium
@@ -272,7 +294,7 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
                         )
                     }
 
-                    CustomLiteRoundedButton("Отмена") { viewModel.onRoleDialogToggle() }
+                    CustomLiteRoundedButton("Отмена") { roleDialogToggleAction.invoke() }
                 }
             }
         }
@@ -281,6 +303,8 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
 
 @Preview
 @Composable
-private fun AdminRegisterScreenPreview() {
-    AdminRegisterScreen(rememberNavController(), viewModel())
+private fun AdminRegisterScreenContentPreview() {
+    VolunteersCaseTheme {
+        AdminRegisterScreenContent()
+    }
 }

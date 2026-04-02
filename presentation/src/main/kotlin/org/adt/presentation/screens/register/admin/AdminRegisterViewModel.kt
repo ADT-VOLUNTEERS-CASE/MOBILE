@@ -8,9 +8,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.adt.core.entities.UserRole
 import org.adt.domain.abstraction.DataRepository
+import org.adt.presentation.screens.register.RegisterFieldsState
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,30 +21,13 @@ class AdminRegisterViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdminRegisterState())
+    private val _fieldsState = MutableStateFlow(AdminRegisterFieldsState())
+
     val uiState: StateFlow<AdminRegisterState> = _uiState.asStateFlow()
+    val fieldsState: StateFlow<AdminRegisterFieldsState> = _fieldsState.asStateFlow()
 
-    fun onFirstnameChange(value: String) {
-        _uiState.value = _uiState.value.copy(firstname = value, registerResult = null)
-    }
-
-    fun onLastnameChange(value: String) {
-        _uiState.value = _uiState.value.copy(lastname = value, registerResult = null)
-    }
-
-    fun onPatronymicChange(value: String) {
-        _uiState.value = _uiState.value.copy(patronymic = value, registerResult = null)
-    }
-
-    fun onPhoneNumberChange(value: String) {
-        _uiState.value = _uiState.value.copy(phoneNumber = value, registerResult = null)
-    }
-
-    fun onEmailChange(value: String) {
-        _uiState.value = _uiState.value.copy(email = value, registerResult = null)
-    }
-
-    fun onPasswordChange(value: String) {
-        _uiState.value = _uiState.value.copy(password = value, registerResult = null)
+    fun updateInputs(newState: AdminRegisterFieldsState){
+        _fieldsState.update { newState }
     }
 
     fun onRoleSelected(role: UserRole) {

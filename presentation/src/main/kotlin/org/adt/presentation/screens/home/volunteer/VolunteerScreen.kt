@@ -6,20 +6,35 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
+import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.theme.extendedTypography
 
 @Composable
-fun VolunteerScreen(navController: NavHostController, viewModel: VolunteerViewModel) {
-    Column {
-        Text("Volunteer".uppercase())
-        TextButton({
+fun VolunteerScreen(
+    navController: NavHostController,
+    viewModel: VolunteerViewModel,
+) {
+    VolunteerScreenContent(
+        logoutAction = {
             viewModel.deauthenticate()
             navController.navigate(Destinations.Splash)
-        }, contentPadding = PaddingValues(2.dp)) {
+        },
+    )
+}
+
+@Composable
+fun VolunteerScreenContent(logoutAction: () -> Unit = {}) {
+    Column {
+        Text("Volunteer".uppercase())
+        TextButton(
+            logoutAction,
+            contentPadding = PaddingValues(2.dp)
+        ) {
             Text(
                 "Выйти",
                 style = extendedTypography.titleMedium.copy(
@@ -28,5 +43,13 @@ fun VolunteerScreen(navController: NavHostController, viewModel: VolunteerViewMo
                 )
             )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun VolunteerScreenPreview() {
+    VolunteersCaseTheme {
+        VolunteerScreenContent()
     }
 }

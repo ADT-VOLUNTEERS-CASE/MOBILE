@@ -19,6 +19,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.adt.core.entities.UserRole
@@ -28,15 +29,42 @@ import org.adt.presentation.components.TypingText
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
+import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.theme.extendedTypography
 
 @Composable
-fun AdminScreen(navController: NavHostController, viewModel: AdminViewModel) {
-    val uiState = viewModel.uiState.collectAsState()
+fun AdminScreen(
+    navController: NavHostController,
+    viewModel: AdminViewModel,
+) {
+    val uiState = viewModel.uiState.collectAsState().value
 
-    BackHandler(uiState.value.searchMode) {
-        viewModel.onSearchModeChange(false)
-    }
+    AdminScreenContent(
+        uiState = uiState,
+        searchModeChangedAction = { viewModel.onSearchModeChange(false) },
+        searchFieldValueChangedAction = { viewModel.onSearchValueChange(it) },
+        searchFieldOnConfirmAction = { viewModel.findLocation() },
+        navigateToAdminRegisterAction = { navController.navigate(Destinations.AdminRegister) },
+        logoutAction = {
+            viewModel.deauthenticate()
+            navController.navigate(Destinations.Splash)
+        },
+        bottomBarNavigateAction = { navController.navigate(it) },
+    )
+}
+
+@Composable
+fun AdminScreenContent(
+    uiState: AdminState = AdminState(),
+    searchModeChangedAction: () -> Unit = {},
+    searchFieldValueChangedAction: (it: String) -> Unit = {},
+    searchFieldOnConfirmAction: (_: String) -> Unit = {},
+    navigateToAdminRegisterAction: () -> Unit = {},
+    logoutAction: () -> Unit = {},
+    bottomBarNavigateAction: (destination: Destinations) -> Unit = {},
+    animationOverride: Boolean = false,
+) {
+    BackHandler(uiState.searchMode, searchModeChangedAction)
 
     Box(
         Modifier
@@ -63,20 +91,23 @@ fun AdminScreen(navController: NavHostController, viewModel: AdminViewModel) {
                 Arrangement.spacedBy(20.dp),
                 Alignment.CenterHorizontally
             ) {
-                TypingText(Modifier,"Твоё следующее доброе дело ждёт своего момента")
+                TypingText(Modifier,
+                    text = "Твоё следующее доброе дело ждёт своего момента",
+                    charDelay = if (animationOverride) 0L else 40L,
+                )
 
                 CustomSearchTextField(
                     Modifier,
                     "Поиск по адресу",
-                    uiState.value.searchValue,
-                    { viewModel.onSearchValueChange(it) },
-                    { viewModel.findLocation() }
+                    uiState.searchValue,
+                    searchFieldValueChangedAction,
+                    searchFieldOnConfirmAction
                 )
 
-                if (!uiState.value.searchMode) {
-                    TextButton({
-                        navController.navigate(Destinations.AdminRegister)
-                    }, contentPadding = PaddingValues(2.dp)) {
+                if (!uiState.searchMode) {
+                    TextButton(
+                        navigateToAdminRegisterAction, contentPadding = PaddingValues(2.dp)
+                    ) {
                         Text(
                             "Зарегистрировать пользователя",
                             style = extendedTypography.titleMedium.copy(
@@ -85,10 +116,7 @@ fun AdminScreen(navController: NavHostController, viewModel: AdminViewModel) {
                             )
                         )
                     }
-                    TextButton({
-                        viewModel.deauthenticate()
-                        navController.navigate(Destinations.Splash)
-                    }, contentPadding = PaddingValues(2.dp)) {
+                    TextButton(logoutAction, contentPadding = PaddingValues(2.dp)) {
                         Text(
                             "Выйти",
                             style = extendedTypography.titleMedium.copy(
@@ -99,15 +127,15 @@ fun AdminScreen(navController: NavHostController, viewModel: AdminViewModel) {
                     }
                 } else {
                     Text(
-                        uiState.value.searchModeResult,
+                        uiState.searchModeResult,
                         style = extendedTypography.titleMedium.copy(
                             Arctic,
                             fontWeight = FontWeight.Bold
                         )
                     )
-                    if (uiState.value.searchModeList.isNotEmpty() && !uiState.value.searchModeLoading) {
+                    if (uiState.searchModeList.isNotEmpty() && !uiState.searchModeLoading) {
                         LazyColumn(Modifier.fillMaxWidth()) {
-                            items(uiState.value.searchModeList) { data ->
+                            items(uiState.searchModeList) { data ->
                                 Text(
                                     data.address,
                                     style = extendedTypography.titleMedium.copy(
@@ -127,9 +155,16 @@ fun AdminScreen(navController: NavHostController, viewModel: AdminViewModel) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
             CustomBottomBar(
                 Modifier.padding(horizontal = 40.dp),
-                UserRole.ADMIN,
-                Destinations.AdminHome
-            ) { navController.navigate(it) }
+                UserRole.ADMIN, Destinations.AdminHome, bottomBarNavigateAction
+            )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun AdminScreenPreview() {
+    VolunteersCaseTheme {
+        AdminScreenContent(animationOverride = true)
     }
 }
