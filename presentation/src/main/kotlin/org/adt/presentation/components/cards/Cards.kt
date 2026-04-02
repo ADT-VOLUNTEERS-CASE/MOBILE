@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -83,6 +85,16 @@ fun NoteCard(
     }
 }
 
+
+/**
+ * The card consists of an icon and text and is used to view statistics
+ *
+ * @param modifier modifier for managing card sizes
+ *
+ * @param onClick function to be invoked on card click.
+ *
+ * @sample [CardStatisticsPreview]
+ */
 @Composable
 fun CardStatistics(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Box(
@@ -118,7 +130,15 @@ fun CardStatistics(modifier: Modifier = Modifier, onClick: () -> Unit) {
 
 }
 
-
+/**
+ * The card consists of an icon and text and is used to view calendar
+ *
+ * @param modifier modifier for managing card sizes
+ *
+ * @param onClick function to be invoked on card click.
+ *
+ * @sample [CardCalendarPreview]
+ */
 @Composable
 fun CardCalendar(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Box(
@@ -152,9 +172,17 @@ fun CardCalendar(modifier: Modifier = Modifier, onClick: () -> Unit) {
 
 }
 
-
+/**
+ * The card consists of an text and is used to view the number of people you have helped.
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param number number of people you have helped.
+ *
+ * @sample [CardStatisticsCountCharityPreview]
+ */
 @Composable
-fun CardStatisticsCountGoodWork(modifier: Modifier = Modifier, count: String) {
+fun CardStatisticsCountCharity(modifier: Modifier = Modifier, number: String) {
 
     Column(
         modifier = modifier
@@ -163,6 +191,7 @@ fun CardStatisticsCountGoodWork(modifier: Modifier = Modifier, count: String) {
             .background(color = Lagoon, shape = RoundedCornerShape(14.dp)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         Text(
             "Количество благополучателей",
             textAlign = TextAlign.Center,
@@ -171,7 +200,7 @@ fun CardStatisticsCountGoodWork(modifier: Modifier = Modifier, count: String) {
         )
 
         Text(
-            text = count,
+            text = number,
             style = mainTypography.titleMedium.copy(color = Arctic, fontSize = 36.sp),
             modifier = Modifier.padding(top = 10.dp)
         )
@@ -180,9 +209,18 @@ fun CardStatisticsCountGoodWork(modifier: Modifier = Modifier, count: String) {
 
 }
 
+/**
+ * The card consists of an text and is used to view the number charity.
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param numberCharity number of charity.
+ *
+ * @sample [CardStatisticsCountCharityPreview]
+ */
 
 @Composable
-fun CardAllCountGoodWork(modifier: Modifier = Modifier, countGoodWork: String) {
+fun CardAllCountCharity(modifier: Modifier = Modifier, numberCharity: String) {
     Column(
         modifier = modifier
             .width(300.dp)
@@ -196,7 +234,7 @@ fun CardAllCountGoodWork(modifier: Modifier = Modifier, countGoodWork: String) {
                 .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = countGoodWork,
+                text = numberCharity,
                 style = mainTypography.titleMedium.copy(Arctic, fontSize = 48.sp),
                 modifier = Modifier.padding(start = 32.dp, end = 10.dp)
             )
@@ -214,8 +252,18 @@ fun CardAllCountGoodWork(modifier: Modifier = Modifier, countGoodWork: String) {
 
 }
 
+/**
+ * The card consists of text and is used to view the number of hours of charity.
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param number number of hours of charity.
+ *
+ * @sample [CardHoursCharityPreview]
+ */
+
 @Composable
-fun CardHoursGoodWork(modifier: Modifier = Modifier, hoursGoodWork: String) {
+fun CardHoursCharity(modifier: Modifier = Modifier, hoursCharity: String) {
     Column(
         modifier = modifier
             .width(300.dp)
@@ -231,7 +279,7 @@ fun CardHoursGoodWork(modifier: Modifier = Modifier, hoursGoodWork: String) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = hoursGoodWork,
+                text = hoursCharity,
                 style = mainTypography.titleMedium.copy(Arctic, fontSize = 48.sp),
                 modifier = Modifier.padding(start = 17.dp, end = 11.dp)
             )
@@ -250,6 +298,16 @@ fun CardHoursGoodWork(modifier: Modifier = Modifier, hoursGoodWork: String) {
 
 }
 
+
+/**
+ * The card consists of text and is used to display the achievements of the week.
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param achievement achievement of the week.
+ *
+ * @sample [CardAchievementOfTheWeekPreview]
+ */
 @Composable
 fun CardAchievementOfTheWeek(modifier: Modifier = Modifier, achievement: String) {
     Column(
@@ -280,6 +338,16 @@ fun CardAchievementOfTheWeek(modifier: Modifier = Modifier, achievement: String)
         )
     }
 }
+
+/**
+ * The card consists of text and is used to add an event.
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param onClick function to be invoked on card click.
+ *
+ * @sample [CardAddEventPreview]
+ */
 
 @Composable
 fun CardAddEvent(modifier: Modifier = Modifier, onClick: () -> Unit) {
@@ -325,14 +393,24 @@ fun CardAddEvent(modifier: Modifier = Modifier, onClick: () -> Unit) {
     }
 }
 
+/**
+ * The card consists of text and is used to view events title, time, date and image .
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param allDescriptionEvent date class that stores image, title, description, time, date event.
+ *
+ * @sample [CardEventPreview]
+ */
+
 @Composable
 fun CardEvent(
     modifier: Modifier = Modifier,
-    image: Int,
-    title: String,
-    date: String,
-    time: String
+    allDescriptionEvent: AllDescriptionEvent
 ) {
+
+    val state = rememberScrollState()
+
     Box(
         modifier = modifier
             .height(190.dp)
@@ -345,80 +423,62 @@ fun CardEvent(
         ) {
 
             Image(
-                painter = painterResource(R.drawable.ic_launcher_background),
+                painter = painterResource(id = if (allDescriptionEvent.image == 0) R.drawable.baseimage else allDescriptionEvent.image),
                 contentDescription = null,
                 modifier = Modifier
+                    .padding(top = 5.dp)
+                    .clip(shape = RoundedCornerShape(17.dp))
                     .width(134.dp)
-                    .height(125.dp)
-                    .padding(top = 6.dp)
-                    .clip(shape = RoundedCornerShape(8.dp)), contentScale = ContentScale.Crop
+                    .height(125.dp),
+                contentScale = ContentScale.Crop
             )
-
-
-
+            
             Text(
-                text = title,
-                modifier = Modifier.padding(top = 9.dp),
+                text = allDescriptionEvent.title,
+                modifier = Modifier
+                    .padding(top = 9.dp)
+                    .width(145.dp)
+                    .height(13.dp)
+                    .horizontalScroll(state),
                 style = mainTypography.titleLarge.copy(
                     fontSize = 11.sp,
                     color = Arctic,
                     fontWeight = FontWeight.SemiBold
-                )
+
+                ), textAlign = TextAlign.Center
             )
             Text(
-                text = date,
+                text = allDescriptionEvent.date,
                 style = mainTypography.titleLarge.copy(
                     fontSize = 8.sp, color = Arctic,
                     fontWeight = FontWeight.SemiBold
                 ),
-                modifier = Modifier.padding(top = 3.dp, bottom = 3.dp)
+                modifier = Modifier.padding(top = 3.dp, bottom = 3.dp).height(10.dp)
             )
             Text(
-                text = time,
+                text = allDescriptionEvent.time,
                 style = mainTypography.titleLarge.copy(
                     fontSize = 8.sp, color = Arctic,
                     fontWeight = FontWeight.SemiBold
-                )
+                ),
+                modifier= Modifier.height(10.dp)
             )
         }
     }
 }
 
-@Composable
-fun CardDescriptionEvent(
-    modifier: Modifier = Modifier,
-    title: String,
-    image: Int,
-    description: String,
-    onClick: () -> Unit
-) {
-    Column(
-        modifier = modifier
-            .padding(start = 39.dp, end = 40.dp, top = 219.dp, bottom = 149.dp)
-            .fillMaxSize()
-    ) {
-        Box(
-            modifier = Modifier
-                .padding(top = 20.dp)
-                .width(300.dp)
-                .height(281.dp)
-                .background(color = Abyss), contentAlignment = Alignment.Center
-        ) {
-            Image(
-                painter = painterResource(image),
-                contentDescription = null,
-                modifier = Modifier
-                    .width(279.dp)
-                    .height(259.dp),
-                contentScale = ContentScale.Fit
-            )
-        }
-        Text(text = title)
-        Text(text = description)
-        CustomRoundedButton(modifier = Modifier, "Приступить!") { {} }
-    }
-}
 
+/**
+ * The card consists of text and is used to view events title, description and image .
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param allDescriptionEvent date class that stores image, title, description, time, date event.
+ *
+ * @param onClick function to be invoked on card click.
+ *
+ * @sample [CardAllDescriptionEventPreview]
+ */
 @Composable
 fun CardAllDescriptionEvent(
     modifier: Modifier = Modifier,
@@ -473,13 +533,32 @@ fun CardAllDescriptionEvent(
                 end = 10.dp,
                 top = 28.dp
             ), "Приступить!"
-        ) { }
+        ) { onClick }
     }
 
 }
 
+/**
+ * The card consists of text and is used to monitoring activity.
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param color color card.
+ *
+ * @param count activity.
+ *
+ * @param parameter monitoring parameter.
+ *
+ * @sample [CardEventMonitoringPreview]
+ */
+
 @Composable
-fun CardEventMonitoring(modifier: Modifier = Modifier, color: Color, count: String, text: String) {
+fun CardEventMonitoring(
+    modifier: Modifier = Modifier,
+    color: Color,
+    count: String,
+    parameter: String
+) {
     Row(
         modifier = modifier
             .width(300.dp)
@@ -493,13 +572,27 @@ fun CardEventMonitoring(modifier: Modifier = Modifier, color: Color, count: Stri
             modifier = Modifier.padding(start = 35.dp, top = 14.dp)
         )
         Text(
-            text = text,
+            text = parameter,
             style = mainTypography.titleMedium.copy(fontSize = 22.sp, color = Arctic),
             modifier = Modifier.padding(end = 15.dp, top = 18.dp, start = 22.dp),
             textAlign = TextAlign.Center
         )
     }
 }
+
+/**
+ * The card consists of text and is used to monitoring activity.
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param color color card.
+ *
+ * @param count activity.
+ *
+ * @param parameter monitoring parameter.
+ *
+ * @sample [CardEventMonitoringPreview]
+ */
 
 @Composable
 fun CardCountUser(
@@ -583,13 +676,6 @@ private fun NoteCardPreview() {
 
 @Preview
 @Composable
-private fun CardEventPrev() {
-    CardEvent(Modifier, R.drawable.ic_launcher_background, "Название", "12.04.1989", "11:00")
-
-}
-
-@Preview
-@Composable
 private fun CardAddEventPreview() {
     VolunteersCaseTheme { CardAddEvent { } }
 }
@@ -610,27 +696,36 @@ private fun CardStatisticsPreview() {
 @Preview
 @Composable
 private fun CardEventPreview() {
-    CardEvent(Modifier, image = R.drawable.ic_launcher_background, "М1", "Дата", "Время")
+    CardEvent(
+        Modifier,
+        AllDescriptionEvent(
+            R.drawable.ic_launcher_background,
+            "Соседский книжный шкаф",
+            "Создай в своём дворе библиотеку для всех желающих: поставь полку, делись книгами и поддерживай в ней порядок.",
+            time = "13:40",
+            date = "01.01"
+        ),
+    )
 
 }
 
 @Preview
 @Composable
-private fun CardCardStatisticsCountGoodWorkPreview() {
-    CardStatisticsCountGoodWork(modifier = Modifier, "147")
+private fun CardStatisticsCountCharityPreview() {
+    CardStatisticsCountCharity(modifier = Modifier, "147")
 }
 
 
 @Preview
 @Composable
-private fun CardAllCountGoodWorkPreview() {
-    CardAllCountGoodWork(modifier = Modifier, "50")
+private fun CardAllCountCharityPreview() {
+    CardAllCountCharity(modifier = Modifier, "50")
 }
 
 @Preview
 @Composable
-private fun CardHoursGoodWorkPreview() {
-    CardHoursGoodWork(modifier = Modifier, "70")
+private fun CardHoursCharityPreview() {
+    CardHoursCharity(modifier = Modifier, "70")
 }
 
 @Preview
@@ -641,7 +736,7 @@ private fun CardAchievementOfTheWeekPreview() {
 
 @Preview
 @Composable
-private fun CardAllDescriptionEventPrev() {
+private fun CardAllDescriptionEventPreview() {
     VolunteersCaseTheme {
         CardAllDescriptionEvent(
             modifier = Modifier,
