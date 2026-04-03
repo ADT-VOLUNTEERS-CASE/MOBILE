@@ -82,15 +82,28 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
 fun AdminRegisterScreenContent(
     uiState: AdminRegisterState = AdminRegisterState(),
     fieldsState: AdminRegisterFieldsState = AdminRegisterFieldsState(),
-    updateFieldsAction: (newState: AdminRegisterFieldsState) -> Unit= {},
+    updateFieldsAction: (newState: AdminRegisterFieldsState) -> Unit = {},
     onStartButtonClickAction: () -> Unit = {},
-    roleDialogToggleAction: () -> Unit= {},
-    navigateUpAction: () -> Unit= {},
+    roleDialogToggleAction: () -> Unit = {},
+    navigateUpAction: () -> Unit = {},
     roleSelectedAction: (role: UserRole) -> Unit = {},
+    animationOverride: Boolean = false,
 ) {
     val context = LocalContext.current
-    val offsetYText = remember { Animatable(-2000f) }
-    val offsetYContent = remember { Animatable(2600f) }
+    val offsetYText = remember {
+        Animatable(
+            if (!animationOverride) -2000f
+            else -700f
+        )
+    }
+
+    val offsetYContent = remember {
+        Animatable(
+            if (!animationOverride) 2600f
+            else 0f
+        )
+    }
+
     val rotationIcon = remember { Animatable(0f) }
     val alphaDialog = remember { Animatable(0f) }
 
@@ -305,6 +318,6 @@ fun AdminRegisterScreenContent(
 @Composable
 private fun AdminRegisterScreenContentPreview() {
     VolunteersCaseTheme {
-        AdminRegisterScreenContent()
+        AdminRegisterScreenContent(animationOverride = true)
     }
 }

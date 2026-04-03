@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -35,33 +36,32 @@ import org.adt.presentation.theme.extendedColor
 
 @Composable
 fun SplashScreen(
-    navController: NavHostController,
-    viewModel: SplashViewModel = hiltViewModel<SplashViewModel>()
+    navController: NavHostController, viewModel: SplashViewModel = hiltViewModel<SplashViewModel>()
 ) {
     val scope = rememberCoroutineScope()
 
     SplashContent(pingAction = { viewModel.ping() }, navigateAction = {
-            scope.launch {
-                navController.navigate(
-                    viewModel.getDestination()
-                ) {
-                    popUpTo(Destinations.Splash) { inclusive = true }
-                    launchSingleTop = true
-                }
+        scope.launch {
+            navController.navigate(
+                viewModel.getDestination()
+            ) {
+                popUpTo(Destinations.Splash) { inclusive = true }
+                launchSingleTop = true
             }
+        }
     })
 }
 
 @Composable
 fun SplashContent(
-    pingAction: () -> Unit,
-    navigateAction: () -> Unit,
-    textAnimationDelayOverride: Long = 40L
+    pingAction: () -> Unit = {},
+    navigateAction: () -> Unit = {},
+    animationOverride: Boolean = false,
 ) {
     val offsetIconX = remember { Animatable(0f) }
-    val offsetIconY = remember { Animatable(-1000f) }
+    val offsetIconY = remember { Animatable(if (!animationOverride) -1000f else -100f) }
     val offsetTextX = remember { Animatable(0f) }
-    val offsetTextY = remember { Animatable(1000f) }
+    val offsetTextY = remember { Animatable(if (!animationOverride) 1000f else 300f) }
 
     LaunchedEffect(Unit) {
         coroutineScope {
@@ -104,19 +104,21 @@ fun SplashContent(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painterResource(R.drawable.ic_main),
-                null,
-                tint = Arctic
+                painterResource(R.drawable.ic_main), null, tint = Arctic
             )
         }
 
         Box(
             Modifier
                 .offset { IntOffset(offsetTextX.value.toInt(), offsetTextY.value.toInt()) }
-                .padding(horizontal = 40.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            TypingText(Modifier,"Твоё следующее доброе дело ждёт своего момента", TextAlign.Center, textAnimationDelayOverride)
+                .padding(horizontal = 40.dp), contentAlignment = Alignment.Center) {
+            TypingText(
+                modifier = Modifier,
+                text = "Твоё следующее доброе дело ждёт своего момента",
+                align = TextAlign.Center,
+                charDelay = if (!animationOverride) 40L else 0L,
+                animationOverride = animationOverride
+            )
         }
     }
 }
@@ -125,6 +127,6 @@ fun SplashContent(
 @Composable
 private fun SplashContentPreview() {
     VolunteersCaseTheme {
-        SplashContent({}, {}, textAnimationDelayOverride = 0L)
+        SplashContent(animationOverride = true)
     }
 }

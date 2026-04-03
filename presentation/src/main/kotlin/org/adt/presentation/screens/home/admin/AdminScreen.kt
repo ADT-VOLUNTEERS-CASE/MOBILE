@@ -94,6 +94,7 @@ fun AdminScreenContent(
                 TypingText(Modifier,
                     text = "Твоё следующее доброе дело ждёт своего момента",
                     charDelay = if (animationOverride) 0L else 40L,
+                    animationOverride = animationOverride
                 )
 
                 CustomSearchTextField(

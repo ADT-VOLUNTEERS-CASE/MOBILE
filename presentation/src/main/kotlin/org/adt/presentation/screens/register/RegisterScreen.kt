@@ -73,11 +73,24 @@ fun RegisterScreenContent(
     fieldsState: RegisterFieldsState = RegisterFieldsState(),
     updateFieldsAction: (state: RegisterFieldsState) -> Unit = {},
     onStartButtonClickAction: () -> Unit = {},
-    navigateToAuthenticateAction: () -> Unit = {}
+    navigateToAuthenticateAction: () -> Unit = {},
+    animationOverride: Boolean = false
 ) {
     val context = LocalContext.current
-    val offsetYText = remember { Animatable(-3000f) }
-    val offsetYContent = remember { Animatable(2600f) }
+
+    val offsetYText = remember {
+        Animatable(
+            if (!animationOverride) -3000f
+            else -1000f
+        )
+    }
+
+    val offsetYContent = remember {
+        Animatable(
+            if (!animationOverride) 2600f
+            else 0f
+        )
+    }
 
     LaunchedEffect(Unit) {
         coroutineScope {
@@ -237,8 +250,8 @@ fun RegisterScreenContent(
 
 @Preview
 @Composable
-private fun RegisterScreenPreview() {
+fun RegisterScreenPreview() {
     VolunteersCaseTheme {
-        RegisterScreenContent()
+        RegisterScreenContent(animationOverride = true)
     }
 }

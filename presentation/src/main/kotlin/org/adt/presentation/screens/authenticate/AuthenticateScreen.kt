@@ -58,7 +58,7 @@ fun AuthenticateScreen(navController: NavHostController, viewModel: Authenticate
         uiState = uiState,
         fieldsState = fieldsState,
         navigateToRegisterAction = { navController.navigate(Destinations.Register) },
-        updateFieldsAction = {newState -> viewModel.updateInputFields(newState)},
+        updateFieldsAction = { newState -> viewModel.updateInputFields(newState) },
         continueAction = { viewModel.onContinueClick(navController) }
     )
 }
@@ -66,14 +66,15 @@ fun AuthenticateScreen(navController: NavHostController, viewModel: Authenticate
 @Composable
 fun AuthenticateScreenContent(
     uiState: AuthenticateState = AuthenticateState(),
-    fieldsState: AuthenticateFieldsState= AuthenticateFieldsState(),
+    fieldsState: AuthenticateFieldsState = AuthenticateFieldsState(),
     navigateToRegisterAction: () -> Unit = {},
-    updateFieldsAction: (newState: AuthenticateFieldsState) -> Unit= {},
+    updateFieldsAction: (newState: AuthenticateFieldsState) -> Unit = {},
     continueAction: () -> Unit = {},
-    ) {
+    animationOverride: Boolean = false,
+) {
     val context = LocalContext.current
-    val offsetYImage = remember { Animatable(-2000f) }
-    val offsetYContent = remember { Animatable(2000f) }
+    val offsetYImage = remember { Animatable(if (!animationOverride) -2000f else 0f) }
+    val offsetYContent = remember { Animatable(if (!animationOverride) 2000f else 0f) }
 
     LaunchedEffect(Unit) {
         coroutineScope {
@@ -196,6 +197,6 @@ fun AuthenticateScreenContent(
 @Composable
 private fun AuthenticateScreenPreview() {
     VolunteersCaseTheme {
-        AuthenticateScreenContent()
+        AuthenticateScreenContent(animationOverride = true)
     }
 }

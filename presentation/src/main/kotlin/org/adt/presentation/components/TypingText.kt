@@ -18,9 +18,10 @@ fun TypingText(
     text: String,
     align: TextAlign = TextAlign.Start,
     charDelay: Long = 40L,
-    delay: Long = 0
+    delay: Long = 0,
+    animationOverride: Boolean = false,
 ) {
-    var displayedText by remember { mutableStateOf("") }
+    var displayedText by remember { mutableStateOf(if (animationOverride) text else "") }
 
     LaunchedEffect(text, charDelay) {
         delay(delay)
