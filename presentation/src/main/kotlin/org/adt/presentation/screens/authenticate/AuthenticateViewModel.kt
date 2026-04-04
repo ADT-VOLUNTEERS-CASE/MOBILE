@@ -38,8 +38,8 @@ class AuthenticateViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.IO) {
                 _uiState.value = _uiState.value.copy(isLoading = true)
                 val response = _dataRepository.authenticate(
-                    _uiState.value.email,
-                    _uiState.value.password
+                    _fieldsState.value.email,
+                    _fieldsState.value.password
                 )
                 if (response.first == 200) {
                     _uiState.value = _uiState.value.copy(authError = null)
