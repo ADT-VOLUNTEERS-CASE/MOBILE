@@ -6,7 +6,7 @@ import org.adt.core.entities.UserRole
 import org.adt.core.entities.response.UserResponse
 
 interface DataRepository {
-    suspend fun ping(): GeneralResponse<String>//Result<String>
+    suspend fun ping(): GeneralResponse<String>
 
     suspend fun authorized(): Boolean
 
@@ -20,15 +20,15 @@ interface DataRepository {
         role: UserRole,
         autologin: Boolean,
         retried: Boolean
-    ): GeneralResponse<String> //Pair<Int, Result<String>>
+    ): GeneralResponse<String>
 
-    suspend fun authenticate(email: String, password: String): GeneralResponse<String>//Pair<Int, Result<String>>
+    suspend fun authenticate(email: String, password: String): GeneralResponse<String>
 
-    suspend fun refreshToken(): GeneralResponse<String>//Pair<Int, Result<String>>
+    suspend fun refreshToken(): GeneralResponse<String>
 
     suspend fun deauthenticate()
 
-    suspend fun findLocation(address: String): GeneralResponse<List<Location>>//Result<List<Location>>
+    suspend fun findLocation(address: String): GeneralResponse<List<Location>>
 
-    suspend fun userInfo(): GeneralResponse<UserResponse>//Result<UserResponse>
+    suspend fun userInfo(): GeneralResponse<UserResponse>
 }
