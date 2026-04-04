@@ -3,13 +3,16 @@ package org.adt.presentation.screens.home.admin
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
 import org.adt.domain.abstraction.DataRepository
+import org.adt.presentation.navigation.Destinations
 import javax.inject.Inject
 
 @HiltViewModel
@@ -53,7 +56,12 @@ class AdminViewModel @Inject constructor(
         }
     }
 
-    fun deauthenticate() {
-        viewModelScope.launch(Dispatchers.IO) { _dataRepository.deauthenticate() }
+    fun deauthenticate(navController: NavHostController) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _dataRepository.deauthenticate()
+            Dispatchers.Main{
+                navController.navigate(Destinations.Splash)
+            }
+        }
     }
 }

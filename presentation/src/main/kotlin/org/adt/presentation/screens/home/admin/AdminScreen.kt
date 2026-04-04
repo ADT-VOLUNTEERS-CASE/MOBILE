@@ -45,10 +45,7 @@ fun AdminScreen(
         searchFieldValueChangedAction = { viewModel.onSearchValueChange(it) },
         searchFieldOnConfirmAction = { viewModel.findLocation() },
         navigateToAdminRegisterAction = { navController.navigate(Destinations.AdminRegister) },
-        logoutAction = {
-            viewModel.deauthenticate()
-            navController.navigate(Destinations.Splash)
-        },
+        logoutAction = { viewModel.deauthenticate(navController) },
         bottomBarNavigateAction = { navController.navigate(it) },
     )
 }
@@ -91,7 +88,8 @@ fun AdminScreenContent(
                 Arrangement.spacedBy(20.dp),
                 Alignment.CenterHorizontally
             ) {
-                TypingText(Modifier,
+                TypingText(
+                    Modifier,
                     text = "Твоё следующее доброе дело ждёт своего момента",
                     charDelay = if (animationOverride) 0L else 40L,
                     animationOverride = animationOverride
@@ -134,7 +132,10 @@ fun AdminScreenContent(
                             fontWeight = FontWeight.Bold
                         )
                     )
-                    if (uiState.searchModeList.isNotEmpty() && !uiState.searchModeLoading) {
+
+                    if (uiState.searchModeLoading) {
+                        CircularProgressIndicator()
+                    } else if (uiState.searchModeList.isNotEmpty()) {
                         LazyColumn(Modifier.fillMaxWidth()) {
                             items(uiState.searchModeList) { data ->
                                 Text(
@@ -147,7 +148,13 @@ fun AdminScreenContent(
                             }
                         }
                     } else {
-                        CircularProgressIndicator()
+                        Text(
+                            "Ничего не найдено",
+                            style = extendedTypography.titleMedium.copy(
+                                Arctic,
+                                fontWeight = FontWeight.Normal
+                            )
+                        )
                     }
                 }
             }
