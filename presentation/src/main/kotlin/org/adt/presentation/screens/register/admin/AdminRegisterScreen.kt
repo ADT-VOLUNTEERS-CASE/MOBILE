@@ -42,9 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.adt.core.entities.UserRole
@@ -252,7 +250,7 @@ fun AdminRegisterScreenContent(
 
                 CustomTranslucentButton(
                     "Зарегистрировать",
-                    uiState.isFormValid,
+                    fieldsState.isFormValid,
                     uiState.isLoading
                 ) { onStartButtonClickAction.invoke() }
 

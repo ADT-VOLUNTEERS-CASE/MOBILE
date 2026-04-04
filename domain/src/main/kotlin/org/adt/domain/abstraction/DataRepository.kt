@@ -1,11 +1,12 @@
 package org.adt.domain.abstraction
 
+import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.Location
 import org.adt.core.entities.UserRole
 import org.adt.core.entities.response.UserResponse
 
 interface DataRepository {
-    suspend fun ping(): Result<String>
+    suspend fun ping(): GeneralResponse<String>//Result<String>
 
     suspend fun authorized(): Boolean
 
@@ -19,15 +20,15 @@ interface DataRepository {
         role: UserRole,
         autologin: Boolean,
         retried: Boolean
-    ): Pair<Int, Result<String>>
+    ): GeneralResponse<String> //Pair<Int, Result<String>>
 
-    suspend fun authenticate(email: String, password: String): Pair<Int, Result<String>>
+    suspend fun authenticate(email: String, password: String): GeneralResponse<String>//Pair<Int, Result<String>>
 
-    suspend fun refreshToken(): Pair<Int, Result<String>>
+    suspend fun refreshToken(): GeneralResponse<String>//Pair<Int, Result<String>>
 
     suspend fun deauthenticate()
 
-    suspend fun findLocation(address: String): Result<List<Location>>
+    suspend fun findLocation(address: String): GeneralResponse<List<Location>>//Result<List<Location>>
 
-    suspend fun userInfo(): Result<UserResponse>
+    suspend fun userInfo(): GeneralResponse<UserResponse>//Result<UserResponse>
 }

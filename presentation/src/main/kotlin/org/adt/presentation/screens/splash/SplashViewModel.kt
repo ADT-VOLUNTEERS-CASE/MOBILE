@@ -1,11 +1,13 @@
 package org.adt.presentation.screens.splash
 
 import android.util.Log
+import androidx.compose.ui.platform.LocalDensity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.adt.core.entities.UserRole
 import org.adt.domain.abstraction.DataRepository
@@ -13,51 +15,52 @@ import org.adt.presentation.navigation.Destinations
 import javax.inject.Inject
 
 @HiltViewModel
+//TODO: Use `Logger` for.. Logging!
 class SplashViewModel @Inject constructor(
     private val _dataRepository: DataRepository,
 ) : ViewModel() {
-    private val _pongString = MutableStateFlow("")
+    private val _authorized =
+        MutableStateFlow(false) // TODO: Kept for future development..? No reason for StateFlow now.
+
     fun ping() {
         viewModelScope.launch(Dispatchers.IO) {
             val result = _dataRepository.ping()
-            result.onSuccess { value ->
-                _pongString.value = value
-                Log.d("ping", value)
-            }.onFailure { error ->
-                Log.e("ping", "Ping failed", error)
+
+            if (!result.isSuccessful) {
+                Log.e("SplashViewModel::Ping", "Ping failed")
+                return@launch
             }
+
+            Log.d("SplashViewModel::Ping", result.data())
         }
     }
 
-    private val _authorized = MutableStateFlow(false)
-    private val _userRole = MutableStateFlow(UserRole.NONE)
-
+    //TODO: Rewrite
     suspend fun getDestination(): Destinations {
+        var userRole = UserRole.NONE
+
         val isAuthorized = _dataRepository.authorized()
-        _authorized.value = isAuthorized
 
-        if (isAuthorized) {
-            val result = _dataRepository.userInfo()
-            result.onSuccess { value ->
-                _userRole.value = when {
-                    value.admin -> UserRole.ADMIN
-                    value.coordinator -> UserRole.COORDINATOR
-                    else -> UserRole.VOLUNTEER
-                }
-                Log.d("role", _userRole.value.toString())
-            }.onFailure { exception ->
-                Log.e("role", "Check failed", exception)
-                _userRole.value = UserRole.NONE
-            }
-        } else {
-            _userRole.value = UserRole.NONE
+        _authorized.update { isAuthorized }
+
+        if (!isAuthorized)
+            return Destinations.mapRole(userRole)
+
+        val result = _dataRepository.userInfo()
+
+        if (!result.isSuccessful)
+            return Destinations.mapRole(userRole)
+
+        val value = result.data()
+
+        userRole = when {
+            value.admin -> UserRole.ADMIN
+            value.coordinator -> UserRole.COORDINATOR
+            else -> UserRole.VOLUNTEER
         }
 
-        return when (_userRole.value) {
-            UserRole.ADMIN -> Destinations.AdminHome
-            UserRole.COORDINATOR -> Destinations.CoordinatorHome
-            UserRole.VOLUNTEER -> Destinations.VolunteerHome
-            UserRole.NONE -> Destinations.Authenticate
-        }
+        Log.d("SplashViewModel::Role", userRole.toString())
+
+        return Destinations.mapRole(userRole)
     }
 }

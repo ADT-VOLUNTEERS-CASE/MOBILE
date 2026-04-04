@@ -15,9 +15,11 @@ import kotlinx.coroutines.withContext
 import org.adt.domain.abstraction.DataRepository
 import org.adt.domain.abstraction.DomainRepository
 import org.adt.presentation.navigation.Destinations
+import org.adt.presentation.utils.LocalizationManager.message
 import javax.inject.Inject
 
 @HiltViewModel
+//TODO: Use `Logger` for.. Logging!
 class AuthenticateViewModel @Inject constructor(
     private val _domainRepository: DomainRepository,
     private val _dataRepository: DataRepository,
@@ -33,48 +35,77 @@ class AuthenticateViewModel @Inject constructor(
         _fieldsState.update { newState }
     }
 
+    //TODO: __GOD_FORGIVE_ME__(REWRITE THIS.. PLEASE..)
     fun onContinueClick(navController: NavHostController) {
-        if (_fieldsState.value.isFormValid) {
-            viewModelScope.launch(Dispatchers.IO) {
-                _uiState.value = _uiState.value.copy(isLoading = true)
-                val response = _dataRepository.authenticate(
-                    _fieldsState.value.email,
-                    _fieldsState.value.password
+        if (!_fieldsState.value.isFormValid)
+            return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            clearErrorMessage()
+
+            _uiState.update { it.copy(isLoading = true) }
+
+            val response = _dataRepository.authenticate(
+                _fieldsState.value.email,
+                _fieldsState.value.password
+            )
+
+            if (!response.isSuccessful) {
+                populateFailure(
+                    displayError = response.message,
+                    logMessage = response.message,
+                    tagSuffix = "Auth"
                 )
-                if (response.first == 200) {
-                    _uiState.value = _uiState.value.copy(authError = null)
-                    response.second.onSuccess {
-                        val result = _dataRepository.userInfo()
-                        result.onSuccess { value ->
-                            val destination = when {
-                                value.admin -> Destinations.AdminHome
-                                value.coordinator -> Destinations.CoordinatorHome
-                                else -> Destinations.VolunteerHome
-                            }
-                            withContext(Dispatchers.Main) {
-                                navController.navigate(destination) {
-                                    popUpTo(Destinations.Authenticate) { inclusive = true }
-                                    launchSingleTop = true
-                                }
-                            }
-                        }.onFailure { exception ->
-                            Log.e("role", "Role check failed", exception)
-                            _uiState.value = _uiState.value.copy(authError = "Не удалось получить данные пользователя")
-                        }
-                    }.onFailure { exception ->
-                        Log.e("auth", "Failure", exception)
-                    }
-                } else {
-                    val error = when (response.first) {
-                        400 -> "Введите электронную почту"
-                        401 -> "Неверный пароль"
-                        404 -> "Нет пользователя с таким email"
-                        else -> "Неизвестная ошибка"
-                    }
-                    _uiState.value = _uiState.value.copy(authError = error)
-                }
-                _uiState.value = _uiState.value.copy(isLoading = false)
+
+                return@launch
             }
+
+            val result = _dataRepository.userInfo()
+
+            if (!result.isSuccessful) {
+                populateFailure(
+                    displayError = "Не удалось получить данные пользователя",
+                    logMessage = "Role check failed",
+                    tagSuffix = "Role"
+                )
+
+                return@launch
+            }
+
+            val value = result.data()
+
+            val destination = when {
+                value.admin -> Destinations.AdminHome
+                value.coordinator -> Destinations.CoordinatorHome
+                else -> Destinations.VolunteerHome
+            }
+
+            withContext(Dispatchers.Main) {
+                navController.navigate(destination) {
+                    popUpTo(Destinations.Authenticate) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+
+            _uiState.update { it.copy(isLoading = false) }
         }
+    }
+
+    private fun clearErrorMessage(){
+        _uiState.update { it.copy(authError = null) }
+    }
+
+    private fun populateFailure(
+        displayError: String? = null,
+        logMessage: String = "",
+        tagSuffix: String = "Main"
+    ) {
+        _uiState.update {
+            it.copy(
+                authError = displayError,
+                isLoading = false
+            )
+        }
+        Log.e("AuthenticateViewModel::${tagSuffix}", logMessage)
     }
 }

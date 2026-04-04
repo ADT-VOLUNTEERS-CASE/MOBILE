@@ -15,9 +15,11 @@ import kotlinx.coroutines.withContext
 import org.adt.core.entities.UserRole
 import org.adt.domain.abstraction.DataRepository
 import org.adt.presentation.navigation.Destinations
+import org.adt.presentation.utils.LocalizationManager.message
 import javax.inject.Inject
 
 @HiltViewModel
+//TODO: Use `Logger` for.. Logging!
 class RegisterViewModel @Inject constructor(
     private val _dataRepository: DataRepository,
 ) : ViewModel() {
@@ -28,10 +30,11 @@ class RegisterViewModel @Inject constructor(
     val uiState: StateFlow<RegisterState> = _uiState.asStateFlow()
     val fieldsState: StateFlow<RegisterFieldsState> = _fieldsState.asStateFlow()
 
-    fun updateInputs(newState: RegisterFieldsState){
+    fun updateInputs(newState: RegisterFieldsState) {
         _fieldsState.update { newState }
     }
 
+    //TODO: __*Sigh*__(Rewrite)
     fun onStartClick(navController: NavHostController) {
         val fields = _fieldsState.value
 
@@ -39,7 +42,9 @@ class RegisterViewModel @Inject constructor(
             return
 
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = _uiState.value.copy(isLoading = true, registerError = null)
+            clearErrorMessage()
+
+            populateLoadingState(true)
 
             val response = _dataRepository.register(
                 firstname = fields.firstName,
@@ -53,38 +58,56 @@ class RegisterViewModel @Inject constructor(
                 retried = false
             )
 
-            if (response.first == 200) {
-                _uiState.value = _uiState.value.copy(registerError = null)
-                response.second.onSuccess {
-                    val result = _dataRepository.userInfo()
-                    result.onSuccess { value ->
-                        val destination = when {
-                            value.admin -> Destinations.AdminHome
-                            value.coordinator -> Destinations.CoordinatorHome
-                            else -> Destinations.VolunteerHome
-                        }
-                        withContext(Dispatchers.Main) {
-                            navController.navigate(destination) {
-                                popUpTo(Destinations.Register) { inclusive = true }
-                                launchSingleTop = true
-                            }
-                        }
-                    }.onFailure { exception ->
-                        Log.e("role", "Role check failed", exception)
-                        _uiState.value = _uiState.value.copy(registerError = "Не удалось получить данные пользователя")
-                    }
-                }.onFailure { exception ->
-                    Log.e("register", "Failure", exception)
-                }
-            } else {
-                val error = when (response.first) {
-                    400 -> "Невалидные данные"
-                    409 -> "Пользователь с такой почтой или номером телефона уже существует"
-                    else -> "Неизвестная ошибка"
-                }
-                _uiState.value = _uiState.value.copy(registerError = error)
+            if (!response.isSuccessful) {
+                populateFailure(
+                    message = response.message,
+                    logMessage = "Failure",
+                    tagSuffix = "Register"
+                )
+                return@launch
             }
-            _uiState.value = _uiState.value.copy(isLoading = false)
+
+            val result = _dataRepository.userInfo()
+
+            if (!result.isSuccessful) {
+                populateFailure(
+                    message = "Не удалось получить данные пользователя",
+                    logMessage = "Role check failed",
+                    tagSuffix = "Role"
+                )
+                return@launch
+            }
+
+            val value = result.data()
+
+            val destination = when {
+                value.admin -> Destinations.AdminHome
+                value.coordinator -> Destinations.CoordinatorHome
+                else -> Destinations.VolunteerHome
+            }
+
+            withContext(Dispatchers.Main) {
+                navController.navigate(destination) {
+                    popUpTo(Destinations.Register) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+
+            populateLoadingState(false)
         }
+    }
+
+    private fun populateFailure(message: String, logMessage:String, tagSuffix: String = "Main") {
+        _uiState.update { it.copy(registerError = message, isLoading = false) }
+
+        Log.e("RegisterViewModel::${tagSuffix}", message)
+    }
+
+    private fun populateLoadingState(state: Boolean){
+        _uiState.update { it.copy(isLoading = state) }
+    }
+
+    private fun clearErrorMessage(){
+        _uiState.update { it.copy(registerError = null) }
     }
 }

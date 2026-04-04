@@ -12,9 +12,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.adt.core.entities.UserRole
 import org.adt.domain.abstraction.DataRepository
+import org.adt.presentation.utils.LocalizationManager.message
 import javax.inject.Inject
 
 @HiltViewModel
+//TODO: Use `Logger` for.. Logging!
 class AdminRegisterViewModel @Inject constructor(
     private val _dataRepository: DataRepository,
 ) : ViewModel() {
@@ -30,52 +32,63 @@ class AdminRegisterViewModel @Inject constructor(
     }
 
     fun onRoleSelected(role: UserRole) {
-        _uiState.value = _uiState.value.copy(
+        _uiState.update { it.copy(
             chosenRole = role,
             registerResult = null
-        )
+        )}
     }
 
     fun onRoleDialogToggle() {
-        _uiState.value = _uiState.value.copy(
+        _uiState.update {  it.copy(
             isRoleDialogVisible = !_uiState.value.isRoleDialogVisible
-        )
+        )}
     }
 
     fun onStartClick() {
         val uiState = _uiState.value
         val fieldsState = _fieldsState.value
 
-        if (fieldsState.isFormValid && uiState.chosenRole != UserRole.NONE) {
-            viewModelScope.launch(Dispatchers.IO) {
-                _uiState.value = _uiState.value.copy(isLoading = true)
-                val response = _dataRepository.register(
-                    firstname = fieldsState.firstName,
-                    lastname = fieldsState.lastName,
-                    patronymic = fieldsState.patronymic,
-                    phoneNumber = fieldsState.phoneNumber,
-                    email = fieldsState.email,
-                    password = fieldsState.password,
-                    role = _uiState.value.chosenRole,
-                    autologin = false,
-                    retried = false
-                )
-                if (response.first == 200) {
-                    _uiState.value =
-                        _uiState.value.copy(registerResult = "Пользователь успешно зарегистрирован")
-                } else {
-                    val error = when (response.first) {
-                        400 -> "Невалидные данные"
-                        409 -> "Пользователь с такой почтой или номером телефона уже существует"
-                        else -> "Неизвестная ошибка"
-                    }
-                    _uiState.value = _uiState.value.copy(registerResult = error)
-                    response.second.onFailure { exception ->
-                        Log.e("register", "HTTP ${response.first}", exception)
-                    }
-                }
-                _uiState.update { _uiState.value.copy(isLoading = false) }
+        if (!fieldsState.isFormValid) {
+            populateFailure("Неверные данные")
+            return
+        }
+
+        if (uiState.chosenRole == UserRole.NONE) {
+            populateFailure("Выберите роль")
+            return
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            populateLoadingState(true)
+
+            val response = _dataRepository.register(
+                firstname = fieldsState.firstName,
+                lastname = fieldsState.lastName,
+                patronymic = fieldsState.patronymic,
+                phoneNumber = fieldsState.phoneNumber,
+                email = fieldsState.email,
+                password = fieldsState.password,
+                role = _uiState.value.chosenRole,
+                autologin = false,
+                retried = false
+            )
+
+            if (response.isSuccessful) {
+                _uiState.update { it.copy(registerResult = "Пользователь успешно зарегистрирован") }
+            } else {
+                populateFailure(response.message)
             }
-        } else _uiState.update { _uiState.value.copy(registerResult = "Выберите роль") }
+            populateLoadingState(false)
+        }
+    }
+
+    private fun populateFailure(message: String, tagSuffix: String = "Main") {
+        _uiState.update { it.copy(registerResult = message) }
+
+        Log.e("AdminRegisterViewModel::${tagSuffix}", message)
+    }
+
+    private fun populateLoadingState(state: Boolean) {
+        _uiState.update { it.copy(isLoading = state) }
     }
 }
