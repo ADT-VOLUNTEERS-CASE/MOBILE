@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.adt.core.entities.UserRole
 import org.adt.domain.abstraction.DataRepository
-import org.adt.presentation.screens.register.RegisterFieldsState
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,7 +25,7 @@ class AdminRegisterViewModel @Inject constructor(
     val uiState: StateFlow<AdminRegisterState> = _uiState.asStateFlow()
     val fieldsState: StateFlow<AdminRegisterFieldsState> = _fieldsState.asStateFlow()
 
-    fun updateInputs(newState: AdminRegisterFieldsState){
+    fun updateInputs(newState: AdminRegisterFieldsState) {
         _fieldsState.update { newState }
     }
 
@@ -44,22 +43,26 @@ class AdminRegisterViewModel @Inject constructor(
     }
 
     fun onStartClick() {
-        if (_uiState.value.isFormValid && _uiState.value.chosenRole != UserRole.NONE) {
-            viewModelScope.launch(Dispatchers.Main) {
+        val uiState = _uiState.value
+        val fieldsState = _fieldsState.value
+
+        if (fieldsState.isFormValid && uiState.chosenRole != UserRole.NONE) {
+            viewModelScope.launch(Dispatchers.IO) {
                 _uiState.value = _uiState.value.copy(isLoading = true)
                 val response = _dataRepository.register(
-                    firstname = _uiState.value.firstname,
-                    lastname = _uiState.value.lastname,
-                    patronymic = _uiState.value.patronymic,
-                    phoneNumber = _uiState.value.phoneNumber,
-                    email = _uiState.value.email,
-                    password = _uiState.value.password,
+                    firstname = fieldsState.firstName,
+                    lastname = fieldsState.lastName,
+                    patronymic = fieldsState.patronymic,
+                    phoneNumber = fieldsState.phoneNumber,
+                    email = fieldsState.email,
+                    password = fieldsState.password,
                     role = _uiState.value.chosenRole,
                     autologin = false,
                     retried = false
                 )
                 if (response.first == 200) {
-                    _uiState.value = _uiState.value.copy(registerResult = "Пользователь успешно зарегистрирован")
+                    _uiState.value =
+                        _uiState.value.copy(registerResult = "Пользователь успешно зарегистрирован")
                 } else {
                     val error = when (response.first) {
                         400 -> "Невалидные данные"
@@ -71,8 +74,8 @@ class AdminRegisterViewModel @Inject constructor(
                         Log.e("register", "HTTP ${response.first}", exception)
                     }
                 }
-                _uiState.value = _uiState.value.copy(isLoading = false)
+                _uiState.update { _uiState.value.copy(isLoading = false) }
             }
-        } else _uiState.value = _uiState.value.copy(registerResult = "Выберите роль")
+        } else _uiState.update { _uiState.value.copy(registerResult = "Выберите роль") }
     }
 }
