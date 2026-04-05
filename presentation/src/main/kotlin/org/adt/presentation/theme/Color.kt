@@ -12,6 +12,8 @@ val Mint = Color(0xFFA7D9D9)
 val Lagoon = Color(0xFF479391)
 val Silver = Color(0xFFA1A4B2)
 val Aqua = Color(0xFFCBEBEB)
+val Milk = Color(0xFFF2F3F7)
+val Void = Color(0xFF181718)
 
 @Immutable
 data class AppColors(
@@ -37,7 +39,7 @@ val LocalAppColors = staticCompositionLocalOf {
 
 val extendedColor = AppColors(
     primaryBackground = Abyss,
-    secondaryBackground = Lagoon,
+    secondaryBackground = Arctic,
     tertiaryBackground = Mint,
     text = Arctic,
     background = Graphite,

@@ -6,6 +6,4 @@ import org.adt.domain.abstraction.DomainRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(private val _domainRepository: DomainRepository): ViewModel() {
-
-}
+class HomeViewModel @Inject constructor(private val _domainRepository: DomainRepository): ViewModel()

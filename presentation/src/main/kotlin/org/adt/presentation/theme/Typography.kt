@@ -69,7 +69,14 @@ val extendedTypography = AppTypography(
         letterSpacing = 0.sp,
         color = Graphite
     ),
-    titleSmall = TextStyle.Default,
+    titleSmall = TextStyle(
+        fontFamily = InterDisplayFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.sp,
+        color = Graphite
+    ),
     displayLarge = TextStyle(
         fontFamily = GerhausFontFamily,
         fontWeight = FontWeight.Normal,
