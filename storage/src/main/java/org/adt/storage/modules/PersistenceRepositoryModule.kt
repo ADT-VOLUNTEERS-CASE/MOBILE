@@ -1,6 +1,6 @@
 package org.adt.storage.modules
 
-import PersistenceRepositoryImpl
+import org.adt.storage.repository.PersistenceRepositoryImpl
 import android.content.Context
 import dagger.Module
 import dagger.Provides

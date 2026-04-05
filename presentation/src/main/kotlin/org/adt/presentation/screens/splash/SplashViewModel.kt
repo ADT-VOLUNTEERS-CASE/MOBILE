@@ -1,7 +1,6 @@
 package org.adt.presentation.screens.splash
 
 import android.util.Log
-import androidx.compose.ui.platform.LocalDensity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel

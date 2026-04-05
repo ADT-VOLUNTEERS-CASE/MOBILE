@@ -8,7 +8,7 @@ import org.adt.data.repository.DataRepositoryImpl
 import org.adt.domain.abstraction.DataRepository
 
 @Module
-internal class DataRepositoryModule() {
+internal class DataRepositoryModule {
     @Provides
     @ImplicitUsage
     fun provide(

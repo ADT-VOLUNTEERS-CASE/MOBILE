@@ -33,10 +33,10 @@ sealed class Destinations {
     companion object {
         fun mapRole(userRole: UserRole): Destinations {
             return when (userRole) {
-                UserRole.ADMIN -> Destinations.AdminHome
-                UserRole.COORDINATOR -> Destinations.CoordinatorHome
-                UserRole.VOLUNTEER -> Destinations.VolunteerHome
-                else -> Destinations.Authenticate
+                UserRole.ADMIN -> AdminHome
+                UserRole.COORDINATOR -> CoordinatorHome
+                UserRole.VOLUNTEER -> VolunteerHome
+                else -> Authenticate
             }
         }
     }
