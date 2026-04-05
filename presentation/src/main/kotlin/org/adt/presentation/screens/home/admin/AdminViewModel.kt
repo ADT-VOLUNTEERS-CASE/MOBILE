@@ -25,11 +25,11 @@ class AdminViewModel @Inject constructor(
     val uiState: StateFlow<AdminState> = _uiState.asStateFlow()
 
     fun onSearchValueChange(value: String) {
-        _uiState.update {  it.copy(searchValue = value) }
+        _uiState.update { it.copy(searchValue = value) }
     }
 
     fun onSearchModeChange(value: Boolean) {
-        _uiState.update {  it.copy(searchMode = value) }
+        _uiState.update { it.copy(searchMode = value) }
     }
 
     fun findLocation() {
@@ -39,16 +39,18 @@ class AdminViewModel @Inject constructor(
             return
 
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.update {  it.copy(searchMode = true, searchModeLoading = true) }
+            _uiState.update { it.copy(searchMode = true, searchModeLoading = true) }
 
             val response = _dataRepository.findLocation(uiState.searchValue)
 
             if (response.isSuccessful) {
-                _uiState.update { it.copy(
-                    searchModeLoading = false,
-                    searchModeList = response.data(),
-                    searchModeResult = "Найдено ${response.data().size}"
-                )}
+                _uiState.update {
+                    it.copy(
+                        searchModeLoading = false,
+                        searchModeList = response.data(),
+                        searchModeResult = "Найдено ${response.data().size}"
+                    )
+                }
 
                 Log.i("location", "Successful search by address")
                 return@launch
@@ -62,20 +64,24 @@ class AdminViewModel @Inject constructor(
         }
     }
 
-    fun deauthenticate(navController: NavHostController) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _dataRepository.deauthenticate()
-            Dispatchers.Main {
-                navController.navigate(Destinations.Splash)
-            }
+    fun deauthenticate(navigateAction: () -> Unit) {
+        viewModelScope.launch {
+            Dispatchers.IO { _dataRepository.deauthenticate() }
+            navigateAction.invoke()
         }
     }
 
-    private fun populateFailure(displayMessage: String = "", logMessage: String, tagSuffix: String){
-        _uiState.update { it.copy(
-            searchModeLoading = false,
-            searchModeResult = displayMessage
-        )}
+    private fun populateFailure(
+        displayMessage: String = "",
+        logMessage: String,
+        tagSuffix: String
+    ) {
+        _uiState.update {
+            it.copy(
+                searchModeLoading = false,
+                searchModeResult = displayMessage
+            )
+        }
 
         Log.e("AdminViewModel::${tagSuffix}", logMessage)
     }

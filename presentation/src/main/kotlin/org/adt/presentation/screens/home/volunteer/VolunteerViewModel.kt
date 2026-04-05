@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
 import org.adt.domain.abstraction.DataRepository
 import javax.inject.Inject
@@ -13,7 +14,10 @@ class VolunteerViewModel @Inject constructor(
     private val _dataRepository: DataRepository,
 ) : ViewModel() {
     //fun for tests
-    fun deauthenticate() {
-        viewModelScope.launch(Dispatchers.IO) { _dataRepository.deauthenticate() }
+    fun deauthenticate(navigateAction: () -> Unit) {
+        viewModelScope.launch {
+            Dispatchers.IO { _dataRepository.deauthenticate() }
+            navigateAction.invoke()
+        }
     }
 }

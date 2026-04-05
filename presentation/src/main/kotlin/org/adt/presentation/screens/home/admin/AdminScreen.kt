@@ -45,7 +45,15 @@ fun AdminScreen(
         searchFieldValueChangedAction = { viewModel.onSearchValueChange(it) },
         searchFieldOnConfirmAction = { viewModel.findLocation() },
         navigateToAdminRegisterAction = { navController.navigate(Destinations.AdminRegister) },
-        logoutAction = { viewModel.deauthenticate(navController) },
+        logoutAction = {
+            viewModel.deauthenticate {
+                navController.navigate(Destinations.Splash) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+            }
+        },
         bottomBarNavigateAction = { navController.navigate(it) },
     )
 }

@@ -21,8 +21,13 @@ fun VolunteerScreen(
 ) {
     VolunteerScreenContent(
         logoutAction = {
-            viewModel.deauthenticate()
-            navController.navigate(Destinations.Splash)
+            viewModel.deauthenticate {
+                navController.navigate(Destinations.Splash){
+                    popUpTo(navController.graph.id){
+                        inclusive = true
+                    }
+                }
+            }
         },
     )
 }
