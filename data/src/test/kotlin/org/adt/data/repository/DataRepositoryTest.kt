@@ -305,6 +305,16 @@ class DataRepositoryTest {
     }
 
     @Test
+    fun `Deauthenticate Test`() = runBlocking {
+        registerTestUserWithRole(UserRole.ADMIN, "admin@debug.mail", "admin")
+        assertAuthSuccess("admin@debug.mail", "admin")
+
+        dataRepository.deauthenticate()
+
+        assert(!dataRepository.authorized()) { "Authorized method should return false result after deauthentication." }
+    }
+
+    @Test
     fun `Request User Info Test(Coordinator)`() = runBlocking {
         registerTestUserWithRole(UserRole.COORDINATOR, "coordinator@debug.mail", "coordinator")
         assertAuthSuccess("coordinator@debug.mail", "coordinator")
