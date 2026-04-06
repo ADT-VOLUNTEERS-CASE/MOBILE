@@ -41,15 +41,13 @@ class DataRepositoryTest {
     val refreshTokenSlot = slot<String>()
 
     var tokenStore = Pair("", "")
-    var refreshTokensStore = HashMap<String, MockUserModel>()
-    var accessTokensStore = HashMap<String, MockUserModel>()
+    var authenticatedUser: MockUserModel? = null
 
     @Before
     fun setup() {
         usersList.clear()
         tokenStore = Pair("", "")
-        refreshTokensStore.clear()
-        accessTokensStore.clear()
+        authenticatedUser = null
 
         retrofitMockRepository = mockk(relaxed = true) {
 
@@ -58,10 +56,10 @@ class DataRepositoryTest {
             // region Registration
 
             coEvery { registerVolunteer(request = capture(registerRequestSlot)) } answers {
-                val user = addCapturedUserToListAndRetrieve(UserRole.VOLUNTEER)
+                authenticatedUser = addCapturedUserToListAndRetrieve(UserRole.VOLUNTEER)
 
                 val refreshToken = Random.nextBytes(128).toString()
-                refreshTokensStore[refreshToken] = user
+                tokenStore = tokenStore.copy(second = refreshToken)
 
                 Response.success(AuthResponse(refreshToken = refreshToken))
             }
@@ -84,15 +82,18 @@ class DataRepositoryTest {
 
             coEvery { authenticate(capture(authRequestSlot)) } answers {
                 val request = authRequestSlot.captured
-                val user = usersList.filter { user ->
+                val user = usersList.firstOrNull { user ->
                     request.email == user.email && request.password == user.password
                 }
 
-                val isSuccess = user.isNotEmpty()
+                val isSuccess = user != null
+
+                authenticatedUser = user
 
                 if (isSuccess) {
+                    rotateTokenPair()
 
-                    Response.success(AuthResponse())
+                    Response.success(AuthResponse(tokenStore.first, tokenStore.second))
                 } else {
                     Response.error(
                         400,
@@ -104,21 +105,15 @@ class DataRepositoryTest {
             coEvery { refreshToken(capture(refreshRequestSlot)) } answers {
                 val request = refreshRequestSlot.captured
 
-                val user = refreshTokensStore.getOrDefault(request.refreshToken, MockUserModel())
-
-                if (user.email.isBlank()) {
+                if (authenticatedUser == null) {
                     Response.error(
                         -1,
                         """{}""".toResponseBody("application/json".toMediaType())
                     )
                 } else {
-                    val newAccessToken = Random.nextBytes(128).toString()
-                    val newRefreshToken = Random.nextBytes(128).toString()
+                    rotateTokenPair()
 
-                    refreshTokensStore.remove(request.refreshToken)
-                    refreshTokensStore[newRefreshToken] = user
-
-                    Response.success(AuthResponse(newAccessToken, newRefreshToken))
+                    Response.success(AuthResponse(tokenStore.first, tokenStore.second))
                 }
             }
         }
@@ -147,6 +142,13 @@ class DataRepositoryTest {
         }
 
         dataRepository = DataRepositoryImpl(retrofitMockRepository, persistenceMockRepository)
+    }
+
+    private fun rotateTokenPair(){
+        val newAccessToken = Random.nextBytes(128).toString()
+        val newRefreshToken = Random.nextBytes(128).toString()
+
+        tokenStore = Pair(newAccessToken, newRefreshToken)
     }
 
     private suspend fun registerTestUserWithRole(
