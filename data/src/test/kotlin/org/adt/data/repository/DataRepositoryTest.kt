@@ -12,6 +12,7 @@ import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.response.AuthResponse
+import org.adt.core.entities.response.UserResponse
 import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.abstraction.DataRepository
 import org.junit.Assert.assertEquals
@@ -42,6 +43,8 @@ class DataRepositoryTest {
 
     var tokenStore = Pair("", "")
     var authenticatedUser: MockUserModel? = null
+
+    val userInfoAuthorizationSlot = slot<String>()
 
     @Before
     fun setup() {
@@ -116,6 +119,23 @@ class DataRepositoryTest {
                     Response.success(AuthResponse(tokenStore.first, tokenStore.second))
                 }
             }
+
+            coEvery { userInfo(any()) } answers {
+                if (authenticatedUser == null) {
+                    Response.error(
+                        401,
+                        """{}""".toResponseBody("application/json".toMediaType())
+                    )
+                } else {
+                    Response.success(
+                        UserResponse(
+                            email = authenticatedUser!!.email,
+                            admin = authenticatedUser!!.role == UserRole.ADMIN,
+                            coordinator = authenticatedUser!!.role == UserRole.COORDINATOR
+                        )
+                    )
+                }
+            }
         }
 
         persistenceMockRepository = mockk(relaxed = true) {
@@ -139,12 +159,17 @@ class DataRepositoryTest {
             coEvery { authorized() } answers {
                 tokenStore.first.isNotBlank() && tokenStore.second.isNotBlank()
             }
+
+            coEvery { removeToken() } answers {
+                tokenStore = Pair("", "")
+                authenticatedUser = null
+            }
         }
 
         dataRepository = DataRepositoryImpl(retrofitMockRepository, persistenceMockRepository)
     }
 
-    private fun rotateTokenPair(){
+    private fun rotateTokenPair() {
         val newAccessToken = Random.nextBytes(128).toString()
         val newRefreshToken = Random.nextBytes(128).toString()
 
@@ -260,5 +285,68 @@ class DataRepositoryTest {
         assertAuthSuccess("volunteer@debug.mail", "volunteer")
 
         assert(dataRepository.requestFreshAccessToken().isSuccessful)
+    }
+
+    @Test
+    fun `Request User Info Test(Volunteer)`() = runBlocking {
+        registerTestUserWithRole(UserRole.VOLUNTEER, "volunteer@debug.mail", "volunteer")
+        assertAuthSuccess("volunteer@debug.mail", "volunteer")
+
+        val response = dataRepository.userInfo()
+        val expected = UserResponse(
+            email = "volunteer@debug.mail",
+            admin = false,
+            coordinator = false
+        )
+
+        assert(response.isSuccessful) { "UserInfo call threw error: ${response.status}" }
+
+        assert(response.data() == expected) { "UserInfo response payload doesn't match expected output." }
+    }
+
+    @Test
+    fun `Request User Info Test(Coordinator)`() = runBlocking {
+        registerTestUserWithRole(UserRole.COORDINATOR, "coordinator@debug.mail", "coordinator")
+        assertAuthSuccess("coordinator@debug.mail", "coordinator")
+
+        val response = dataRepository.userInfo()
+        val expected = UserResponse(
+            email = "coordinator@debug.mail",
+            admin = false,
+            coordinator = true
+        )
+
+        assert(response.isSuccessful) { "UserInfo call threw error: ${response.status}" }
+
+        assert(response.data() == expected) { "UserInfo response payload doesn't match expected output." }
+    }
+
+    @Test
+    fun `Request User Info Test(Admin)`() = runBlocking {
+        registerTestUserWithRole(UserRole.ADMIN, "admin@debug.mail", "admin")
+        assertAuthSuccess("admin@debug.mail", "admin")
+
+        val response = dataRepository.userInfo()
+        val expected = UserResponse(
+            email = "admin@debug.mail",
+            admin = true,
+            coordinator = false
+        )
+
+        assert(response.isSuccessful) { "UserInfo call threw error: ${response.status}" }
+
+        assert(response.data() == expected) { "UserInfo response payload doesn't match expected output." }
+    }
+
+    @Test
+    fun `Request User Info Unauthorized Failure Test`() = runBlocking {
+        registerTestUserWithRole(UserRole.ADMIN, "admin@debug.mail", "admin")
+        assertAuthSuccess("admin@debug.mail", "admin")
+
+        dataRepository.deauthenticate()
+
+        val response = dataRepository.userInfo()
+
+        assert(!response.isSuccessful) { "UserInfo call should fail for deauthenticated user." }
     }
 }
