@@ -90,7 +90,7 @@ internal class DataRepositoryImpl @Inject constructor(
         }
 
         if (response.code() == 403 && !retried) {
-            val refreshResult = refreshToken()
+            val refreshResult = requestFreshAccessToken()
 
             if (refreshResult.isSuccessful) {
                 return register(
@@ -142,7 +142,7 @@ internal class DataRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun refreshToken(): GeneralResponse<String> {
+    override suspend fun requestFreshAccessToken(): GeneralResponse<String> {
         val refreshToken = persistenceRepository.getRefreshToken() ?: return GeneralResponse.failure(401, "Not authorized")
 
         val request = RefreshRequest(refreshToken)
@@ -179,7 +179,7 @@ internal class DataRepositoryImpl @Inject constructor(
         }
 
         if (response.code() == 403) {
-            val request = refreshToken()
+            val request = requestFreshAccessToken()
 
             if (request.isSuccessful) {
                 return findLocation(address)
@@ -203,7 +203,7 @@ internal class DataRepositoryImpl @Inject constructor(
         }
 
         if (response.code() == 403) {
-            val request = refreshToken()
+            val request = requestFreshAccessToken()
 
             if (request.isSuccessful) {
                 return userInfo()

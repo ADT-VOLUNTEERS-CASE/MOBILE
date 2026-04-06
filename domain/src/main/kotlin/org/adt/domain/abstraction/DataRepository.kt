@@ -24,7 +24,7 @@ interface DataRepository {
 
     suspend fun authenticate(email: String, password: String): GeneralResponse<String>
 
-    suspend fun refreshToken(): GeneralResponse<String>
+    suspend fun requestFreshAccessToken(): GeneralResponse<String>
 
     suspend fun deauthenticate()
 
