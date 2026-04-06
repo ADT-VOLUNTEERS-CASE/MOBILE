@@ -13,11 +13,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -26,14 +30,37 @@ import org.adt.presentation.R
 import org.adt.presentation.components.TypingText
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Arctic
+import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.theme.extendedColor
 
 @Composable
-fun SplashScreen(navController: NavHostController, viewModel: SplashViewModel) {
+fun SplashScreen(
+    navController: NavHostController, viewModel: SplashViewModel = hiltViewModel<SplashViewModel>()
+) {
+    val scope = rememberCoroutineScope()
+
+    SplashContent(pingAction = { viewModel.ping() }, navigateAction = {
+        scope.launch {
+            navController.navigate(
+                viewModel.getDestination()
+            ) {
+                popUpTo(Destinations.Splash) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    })
+}
+
+@Composable
+fun SplashContent(
+    pingAction: () -> Unit = {},
+    navigateAction: () -> Unit = {},
+    animationOverride: Boolean = false,
+) {
     val offsetIconX = remember { Animatable(0f) }
-    val offsetIconY = remember { Animatable(-1000f) }
+    val offsetIconY = remember { Animatable(if (!animationOverride) -1000f else -100f) }
     val offsetTextX = remember { Animatable(0f) }
-    val offsetTextY = remember { Animatable(1000f) }
+    val offsetTextY = remember { Animatable(if (!animationOverride) 1000f else 300f) }
 
     LaunchedEffect(Unit) {
         coroutineScope {
@@ -45,7 +72,7 @@ fun SplashScreen(navController: NavHostController, viewModel: SplashViewModel) {
             }
         }
 
-        delay(3600)
+        delay(1800)
 
         coroutineScope {
             launch {
@@ -58,12 +85,9 @@ fun SplashScreen(navController: NavHostController, viewModel: SplashViewModel) {
 
         delay(200)
 
-        viewModel.ping()
+        pingAction.invoke()
 
-        navController.navigate(Destinations.Home) {
-            popUpTo(Destinations.Splash) { inclusive = true }
-            launchSingleTop = true
-        }
+        navigateAction.invoke()
     }
 
     Box(
@@ -74,24 +98,34 @@ fun SplashScreen(navController: NavHostController, viewModel: SplashViewModel) {
     ) {
         Box(
             Modifier
-                .size(100.dp)
+                .size(200.dp)
                 .offset { IntOffset(offsetIconX.value.toInt(), offsetIconY.value.toInt()) },
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painterResource(R.drawable.ic_leaf),
-                null,
-                tint = Arctic
-            ) // TODO: Change to actual logo icon
+                painterResource(R.drawable.ic_main), null, tint = Arctic
+            )
         }
 
         Box(
             Modifier
                 .offset { IntOffset(offsetTextX.value.toInt(), offsetTextY.value.toInt()) }
-                .padding(horizontal = 40.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            TypingText("Твоё следующее доброе дело ждёт своего момента", 80L)
+                .padding(horizontal = 40.dp), contentAlignment = Alignment.Center) {
+            TypingText(
+                modifier = Modifier,
+                text = "Твоё следующее доброе дело ждёт своего момента",
+                align = TextAlign.Center,
+                charDelay = if (!animationOverride) 40L else 0L,
+                animationOverride = animationOverride
+            )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun SplashContentPreview() {
+    VolunteersCaseTheme {
+        SplashContent(animationOverride = true)
     }
 }

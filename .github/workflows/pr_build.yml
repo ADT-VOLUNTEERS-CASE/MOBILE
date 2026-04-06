@@ -18,7 +18,7 @@ jobs:
           cache: 'gradle'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug
@@ -44,7 +44,7 @@ jobs:
           cache: 'gradle'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Run Unit Tests
         run: ./gradlew testDebugUnitTest

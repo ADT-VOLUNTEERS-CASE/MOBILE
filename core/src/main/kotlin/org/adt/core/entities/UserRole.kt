@@ -4,5 +4,6 @@ package org.adt.core.entities
 enum class UserRole {
     VOLUNTEER,
     COORDINATOR,
-    ADMIN
+    ADMIN,
+    NONE
 }

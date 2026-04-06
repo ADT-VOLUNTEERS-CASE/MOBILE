@@ -45,14 +45,14 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
-fun CustomCalendar() {
+fun CustomCalendar(modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
 
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(100) }
     val endMonth = remember { currentMonth.plusMonths(100) }
     val firstDayOfWeek = remember { firstDayOfWeekFromLocale() }
-    val daysOfWeek = remember { daysOfWeek() }
+    val daysOfWeek = remember { daysOfWeek(firstDayOfWeek) }
 
     val state = rememberCalendarState(
         startMonth = startMonth,
@@ -62,12 +62,13 @@ fun CustomCalendar() {
     )
 
     Column(
-        modifier = Modifier
+        modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
             .background(Aqua)
             .padding(horizontal = 6.dp, vertical = 8.dp)
     ) {
+
         CalendarHeader(
             currentMonth = state.firstVisibleMonth.yearMonth,
             onPreviousClick = {

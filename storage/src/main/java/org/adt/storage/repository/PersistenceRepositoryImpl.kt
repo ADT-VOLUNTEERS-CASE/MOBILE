@@ -21,16 +21,28 @@ class PersistenceRepositoryImpl @Inject constructor(
 ) : PersistenceRepository {
     companion object {
         private val KEY_TOKEN = stringPreferencesKey("accessToken")
+        private val KEY_REFRESH_TOKEN = stringPreferencesKey("refreshToken")
     }
 
     val tokenFlow: Flow<String?> = context.dataStore.data.map { prefs ->
         prefs[KEY_TOKEN]?.let { "Bearer $it" }
     }
 
-    override suspend fun saveToken(token: String) {
-        Log.d("TokenHelper", "Saving token: $token")
+    override suspend fun authorized(): Boolean {
+        val token = context.dataStore.data
+            .map { prefs -> prefs[KEY_TOKEN] }
+            .firstOrNull()
+        return !token.isNullOrBlank()
+    }
+
+    override suspend fun saveTokens(accessToken: String, refreshToken: String) {
+        Log.d("TokenHelper", "Saving token: $accessToken")
         context.dataStore.edit { prefs ->
-            prefs[KEY_TOKEN] = token
+            prefs[KEY_TOKEN] = accessToken
+        }
+        Log.d("TokenHelper", "Saving refresh token: $refreshToken")
+        context.dataStore.edit { prefs ->
+            prefs[KEY_REFRESH_TOKEN] = refreshToken
         }
     }
 
@@ -43,9 +55,23 @@ class PersistenceRepositoryImpl @Inject constructor(
         return bearerToken
     }
 
+    override suspend fun getRefreshToken(): String? {
+        val refreshTokenValue = context.dataStore.data
+            .map { prefs -> prefs[KEY_REFRESH_TOKEN] }
+            .firstOrNull()
+        Log.d("TokenHelper", "Getting refresh token: $refreshTokenValue")
+        return refreshTokenValue
+    }
+
     override suspend fun removeToken() {
         context.dataStore.edit { prefs ->
             prefs.remove(KEY_TOKEN)
+        }
+    }
+
+    override suspend fun removeRefreshToken() {
+        context.dataStore.edit { prefs ->
+            prefs.remove(KEY_REFRESH_TOKEN)
         }
     }
 }
