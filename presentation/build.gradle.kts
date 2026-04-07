@@ -15,8 +15,11 @@ plugins {
 }
 android {
     namespace = "org.adt.presentation"
-
     compileSdk = 36
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "org.adt.presentation"
@@ -26,14 +29,25 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "API_BASE_URL", "\"https://adt.rss14.ru/api/v1/\"")
     }
 
     signingConfigs {
         create("release") {
-            storeFile = file("../keystore/volunteerscase.jks")
-            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "fallback"
-            keyAlias = System.getenv("ALIAS") ?: "key0"
-            keyPassword = System.getenv("ALIAS_PASSWORD") ?: "fallback"
+            val path = System.getenv("ANDROID_KEYSTORE_PATH")
+            val ksPass = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+            val alias = System.getenv("ANDROID_KEY_ALIAS")
+            val keyPass = System.getenv("ANDROID_KEY_PASSWORD")
+
+            if (!path.isNullOrBlank() && !ksPass.isNullOrBlank()
+                && !alias.isNullOrBlank() && !keyPass.isNullOrBlank()
+            ) {
+                storeFile = file(path)
+                storePassword = ksPass
+                keyAlias = alias
+                keyPassword = keyPass
+            }
         }
     }
 
@@ -45,6 +59,7 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
+            buildConfigField("String", "API_BASE_URL", "\"https://prod-api.example.com/\"")
         }
     }
 
@@ -67,6 +82,7 @@ roborazzi {
     @OptIn(ExperimentalRoborazziApi::class) generateComposePreviewRobolectricTests {
         enable = true
         packages = listOf("org.adt.presentation")
+        includePrivatePreviews = true
     }
 }
 
@@ -83,6 +99,8 @@ dependencies {
     implementation(project("::domain"))
     implementation(project("::data"))
     implementation(project("::core"))
+    implementation(project("::storage"))
+
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.core.ktx)
@@ -105,7 +123,6 @@ dependencies {
     testImplementation(libs.roborazzi.compose)
     testImplementation(libs.roborazzi.junit.rule)
 
-    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -124,4 +141,9 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     implementation(libs.compose)
+
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+
+    implementation(libs.androidx.datastore.preferences)
 }

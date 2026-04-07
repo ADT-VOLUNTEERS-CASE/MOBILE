@@ -1,6 +1,5 @@
 package org.adt.presentation.components
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,8 +24,7 @@ import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Mint
-import org.adt.presentation.theme.mainTypography
-
+import org.adt.presentation.theme.extendedTypography
 
 @Composable
 fun CustomLiteRoundedButton(modifier: Modifier= Modifier, value: String, onClick: () -> Unit) {
@@ -39,7 +37,7 @@ fun CustomLiteRoundedButton(modifier: Modifier= Modifier, value: String, onClick
         RoundedCornerShape(48.dp),
         ButtonDefaults.buttonColors(Lagoon)
     ) {
-        Text(value, style = mainTypography.titleMedium.copy(Arctic))
+        Text(value, style = extendedTypography.titleMedium.copy(Arctic))
     }
 }
 
@@ -54,7 +52,7 @@ fun CustomRoundedButton(modifier: Modifier= Modifier, value: String, onClick: ()
         RoundedCornerShape(17.dp),
         ButtonDefaults.buttonColors(Mint)
     ) {
-        Text(value, style = mainTypography.titleMedium.copy(Graphite))
+        Text(value, style = extendedTypography.titleMedium.copy(Graphite))
     }
 }
 
@@ -72,13 +70,13 @@ fun CustomWideButton(modifier: Modifier= Modifier, value: String, onClick: () ->
         Text(
             value,
             Modifier.padding(vertical = 17.dp),
-            style = mainTypography.titleMedium.copy(Arctic)
+            style = extendedTypography.titleMedium.copy(Arctic)
         )
     }
 }
 
 @Composable
-fun SquaredIconButton(modifier: Modifier= Modifier, resId: Int, sizeDp: Dp, onClick: () -> Unit) {
+fun SquaredIconButton(modifier: Modifier= Modifier, resId: Int, sizeDp: Dp, contentDescription: String, onClick: () -> Unit) {
     IconButton(
         onClick,
         modifier
@@ -90,15 +88,12 @@ fun SquaredIconButton(modifier: Modifier= Modifier, resId: Int, sizeDp: Dp, onCl
     ) {
         Icon(
             painterResource(resId),
-            null,
+            contentDescription,
             Modifier.fillMaxSize(),
             Abyss
         )
     }
 }
-
-
-
 
 @Preview
 @Composable
@@ -121,7 +116,5 @@ private fun CustomWideButtonPreview() {
 @Preview
 @Composable
 private fun SquaredIconButtonPreview() {
-    SquaredIconButton(modifier = Modifier,R.drawable.ic_trash, 45.dp) { }
+    SquaredIconButton(modifier = Modifier,R.drawable.ic_trash, 45.dp, "Delete") { }
 }
-
-

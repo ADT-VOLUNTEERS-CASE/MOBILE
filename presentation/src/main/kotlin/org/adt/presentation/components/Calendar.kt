@@ -38,21 +38,21 @@ import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Aqua
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Mint
-import org.adt.presentation.theme.mainTypography
+import org.adt.presentation.theme.extendedTypography
 import java.time.DayOfWeek
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
-fun CustomCalendar() {
+fun CustomCalendar(modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
 
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(100) }
     val endMonth = remember { currentMonth.plusMonths(100) }
     val firstDayOfWeek = remember { firstDayOfWeekFromLocale() }
-    val daysOfWeek = remember { daysOfWeek() }
+    val daysOfWeek = remember { daysOfWeek(firstDayOfWeek) }
 
     val state = rememberCalendarState(
         startMonth = startMonth,
@@ -62,7 +62,7 @@ fun CustomCalendar() {
     )
 
     Column(
-        modifier = Modifier
+        modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
             .background(Aqua)
@@ -114,7 +114,7 @@ private fun CalendarHeader(
         IconButton(onClick = onPreviousClick) {
             Icon(
                 painterResource(R.drawable.ic_left),
-                null,
+                "Left",
                 Modifier.size(18.dp),
                 Abyss
             )
@@ -123,13 +123,13 @@ private fun CalendarHeader(
         Text(
             text = currentMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
                 .replaceFirstChar { it.uppercase() } + " ${currentMonth.year}",
-            style = mainTypography.titleLarge.copy(color = Abyss)
+            style = extendedTypography.titleLarge.copy(color = Abyss)
         )
 
         IconButton(onClick = onNextClick) {
             Icon(
                 painterResource(R.drawable.ic_right),
-                null,
+                "Right",
                 Modifier.size(18.dp),
                 Abyss
             )
@@ -143,7 +143,7 @@ private fun MonthHeader(daysOfWeek: List<DayOfWeek>) {
         daysOfWeek.forEach { dayOfWeek ->
             Text(
                 modifier = Modifier.weight(1f),
-                style = mainTypography.titleMedium.copy(
+                style = extendedTypography.titleMedium.copy(
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center
                 ),
@@ -157,7 +157,7 @@ private fun MonthHeader(daysOfWeek: List<DayOfWeek>) {
 }
 
 @Composable
-fun Day(day: CalendarDay) {
+private fun Day(day: CalendarDay) {
     val isWeekend =
         day.date.dayOfWeek == DayOfWeek.SATURDAY || day.date.dayOfWeek == DayOfWeek.SUNDAY
     val isCurrentMonth = day.position == DayPosition.MonthDate
@@ -180,7 +180,7 @@ fun Day(day: CalendarDay) {
         ) {
             Text(
                 text = day.date.dayOfMonth.toString(),
-                style = mainTypography.titleMedium.copy(
+                style = extendedTypography.titleMedium.copy(
                     color = if (isCurrentMonth) Graphite else Graphite.copy(0.5f),
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center

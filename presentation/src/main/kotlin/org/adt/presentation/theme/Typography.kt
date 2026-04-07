@@ -11,11 +11,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import org.adt.presentation.R
 
-
-//Example values
-
-private val UnboundedFontFamily = FontFamily.SansSerif
-
 private val InterDisplayFontFamily = FontFamily(
     Font(R.font.inter_display_black, FontWeight.Black),
     Font(R.font.inter_display_bold, FontWeight.Bold),
@@ -59,49 +54,6 @@ val LocalAppTypography = staticCompositionLocalOf {
 }
 
 val extendedTypography = AppTypography(
-    displayLarge = TextStyle(),
-    displayMedium = TextStyle(
-        fontFamily = UnboundedFontFamily, fontWeight = FontWeight.Bold, fontSize = 18.sp,
-        lineHeight = 24.sp, letterSpacing = 0.5.sp, color = Brown
-    ),
-    displaySmall = TextStyle(
-        fontFamily = InterDisplayFontFamily,
-        fontWeight = FontWeight.Normal,
-        fontSize = 15.sp,
-        lineHeight = 14.sp,
-        letterSpacing = 0.7.sp,
-        color = Color.White
-    ),
-    titleLarge = TextStyle(
-        fontFamily = UnboundedFontFamily,
-        fontWeight = FontWeight.Bold,
-        fontSize = 38.sp,
-        lineHeight = 38.sp,
-        letterSpacing = 0.sp,
-        color = Color.White
-    ),
-    titleMedium = TextStyle(
-        fontFamily = UnboundedFontFamily,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 26.sp,
-        lineHeight = 26.sp,
-        letterSpacing = 0.sp,
-        color = Color.White
-    ),
-    titleSmall = TextStyle(),
-    labelLarge = TextStyle(),
-    labelMedium = TextStyle(),
-    labelSmall = TextStyle(
-        fontFamily = UnboundedFontFamily,
-        fontWeight = FontWeight.Normal,
-        fontSize = 14.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.7.sp,
-        color = Golden
-    )
-)
-
-val mainTypography = AppTypography(
     titleLarge = TextStyle(
         fontFamily = InterDisplayFontFamily,
         fontWeight = FontWeight.Medium,
@@ -118,7 +70,14 @@ val mainTypography = AppTypography(
         letterSpacing = 0.sp,
         color = Graphite
     ),
-    titleSmall = TextStyle.Default,
+    titleSmall = TextStyle(
+        fontFamily = InterDisplayFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.sp,
+        color = Graphite
+    ),
     displayLarge = TextStyle(
         fontFamily = GerhausFontFamily,
         fontWeight = FontWeight.Normal,
@@ -127,9 +86,26 @@ val mainTypography = AppTypography(
         letterSpacing = 0.sp,
         color = Arctic
     ),
-    displayMedium = TextStyle.Default,
-    displaySmall = TextStyle.Default,
+    displayMedium = TextStyle(
+        fontFamily = InterDisplayFontFamily, fontWeight = FontWeight.Bold, fontSize = 18.sp,
+        lineHeight = 24.sp, letterSpacing = 0.5.sp, color = Brown
+    ),
+    displaySmall = TextStyle(
+        fontFamily = InterDisplayFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 15.sp,
+        lineHeight = 14.sp,
+        letterSpacing = 0.7.sp,
+        color = Color.White
+    ),
     labelLarge = TextStyle.Default,
     labelMedium = TextStyle.Default,
-    labelSmall = TextStyle.Default
+    labelSmall = TextStyle(
+        fontFamily = InterDisplayFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.7.sp,
+        color = Golden
+    )
 )

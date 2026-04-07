@@ -11,4 +11,5 @@ plugins {
 
     alias(libs.plugins.roborazzi) apply false
     alias(libs.plugins.stability.analyzer) apply false
+    alias(libs.plugins.android.library) apply false
 }

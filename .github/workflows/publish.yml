@@ -20,7 +20,7 @@ jobs:
           cache: 'gradle'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Build Release APK
         run: ./gradlew assembleRelease
@@ -30,7 +30,7 @@ jobs:
           ALIAS: ${{ secrets.ALIAS }}
 
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: app-release
           path: |
@@ -44,7 +44,7 @@ jobs:
       contents: write
     steps:
       - name: Download APK
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: app-release
           path: app-release/

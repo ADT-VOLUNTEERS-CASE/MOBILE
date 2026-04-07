@@ -27,14 +27,19 @@ import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Silver
 
 @Composable
-fun CustomSwitcher(switched: Boolean, onSwitchedChange: (Boolean) -> Unit) {
+fun CustomSwitcher(
+    modifier: Modifier = Modifier,
+    switched: Boolean,
+    onSwitchedChange: (Boolean) -> Unit
+) {
     Box(
-        Modifier
+        modifier
             .size(width = 80.dp, height = 20.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(Abyss),
         contentAlignment = Alignment.Center
     ) {
+        // left
         Box(
             Modifier
                 .fillMaxSize()
@@ -46,12 +51,13 @@ fun CustomSwitcher(switched: Boolean, onSwitchedChange: (Boolean) -> Unit) {
         ) {
             Icon(
                 painterResource(R.drawable.ic_wrong),
-                null,
+                "N",
                 Modifier.size(8.dp),
                 Arctic
             )
         }
 
+        // right
         Box(
             Modifier
                 .fillMaxSize()
@@ -63,7 +69,7 @@ fun CustomSwitcher(switched: Boolean, onSwitchedChange: (Boolean) -> Unit) {
         ) {
             Icon(
                 painterResource(R.drawable.ic_correct),
-                null,
+                "Y",
                 Modifier.size(width = 10.dp, height = 8.dp),
                 Arctic
             )
@@ -75,5 +81,5 @@ fun CustomSwitcher(switched: Boolean, onSwitchedChange: (Boolean) -> Unit) {
 @Composable
 private fun CustomSwitcherPreview() {
     var switched by remember { mutableStateOf(true) }
-    CustomSwitcher(switched) { switched = it }
+    CustomSwitcher(Modifier, switched) { switched = it }
 }
