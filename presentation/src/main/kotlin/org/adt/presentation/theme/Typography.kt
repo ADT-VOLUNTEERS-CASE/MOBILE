@@ -88,7 +88,7 @@ val extendedTypography = AppTypography(
     ),
     displayMedium = TextStyle(
         fontFamily = InterDisplayFontFamily, fontWeight = FontWeight.Bold, fontSize = 18.sp,
-        lineHeight = 24.sp, letterSpacing = 0.5.sp, color = Brown
+        lineHeight = 24.sp, letterSpacing = 0.5.sp
     ),
     displaySmall = TextStyle(
         fontFamily = InterDisplayFontFamily,
@@ -106,6 +106,6 @@ val extendedTypography = AppTypography(
         fontSize = 14.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.7.sp,
-        color = Golden
+
     )
 )
