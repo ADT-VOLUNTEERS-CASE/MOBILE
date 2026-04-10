@@ -14,6 +14,8 @@ val Silver = Color(0xFFA1A4B2)
 val Aqua = Color(0xFFCBEBEB)
 val Milk = Color(0xFFF2F3F7)
 val Void = Color(0xFF181718)
+val Black = Color(0xFF000000)
+val Grey = Color(0xFFA1A4B2)
 
 @Immutable
 data class AppColors(
@@ -45,3 +47,4 @@ val extendedColor = AppColors(
     background = Graphite,
     surface = Aqua
 )
+

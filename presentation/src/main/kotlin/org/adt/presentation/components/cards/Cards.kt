@@ -1,32 +1,64 @@
 package org.adt.presentation.components.cards
 
+
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.adt.core.entities.AllDescriptionEvent
 import org.adt.presentation.R
+import org.adt.presentation.components.CustomLiteRoundedButton
 import org.adt.presentation.components.buttons.SquaredIconButton
+import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
+import org.adt.presentation.theme.Black
+import org.adt.presentation.theme.Grey
+import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Silver
+import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.theme.extendedTypography
 
 @Composable
-fun NoteCard(title: String, date: String, time: String, onDeleteClick: () -> Unit) {
+fun NoteCard(
+    modifier: Modifier = Modifier,
+    title: String,
+    date: String,
+    time: String,
+    onDeleteClick: () -> Unit
+) {
     Row(
-        Modifier
+        modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
             .background(Arctic)
@@ -36,7 +68,13 @@ fun NoteCard(title: String, date: String, time: String, onDeleteClick: () -> Uni
     ) {
         Column(Modifier, Arrangement.spacedBy(8.dp)) {
             Text(title, style = extendedTypography.titleLarge.copy(fontWeight = FontWeight.Normal))
-            Text(date, style = extendedTypography.titleMedium.copy(color = Silver, fontWeight = FontWeight.Normal))
+            Text(
+                date,
+                style = extendedTypography.titleMedium.copy(
+                    color = Silver,
+                    fontWeight = FontWeight.Normal
+                )
+            )
         }
 
         Text(time, style = extendedTypography.titleLarge.copy(fontSize = 40.sp))
@@ -45,8 +83,702 @@ fun NoteCard(title: String, date: String, time: String, onDeleteClick: () -> Uni
     }
 }
 
+/**
+ * The card consists of an icon and text and is used to view statistics
+ *
+ * @param modifier modifier for managing card sizes
+ *
+ * @param onClick function to be invoked on card click.
+ *
+ * @sample [StatisticsCardPreview]
+ */
+@Composable
+fun StatisticsCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Box(
+        modifier = modifier
+            .width(155.dp)
+            .height(120.dp)
+            .background(color = Arctic, shape = RoundedCornerShape(18.dp))
+            .clickable(onClick = onClick)
+
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                "статистика",
+                color = Black,
+                modifier = Modifier.padding(bottom = 4.dp, top = 4.dp),
+                style = extendedTypography.titleMedium.copy(Black),
+            )
+            Icon(
+                painter = painterResource(R.drawable.ic_chart),
+                contentDescription = null,
+                tint = Abyss,
+                modifier = Modifier
+                    .padding(top = 13.dp)
+                    .width(70.dp)
+                    .height(57.dp)
+            )
+
+        }
+    }
+
+}
+
+/**
+ * The card consists of an icon and text and is used to view calendar
+ *
+ * @param modifier modifier for managing card sizes
+ *
+ * @param onClick function to be invoked on card click.
+ *
+ * @sample [CalendarCardPreview]
+ */
+@Composable
+fun CalendarCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Box(
+        modifier = modifier
+            .width(155.dp)
+            .height(120.dp)
+            .background(color = Arctic, shape = RoundedCornerShape(18.dp))
+            .clickable(onClick = onClick)
+
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                "календарь",
+                modifier = Modifier.padding(bottom = 14.dp, top = 4.dp),
+                style = extendedTypography.titleMedium.copy(Black)
+            )
+            Icon(
+                painter = painterResource(R.drawable.ic_calendar),
+                contentDescription = null,
+                tint = Abyss,
+                modifier = Modifier
+                    .width(50.dp)
+                    .height(57.dp)
+            )
+
+        }
+    }
+
+}
+
+/**
+ * The card consists of a text and is used to view the number of people you have helped.
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param number number of people you have helped.
+ *
+ * @sample [CharityStatisticsCardPreview]
+ */
+@Composable
+fun CharityStatisticsCard(modifier: Modifier = Modifier, number: Int) {
+
+    Column(
+        modifier = modifier
+            .width(145.dp)
+            .height(124.dp)
+            .background(color = Lagoon, shape = RoundedCornerShape(14.dp)),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        Text(
+            "Количество благополучателей",
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 10.dp),
+            color = Arctic
+        )
+
+        Text(
+            text = number.toString(),
+            style = extendedTypography.titleMedium.copy(color = Arctic, fontSize = 36.sp),
+            modifier = Modifier.padding(top = 10.dp)
+        )
+    }
+}
+
+
+/**
+ * The card consists of a text and is used to view the number charity.
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param numberCharity number of charity.
+ *
+ * @sample [CharityStatisticsCardPreview]
+ */
+
+@Composable
+fun OverallCharityStatisticsCard(modifier: Modifier = Modifier, numberCharity: Int) {
+    Column(
+        modifier = modifier
+            .width(300.dp)
+            .height(123.dp)
+            .background(color = Lagoon, shape = RoundedCornerShape(14.dp))
+    ) {
+        Row(
+
+            modifier = Modifier
+                .padding(top = 24.dp)
+                .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = numberCharity.toString(),
+                style = extendedTypography.titleMedium.copy(Arctic, fontSize = 48.sp),
+                modifier = Modifier.padding(start = 32.dp, end = 10.dp)
+            )
+            Text(
+                text = "добрых дел",
+                style = extendedTypography.titleMedium.copy(fontSize = 32.sp, color = Arctic)
+            )
+        }
+        Text(
+            text = "вы обладатель большого сердца!",
+            style = extendedTypography.titleMedium.copy(fontSize = 16.sp, color = Grey),
+            modifier = Modifier.padding(start = 32.dp)
+        )
+    }
+
+}
+
+/**
+ * The card consists of text and is used to view the number of hours of charity.
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param hoursCharity number of hours of charity.
+ *
+ * @sample [CharityHoursCardPreview]
+ */
+
+@Composable
+fun CharityHoursCard(modifier: Modifier = Modifier, hoursCharity: Int) {
+    Column(
+        modifier = modifier
+            .width(300.dp)
+            .height(133.dp)
+            .background(
+                color = Abyss, shape = RoundedCornerShape(14.dp)
+            )
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(top = 24.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = hoursCharity.toString(),
+                style = extendedTypography.titleMedium.copy(Arctic, fontSize = 48.sp),
+                modifier = Modifier.padding(start = 17.dp, end = 11.dp)
+            )
+            Text(
+                text = "добрых часов",
+                style = extendedTypography.titleMedium.copy(fontSize = 32.sp, color = Arctic)
+            )
+        }
+        Text(
+            text = "Каждая минута, что вы отдали, стала чьим-то лучиком солнца",
+            style = extendedTypography.titleMedium.copy(fontSize = 16.sp, color = Grey),
+            modifier = Modifier.padding(start = 25.dp, end = 25.dp),
+            textAlign = TextAlign.Center
+        )
+    }
+
+}
+
+
+/**
+ * The card consists of text and is used to display the achievements of the week.
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param achievement achievement of the week.
+ *
+ * @sample [AchievementOfTheWeekCardPreview]
+ */
+@Composable
+fun AchievementOfTheWeekCard(modifier: Modifier = Modifier, achievement: String) {
+    Column(
+        modifier = modifier
+            .width(145.dp)
+            .height(124.dp)
+            .background(color = Lagoon, shape = RoundedCornerShape(14.dp)),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "достижение недели",
+            style = extendedTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+            modifier = Modifier.padding(top = 10.dp, start = 11.dp, end = 11.dp),
+            textAlign = TextAlign.Center
+        )
+        Icon(
+            painter = painterResource(R.drawable.ic_leaf),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(top = 12.dp, bottom = 4.dp)
+                .width(48.dp)
+                .height(38.dp),
+            tint = Abyss
+        )
+        Text(
+            text = achievement,
+            style = extendedTypography.titleMedium.copy(fontSize = 13.sp, color = Arctic)
+        )
+    }
+}
+
+/**
+ * The card consists of text and is used to add an event.
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param onClick function to be invoked on card click.
+ *
+ * @sample [AddEventCardPreview]
+ */
+
+@Composable
+fun AddEventCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Box(
+        modifier = modifier
+            .width(155.dp)
+            .height(120.dp)
+            .background(color = Arctic, shape = RoundedCornerShape(18.dp))
+            .clickable(onClick = onClick)
+
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                "создать мероприятие",
+                style = extendedTypography.titleMedium.copy(color = Black),
+                color = Black,
+                modifier = Modifier.padding(
+                    bottom = 3.dp,
+                    top = 4.dp,
+                    start = 16.dp,
+                    end = 16.dp
+                ),
+                textAlign = TextAlign.Center
+            )
+            Box(
+                modifier = Modifier
+                    .padding(top = 9.dp)
+                    .clip(CircleShape)
+                    .size(40.dp)
+                    .background(color = Abyss), contentAlignment = Alignment.Center
+
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_plus),
+                    contentDescription = null,
+                    tint = Arctic,
+                    modifier = Modifier
+                        .width(21.dp)
+                        .height(21.dp)
+                )
+            }
+
+
+        }
+    }
+}
+
+/**
+ * The card consists of text and is used to view events title, time, date and image .
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param allDescriptionEvent date class that stores image, title, description, time, date event.
+ *
+ * @sample [EventCardPreview]
+ */
+
+@Composable
+fun EventCard(
+    modifier: Modifier = Modifier,
+    allDescriptionEvent: AllDescriptionEvent
+) {
+
+    val state = rememberScrollState()
+
+    Box(
+        modifier = modifier
+            .height(190.dp)
+            .width(145.dp)
+            .background(color = Abyss, shape = RoundedCornerShape(8.dp))
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Image(
+                painter = painterResource(id = if (allDescriptionEvent.image == 0) R.drawable.baseimage else allDescriptionEvent.image),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(top = 5.dp)
+                    .clip(shape = RoundedCornerShape(17.dp))
+                    .width(134.dp)
+                    .height(125.dp),
+                contentScale = ContentScale.Crop
+            )
+
+            Text(
+                text = allDescriptionEvent.title,
+                modifier = Modifier
+                    .padding(top = 9.dp)
+                    .width(145.dp)
+                    .height(13.dp)
+                    .horizontalScroll(state),
+                style = extendedTypography.titleLarge.copy(
+                    fontSize = 11.sp,
+                    color = Arctic,
+                    fontWeight = FontWeight.SemiBold
+
+                ), textAlign = TextAlign.Center
+            )
+            Text(
+                text = allDescriptionEvent.date,
+                style = extendedTypography.titleLarge.copy(
+                    fontSize = 8.sp, color = Arctic,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                modifier = Modifier
+                    .padding(top = 3.dp, bottom = 3.dp)
+                    .height(10.dp)
+            )
+            Text(
+                text = allDescriptionEvent.time,
+                style = extendedTypography.titleLarge.copy(
+                    fontSize = 8.sp, color = Arctic,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                modifier = Modifier.height(10.dp)
+            )
+        }
+    }
+}
+
+
+/**
+ * The card consists of text and is used to view events title, description and image .
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param allDescriptionEvent date class that stores image, title, description, time, date event.
+ *
+ * @param onClick function to be invoked on card click.
+ *
+ * @sample [OverallDescriptionEventCardPreview]
+ */
+@Composable
+fun OverallDescriptionEventCard(
+    modifier: Modifier = Modifier,
+    allDescriptionEvent: AllDescriptionEvent,
+    onClick: () -> Unit
+) {
+    val state = rememberScrollState()
+    Column(
+        modifier = modifier
+            .width(321.dp)
+            .height(492.dp)
+            .background(color = Arctic, RoundedCornerShape(17.dp)),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(top = 20.dp)
+                .width(300.dp)
+                .height(281.dp)
+                .background(color = Abyss, shape = RoundedCornerShape(17.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = if (allDescriptionEvent.image == 0) R.drawable.baseimage else allDescriptionEvent.image),
+                contentDescription = null,
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(17.dp))
+                    .width(279.dp)
+                    .height(259.dp),
+                contentScale = ContentScale.Crop
+            )
+        }
+        Text(
+            text = (if (allDescriptionEvent.title == "") stringResource(R.string.base_title) else allDescriptionEvent.title),
+            style = extendedTypography.titleLarge.copy(fontSize = 19.sp, color = Black),
+            modifier = Modifier
+                .padding(top = 15.dp, start = 10.dp)
+                .fillMaxWidth()
+        )
+        Text(
+            text = (if (allDescriptionEvent.description == "") stringResource(R.string.base_description) else allDescriptionEvent.description),
+            style = extendedTypography.titleMedium.copy(fontSize = 15.sp, color = Grey),
+            modifier = Modifier
+                .padding(top = 9.dp)
+                .width(300.dp)
+                .height(61.dp)
+                .verticalScroll(state)
+        )
+        CustomLiteRoundedButton(
+            modifier = Modifier.padding(
+                start = 11.dp,
+                end = 10.dp,
+                top = 28.dp
+            ),
+            text = "Приступить!",
+            onClick = onClick
+        )
+    }
+
+}
+
+/**
+ * The card consists of text and is used to monitoring activity.
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param color color card.
+ *
+ * @param count activity.
+ *
+ * @param parameter monitoring parameter.
+ *
+ * @sample [EventMonitoringCardPreview]
+ */
+
+@Composable
+fun EventMonitoringCard(
+    modifier: Modifier = Modifier,
+    color: Color,
+    count: Int,
+    parameter: String
+) {
+    Row(
+        modifier = modifier
+            .width(300.dp)
+            .height(85.dp)
+            .background(color = color, shape = RoundedCornerShape(14.dp)),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = count.toString(),
+            style = extendedTypography.titleMedium.copy(fontSize = 48.sp, color = Arctic),
+            modifier = Modifier.padding(start = 35.dp, top = 14.dp)
+        )
+        Text(
+            text = parameter,
+            style = extendedTypography.titleMedium.copy(fontSize = 22.sp, color = Arctic),
+            modifier = Modifier.padding(end = 15.dp, top = 18.dp, start = 22.dp),
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+/**
+ * This card consists of several text fields that display all/new/active users counters for current event.
+ *
+ * @param modifier card modifier.
+ *
+ * @param color background color.
+ *
+ * @param countActive active users count.
+ *
+ * @param countNew new users count.
+ *
+ * @param countAll all users count.
+ *
+ * @sample [EventMonitoringCardPreview]
+ */
+
+@Composable
+fun UserCountCard(
+    modifier: Modifier = Modifier,
+    countAll: Int,
+    countNew: Int,
+    countActive: Int,
+    size: Dp
+) {
+    Column(
+        modifier = modifier
+            .width(size)
+            .height(100.dp)
+            .background(color = Abyss, shape = RoundedCornerShape(10.dp))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 13.dp)
+        ) {
+            Text(
+                text = "Всего:",
+                style = extendedTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+                modifier = Modifier.padding(start = 5.dp, end = 5.dp)
+            )
+            Text(
+                text = countAll.toString(),
+                style = extendedTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
+            )
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp)
+        ) {
+            Text(
+                text = "Новые:",
+                style = extendedTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+                modifier = Modifier.padding(start = 5.dp, end = 5.dp)
+            )
+            Text(
+                text = countNew.toString(),
+                style = extendedTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
+            )
+        }
+
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp)
+        ) {
+            Text(
+                text = "Активные:",
+                style = extendedTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+                modifier = Modifier.padding(start = 5.dp, end = 5.dp)
+            )
+            Text(
+                text = countActive.toString(),
+                style = extendedTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
+            )
+        }
+
+    }
+
+}
+
+
 @Preview
 @Composable
-private fun NoteCardPreview() {
-    NoteCard("Уборка", "14 апреля", "15:30") { }
+private fun UserCountCardPreview() {
+    UserCountCard(
+        modifier = Modifier,
+        countAll = 50,
+        countNew = 14,
+        countActive = 24,
+        size = 172.dp
+    )
+}
+
+
+@Preview
+@Composable
+private fun AddEventCardPreview() {
+    VolunteersCaseTheme { AddEventCard { } }
+}
+
+@Preview
+@Composable
+private fun CalendarCardPreview() {
+    VolunteersCaseTheme { CalendarCard { } }
+
+}
+
+@Preview
+@Composable
+private fun StatisticsCardPreview() {
+    VolunteersCaseTheme { StatisticsCard { } }
+}
+
+@Preview
+@Composable
+private fun EventCardPreview() {
+    EventCard(
+        modifier = Modifier,
+        allDescriptionEvent = AllDescriptionEvent(
+            R.drawable.ic_launcher_background,
+            "Соседский книжный шкаф",
+            "Создай в своём дворе библиотеку для всех желающих: поставь полку, делись книгами и поддерживай в ней порядок.",
+            time = "13:40",
+            date = "01.01"
+        ),
+    )
+
+}
+
+@Preview
+@Composable
+private fun CharityStatisticsCardPreview() {
+    CharityStatisticsCard(
+        modifier = Modifier,
+        number = 147
+    )
+}
+
+
+@Preview
+@Composable
+private fun OverallCharityStatisticsCardPreview() {
+    OverallCharityStatisticsCard(
+        modifier = Modifier,
+        numberCharity = 50
+    )
+}
+
+@Preview
+@Composable
+private fun CharityHoursCardPreview() {
+    CharityHoursCard(
+        modifier = Modifier,
+        hoursCharity = 70
+    )
+}
+
+@Preview
+@Composable
+private fun AchievementOfTheWeekCardPreview() {
+    AchievementOfTheWeekCard(
+        modifier = Modifier,
+        achievement = "эко-герой"
+    )
+}
+
+@Preview
+@Composable
+private fun OverallDescriptionEventCardPreview() {
+    VolunteersCaseTheme {
+        OverallDescriptionEventCard(
+            modifier = Modifier,
+            allDescriptionEvent = AllDescriptionEvent(
+                R.drawable.ic_launcher_background,
+                "Соседский книжный шкаф",
+                "Создай в своём дворе библиотеку для всех желающих: поставь полку, делись книгами и поддерживай в ней порядок.",
+                time = "13:40",
+                date = "01.01"
+            )
+        ) {}
+    }
+
+}
+
+@Preview
+@Composable
+private fun EventMonitoringCardPreview() {
+    EventMonitoringCard(
+        modifier = Modifier,
+        color = Abyss,
+        count = 10,
+        parameter = "подозрительных входа"
+    )
 }

@@ -27,59 +27,80 @@ import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.extendedTypography
 
 @Composable
-fun CustomLiteRoundedButton(value: String, onClick: () -> Unit) {
+fun CustomLiteRoundedButton(
+    modifier: Modifier = Modifier,
+    text: String = "",
+    onClick: () -> Unit = {}
+) {
     Button(
-        onClick,
-        Modifier
+        onClick = onClick,
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(48.dp)),
-        true,
-        RoundedCornerShape(48.dp),
-        ButtonDefaults.buttonColors(Lagoon)
+        enabled = true,
+        shape = RoundedCornerShape(48.dp),
+        colors = ButtonDefaults.buttonColors(Lagoon)
     ) {
-        Text(value, style = extendedTypography.titleMedium.copy(Arctic))
+        Text(text, style = extendedTypography.titleMedium.copy(Arctic))
     }
 }
 
 @Composable
-fun CustomRoundedButton(value: String, onClick: () -> Unit) {
+fun CustomRoundedButton(
+    modifier: Modifier = Modifier,
+    text: String = "",
+    onClick: () -> Unit = {}
+) {
     Button(
-        onClick,
-        Modifier
+        onClick = onClick,
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(17.dp)),
-        true,
-        RoundedCornerShape(17.dp),
-        ButtonDefaults.buttonColors(Mint)
+        enabled = true,
+        shape = RoundedCornerShape(17.dp),
+        colors = ButtonDefaults.buttonColors(Mint)
     ) {
-        Text(value, style = extendedTypography.titleMedium.copy(Graphite))
+        Text(
+            text = text,
+            style = extendedTypography.titleMedium.copy(Graphite)
+        )
     }
 }
 
 @Composable
-fun CustomWideButton(value: String, onClick: () -> Unit) {
+fun CustomWideButton(
+    modifier: Modifier = Modifier,
+    text: String = "",
+    onClick: () -> Unit = {}
+) {
     Button(
-        onClick,
-        Modifier
+        onClick = onClick,
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(7.dp)),
-        true,
-        RoundedCornerShape(7.dp),
-        ButtonDefaults.buttonColors(Abyss)
+        enabled = true,
+        shape = RoundedCornerShape(7.dp),
+        colors = ButtonDefaults.buttonColors(Abyss)
     ) {
         Text(
-            value,
-            Modifier.padding(vertical = 17.dp),
+            text = text,
+            modifier = Modifier.padding(vertical = 17.dp),
             style = extendedTypography.titleMedium.copy(Arctic)
         )
     }
 }
 
 @Composable
-fun SquaredIconButton(resId: Int, sizeDp: Dp, contentDescription: String, onClick: () -> Unit) {
+fun SquaredIconButton(
+    modifier: Modifier = Modifier,
+    resId: Int = R.drawable.ic_main_heart_light,
+    sizeDp: Dp = 45.dp,
+    contentDescription: String? = null,
+    onClick: () -> Unit = {}
+) {
     IconButton(
-        onClick,
-        Modifier
+        onClick = onClick,
+        modifier = modifier
             .size(sizeDp)
             .clip(RoundedCornerShape(10.dp))
             .background(Mint)
@@ -87,10 +108,10 @@ fun SquaredIconButton(resId: Int, sizeDp: Dp, contentDescription: String, onClic
         shape = RoundedCornerShape(10.dp)
     ) {
         Icon(
-            painterResource(resId),
-            contentDescription,
-            Modifier.fillMaxSize(),
-            Abyss
+            painter = painterResource(resId),
+            contentDescription = contentDescription,
+            modifier = Modifier.fillMaxSize(),
+            tint = Abyss
         )
     }
 }
@@ -98,23 +119,28 @@ fun SquaredIconButton(resId: Int, sizeDp: Dp, contentDescription: String, onClic
 @Preview
 @Composable
 private fun CustomLiteRoundedButtonPreview() {
-    CustomLiteRoundedButton("Смотреть все") { }
+    CustomLiteRoundedButton(modifier = Modifier, text = "Смотреть все") { }
 }
 
 @Preview
 @Composable
 private fun CustomRoundedButtonPreview() {
-    CustomRoundedButton("Создать заметку") { }
+    CustomRoundedButton(modifier = Modifier, text = "Создать заметку") { }
 }
 
 @Preview
 @Composable
 private fun CustomWideButtonPreview() {
-    CustomWideButton("Добавить") { }
+    CustomWideButton(modifier = Modifier, text = "Добавить") { }
 }
 
 @Preview
 @Composable
 private fun SquaredIconButtonPreview() {
-    SquaredIconButton(R.drawable.ic_trash, 45.dp, "Delete") { }
+    SquaredIconButton(
+        modifier = Modifier,
+        resId = R.drawable.ic_trash,
+        sizeDp = 45.dp,
+        contentDescription = "Delete"
+    ) { }
 }
