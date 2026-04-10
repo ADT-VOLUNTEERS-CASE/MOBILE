@@ -1,4 +1,4 @@
-package org.adt.data.model
+package org.adt.core.entities
 
 data class AllDescriptionEvent(
     val image: Int,
