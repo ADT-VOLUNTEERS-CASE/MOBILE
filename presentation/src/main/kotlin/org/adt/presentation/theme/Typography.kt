@@ -104,7 +104,7 @@ val extendedTypography = AppTypography(
         fontFamily = InterDisplayFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 15.sp,
-        lineHeight = 14.sp,
+        lineHeight = 15.sp,
         letterSpacing = 0.7.sp,
         color = Color.White
     ),
