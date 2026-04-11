@@ -1,11 +1,17 @@
 [versions]
 agp = "8.13.2"
 android = "0.8.1"
+archunitJunit5 = "1.4.1"
 compose = "2.10.0"
 converterScalars = "2.11.0"
 dagger = "2.57.2"
+detektApi = "1.23.8"
 gson = "2.13.2"
 javaxInject = "1"
+junitJupiter = "5.10.2"
+junitJupiterApi = "5.10.2"
+junitJupiterEngine = "5.10.2"
+junitJupiterParams = "5.10.2"
 kotlin = "2.2.0" # Not available: awaiting Dagger issue resolution (https://github.com/google/dagger/issues/5001)
 serialization = "2.2.0" # Not available: awaiting Dagger issue resolution (https://github.com/google/dagger/issues/5001)
 coreKtx = "1.17.0"
@@ -47,10 +53,13 @@ material = "1.13.0"
 [libraries]
 android = { module = "io.github.sergio-sastre.ComposablePreviewScanner:android", version.ref = "android" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunitJunit5" }
 compose = { module = "com.kizitonwose.calendar:compose", version.ref = "compose" }
 converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "converterScalars" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
+detekt-api = { module = "io.gitlab.arturbosch.detekt:detekt-api", version.ref = "detektApi" }
+detekt-test = { module = "io.gitlab.arturbosch.detekt:detekt-test", version.ref = "detektApi" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 javax-inject = { module = "javax.inject:javax.inject", version.ref = "javaxInject" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -75,6 +84,12 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
 
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junitJupiter" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiterApi" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiterEngine" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiterParams" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
 kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoetKsp" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 converter-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "serializationConverter" }

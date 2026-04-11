@@ -2,6 +2,7 @@ package org.adt.data.repository
 
 import kotlinx.serialization.json.Json
 import okhttp3.ResponseBody
+import org.adt.core.annotations.RepositoryImpl
 import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.Location
 import org.adt.core.entities.UserRole
@@ -15,6 +16,7 @@ import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.abstraction.DataRepository
 import javax.inject.Inject
 
+@RepositoryImpl
 internal class DataRepositoryImpl @Inject constructor(
     private val networkRepository: RetrofitRepository,
     private val persistenceRepository: PersistenceRepository

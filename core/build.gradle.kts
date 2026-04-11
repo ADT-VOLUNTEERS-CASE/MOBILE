@@ -1,5 +1,6 @@
 plugins {
     id("java-library")
+    id("java-test-fixtures")
 
     alias(libs.plugins.jetbrains.kotlin.jvm)
     alias(libs.plugins.serialization)
@@ -25,4 +26,16 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.gson)
+
+    testFixturesApi(libs.junit.jupiter)
+    testFixturesApi(libs.archunit.junit5)
+    testFixturesRuntimeOnly(libs.junit.jupiter.engine)
+    testFixturesApi(libs.junit.platform.launcher)
+}
+
+tasks.test {
+    useJUnitPlatform()
+
+    testClassesDirs += sourceSets["testFixtures"].output.classesDirs
+    classpath += sourceSets["testFixtures"].runtimeClasspath
 }
