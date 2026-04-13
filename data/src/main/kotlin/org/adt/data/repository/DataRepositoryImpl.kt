@@ -17,10 +17,21 @@ import org.adt.domain.abstraction.DataRepository
 import javax.inject.Inject
 
 @RepositoryImpl
-internal class DataRepositoryImpl @Inject constructor(
+class DataRepositoryImpl @Inject constructor(
     private val networkRepository: RetrofitRepository,
     private val persistenceRepository: PersistenceRepository
 ) : DataRepository {
+    companion object {
+        const val PING = "ping"
+        const val AUTHORIZED = "authorized"
+        const val REGISTER = "register"
+        const val AUTHENTICATE = "authenticate"
+        const val REFRESH_TOKEN = "refreshToken"
+        const val DEAUTHENTICATE = "deauthenticate"
+        const val FIND_LOCATION = "findLocation"
+        const val USER_INFO = "userInfo"
+    }
+
     private val json = Json { ignoreUnknownKeys = true }
 
     private fun parseError(errorBody: ResponseBody?): ErrorResponse? {

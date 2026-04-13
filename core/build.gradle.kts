@@ -38,4 +38,22 @@ tasks.test {
 
     testClassesDirs += sourceSets["testFixtures"].output.classesDirs
     classpath += sourceSets["testFixtures"].runtimeClasspath
+
+    val allProjectClassDirs = rootProject.subprojects
+        .map { it.layout.buildDirectory.dir("classes/kotlin/main").get().asFile.absolutePath }
+
+    val allProjectTestsDirs = rootProject.subprojects
+        .map { it.layout.buildDirectory.dir("classes/kotlin/test").get().asFile.absolutePath }
+
+    systemProperty("project.class.dirs", allProjectClassDirs.joinToString(",") + allProjectTestsDirs.joinToString(","))
+
+    maxHeapSize = "2g"
+
+    testLogging {
+        events("failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showExceptions = true
+        showCauses = true
+        showStackTraces = false
+    }
 }
