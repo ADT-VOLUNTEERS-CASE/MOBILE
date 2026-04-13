@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Silver
-import org.adt.presentation.theme.extendedTypography
+import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable
 fun CustomQuestionCheckComponent(
@@ -39,10 +39,10 @@ fun CustomQuestionCheckComponent(
         Alignment.CenterVertically
     ) {
         Row(Modifier) {
-            Text("$text ", style = extendedTypography.titleSmall.copy(Silver))
+            Text("$text ", style = VolunteersCaseTheme.typography.titleSmall.copy(Silver))
             Text(
                 textLink, Modifier.clickable { onLinkClick() },
-                style = extendedTypography.titleSmall.copy(Lagoon),
+                style = VolunteersCaseTheme.typography.titleSmall.copy(Lagoon),
             )
         }
 

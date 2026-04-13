@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -41,17 +40,14 @@ import org.adt.data.model.AllDescriptionEvent
 import org.adt.presentation.R
 import org.adt.presentation.components.buttons.SquaredIconButton
 import org.adt.presentation.components.CustomLiteRoundedButton
-import org.adt.presentation.components.CustomRoundedButton
-import org.adt.presentation.components.SquaredIconButton
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Black
 import org.adt.presentation.theme.Grey
 import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Silver
-import org.adt.presentation.theme.extendedTypography
+
 import org.adt.presentation.theme.VolunteersCaseTheme
-import org.adt.presentation.theme.extendedTypography
 
 @Composable
 fun NoteCard(
@@ -71,17 +67,17 @@ fun NoteCard(
         Arrangement.SpaceBetween, Alignment.CenterVertically
     ) {
         Column(Modifier, Arrangement.spacedBy(8.dp)) {
-            Text(title, style = extendedTypography.titleLarge.copy(fontWeight = FontWeight.Normal))
+            Text(title, style = VolunteersCaseTheme.typography.titleLarge.copy(fontWeight = FontWeight.Normal))
             Text(
                 date,
-                style = extendedTypography.titleMedium.copy(
+                style = VolunteersCaseTheme.typography.titleMedium.copy(
                     color = Silver,
                     fontWeight = FontWeight.Normal
                 )
             )
         }
 
-        Text(time, style = extendedTypography.titleLarge.copy(fontSize = 40.sp))
+        Text(time, style = VolunteersCaseTheme.typography.titleLarge.copy(fontSize = 40.sp))
 
         SquaredIconButton(R.drawable.ic_trash, 45.dp, "Delete") { onDeleteClick() }
     }
@@ -114,7 +110,7 @@ fun CardStatistics(modifier: Modifier = Modifier, onClick: () -> Unit) {
                 "статистика",
                 color = Black,
                 modifier = Modifier.padding(bottom = 4.dp, top = 4.dp),
-                style = extendedTypography.titleMedium.copy(Black),
+                style = VolunteersCaseTheme.typography.titleMedium.copy(Black),
             )
             Icon(
                 painter = painterResource(R.drawable.ic_chart),
@@ -157,7 +153,7 @@ fun CardCalendar(modifier: Modifier = Modifier, onClick: () -> Unit) {
             Text(
                 "календарь",
                 modifier = Modifier.padding(bottom = 14.dp, top = 4.dp),
-                style = extendedTypography.titleMedium.copy(Black)
+                style = VolunteersCaseTheme.typography.titleMedium.copy(Black)
             )
             Icon(
                 painter = painterResource(R.drawable.ic_calendar),
@@ -202,7 +198,7 @@ fun CardStatisticsCountCharity(modifier: Modifier = Modifier, number: String) {
 
         Text(
             text = number,
-            style = extendedTypography.titleMedium.copy(color = Arctic, fontSize = 36.sp),
+            style = VolunteersCaseTheme.typography.titleMedium.copy(color = Arctic, fontSize = 36.sp),
             modifier = Modifier.padding(top = 10.dp)
         )
     }
@@ -235,17 +231,17 @@ fun CardStatisticsCountCharity(modifier: Modifier = Modifier, number: String) {
             ) {
                 Text(
                     text = numberCharity,
-                    style = extendedTypography.titleMedium.copy(Arctic, fontSize = 48.sp),
+                    style = VolunteersCaseTheme.typography.titleMedium.copy(Arctic, fontSize = 48.sp),
                     modifier = Modifier.padding(start = 32.dp, end = 10.dp)
                 )
                 Text(
                     text = "добрых дел",
-                    style = extendedTypography.titleMedium.copy(fontSize = 32.sp, color = Arctic)
+                    style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 32.sp, color = Arctic)
                 )
             }
             Text(
                 text = "вы обладатель большого сердца!",
-                style = extendedTypography.titleMedium.copy(fontSize = 16.sp, color = Grey),
+                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 16.sp, color = Grey),
                 modifier = Modifier.padding(start = 32.dp)
             )
         }
@@ -280,17 +276,17 @@ fun CardStatisticsCountCharity(modifier: Modifier = Modifier, number: String) {
             ) {
                 Text(
                     text = hoursCharity,
-                    style = extendedTypography.titleMedium.copy(Arctic, fontSize = 48.sp),
+                    style = VolunteersCaseTheme.typography.titleMedium.copy(Arctic, fontSize = 48.sp),
                     modifier = Modifier.padding(start = 17.dp, end = 11.dp)
                 )
                 Text(
                     text = "добрых часов",
-                    style = extendedTypography.titleMedium.copy(fontSize = 32.sp, color = Arctic)
+                    style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 32.sp, color = Arctic)
                 )
             }
             Text(
                 text = "Каждая минута, что вы отдали, стала чьим-то лучиком солнца",
-                style = extendedTypography.titleMedium.copy(fontSize = 16.sp, color = Grey),
+                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 16.sp, color = Grey),
                 modifier = Modifier.padding(start = 25.dp, end = 25.dp),
                 textAlign = TextAlign.Center
             )
@@ -319,7 +315,7 @@ fun CardStatisticsCountCharity(modifier: Modifier = Modifier, number: String) {
         ) {
             Text(
                 text = "достижение недели",
-                style = extendedTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
                 modifier = Modifier.padding(top = 10.dp, start = 11.dp, end = 11.dp),
                 textAlign = TextAlign.Center
             )
@@ -334,7 +330,7 @@ fun CardStatisticsCountCharity(modifier: Modifier = Modifier, number: String) {
             )
             Text(
                 text = achievement,
-                style = extendedTypography.titleMedium.copy(fontSize = 13.sp, color = Arctic)
+                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 13.sp, color = Arctic)
             )
         }
     }
@@ -365,7 +361,7 @@ fun CardStatisticsCountCharity(modifier: Modifier = Modifier, number: String) {
             ) {
                 Text(
                     "создать мероприятие",
-                    style = extendedTypography.titleMedium.copy(color = Black),
+                    style = VolunteersCaseTheme.typography.titleMedium.copy(color = Black),
                     color = Black,
                     modifier = Modifier.padding(
                         bottom = 3.dp,
@@ -445,7 +441,7 @@ fun CardStatisticsCountCharity(modifier: Modifier = Modifier, number: String) {
                         .width(145.dp)
                         .height(13.dp)
                         .horizontalScroll(state),
-                    style = extendedTypography.titleLarge.copy(
+                    style = VolunteersCaseTheme.typography.titleLarge.copy(
                         fontSize = 11.sp,
                         color = Arctic,
                         fontWeight = FontWeight.SemiBold
@@ -454,7 +450,7 @@ fun CardStatisticsCountCharity(modifier: Modifier = Modifier, number: String) {
                 )
                 Text(
                     text = allDescriptionEvent.date,
-                    style = extendedTypography.titleLarge.copy(
+                    style = VolunteersCaseTheme.typography.titleLarge.copy(
                         fontSize = 8.sp, color = Arctic,
                         fontWeight = FontWeight.SemiBold
                     ),
@@ -464,7 +460,7 @@ fun CardStatisticsCountCharity(modifier: Modifier = Modifier, number: String) {
                 )
                 Text(
                     text = allDescriptionEvent.time,
-                    style = extendedTypography.titleLarge.copy(
+                    style = VolunteersCaseTheme.typography.titleLarge.copy(
                         fontSize = 8.sp, color = Arctic,
                         fontWeight = FontWeight.SemiBold
                     ),
@@ -520,14 +516,14 @@ fun CardStatisticsCountCharity(modifier: Modifier = Modifier, number: String) {
             }
             Text(
                 text = (if (allDescriptionEvent.title == "") stringResource(R.string.base_title) else allDescriptionEvent.title),
-                style = extendedTypography.titleLarge.copy(fontSize = 19.sp, color = Black),
+                style = VolunteersCaseTheme.typography.titleLarge.copy(fontSize = 19.sp, color = Black),
                 modifier = Modifier
                     .padding(top = 15.dp, start = 10.dp)
                     .fillMaxWidth()
             )
             Text(
                 text = (if (allDescriptionEvent.description == "") stringResource(R.string.base_description) else allDescriptionEvent.description),
-                style = extendedTypography.titleMedium.copy(fontSize = 15.sp, color = Grey),
+                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Grey),
                 modifier = Modifier
                     .padding(top = 9.dp)
                     .width(300.dp)
@@ -575,12 +571,12 @@ fun CardStatisticsCountCharity(modifier: Modifier = Modifier, number: String) {
         ) {
             Text(
                 text = count,
-                style = extendedTypography.titleMedium.copy(fontSize = 48.sp, color = Arctic),
+                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 48.sp, color = Arctic),
                 modifier = Modifier.padding(start = 35.dp, top = 14.dp)
             )
             Text(
                 text = parameter,
-                style = extendedTypography.titleMedium.copy(fontSize = 22.sp, color = Arctic),
+                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 22.sp, color = Arctic),
                 modifier = Modifier.padding(end = 15.dp, top = 18.dp, start = 22.dp),
                 textAlign = TextAlign.Center
             )
@@ -622,12 +618,12 @@ fun CardStatisticsCountCharity(modifier: Modifier = Modifier, number: String) {
             ) {
                 Text(
                     text = "Всего:",
-                    style = extendedTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+                    style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
                     modifier = Modifier.padding(start = 5.dp, end = 5.dp)
                 )
                 Text(
                     text = countAll,
-                    style = extendedTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
+                    style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
                 )
             }
 
@@ -638,12 +634,12 @@ fun CardStatisticsCountCharity(modifier: Modifier = Modifier, number: String) {
             ) {
                 Text(
                     text = "Новые:",
-                    style = extendedTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+                    style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
                     modifier = Modifier.padding(start = 5.dp, end = 5.dp)
                 )
                 Text(
                     text = countNew,
-                    style = extendedTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
+                    style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
                 )
             }
 
@@ -655,12 +651,12 @@ fun CardStatisticsCountCharity(modifier: Modifier = Modifier, number: String) {
             ) {
                 Text(
                     text = "Активные:",
-                    style = extendedTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+                    style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
                     modifier = Modifier.padding(start = 5.dp, end = 5.dp)
                 )
                 Text(
                     text = countActive,
-                    style = extendedTypography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
+                    style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
                 )
             }
 

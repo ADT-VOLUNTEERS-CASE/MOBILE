@@ -11,7 +11,8 @@ import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Mint
-import org.adt.presentation.theme.extendedTypography
+import org.adt.presentation.theme.VolunteersCaseTheme
+import org.adt.presentation.theme.`VolunteersCaseTheme.typography`
 
 object ButtonDefaultsProvider {
 
@@ -24,14 +25,14 @@ object ButtonDefaultsProvider {
             ButtonStyle.Translucent -> ButtonConfig(
                 shape = CircleShape,
                 height = 55.dp,
-                textStyle = extendedTypography.displayLarge,
+                textStyle = VolunteersCaseTheme.typography.displayLarge,
                 uppercase = true,
                 loaderSize = 35.dp
             )
 
             else -> ButtonConfig(
                 shape = shape(variant),
-                textStyle = extendedTypography.titleMedium
+                textStyle = VolunteersCaseTheme.typography.titleMedium
             )
         }
     }
