@@ -102,6 +102,9 @@ object ArchRulesHelper {
     }
 
     private fun isMethodHasAssociatedTest(method: JavaMethod, repositoryClass: JavaClass): Boolean {
+        if (repositoryClass.getAnnotationOfType(RepositoryImpl::class.java).suppressed)
+            return true
+
         return annotatedWithAssociatedMethods.any {
             val annotation = it.getAnnotationOfType(AssociatedWith::class.java)
 
