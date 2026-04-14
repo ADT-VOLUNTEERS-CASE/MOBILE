@@ -12,6 +12,12 @@ import org.adt.core.annotations.AssociatedWith
 import org.adt.core.annotations.RepositoryImpl
 import java.nio.file.Paths
 
+/**
+ * Used to obtain project's ArchUnit rules for further usage.
+ *
+ * Contains static [allClasses] and [allMethods] variables(scan classes are unlikely to change during tests)
+ * as well as [getRepositoryTestCoverageRule] function and some private helpers.
+ */
 object ArchRulesHelper {
     var allClasses: Array<JavaClass>?
     var allMethods: Array<JavaMethod>?
@@ -31,34 +37,27 @@ object ArchRulesHelper {
     }
 
     fun getRepositoryTestCoverageRule(allClasses: JavaClasses?): ArchRule {
-        return ArchRuleDefinition.classes()
-            .that().areAnnotatedWith(RepositoryImpl::class.java)
-            .should(haveCorrespondingTestsWithTargetsAnnotation(allClasses))
-            .allowEmptyShould(true)
+        return ArchRuleDefinition.classes().that().areAnnotatedWith(RepositoryImpl::class.java)
+            .should(haveCorrespondingTestsWithTargetsAnnotation(allClasses)).allowEmptyShould(true)
     }
 
     /**
-     * Iterates through given classes, annotated with [RepositoryImpl]
-     * and verifies, that every method has corresponding test with [AssociatedWith] annotation.
+     * Iterates through given classes annotated with [RepositoryImpl]
+     * and verifies, that every method has at least one corresponding test with [AssociatedWith] annotation.
      *
      * @see RepositoryImpl
      * @see AssociatedWith
      **/
-
     private fun haveCorrespondingTestsWithTargetsAnnotation(allClasses: JavaClasses?) =
-        object :
-            ArchCondition<JavaClass>(
-                "Each method in @RepositoryImpl must have a corresponding test with @AssociatedWith"
-            ) {
+        object : ArchCondition<JavaClass>(
+            "Each method in @RepositoryImpl must have a corresponding test with @AssociatedWith"
+        ) {
             override fun check(repositoryClass: JavaClass, events: ConditionEvents) {
-                if (allClasses.isNullOrEmpty())
-                    return
+                if (allClasses.isNullOrEmpty()) return
 
-                repositoryClass.methods.asSequence()
-                    .filter { isMethodEligibleForTesting(it) }
+                repositoryClass.methods.asSequence().filter { isMethodEligibleForTesting(it) }
                     .forEach { method ->
-                        if (isMethodHasAssociatedTest(method, repositoryClass))
-                            return@forEach
+                        if (isMethodHasAssociatedTest(method, repositoryClass)) return@forEach
 
                         events.add(
                             SimpleConditionEvent.violated(
@@ -71,12 +70,7 @@ object ArchRulesHelper {
 
             private fun isMethodEligibleForTesting(method: JavaMethod): Boolean {
                 return !listOf(
-                    "<init>",
-                    "equals",
-                    "hashCode",
-                    "toString",
-                    "clone",
-                    $$"json$lambda$0"
+                    "<init>", "equals", "hashCode", "toString", "clone", $$"json$lambda$0"
                 ).contains(method.name)
             }
         }
@@ -86,11 +80,8 @@ object ArchRulesHelper {
      *
      * Scan paths are defined in Gradle module configuration.
      */
-
     fun getAllClasses(): JavaClasses? {
-        val classDirs = System.getProperty("project.class.dirs")
-            ?.split(",")
-            ?.map { Paths.get(it) }
+        val classDirs = System.getProperty("project.class.dirs")?.split(",")?.map { Paths.get(it) }
             ?: emptyList()
 
         if (classDirs.isEmpty()) {
@@ -98,14 +89,12 @@ object ArchRulesHelper {
             return null
         }
 
-        return ClassFileImporter()
-            .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_JARS)
+        return ClassFileImporter().withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_JARS)
             .importPaths(classDirs)
     }
 
     private fun getAllAnnotatedClasses(
-        allMethods: Array<JavaMethod>?,
-        annotationClass: Class<out Annotation>
+        allMethods: Array<JavaMethod>?, annotationClass: Class<out Annotation>
     ): Array<JavaMethod>? {
         return allMethods?.filter { testMethod ->
             testMethod.hasAnnotation(annotationClass)
@@ -119,8 +108,7 @@ object ArchRulesHelper {
             val targetClassName = annotation.targetClass.simpleName.toString()
             val targetMethodName = annotation.method
 
-            targetMethodName == method.name &&
-                    repositoryClass.name.contains(targetClassName)
+            targetMethodName == method.name && repositoryClass.name.contains(targetClassName)
         }
     }
 
