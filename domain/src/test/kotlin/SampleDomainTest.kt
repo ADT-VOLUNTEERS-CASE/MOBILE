@@ -1,6 +1,6 @@
 import org.junit.jupiter.api.Test
 
-class SampleTest {
+class SampleDomainTest {
     @Test
     //@AssociatedWith(DomainRepository::class, DomainRepositoryImpl.Sample)
     fun sampleTest(){}

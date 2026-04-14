@@ -10,6 +10,7 @@ import com.tngtech.archunit.lang.SimpleConditionEvent
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition
 import org.adt.core.annotations.AssociatedWith
 import org.adt.core.annotations.RepositoryImpl
+import org.junit.jupiter.api.Test
 import java.nio.file.Paths
 
 /**
@@ -17,6 +18,7 @@ import java.nio.file.Paths
  *
  * Contains static [allClasses] and [allMethods] variables(scan classes are unlikely to change during tests)
  * as well as [getRepositoryTestCoverageRule] function and some private helpers.
+ *
  */
 object ArchRulesHelper {
     var allClasses: Array<JavaClass>?
@@ -35,6 +37,15 @@ object ArchRulesHelper {
             ) ?: arrayOf()
         }
     }
+
+    /**
+     * Get repository coverage test rule.
+     *
+     * Warning: do not use same names for test classes in multiple testSources(or modules)!
+     * Due to scan logic, they will override each other, that will lead to unexpected behavior and false violations.
+     *
+     * @sample doNotNameTestClassesTheSameSample
+     **/
 
     fun getRepositoryTestCoverageRule(allClasses: JavaClasses?): ArchRule {
         return ArchRuleDefinition.classes().that().areAnnotatedWith(RepositoryImpl::class.java)
@@ -120,3 +131,19 @@ object ArchRulesHelper {
     }
 }
 
+private fun doNotNameTestClassesTheSameSample() {
+    class SampleTest {
+        @Test
+        fun foo() {
+        }
+    }
+
+    // Beware!
+    // Naming below class with another [SampleTest] will lead to override!
+
+    class AnotherSampleTest {
+        @Test
+        fun foo() {
+        }
+    }
+}
