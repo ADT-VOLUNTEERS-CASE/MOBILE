@@ -27,6 +27,30 @@ kotlin {
     }
 }
 
+tasks.test {
+    useJUnitPlatform()
+
+    val allPaths = rootProject.subprojects.flatMap { proj ->
+        listOf(
+            proj.layout.buildDirectory.dir("classes/kotlin/main")
+                .map { it.asFile.absolutePath }.orNull,
+            proj.layout.buildDirectory.dir("classes/kotlin/test")
+                .map { it.asFile.absolutePath }.orNull
+        )
+    }.filterNotNull().filter { File(it).exists() }
+
+    systemProperty("project.class.dirs", allPaths.joinToString(","))
+    maxHeapSize = "2g"
+
+    testLogging {
+        events("failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showExceptions = true
+        showCauses = true
+        showStackTraces = false
+    }
+}
+
 dependencies {
     implementation(project("::core"))
 
@@ -35,4 +59,8 @@ dependencies {
 
     implementation(libs.javax.inject)
     implementation(libs.kotlinx.serialization.json)
+
+    testImplementation(testFixtures(project(":core")))
+    testImplementation(project(":core"))
+    testImplementation(libs.junit)
 }
