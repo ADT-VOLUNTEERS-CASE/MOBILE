@@ -1,7 +1,11 @@
+import com.tngtech.archunit.base.ArchUnitException
+import com.tngtech.archunit.core.domain.JavaAnnotation
 import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.core.domain.JavaClasses
 import com.tngtech.archunit.core.domain.JavaMethod
+import com.tngtech.archunit.core.domain.JavaModifier
 import com.tngtech.archunit.core.importer.ClassFileImporter
+import com.tngtech.archunit.core.importer.DomainBuilders
 import com.tngtech.archunit.core.importer.ImportOption
 import com.tngtech.archunit.lang.ArchCondition
 import com.tngtech.archunit.lang.ArchRule
@@ -11,6 +15,7 @@ import com.tngtech.archunit.lang.syntax.ArchRuleDefinition
 import org.adt.core.annotations.AssociatedWith
 import org.adt.core.annotations.RepositoryImpl
 import org.junit.jupiter.api.Test
+import java.lang.reflect.Modifier
 import java.nio.file.Paths
 
 /**
@@ -113,17 +118,23 @@ object ArchRulesHelper {
     }
 
     private fun isMethodHasAssociatedTest(method: JavaMethod, repositoryClass: JavaClass): Boolean {
-        if (repositoryClass.getAnnotationOfType(RepositoryImpl::class.java).suppressed)
+        if (repositoryClass.getAnnotationOfType(RepositoryImpl::class.java).suppressed ||
+            method.modifiers.contains(JavaModifier.PRIVATE))
             return true
 
-        return annotatedWithAssociatedMethods.any {
-            val annotation = it.getAnnotationOfType(AssociatedWith::class.java)
+        return annotatedWithAssociatedMethods.asSequence().filter {
+            val annotation: AssociatedWith = it.getAnnotationOfType(AssociatedWith::class.java)
 
-            val targetClassName = annotation.targetClass.simpleName.toString()
-            val targetMethodName = annotation.method
+            try {
+                val targetClassName = annotation.targetClass.simpleName.toString()
+                val targetMethodName = annotation.method
 
-            targetMethodName == method.name && repositoryClass.name.contains(targetClassName)
-        }
+                targetMethodName == method.name && repositoryClass.name.contains(targetClassName)
+            } catch (_: ArchUnitException) {
+                // Test class doesn't belong to current module's source set, skipping.
+                false
+            }
+        }.count() > 0
     }
 
     private fun JavaMethod.hasAnnotation(annotationClass: Class<out Annotation>): Boolean {

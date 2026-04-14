@@ -32,9 +32,9 @@ tasks.test {
 
     val allPaths = rootProject.subprojects.flatMap { proj ->
         listOf(
-            proj.layout.buildDirectory.dir("classes/kotlin/main")
+            proj.layout.buildDirectory.dir("classes/kotlin/main/domain")
                 .map { it.asFile.absolutePath }.orNull,
-            proj.layout.buildDirectory.dir("classes/kotlin/test")
+            proj.layout.buildDirectory.dir("classes/kotlin/test/domain")
                 .map { it.asFile.absolutePath }.orNull
         )
     }.filterNotNull().filter { File(it).exists() }
