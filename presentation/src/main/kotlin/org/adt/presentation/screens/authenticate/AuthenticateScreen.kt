@@ -47,7 +47,6 @@ import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.theme.extendedColor
-import org.adt.presentation.theme.`VolunteersCaseTheme.typography`
 
 @Composable
 fun AuthenticateScreen(navController: NavHostController, viewModel: AuthenticateViewModel) {

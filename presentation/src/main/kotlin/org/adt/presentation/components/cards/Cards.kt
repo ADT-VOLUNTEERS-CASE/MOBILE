@@ -38,15 +38,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.adt.data.model.AllDescriptionEvent
 import org.adt.presentation.R
-import org.adt.presentation.components.buttons.SquaredIconButton
 import org.adt.presentation.components.CustomLiteRoundedButton
+import org.adt.presentation.components.buttons.SquaredIconButton
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Black
 import org.adt.presentation.theme.Grey
 import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Silver
-
 import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable
