@@ -1,11 +1,11 @@
+package org.adt.core.testfixtures
+
 import com.tngtech.archunit.base.ArchUnitException
-import com.tngtech.archunit.core.domain.JavaAnnotation
 import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.core.domain.JavaClasses
 import com.tngtech.archunit.core.domain.JavaMethod
 import com.tngtech.archunit.core.domain.JavaModifier
 import com.tngtech.archunit.core.importer.ClassFileImporter
-import com.tngtech.archunit.core.importer.DomainBuilders
 import com.tngtech.archunit.core.importer.ImportOption
 import com.tngtech.archunit.lang.ArchCondition
 import com.tngtech.archunit.lang.ArchRule
@@ -14,8 +14,10 @@ import com.tngtech.archunit.lang.SimpleConditionEvent
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition
 import org.adt.core.annotations.AssociatedWith
 import org.adt.core.annotations.RepositoryImpl
+import org.adt.core.testfixtures.ArchRulesHelper.allClasses
+import org.adt.core.testfixtures.ArchRulesHelper.allMethods
+import org.adt.core.testfixtures.ArchRulesHelper.getRepositoryTestCoverageRule
 import org.junit.jupiter.api.Test
-import java.lang.reflect.Modifier
 import java.nio.file.Paths
 
 /**
