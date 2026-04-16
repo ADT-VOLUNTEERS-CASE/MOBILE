@@ -39,13 +39,16 @@ tasks.test {
     testClassesDirs += sourceSets["testFixtures"].output.classesDirs
     classpath += sourceSets["testFixtures"].runtimeClasspath
 
-    val allProjectClassDirs = rootProject.subprojects
-        .map { it.layout.buildDirectory.dir("classes/kotlin/main").get().asFile.absolutePath }
+    val allPaths = rootProject.subprojects.flatMap { proj ->
+        listOf(
+            proj.layout.buildDirectory.dir("classes/kotlin/main")
+                .map { it.asFile.absolutePath }.orNull,
+            proj.layout.buildDirectory.dir("classes/kotlin/test")
+                .map { it.asFile.absolutePath }.orNull
+        )
+    }.filterNotNull().filter { File(it).exists() }
 
-    val allProjectTestsDirs = rootProject.subprojects
-        .map { it.layout.buildDirectory.dir("classes/kotlin/test").get().asFile.absolutePath }
-
-    systemProperty("project.class.dirs", allProjectClassDirs.joinToString(",") + allProjectTestsDirs.joinToString(","))
+    systemProperty("project.class.dirs", allPaths.joinToString(","))
 
     maxHeapSize = "2g"
 
