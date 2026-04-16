@@ -58,7 +58,7 @@ import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Silver
 import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.theme.extendedColor
-import org.adt.presentation.theme.`VolunteersCaseTheme.typography`
+import org.adt.presentation.theme.VolunteersCaseTheme.typography
 
 @Composable
 fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegisterViewModel) {
