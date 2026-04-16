@@ -28,7 +28,7 @@ import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Mint
-import org.adt.presentation.theme.extendedTypography
+import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable
 fun CustomLiteRoundedButton(value: String, onClick: () -> Unit) {
@@ -41,7 +41,7 @@ fun CustomLiteRoundedButton(value: String, onClick: () -> Unit) {
         RoundedCornerShape(48.dp),
         ButtonDefaults.buttonColors(Lagoon)
     ) {
-        Text(value, style = extendedTypography.titleMedium.copy(Arctic))
+        Text(value, style = VolunteersCaseTheme.typography.titleMedium.copy(Arctic))
     }
 }
 
@@ -56,7 +56,7 @@ fun CustomRoundedButton(value: String, onClick: () -> Unit) {
         RoundedCornerShape(17.dp),
         ButtonDefaults.buttonColors(Mint)
     ) {
-        Text(value, style = extendedTypography.titleMedium.copy(Graphite))
+        Text(value, style = VolunteersCaseTheme.typography.titleMedium.copy(Graphite))
     }
 }
 
@@ -74,7 +74,7 @@ fun CustomWideButton(value: String, onClick: () -> Unit) {
         Text(
             value,
             Modifier.padding(vertical = 17.dp),
-            style = extendedTypography.titleMedium.copy(Arctic)
+            style = VolunteersCaseTheme.typography.titleMedium.copy(Arctic)
         )
     }
 }
@@ -117,7 +117,7 @@ fun CustomTranslucentButton(value: String, enabled: Boolean = true, isLoading: B
         if (isLoading) {
             CircularProgressIndicator(Modifier.size(35.dp), Abyss)
         } else {
-            Text(value.uppercase(), style = extendedTypography.displayLarge.copy(if (enabled) Arctic else Arctic.copy(0.5f)))
+            Text(value.uppercase(), style = VolunteersCaseTheme.typography.displayLarge.copy(if (enabled) Arctic else Arctic.copy(0.5f)))
         }
     }
 }

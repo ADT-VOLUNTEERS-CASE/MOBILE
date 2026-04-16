@@ -24,7 +24,7 @@ import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Mint
-import org.adt.presentation.theme.extendedTypography
+import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable
 fun CustomLiteRoundedButton(
@@ -41,7 +41,7 @@ fun CustomLiteRoundedButton(
         shape = RoundedCornerShape(48.dp),
         colors = ButtonDefaults.buttonColors(Lagoon)
     ) {
-        Text(text, style = extendedTypography.titleMedium.copy(Arctic))
+        Text(text, style = VolunteersCaseTheme.typography.titleMedium.copy(Arctic))
     }
 }
 
@@ -62,7 +62,7 @@ fun CustomRoundedButton(
     ) {
         Text(
             text = text,
-            style = extendedTypography.titleMedium.copy(Graphite)
+            style = VolunteersCaseTheme.typography.titleMedium.copy(Graphite)
         )
     }
 }
@@ -85,7 +85,7 @@ fun CustomWideButton(
         Text(
             text = text,
             modifier = Modifier.padding(vertical = 17.dp),
-            style = extendedTypography.titleMedium.copy(Arctic)
+            style = VolunteersCaseTheme.typography.titleMedium.copy(Arctic)
         )
     }
 }

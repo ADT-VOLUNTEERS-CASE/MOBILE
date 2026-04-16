@@ -38,7 +38,7 @@ import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.Silver
 import org.adt.presentation.theme.Void
-import org.adt.presentation.theme.extendedTypography
+import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable
 fun CustomTextField(
@@ -63,11 +63,11 @@ fun CustomTextField(
             .height(55.dp)
             .clip(RoundedCornerShape(16.dp)),
         singleLine = true,
-        textStyle = extendedTypography.titleMedium.copy(color = Void),
+        textStyle = VolunteersCaseTheme.typography.titleMedium.copy(color = Void),
         label = {
             Text(
                 label,
-                style = extendedTypography.titleMedium.copy(Void, fontWeight = FontWeight.Normal)
+                style = VolunteersCaseTheme.typography.titleMedium.copy(Void, fontWeight = FontWeight.Normal)
             )
         }, colors = TextFieldDefaults.colors(
             unfocusedContainerColor = Milk,
@@ -122,7 +122,7 @@ fun CustomSearchTextField(
             .background(Milk)
             .padding(horizontal = 8.dp, vertical = 4.dp),
         singleLine = true,
-        textStyle = extendedTypography.titleMedium.copy(color = Void),
+        textStyle = VolunteersCaseTheme.typography.titleMedium.copy(color = Void),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(
             onSearch = {
@@ -143,7 +143,7 @@ fun CustomSearchTextField(
                     if (textFieldValue.isEmpty()) {
                         Text(
                             label,
-                            style = extendedTypography.titleMedium.copy(Silver)
+                            style = VolunteersCaseTheme.typography.titleMedium.copy(Silver)
                         )
                     }
                     innerTextField()
