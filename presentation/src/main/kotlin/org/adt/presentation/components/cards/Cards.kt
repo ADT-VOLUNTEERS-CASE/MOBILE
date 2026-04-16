@@ -36,7 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.adt.data.model.AllDescriptionEvent
+import org.adt.core.entities.AllDescriptionEvent
 import org.adt.presentation.R
 import org.adt.presentation.components.CustomLiteRoundedButton
 import org.adt.presentation.components.buttons.SquaredIconButton
@@ -89,10 +89,10 @@ fun NoteCard(
  *
  * @param onClick function to be invoked on card click.
  *
- * @sample [CardStatisticsPreview]
+ * @sample [StatisticsCardPreview]
  */
 @Composable
-fun CardStatistics(modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun StatisticsCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Box(
         modifier = modifier
             .width(155.dp)
@@ -133,10 +133,10 @@ fun CardStatistics(modifier: Modifier = Modifier, onClick: () -> Unit) {
  *
  * @param onClick function to be invoked on card click.
  *
- * @sample [CardCalendarPreview]
+ * @sample [CalendarCardPreview]
  */
 @Composable
-fun CardCalendar(modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun CalendarCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Box(
         modifier = modifier
             .width(155.dp)
@@ -169,16 +169,16 @@ fun CardCalendar(modifier: Modifier = Modifier, onClick: () -> Unit) {
 }
 
 /**
- * The card consists of an text and is used to view the number of people you have helped.
+ * The card consists of a text and is used to view the number of people you have helped.
  *
  * @param modifier modifier for managing card sizes.
  *
  * @param number number of people you have helped.
  *
- * @sample [CardStatisticsCountCharityPreview]
+ * @sample [CharityStatisticsCardPreview]
  */
 @Composable
-fun CardStatisticsCountCharity(modifier: Modifier = Modifier, number: String) {
+fun CharityStatisticsCard(modifier: Modifier = Modifier, number: Int) {
 
     Column(
         modifier = modifier
@@ -196,7 +196,7 @@ fun CardStatisticsCountCharity(modifier: Modifier = Modifier, number: String) {
         )
 
         Text(
-            text = number,
+            text = number.toString(),
             style = VolunteersCaseTheme.typography.titleMedium.copy(color = Arctic, fontSize = 36.sp),
             modifier = Modifier.padding(top = 10.dp)
         )
@@ -204,554 +204,580 @@ fun CardStatisticsCountCharity(modifier: Modifier = Modifier, number: String) {
 }
 
 
-    /**
-     * The card consists of an text and is used to view the number charity.
-     *
-     * @param modifier modifier for managing card sizes.
-     *
-     * @param numberCharity number of charity.
-     *
-     * @sample [CardStatisticsCountCharityPreview]
-     */
+/**
+ * The card consists of a text and is used to view the number charity.
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param numberCharity number of charity.
+ *
+ * @sample [CharityStatisticsCardPreview]
+ */
 
-    @Composable
-    fun CardAllCountCharity(modifier: Modifier = Modifier, numberCharity: String) {
-        Column(
-            modifier = modifier
-                .width(300.dp)
-                .height(123.dp)
-                .background(color = Lagoon, shape = RoundedCornerShape(14.dp))
-        ) {
-            Row(
-
-                modifier = Modifier
-                    .padding(top = 24.dp)
-                    .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = numberCharity,
-                    style = VolunteersCaseTheme.typography.titleMedium.copy(Arctic, fontSize = 48.sp),
-                    modifier = Modifier.padding(start = 32.dp, end = 10.dp)
-                )
-                Text(
-                    text = "добрых дел",
-                    style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 32.sp, color = Arctic)
-                )
-            }
-            Text(
-                text = "вы обладатель большого сердца!",
-                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 16.sp, color = Grey),
-                modifier = Modifier.padding(start = 32.dp)
-            )
-        }
-
-    }
-
-    /**
-     * The card consists of text and is used to view the number of hours of charity.
-     *
-     * @param modifier modifier for managing card sizes.
-     *
-     * @param number number of hours of charity.
-     *
-     * @sample [CardHoursCharityPreview]
-     */
-
-    @Composable
-    fun CardHoursCharity(modifier: Modifier = Modifier, hoursCharity: String) {
-        Column(
-            modifier = modifier
-                .width(300.dp)
-                .height(133.dp)
-                .background(
-                    color = Abyss, shape = RoundedCornerShape(14.dp)
-                )
-        ) {
-            Row(
-                modifier = Modifier
-                    .padding(top = 24.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = hoursCharity,
-                    style = VolunteersCaseTheme.typography.titleMedium.copy(Arctic, fontSize = 48.sp),
-                    modifier = Modifier.padding(start = 17.dp, end = 11.dp)
-                )
-                Text(
-                    text = "добрых часов",
-                    style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 32.sp, color = Arctic)
-                )
-            }
-            Text(
-                text = "Каждая минута, что вы отдали, стала чьим-то лучиком солнца",
-                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 16.sp, color = Grey),
-                modifier = Modifier.padding(start = 25.dp, end = 25.dp),
-                textAlign = TextAlign.Center
-            )
-        }
-
-    }
-
-
-    /**
-     * The card consists of text and is used to display the achievements of the week.
-     *
-     * @param modifier modifier for managing card sizes.
-     *
-     * @param achievement achievement of the week.
-     *
-     * @sample [CardAchievementOfTheWeekPreview]
-     */
-    @Composable
-    fun CardAchievementOfTheWeek(modifier: Modifier = Modifier, achievement: String) {
-        Column(
-            modifier = modifier
-                .width(145.dp)
-                .height(124.dp)
-                .background(color = Lagoon, shape = RoundedCornerShape(14.dp)),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "достижение недели",
-                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
-                modifier = Modifier.padding(top = 10.dp, start = 11.dp, end = 11.dp),
-                textAlign = TextAlign.Center
-            )
-            Icon(
-                painter = painterResource(R.drawable.ic_leaf),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(top = 12.dp, bottom = 4.dp)
-                    .width(48.dp)
-                    .height(38.dp),
-                tint = Abyss
-            )
-            Text(
-                text = achievement,
-                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 13.sp, color = Arctic)
-            )
-        }
-    }
-
-    /**
-     * The card consists of text and is used to add an event.
-     *
-     * @param modifier modifier for managing card sizes.
-     *
-     * @param onClick function to be invoked on card click.
-     *
-     * @sample [CardAddEventPreview]
-     */
-
-    @Composable
-    fun CardAddEvent(modifier: Modifier = Modifier, onClick: () -> Unit) {
-        Box(
-            modifier = modifier
-                .width(155.dp)
-                .height(120.dp)
-                .background(color = Arctic, shape = RoundedCornerShape(18.dp))
-                .clickable(onClick = onClick)
-
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    "создать мероприятие",
-                    style = VolunteersCaseTheme.typography.titleMedium.copy(color = Black),
-                    color = Black,
-                    modifier = Modifier.padding(
-                        bottom = 3.dp,
-                        top = 4.dp,
-                        start = 16.dp,
-                        end = 16.dp
-                    ),
-                    textAlign = TextAlign.Center
-                )
-                Box(
-                    modifier = Modifier
-                        .padding(top = 9.dp)
-                        .clip(CircleShape)
-                        .size(40.dp)
-                        .background(color = Abyss), contentAlignment = Alignment.Center
-
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_plus),
-                        contentDescription = null,
-                        tint = Arctic,
-                        modifier = Modifier
-                            .width(21.dp)
-                            .height(21.dp)
-                    )
-                }
-
-
-            }
-        }
-    }
-
-    /**
-     * The card consists of text and is used to view events title, time, date and image .
-     *
-     * @param modifier modifier for managing card sizes.
-     *
-     * @param allDescriptionEvent date class that stores image, title, description, time, date event.
-     *
-     * @sample [CardEventPreview]
-     */
-
-    @Composable
-    fun CardEvent(
-        modifier: Modifier = Modifier,
-        allDescriptionEvent: AllDescriptionEvent
-    ) {
-
-        val state = rememberScrollState()
-
-        Box(
-            modifier = modifier
-                .height(190.dp)
-                .width(145.dp)
-                .background(color = Abyss, shape = RoundedCornerShape(8.dp))
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                Image(
-                    painter = painterResource(id = if (allDescriptionEvent.image == 0) R.drawable.baseimage else allDescriptionEvent.image),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(top = 5.dp)
-                        .clip(shape = RoundedCornerShape(17.dp))
-                        .width(134.dp)
-                        .height(125.dp),
-                    contentScale = ContentScale.Crop
-                )
-
-                Text(
-                    text = allDescriptionEvent.title,
-                    modifier = Modifier
-                        .padding(top = 9.dp)
-                        .width(145.dp)
-                        .height(13.dp)
-                        .horizontalScroll(state),
-                    style = VolunteersCaseTheme.typography.titleLarge.copy(
-                        fontSize = 11.sp,
-                        color = Arctic,
-                        fontWeight = FontWeight.SemiBold
-
-                    ), textAlign = TextAlign.Center
-                )
-                Text(
-                    text = allDescriptionEvent.date,
-                    style = VolunteersCaseTheme.typography.titleLarge.copy(
-                        fontSize = 8.sp, color = Arctic,
-                        fontWeight = FontWeight.SemiBold
-                    ),
-                    modifier = Modifier
-                        .padding(top = 3.dp, bottom = 3.dp)
-                        .height(10.dp)
-                )
-                Text(
-                    text = allDescriptionEvent.time,
-                    style = VolunteersCaseTheme.typography.titleLarge.copy(
-                        fontSize = 8.sp, color = Arctic,
-                        fontWeight = FontWeight.SemiBold
-                    ),
-                    modifier = Modifier.height(10.dp)
-                )
-            }
-        }
-    }
-
-
-    /**
-     * The card consists of text and is used to view events title, description and image .
-     *
-     * @param modifier modifier for managing card sizes.
-     *
-     * @param allDescriptionEvent date class that stores image, title, description, time, date event.
-     *
-     * @param onClick function to be invoked on card click.
-     *
-     * @sample [CardAllDescriptionEventPreview]
-     */
-    @Composable
-    fun CardAllDescriptionEvent(
-        modifier: Modifier = Modifier,
-        allDescriptionEvent: AllDescriptionEvent,
-        onClick: () -> Unit
-    ) {
-        val state = rememberScrollState()
-        Column(
-            modifier = modifier
-                .width(321.dp)
-                .height(492.dp)
-                .background(color = Arctic, RoundedCornerShape(17.dp)),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Box(
-                modifier = Modifier
-                    .padding(top = 20.dp)
-                    .width(300.dp)
-                    .height(281.dp)
-                    .background(color = Abyss, shape = RoundedCornerShape(17.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = if (allDescriptionEvent.image == 0) R.drawable.baseimage else allDescriptionEvent.image),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .clip(shape = RoundedCornerShape(17.dp))
-                        .width(279.dp)
-                        .height(259.dp),
-                    contentScale = ContentScale.Crop
-                )
-            }
-            Text(
-                text = (if (allDescriptionEvent.title == "") stringResource(R.string.base_title) else allDescriptionEvent.title),
-                style = VolunteersCaseTheme.typography.titleLarge.copy(fontSize = 19.sp, color = Black),
-                modifier = Modifier
-                    .padding(top = 15.dp, start = 10.dp)
-                    .fillMaxWidth()
-            )
-            Text(
-                text = (if (allDescriptionEvent.description == "") stringResource(R.string.base_description) else allDescriptionEvent.description),
-                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Grey),
-                modifier = Modifier
-                    .padding(top = 9.dp)
-                    .width(300.dp)
-                    .height(61.dp)
-                    .verticalScroll(state)
-            )
-            CustomLiteRoundedButton(
-                modifier = Modifier.padding(
-                    start = 11.dp,
-                    end = 10.dp,
-                    top = 28.dp
-                ), "Приступить!"
-            ) { onClick }
-        }
-
-    }
-
-    /**
-     * The card consists of text and is used to monitoring activity.
-     *
-     * @param modifier modifier for managing card sizes.
-     *
-     * @param color color card.
-     *
-     * @param count activity.
-     *
-     * @param parameter monitoring parameter.
-     *
-     * @sample [CardEventMonitoringPreview]
-     */
-
-    @Composable
-    fun CardEventMonitoring(
-        modifier: Modifier = Modifier,
-        color: Color,
-        count: String,
-        parameter: String
+@Composable
+fun OverallCharityStatisticsCard(modifier: Modifier = Modifier, numberCharity: Int) {
+    Column(
+        modifier = modifier
+            .width(300.dp)
+            .height(123.dp)
+            .background(color = Lagoon, shape = RoundedCornerShape(14.dp))
     ) {
         Row(
-            modifier = modifier
-                .width(300.dp)
-                .height(85.dp)
-                .background(color = color, shape = RoundedCornerShape(14.dp)),
-            horizontalArrangement = Arrangement.SpaceBetween
+
+            modifier = Modifier
+                .padding(top = 24.dp)
+                .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = count,
-                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 48.sp, color = Arctic),
-                modifier = Modifier.padding(start = 35.dp, top = 14.dp)
+                text = numberCharity.toString(),
+                style = VolunteersCaseTheme.typography.titleMedium.copy(Arctic, fontSize = 48.sp),
+                modifier = Modifier.padding(start = 32.dp, end = 10.dp)
             )
             Text(
-                text = parameter,
-                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 22.sp, color = Arctic),
-                modifier = Modifier.padding(end = 15.dp, top = 18.dp, start = 22.dp),
-                textAlign = TextAlign.Center
+                text = "добрых дел",
+                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 32.sp, color = Arctic)
             )
         }
+        Text(
+            text = "вы обладатель большого сердца!",
+            style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 16.sp, color = Grey),
+            modifier = Modifier.padding(start = 32.dp)
+        )
     }
 
-    /**
-     * The card consists of text and is used to monitoring activity.
-     *
-     * @param modifier modifier for managing card sizes.
-     *
-     * @param color color card.
-     *
-     * @param count activity.
-     *
-     * @param parameter monitoring parameter.
-     *
-     * @sample [CardEventMonitoringPreview]
-     */
+}
 
-    @Composable
-    fun CardCountUser(
-        modifier: Modifier = Modifier,
-        countAll: String,
-        countNew: String,
-        countActive: String,
-        size: Dp
+/**
+ * The card consists of text and is used to view the number of hours of charity.
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param hoursCharity number of hours of charity.
+ *
+ * @sample [CharityHoursCardPreview]
+ */
+
+@Composable
+fun CharityHoursCard(modifier: Modifier = Modifier, hoursCharity: Int) {
+    Column(
+        modifier = modifier
+            .width(300.dp)
+            .height(133.dp)
+            .background(
+                color = Abyss, shape = RoundedCornerShape(14.dp)
+            )
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(top = 24.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = hoursCharity.toString(),
+                style = VolunteersCaseTheme.typography.titleMedium.copy(Arctic, fontSize = 48.sp),
+                modifier = Modifier.padding(start = 17.dp, end = 11.dp)
+            )
+            Text(
+                text = "добрых часов",
+                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 32.sp, color = Arctic)
+            )
+        }
+        Text(
+            text = "Каждая минута, что вы отдали, стала чьим-то лучиком солнца",
+            style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 16.sp, color = Grey),
+            modifier = Modifier.padding(start = 25.dp, end = 25.dp),
+            textAlign = TextAlign.Center
+        )
+    }
+
+}
+
+
+/**
+ * The card consists of text and is used to display the achievements of the week.
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param achievement achievement of the week.
+ *
+ * @sample [AchievementOfTheWeekCardPreview]
+ */
+@Composable
+fun AchievementOfTheWeekCard(modifier: Modifier = Modifier, achievement: String) {
+    Column(
+        modifier = modifier
+            .width(145.dp)
+            .height(124.dp)
+            .background(color = Lagoon, shape = RoundedCornerShape(14.dp)),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "достижение недели",
+            style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+            modifier = Modifier.padding(top = 10.dp, start = 11.dp, end = 11.dp),
+            textAlign = TextAlign.Center
+        )
+        Icon(
+            painter = painterResource(R.drawable.ic_leaf),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(top = 12.dp, bottom = 4.dp)
+                .width(48.dp)
+                .height(38.dp),
+            tint = Abyss
+        )
+        Text(
+            text = achievement,
+            style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 13.sp, color = Arctic)
+        )
+    }
+}
+
+/**
+ * The card consists of text and is used to add an event.
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param onClick function to be invoked on card click.
+ *
+ * @sample [AddEventCardPreview]
+ */
+
+@Composable
+fun AddEventCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Box(
+        modifier = modifier
+            .width(155.dp)
+            .height(120.dp)
+            .background(color = Arctic, shape = RoundedCornerShape(18.dp))
+            .clickable(onClick = onClick)
+
     ) {
         Column(
-            modifier = modifier
-                .width(size)
-                .height(100.dp)
-                .background(color = Abyss, shape = RoundedCornerShape(10.dp))
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
+            Text(
+                "создать мероприятие",
+                style = VolunteersCaseTheme.typography.titleMedium.copy(color = Black),
+                color = Black,
+                modifier = Modifier.padding(
+                    bottom = 3.dp,
+                    top = 4.dp,
+                    start = 16.dp,
+                    end = 16.dp
+                ),
+                textAlign = TextAlign.Center
+            )
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 13.dp)
+                    .padding(top = 9.dp)
+                    .clip(CircleShape)
+                    .size(40.dp)
+                    .background(color = Abyss), contentAlignment = Alignment.Center
+
             ) {
-                Text(
-                    text = "Всего:",
-                    style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
-                    modifier = Modifier.padding(start = 5.dp, end = 5.dp)
-                )
-                Text(
-                    text = countAll,
-                    style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
+                Icon(
+                    painter = painterResource(R.drawable.ic_plus),
+                    contentDescription = null,
+                    tint = Arctic,
+                    modifier = Modifier
+                        .width(21.dp)
+                        .height(21.dp)
                 )
             }
 
-            Row(
+
+        }
+    }
+}
+
+/**
+ * The card consists of text and is used to view events title, time, date and image .
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param allDescriptionEvent date class that stores image, title, description, time, date event.
+ *
+ * @sample [EventCardPreview]
+ */
+
+@Composable
+fun EventCard(
+    modifier: Modifier = Modifier,
+    allDescriptionEvent: AllDescriptionEvent
+) {
+
+    val state = rememberScrollState()
+
+    Box(
+        modifier = modifier
+            .height(190.dp)
+            .width(145.dp)
+            .background(color = Abyss, shape = RoundedCornerShape(8.dp))
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Image(
+                painter = painterResource(id = if (allDescriptionEvent.image == 0) R.drawable.baseimage else allDescriptionEvent.image),
+                contentDescription = null,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 10.dp)
-            ) {
-                Text(
-                    text = "Новые:",
-                    style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
-                    modifier = Modifier.padding(start = 5.dp, end = 5.dp)
-                )
-                Text(
-                    text = countNew,
-                    style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
-                )
-            }
+                    .padding(top = 5.dp)
+                    .clip(shape = RoundedCornerShape(17.dp))
+                    .width(134.dp)
+                    .height(125.dp),
+                contentScale = ContentScale.Crop
+            )
 
-
-            Row(
+            Text(
+                text = allDescriptionEvent.title,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 10.dp)
-            ) {
-                Text(
-                    text = "Активные:",
-                    style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
-                    modifier = Modifier.padding(start = 5.dp, end = 5.dp)
-                )
-                Text(
-                    text = countActive,
-                    style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
-                )
-            }
+                    .padding(top = 9.dp)
+                    .width(145.dp)
+                    .height(13.dp)
+                    .horizontalScroll(state),
+                style = VolunteersCaseTheme.typography.titleLarge.copy(
+                    fontSize = 11.sp,
+                    color = Arctic,
+                    fontWeight = FontWeight.SemiBold
 
+                ), textAlign = TextAlign.Center
+            )
+            Text(
+                text = allDescriptionEvent.date,
+                style = VolunteersCaseTheme.typography.titleLarge.copy(
+                    fontSize = 8.sp, color = Arctic,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                modifier = Modifier
+                    .padding(top = 3.dp, bottom = 3.dp)
+                    .height(10.dp)
+            )
+            Text(
+                text = allDescriptionEvent.time,
+                style = VolunteersCaseTheme.typography.titleLarge.copy(
+                    fontSize = 8.sp, color = Arctic,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                modifier = Modifier.height(10.dp)
+            )
+        }
+    }
+}
+
+
+/**
+ * The card consists of text and is used to view events title, description and image .
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param allDescriptionEvent date class that stores image, title, description, time, date event.
+ *
+ * @param onClick function to be invoked on card click.
+ *
+ * @sample [OverallDescriptionEventCardPreview]
+ */
+@Composable
+fun OverallDescriptionEventCard(
+    modifier: Modifier = Modifier,
+    allDescriptionEvent: AllDescriptionEvent,
+    onClick: () -> Unit
+) {
+    val state = rememberScrollState()
+    Column(
+        modifier = modifier
+            .width(321.dp)
+            .height(492.dp)
+            .background(color = Arctic, RoundedCornerShape(17.dp)),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(top = 20.dp)
+                .width(300.dp)
+                .height(281.dp)
+                .background(color = Abyss, shape = RoundedCornerShape(17.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = if (allDescriptionEvent.image == 0) R.drawable.baseimage else allDescriptionEvent.image),
+                contentDescription = null,
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(17.dp))
+                    .width(279.dp)
+                    .height(259.dp),
+                contentScale = ContentScale.Crop
+            )
+        }
+        Text(
+            text = (if (allDescriptionEvent.title == "") stringResource(R.string.base_title) else allDescriptionEvent.title),
+            style = VolunteersCaseTheme.typography.titleLarge.copy(fontSize = 19.sp, color = Black),
+            modifier = Modifier
+                .padding(top = 15.dp, start = 10.dp)
+                .fillMaxWidth()
+        )
+        Text(
+            text = (if (allDescriptionEvent.description == "") stringResource(R.string.base_description) else allDescriptionEvent.description),
+            style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Grey),
+            modifier = Modifier
+                .padding(top = 9.dp)
+                .width(300.dp)
+                .height(61.dp)
+                .verticalScroll(state)
+        )
+        CustomLiteRoundedButton(
+            modifier = Modifier.padding(
+                start = 11.dp,
+                end = 10.dp,
+                top = 28.dp
+            ),
+            text = "Приступить!",
+            onClick = onClick
+        )
+    }
+
+}
+
+/**
+ * The card consists of text and is used to monitoring activity.
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param color color card.
+ *
+ * @param count activity.
+ *
+ * @param parameter monitoring parameter.
+ *
+ * @sample [EventMonitoringCardPreview]
+ */
+
+@Composable
+fun EventMonitoringCard(
+    modifier: Modifier = Modifier,
+    color: Color,
+    count: Int,
+    parameter: String
+) {
+    Row(
+        modifier = modifier
+            .width(300.dp)
+            .height(85.dp)
+            .background(color = color, shape = RoundedCornerShape(14.dp)),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = count.toString(),
+            style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 48.sp, color = Arctic),
+            modifier = Modifier.padding(start = 35.dp, top = 14.dp)
+        )
+        Text(
+            text = parameter,
+            style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 22.sp, color = Arctic),
+            modifier = Modifier.padding(end = 15.dp, top = 18.dp, start = 22.dp),
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+/**
+ * This card consists of several text fields that display all/new/active users counters for current event.
+ *
+ * @param modifier card modifier.
+ *
+ * @param color background color.
+ *
+ * @param countActive active users count.
+ *
+ * @param countNew new users count.
+ *
+ * @param countAll all users count.
+ *
+ * @sample [EventMonitoringCardPreview]
+ */
+
+@Composable
+fun UserCountCard(
+    modifier: Modifier = Modifier,
+    countAll: Int,
+    countNew: Int,
+    countActive: Int,
+    size: Dp
+) {
+    Column(
+        modifier = modifier
+            .width(size)
+            .height(100.dp)
+            .background(color = Abyss, shape = RoundedCornerShape(10.dp))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 13.dp)
+        ) {
+            Text(
+                text = "Всего:",
+                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+                modifier = Modifier.padding(start = 5.dp, end = 5.dp)
+            )
+            Text(
+                text = countAll.toString(),
+                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
+            )
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp)
+        ) {
+            Text(
+                text = "Новые:",
+                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+                modifier = Modifier.padding(start = 5.dp, end = 5.dp)
+            )
+            Text(
+                text = countNew.toString(),
+                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
+            )
+        }
+
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp)
+        ) {
+            Text(
+                text = "Активные:",
+                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+                modifier = Modifier.padding(start = 5.dp, end = 5.dp)
+            )
+            Text(
+                text = countActive.toString(),
+                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
+            )
         }
 
     }
 
-
-    @Preview
-    @Composable
-    private fun CardCountUserPreview() {
-        CardCountUser(modifier = Modifier, "150", "14", "24", 172.dp)
-    }
+}
 
 
-    @Preview
-    @Composable
-    private fun CardAddEventPreview() {
-        VolunteersCaseTheme { CardAddEvent { } }
-    }
+@Preview
+@Composable
+private fun UserCountCardPreview() {
+    UserCountCard(
+        modifier = Modifier,
+        countAll = 50,
+        countNew = 14,
+        countActive = 24,
+        size = 172.dp
+    )
+}
 
-    @Preview
-    @Composable
-    private fun CardCalendarPreview() {
-        VolunteersCaseTheme { CardCalendar { } }
 
-    }
+@Preview
+@Composable
+private fun AddEventCardPreview() {
+    VolunteersCaseTheme { AddEventCard { } }
+}
 
-    @Preview
-    @Composable
-    private fun CardStatisticsPreview() {
-        VolunteersCaseTheme { CardStatistics { } }
-    }
+@Preview
+@Composable
+private fun CalendarCardPreview() {
+    VolunteersCaseTheme { CalendarCard { } }
 
-    @Preview
-    @Composable
-    private fun CardEventPreview() {
-        CardEvent(
-            Modifier,
-            AllDescriptionEvent(
+}
+
+@Preview
+@Composable
+private fun StatisticsCardPreview() {
+    VolunteersCaseTheme { StatisticsCard { } }
+}
+
+@Preview
+@Composable
+private fun EventCardPreview() {
+    EventCard(
+        modifier = Modifier,
+        allDescriptionEvent = AllDescriptionEvent(
+            R.drawable.ic_launcher_background,
+            "Соседский книжный шкаф",
+            "Создай в своём дворе библиотеку для всех желающих: поставь полку, делись книгами и поддерживай в ней порядок.",
+            time = "13:40",
+            date = "01.01"
+        ),
+    )
+
+}
+
+@Preview
+@Composable
+private fun CharityStatisticsCardPreview() {
+    CharityStatisticsCard(
+        modifier = Modifier,
+        number = 147
+    )
+}
+
+
+@Preview
+@Composable
+private fun OverallCharityStatisticsCardPreview() {
+    OverallCharityStatisticsCard(
+        modifier = Modifier,
+        numberCharity = 50
+    )
+}
+
+@Preview
+@Composable
+private fun CharityHoursCardPreview() {
+    CharityHoursCard(
+        modifier = Modifier,
+        hoursCharity = 70
+    )
+}
+
+@Preview
+@Composable
+private fun AchievementOfTheWeekCardPreview() {
+    AchievementOfTheWeekCard(
+        modifier = Modifier,
+        achievement = "эко-герой"
+    )
+}
+
+@Preview
+@Composable
+private fun OverallDescriptionEventCardPreview() {
+    VolunteersCaseTheme {
+        OverallDescriptionEventCard(
+            modifier = Modifier,
+            allDescriptionEvent = AllDescriptionEvent(
                 R.drawable.ic_launcher_background,
                 "Соседский книжный шкаф",
                 "Создай в своём дворе библиотеку для всех желающих: поставь полку, делись книгами и поддерживай в ней порядок.",
                 time = "13:40",
                 date = "01.01"
-            ),
-        )
-
-    }
-
-    @Preview
-    @Composable
-    private fun CardStatisticsCountCharityPreview() {
-        CardStatisticsCountCharity(modifier = Modifier, "147")
-    }
-
-
-    @Preview
-    @Composable
-    private fun CardAllCountCharityPreview() {
-        CardAllCountCharity(modifier = Modifier, "50")
-    }
-
-    @Preview
-    @Composable
-    private fun CardHoursCharityPreview() {
-        CardHoursCharity(modifier = Modifier, "70")
-    }
-
-    @Preview
-    @Composable
-    private fun CardAchievementOfTheWeekPreview() {
-        CardAchievementOfTheWeek(modifier = Modifier, "эко-герой")
-    }
-
-    @Preview
-    @Composable
-    private fun CardAllDescriptionEventPreview() {
-        VolunteersCaseTheme {
-            CardAllDescriptionEvent(
-                modifier = Modifier,
-                AllDescriptionEvent(
-                    R.drawable.ic_launcher_background,
-                    "Соседский книжный шкаф",
-                    "Создай в своём дворе библиотеку для всех желающих: поставь полку, делись книгами и поддерживай в ней порядок.",
-                    time = "13:40",
-                    date = "01.01"
-                ),
-                {}
             )
-        }
-
+        ) {}
     }
 
-    @Preview
-    @Composable
-    private fun CardEventMonitoringPreview() {
-        CardEventMonitoring(modifier = Modifier, Abyss, "10", "подозрительных входа")
-    }
+}
+
+@Preview
+@Composable
+private fun EventMonitoringCardPreview() {
+    EventMonitoringCard(
+        modifier = Modifier,
+        color = Abyss,
+        count = 10,
+        parameter = "подозрительных входа"
+    )
+}

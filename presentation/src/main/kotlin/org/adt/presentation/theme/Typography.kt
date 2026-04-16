@@ -22,7 +22,9 @@ private val InterDisplayFontFamily = FontFamily(
 )
 
 private val GerhausFontFamily = FontFamily(
-    Font(R.font.gerhaus_regular, FontWeight.Normal),
+    Font(
+        resId = R.font.gerhaus_regular, weight = FontWeight.Normal
+    ),
 )
 
 @Immutable
@@ -62,6 +64,7 @@ val extendedTypography = AppTypography(
         letterSpacing = 0.sp,
         color = Graphite
     ),
+
     titleMedium = TextStyle(
         fontFamily = InterDisplayFontFamily,
         fontWeight = FontWeight.Medium,
@@ -70,6 +73,7 @@ val extendedTypography = AppTypography(
         letterSpacing = 0.sp,
         color = Graphite
     ),
+
     titleSmall = TextStyle(
         fontFamily = InterDisplayFontFamily,
         fontWeight = FontWeight.Normal,
@@ -78,6 +82,7 @@ val extendedTypography = AppTypography(
         letterSpacing = 0.sp,
         color = Graphite
     ),
+
     displayLarge = TextStyle(
         fontFamily = GerhausFontFamily,
         fontWeight = FontWeight.Normal,
@@ -86,26 +91,33 @@ val extendedTypography = AppTypography(
         letterSpacing = 0.sp,
         color = Arctic
     ),
+
     displayMedium = TextStyle(
-        fontFamily = InterDisplayFontFamily, fontWeight = FontWeight.Bold, fontSize = 18.sp,
-        lineHeight = 24.sp, letterSpacing = 0.5.sp
+        fontFamily = InterDisplayFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 18.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.5.sp
     ),
+
     displaySmall = TextStyle(
         fontFamily = InterDisplayFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 15.sp,
-        lineHeight = 14.sp,
+        lineHeight = 15.sp,
         letterSpacing = 0.7.sp,
         color = Color.White
     ),
+
     labelLarge = TextStyle.Default,
+
     labelMedium = TextStyle.Default,
+
     labelSmall = TextStyle(
         fontFamily = InterDisplayFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.7.sp,
-
     )
 )
