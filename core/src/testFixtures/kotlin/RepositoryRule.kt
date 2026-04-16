@@ -131,7 +131,7 @@ object ArchRulesHelper {
                 val targetClassName = annotation.targetClass.simpleName.toString()
                 val targetMethodName = annotation.method
 
-                targetMethodName == method.name && repositoryClass.name.contains(targetClassName)
+                targetMethodName == method.name && repositoryClass.simpleName == targetClassName
             } catch (_: ArchUnitException) {
                 // Test class doesn't belong to current module's source set, skipping.
                 false
