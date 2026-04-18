@@ -13,7 +13,11 @@ import com.tngtech.archunit.lang.ConditionEvents
 import com.tngtech.archunit.lang.SimpleConditionEvent
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition
 import org.adt.core.annotations.AssociatedWith
+import org.adt.core.annotations.ImplicitUsage
 import org.adt.core.annotations.RepositoryImpl
+import org.adt.core.testFixtures.ArchRulesHelper.allClasses
+import org.adt.core.testFixtures.ArchRulesHelper.allMethods
+import org.adt.core.testFixtures.ArchRulesHelper.getRepositoryTestCoverageRule
 import org.junit.jupiter.api.Test
 import java.nio.file.Paths
 
@@ -121,7 +125,7 @@ object ArchRulesHelper {
             method.modifiers.contains(JavaModifier.PRIVATE))
             return true
 
-        return annotatedWithAssociatedMethods.asSequence().filter {
+        return annotatedWithAssociatedMethods.asSequence().count {
             val annotation: AssociatedWith = it.getAnnotationOfType(AssociatedWith::class.java)
 
             try {
@@ -133,7 +137,7 @@ object ArchRulesHelper {
                 // Test class doesn't belong to current module's source set, skipping.
                 false
             }
-        }.count() > 0
+        } > 0
     }
 
     private fun JavaMethod.hasAnnotation(annotationClass: Class<out Annotation>): Boolean {
@@ -141,8 +145,11 @@ object ArchRulesHelper {
     }
 }
 
+@ImplicitUsage
 private fun doNotNameTestClassesTheSameSample() {
+    @ImplicitUsage
     class SampleTest {
+        @ImplicitUsage
         @Test
         fun foo() {
         }
@@ -151,7 +158,9 @@ private fun doNotNameTestClassesTheSameSample() {
     // Beware!
     // Naming below class with another [SampleTest] will lead to override!
 
+    @ImplicitUsage
     class AnotherSampleTest {
+        @ImplicitUsage
         @Test
         fun foo() {
         }
