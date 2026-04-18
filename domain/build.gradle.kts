@@ -52,7 +52,7 @@ tasks.test {
 }
 
 dependencies {
-    implementation(project("::core"))
+    implementation(project(":core"))
 
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)
