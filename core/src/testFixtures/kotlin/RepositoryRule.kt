@@ -26,8 +26,8 @@ import java.nio.file.Paths
  *
  */
 object ArchRulesHelper {
-    var allClasses: Array<JavaClass>?
-    var allMethods: Array<JavaMethod>?
+    private var allClasses: Array<JavaClass>?
+    private var allMethods: Array<JavaMethod>?
 
     var annotatedWithAssociatedMethods: Array<JavaMethod> = arrayOf()
 
