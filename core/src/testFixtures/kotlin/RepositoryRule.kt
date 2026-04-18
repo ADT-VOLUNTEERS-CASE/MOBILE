@@ -1,4 +1,4 @@
-package org.adt.core.testfixtures
+package org.adt.core.testFixtures
 
 import com.tngtech.archunit.base.ArchUnitException
 import com.tngtech.archunit.core.domain.JavaClass
@@ -14,9 +14,6 @@ import com.tngtech.archunit.lang.SimpleConditionEvent
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition
 import org.adt.core.annotations.AssociatedWith
 import org.adt.core.annotations.RepositoryImpl
-import org.adt.core.testfixtures.ArchRulesHelper.allClasses
-import org.adt.core.testfixtures.ArchRulesHelper.allMethods
-import org.adt.core.testfixtures.ArchRulesHelper.getRepositoryTestCoverageRule
 import org.junit.jupiter.api.Test
 import java.nio.file.Paths
 

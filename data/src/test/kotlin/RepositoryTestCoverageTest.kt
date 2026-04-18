@@ -1,4 +1,4 @@
-import org.adt.core.testfixtures.ArchRulesHelper
+import org.adt.core.testFixtures.ArchRulesHelper
 import org.junit.jupiter.api.Test
 
 class RepositoryImplementationHasTestsRule {
