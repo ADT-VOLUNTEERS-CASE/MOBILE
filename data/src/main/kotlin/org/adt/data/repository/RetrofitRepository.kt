@@ -1,6 +1,7 @@
 package org.adt.data.repository
 
 import org.adt.core.entities.Location
+import org.adt.core.entities.Tag
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.FindLocationRequest
 import org.adt.core.entities.request.LocationRequest
@@ -11,6 +12,7 @@ import org.adt.core.entities.response.FindLocationResponse
 import org.adt.core.entities.response.UserResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -18,18 +20,22 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface RetrofitRepository {
-    @GET("ping")
-    suspend fun ping(): Response<String>
-
-    //==========
-    //   AUTH
-    //==========
-
+    //---------------------
+    //   auth-controller
+    //---------------------
+    //region auth controller content
     /**
-     * 200 - Success
-     * 400 - Invalid credentials
-     * 401 - Invalid password
-     * 404 - Invalid email
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           400 | Invalid credentials
+     *
+     *           401 | Invalid password
+     *
+     *           404 | Invalid email
      */
     @POST("auth/authenticate")
     suspend fun authenticate(
@@ -37,9 +43,17 @@ interface RetrofitRepository {
     ): Response<AuthResponse>
 
     /**
-     * 200 - Success
-     * 400 - Invalid data
-     * 409 - User already exists
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           400 | Invalid data
+     *
+     *           403 | Forbidden (Expired Token)
+     *
+     *           409 | User Already Exists
      */
     @POST("auth/register")
     suspend fun registerVolunteer(
@@ -47,10 +61,17 @@ interface RetrofitRepository {
     ): Response<AuthResponse>
 
     /**
-     * 200 - Success
-     * 400 - Invalid data
-     * 403 - Expired token
-     * 409 - User already exists
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           400 | Invalid data
+     *
+     *           403 | Forbidden (Expired Token)
+     *
+     *           409 | User Already Exists
      */
     @POST("auth/register/coordinator")
     suspend fun registerCoordinator(
@@ -59,10 +80,17 @@ interface RetrofitRepository {
     ): Response<AuthResponse>
 
     /**
-     * 200 - Success
-     * 400 - Invalid data
-     * 403 - Expired token
-     * 409 - User already exists
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           400 | Invalid data
+     *
+     *           403 | Forbidden (Expired Token)
+     *
+     *           409 | User Already Exists
      */
     @POST("auth/register/admin")
     suspend fun registerAdmin(
@@ -71,22 +99,111 @@ interface RetrofitRepository {
     ): Response<AuthResponse>
 
     /**
-     * 200 - Success
-     * 400 - Invalid data
-     * 403 - Expired token
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           400 | Invalid data
+     *
+     *           403 | Forbidden (Expired Token)
      */
     @POST("auth/refreshtoken")
     suspend fun refreshToken(
         @Body request: RefreshRequest
     ): Response<AuthResponse>
+    //endregion
 
-    //==============
-    //   LOCATION
-    //==============
+    //--------------------
+    //   tag-controller
+    //--------------------
+    //region tag controller content
 
     /**
-     * 200 - Success
-     * 400 - Invalid data
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           403 | Forbidden (Expired Token)
+     *
+     *           404 | Does not exist
+     */
+    @GET("tag/name/{tagName}")
+    suspend fun getTagByName(
+        @Header("Authorization") auth: String,
+        @Path("tagName") tagName: String,
+    ): Response<Tag>
+
+    /**
+     * SUCCESS:
+     *
+     *           204 | OK
+     *
+     * ERRORS:
+     *
+     *           403 | Forbidden (Expired Token)
+     *
+     *           404 | Does not exist
+     */
+    @DELETE("tag/name/{tagName}")
+    suspend fun deleteTagByName(
+        @Header("Authorization") auth: String,
+        @Path("tagName") tagName: String,
+    ): Response<Tag>
+
+    /**
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           403 | Forbidden (Expired Token)
+     *
+     *           404 | Does not exist
+     */
+    @GET("tag/name/{tagId}")
+    suspend fun getTagById(
+        @Header("Authorization") auth: String,
+        @Path("tagId") tagId: Int,
+    ): Response<Tag>
+
+    /**
+     * SUCCESS:
+     *
+     *           204 | OK
+     *
+     * ERRORS:
+     *
+     *           403 | Forbidden (Expired Token)
+     *
+     *           404 | Does not exist
+     */
+    @DELETE("tag/name/{tagId}")
+    suspend fun deleteTagById(
+        @Header("Authorization") auth: String,
+        @Path("tagId") tagId: Int,
+    ): Response<Tag>
+
+    //endregion
+
+    //-------------------------
+    //   location-controller
+    //-------------------------
+    //region location controller content
+    /**
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           400 | Invalid data
+     *
+     *           403 | Forbidden (Expired Token)
      */
     @POST("location/create")
     suspend fun createLocation(
@@ -95,8 +212,15 @@ interface RetrofitRepository {
     ): Response<Int>
 
     /**
-     * 200 - Success
-     * 400 - Invalid data
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           400 | Invalid data
+     *
+     *           403 | Forbidden (Expired Token)
      */
     @POST("location/all")
     suspend fun findLocation(
@@ -107,9 +231,17 @@ interface RetrofitRepository {
     ): Response<FindLocationResponse>
 
     /**
-     * 200 - Success
-     * 400 - Invalid data
-     * 404 - Does not exist
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           400 | Invalid data
+     *
+     *           403 | Forbidden (Expired Token)
+     *
+     *           404 | Does not exist
      */
     @POST("location/update/{locationId}")
     suspend fun updateLocation(
@@ -117,17 +249,69 @@ interface RetrofitRepository {
         @Path("locationId") locationId: Int,
         @Body request: LocationRequest
     ): Response<Location>
+    //endregion
 
-    //==========
-    //   USER
-    //==========
+    //----------------------
+    //   event-controller
+    //----------------------
+    //region event controller content
 
     /**
-     * 200 - Success
-     * 403 - Expired token
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           400 | Invalid data
+     *
+     *           403 | Forbidden (Expired Token)
+     */
+    @GET("event/all")
+    suspend fun getEvents(
+        @Header("Authorization") auth: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+    )//: Response<EventsResponse>
+
+    //endregion
+
+    //----------------------
+    //   cover-controller
+    //----------------------
+    //region cover controller content
+
+
+
+    //endregion
+
+    //---------------------
+    //   user-controller
+    //---------------------
+    //region user controller content
+    /**
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *
+     *           403 | Forbidden (Expired Token)
      */
     @GET("user/me")
     suspend fun userInfo(
         @Header("Authorization") auth: String
     ): Response<UserResponse>
+    //endregion
+
+    //---------------------
+    //   demo-controller
+    //---------------------
+    //region demo controller content
+
+    @GET("ping")
+    suspend fun ping(): Response<String>
+
+    //endregion
 }
