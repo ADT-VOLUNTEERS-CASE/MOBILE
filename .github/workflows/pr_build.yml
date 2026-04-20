@@ -47,7 +47,7 @@ jobs:
         uses: android-actions/setup-android@v4
 
       - name: Run Unit Tests
-        run: ./gradlew testDebugUnitTest
+        run: ./gradlew test
 
       - name: Enable KVM
         run: |
@@ -69,5 +69,5 @@ jobs:
         with:
           name: test-reports
           path: |
-            **/build/reports/tests/testDebugUnitTest/
+            **/build/reports/tests/test/
             **/build/reports/androidTests/connected/
