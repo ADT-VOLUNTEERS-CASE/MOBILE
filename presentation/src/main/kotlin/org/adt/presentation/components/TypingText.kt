@@ -10,7 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import kotlinx.coroutines.delay
-import org.adt.presentation.theme.extendedTypography
+import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable
 fun TypingText(
@@ -34,7 +34,7 @@ fun TypingText(
 
     Text(
         text = displayedText.uppercase(),
-        style = extendedTypography.displayLarge,
+        style = VolunteersCaseTheme.typography.displayLarge,
         textAlign = align,
         modifier = modifier
     )

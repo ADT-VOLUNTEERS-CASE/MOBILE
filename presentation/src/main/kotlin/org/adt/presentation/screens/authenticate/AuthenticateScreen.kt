@@ -47,7 +47,6 @@ import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.theme.extendedColor
-import org.adt.presentation.theme.extendedTypography
 
 @Composable
 fun AuthenticateScreen(navController: NavHostController, viewModel: AuthenticateViewModel) {
@@ -167,7 +166,7 @@ fun AuthenticateScreenContent(
                     ) {
                         Text(
                             "Зарегистрироваться",
-                            style = extendedTypography.titleMedium.copy(
+                            style = VolunteersCaseTheme.typography.titleMedium.copy(
                                 Milk,
                                 fontWeight = FontWeight.Normal
                             )
@@ -179,7 +178,7 @@ fun AuthenticateScreenContent(
                     ) {
                         Text(
                             "Забыли пароль?",
-                            style = extendedTypography.titleMedium.copy(
+                            style = VolunteersCaseTheme.typography.titleMedium.copy(
                                 Milk,
                                 fontWeight = FontWeight.Normal
                             )

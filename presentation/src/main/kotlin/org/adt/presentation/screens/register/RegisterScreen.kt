@@ -47,7 +47,6 @@ import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.theme.extendedColor
-import org.adt.presentation.theme.extendedTypography
 
 
 @Composable
@@ -118,7 +117,7 @@ fun RegisterScreenContent(
         Text(
             "VOLUNTEERS",
             Modifier.offset { IntOffset(0, offsetYText.value.toInt()) },
-            style = extendedTypography.displayLarge.copy(Abyss, 40.sp)
+            style = VolunteersCaseTheme.typography.displayLarge.copy(Abyss, 40.sp)
         )
 
         Column(
@@ -222,7 +221,7 @@ fun RegisterScreenContent(
                     ) {
                         Text(
                             "Войти",
-                            style = extendedTypography.titleMedium.copy(
+                            style = VolunteersCaseTheme.typography.titleMedium.copy(
                                 Milk,
                                 fontWeight = FontWeight.Normal
                             )
@@ -234,7 +233,7 @@ fun RegisterScreenContent(
                     ) {
                         Text(
                             "Забыли пароль?",
-                            style = extendedTypography.titleMedium.copy(
+                            style = VolunteersCaseTheme.typography.titleMedium.copy(
                                 Milk,
                                 fontWeight = FontWeight.Normal
                             )

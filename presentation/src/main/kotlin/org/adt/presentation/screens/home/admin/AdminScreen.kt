@@ -30,7 +30,6 @@ import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.VolunteersCaseTheme
-import org.adt.presentation.theme.extendedTypography
 
 @Composable
 fun AdminScreen(
@@ -117,7 +116,7 @@ fun AdminScreenContent(
                     ) {
                         Text(
                             "Зарегистрировать пользователя",
-                            style = extendedTypography.titleMedium.copy(
+                            style = VolunteersCaseTheme.typography.titleMedium.copy(
                                 Arctic,
                                 fontWeight = FontWeight.Normal
                             )
@@ -126,7 +125,7 @@ fun AdminScreenContent(
                     TextButton(logoutAction, contentPadding = PaddingValues(2.dp)) {
                         Text(
                             "Выйти",
-                            style = extendedTypography.titleMedium.copy(
+                            style = VolunteersCaseTheme.typography.titleMedium.copy(
                                 Arctic,
                                 fontWeight = FontWeight.Normal
                             )
@@ -135,7 +134,7 @@ fun AdminScreenContent(
                 } else {
                     Text(
                         uiState.searchModeResult,
-                        style = extendedTypography.titleMedium.copy(
+                        style = VolunteersCaseTheme.typography.titleMedium.copy(
                             Arctic,
                             fontWeight = FontWeight.Bold
                         )
@@ -148,7 +147,7 @@ fun AdminScreenContent(
                             items(uiState.searchModeList) { data ->
                                 Text(
                                     data.address,
-                                    style = extendedTypography.titleMedium.copy(
+                                    style = VolunteersCaseTheme.typography.titleMedium.copy(
                                         Arctic,
                                         fontWeight = FontWeight.Normal
                                     )
@@ -158,7 +157,7 @@ fun AdminScreenContent(
                     } else {
                         Text(
                             "Ничего не найдено",
-                            style = extendedTypography.titleMedium.copy(
+                            style = VolunteersCaseTheme.typography.titleMedium.copy(
                                 Arctic,
                                 fontWeight = FontWeight.Normal
                             )

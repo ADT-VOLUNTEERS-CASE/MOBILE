@@ -12,7 +12,6 @@ import androidx.navigation.NavHostController
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.VolunteersCaseTheme
-import org.adt.presentation.theme.extendedTypography
 
 @Composable
 fun VolunteerScreen(
@@ -42,7 +41,7 @@ fun VolunteerScreenContent(logoutAction: () -> Unit = {}) {
         ) {
             Text(
                 "Выйти",
-                style = extendedTypography.titleMedium.copy(
+                style = VolunteersCaseTheme.typography.titleMedium.copy(
                     Abyss,
                     fontWeight = FontWeight.Normal
                 )
