@@ -7,6 +7,7 @@ import io.mockk.slot
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody.Companion.toResponseBody
+import org.adt.core.annotations.AssociatedWith
 import org.adt.core.entities.UserRole
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.RefreshRequest
@@ -218,6 +219,7 @@ class DataRepositoryTest {
     }
 
     @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.PING)
     fun `Ping Test`() = runBlocking {
         assertEquals(
             dataRepository.ping().rawData.getOrNull(), exceptedPingResponse
@@ -225,6 +227,7 @@ class DataRepositoryTest {
     }
 
     @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.REGISTER)
     fun `Register Volunteer Test`() = runBlocking {
         registerTestUserWithRole(UserRole.VOLUNTEER)
 
@@ -233,6 +236,7 @@ class DataRepositoryTest {
     }
 
     @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.REGISTER)
     fun `Register Coordinator Test`() = runBlocking {
         registerTestUserWithRole(UserRole.COORDINATOR)
 
@@ -241,6 +245,7 @@ class DataRepositoryTest {
     }
 
     @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.REGISTER)
     fun `Register Admin Test`() = runBlocking {
         registerTestUserWithRole(UserRole.ADMIN)
 
@@ -249,6 +254,7 @@ class DataRepositoryTest {
     }
 
     @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.AUTHENTICATE)
     fun `Authenticate Test`() = runBlocking {
         registerTestUserWithRole(UserRole.VOLUNTEER, "volunteer@debug.mail", "volunteer")
         registerTestUserWithRole(UserRole.COORDINATOR, "coordinator@debug.mail", "coordinator")
@@ -264,6 +270,7 @@ class DataRepositoryTest {
     }
 
     @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.AUTHORIZED)
     fun `Access & Refresh Tokens Being Set On Login Test`() = runBlocking {
         registerTestUserWithRole(UserRole.VOLUNTEER, "volunteer@debug.mail", "volunteer")
         assertAuthSuccess("volunteer@debug.mail", "volunteer")
@@ -272,6 +279,7 @@ class DataRepositoryTest {
     }
 
     @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.AUTHORIZED)
     fun `Access & Refresh Tokens Not Being Set On Failed Login Test`() = runBlocking {
         registerTestUserWithRole(UserRole.VOLUNTEER, "volunteer@debug.mail", "volunteer")
         assertAuthFailure("volunteer@debug.mail", "wrong")
@@ -280,6 +288,7 @@ class DataRepositoryTest {
     }
 
     @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.REFRESH_TOKEN)
     fun `Request New Access Token Succeeds Test`() = runBlocking {
         registerTestUserWithRole(UserRole.VOLUNTEER, "volunteer@debug.mail", "volunteer")
         assertAuthSuccess("volunteer@debug.mail", "volunteer")
@@ -288,6 +297,7 @@ class DataRepositoryTest {
     }
 
     @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.USER_INFO)
     fun `Request User Info Test(Volunteer)`() = runBlocking {
         registerTestUserWithRole(UserRole.VOLUNTEER, "volunteer@debug.mail", "volunteer")
         assertAuthSuccess("volunteer@debug.mail", "volunteer")
@@ -305,6 +315,7 @@ class DataRepositoryTest {
     }
 
     @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.DEAUTHENTICATE)
     fun `Deauthenticate Test`() = runBlocking {
         registerTestUserWithRole(UserRole.ADMIN, "admin@debug.mail", "admin")
         assertAuthSuccess("admin@debug.mail", "admin")
@@ -315,6 +326,7 @@ class DataRepositoryTest {
     }
 
     @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.USER_INFO)
     fun `Request User Info Test(Coordinator)`() = runBlocking {
         registerTestUserWithRole(UserRole.COORDINATOR, "coordinator@debug.mail", "coordinator")
         assertAuthSuccess("coordinator@debug.mail", "coordinator")
@@ -332,6 +344,7 @@ class DataRepositoryTest {
     }
 
     @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.USER_INFO)
     fun `Request User Info Test(Admin)`() = runBlocking {
         registerTestUserWithRole(UserRole.ADMIN, "admin@debug.mail", "admin")
         assertAuthSuccess("admin@debug.mail", "admin")
@@ -349,6 +362,7 @@ class DataRepositoryTest {
     }
 
     @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.USER_INFO)
     fun `Request User Info Unauthorized Failure Test`() = runBlocking {
         registerTestUserWithRole(UserRole.ADMIN, "admin@debug.mail", "admin")
         assertAuthSuccess("admin@debug.mail", "admin")
@@ -359,4 +373,6 @@ class DataRepositoryTest {
 
         assert(!response.isSuccessful) { "UserInfo call should fail for deauthenticated user." }
     }
+
+
 }
