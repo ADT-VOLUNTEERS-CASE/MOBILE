@@ -9,6 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import org.adt.core.annotations.RepositoryImpl
 import org.adt.data.abstraction.PersistenceRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -16,6 +17,7 @@ import javax.inject.Singleton
 private val Context.dataStore by preferencesDataStore("token_prefs")
 
 @Singleton
+@RepositoryImpl
 class PersistenceRepositoryImpl @Inject constructor(
     @param: ApplicationContext private val context: Context
 ) : PersistenceRepository {

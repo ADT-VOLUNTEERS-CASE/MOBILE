@@ -2,6 +2,7 @@ package org.adt.data.repository
 
 import kotlinx.serialization.json.Json
 import okhttp3.ResponseBody
+import org.adt.core.annotations.RepositoryImpl
 import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.Location
 import org.adt.core.entities.UserRole
@@ -15,10 +16,22 @@ import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.abstraction.DataRepository
 import javax.inject.Inject
 
-internal class DataRepositoryImpl @Inject constructor(
+@RepositoryImpl
+class DataRepositoryImpl @Inject constructor(
     private val networkRepository: RetrofitRepository,
     private val persistenceRepository: PersistenceRepository
 ) : DataRepository {
+    companion object {
+        const val PING = "ping"
+        const val AUTHORIZED = "authorized"
+        const val REGISTER = "register"
+        const val AUTHENTICATE = "authenticate"
+        const val REFRESH_TOKEN = "refreshToken"
+        const val DEAUTHENTICATE = "deauthenticate"
+        const val FIND_LOCATION = "findLocation"
+        const val USER_INFO = "userInfo"
+    }
+
     private val json = Json { ignoreUnknownKeys = true }
 
     private fun parseError(errorBody: ResponseBody?): ErrorResponse? {
