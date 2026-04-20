@@ -68,6 +68,5 @@ dependencies{
     implementation(libs.kotlinx.coroutines.core)
 
     testImplementation(testFixtures(project(":core")))
-    testImplementation(project(":core"))
     testImplementation(libs.junit)
 }
