@@ -146,4 +146,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
 
     implementation(libs.androidx.datastore.preferences)
+
+    implementation("io.coil-kt:coil-compose:2.7.0")
 }

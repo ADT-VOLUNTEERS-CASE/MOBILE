@@ -3,6 +3,7 @@ package org.adt.domain.abstraction
 import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.Location
 import org.adt.core.entities.UserRole
+import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.UserResponse
 
 interface DataRepository {
@@ -31,4 +32,20 @@ interface DataRepository {
     suspend fun findLocation(address: String): GeneralResponse<List<Location>>
 
     suspend fun userInfo(): GeneralResponse<UserResponse>
+
+
+    suspend fun getEvents(): GeneralResponse<EventResponse>
+
+    suspend fun createEvent(
+        name: String,
+        status: String,
+        description: String,
+        coverId: Long,
+        coordinatorId: Long,
+        maxCapacity: Long,
+        dateTimestamp: String,
+        locationId: Long,
+        tagIds: List<Long>
+    ): GeneralResponse<Int>
+
 }

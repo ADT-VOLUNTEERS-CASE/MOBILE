@@ -36,6 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import org.adt.core.entities.AllDescriptionEvent
 import org.adt.presentation.R
 import org.adt.presentation.components.CustomLiteRoundedButton
@@ -47,6 +48,19 @@ import org.adt.presentation.theme.Grey
 import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Silver
 import org.adt.presentation.theme.VolunteersCaseTheme
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
+fun formatEventDate(isoString: String): Pair<String, String> {
+    return try {
+        val dateTime = LocalDateTime.parse(isoString)
+        val time = dateTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+        val date = dateTime.format(DateTimeFormatter.ofPattern("dd.MM"))
+        time to date
+    } catch (e: Exception) {
+        "00:00" to "00.00"
+    }
+}
 
 @Composable
 fun NoteCard(
@@ -66,7 +80,10 @@ fun NoteCard(
         Arrangement.SpaceBetween, Alignment.CenterVertically
     ) {
         Column(Modifier, Arrangement.spacedBy(8.dp)) {
-            Text(title, style = VolunteersCaseTheme.typography.titleLarge.copy(fontWeight = FontWeight.Normal))
+            Text(
+                title,
+                style = VolunteersCaseTheme.typography.titleLarge.copy(fontWeight = FontWeight.Normal)
+            )
             Text(
                 date,
                 style = VolunteersCaseTheme.typography.titleMedium.copy(
@@ -197,7 +214,10 @@ fun CharityStatisticsCard(modifier: Modifier = Modifier, number: Int) {
 
         Text(
             text = number.toString(),
-            style = VolunteersCaseTheme.typography.titleMedium.copy(color = Arctic, fontSize = 36.sp),
+            style = VolunteersCaseTheme.typography.titleMedium.copy(
+                color = Arctic,
+                fontSize = 36.sp
+            ),
             modifier = Modifier.padding(top = 10.dp)
         )
     }
@@ -235,7 +255,10 @@ fun OverallCharityStatisticsCard(modifier: Modifier = Modifier, numberCharity: I
             )
             Text(
                 text = "добрых дел",
-                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 32.sp, color = Arctic)
+                style = VolunteersCaseTheme.typography.titleMedium.copy(
+                    fontSize = 32.sp,
+                    color = Arctic
+                )
             )
         }
         Text(
@@ -280,7 +303,10 @@ fun CharityHoursCard(modifier: Modifier = Modifier, hoursCharity: Int) {
             )
             Text(
                 text = "добрых часов",
-                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 32.sp, color = Arctic)
+                style = VolunteersCaseTheme.typography.titleMedium.copy(
+                    fontSize = 32.sp,
+                    color = Arctic
+                )
             )
         }
         Text(
@@ -314,7 +340,10 @@ fun AchievementOfTheWeekCard(modifier: Modifier = Modifier, achievement: String)
     ) {
         Text(
             text = "достижение недели",
-            style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+            style = VolunteersCaseTheme.typography.titleMedium.copy(
+                fontSize = 15.sp,
+                color = Arctic
+            ),
             modifier = Modifier.padding(top = 10.dp, start = 11.dp, end = 11.dp),
             textAlign = TextAlign.Center
         )
@@ -329,7 +358,10 @@ fun AchievementOfTheWeekCard(modifier: Modifier = Modifier, achievement: String)
         )
         Text(
             text = achievement,
-            style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 13.sp, color = Arctic)
+            style = VolunteersCaseTheme.typography.titleMedium.copy(
+                fontSize = 13.sp,
+                color = Arctic
+            )
         )
     }
 }
@@ -421,17 +453,27 @@ fun EventCard(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            Image(
-                painter = painterResource(id = if (allDescriptionEvent.image == 0) R.drawable.baseimage else allDescriptionEvent.image),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(top = 5.dp)
-                    .clip(shape = RoundedCornerShape(17.dp))
-                    .width(134.dp)
-                    .height(125.dp),
-                contentScale = ContentScale.Crop
-            )
+            if (allDescriptionEvent.image.isEmpty()) {
+                Image(
+                    painter = painterResource(id = R.drawable.baseimage),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(top = 5.dp)
+                        .clip(shape = RoundedCornerShape(8.dp))
+                        .width(134.dp)
+                        .height(125.dp),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                AsyncImage(
+                    allDescriptionEvent.image, "event cover", Modifier
+                        .padding(top = 5.dp)
+                        .clip(shape = RoundedCornerShape(8.dp))
+                        .width(134.dp)
+                        .height(125.dp),
+                    contentScale = ContentScale.Crop
+                )
+            }
 
             Text(
                 text = allDescriptionEvent.title,
@@ -503,26 +545,42 @@ fun OverallDescriptionEventCard(
                 .background(color = Abyss, shape = RoundedCornerShape(17.dp)),
             contentAlignment = Alignment.Center
         ) {
-            Image(
-                painter = painterResource(id = if (allDescriptionEvent.image == 0) R.drawable.baseimage else allDescriptionEvent.image),
-                contentDescription = null,
-                modifier = Modifier
-                    .clip(shape = RoundedCornerShape(17.dp))
-                    .width(279.dp)
-                    .height(259.dp),
-                contentScale = ContentScale.Crop
-            )
+            if (allDescriptionEvent.image.isEmpty()) {
+                Image(
+                    painter = painterResource(id = R.drawable.baseimage),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clip(shape = RoundedCornerShape(17.dp))
+                        .width(279.dp)
+                        .height(259.dp),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                AsyncImage(
+                    allDescriptionEvent.image, "event cover", Modifier
+                        .clip(shape = RoundedCornerShape(17.dp))
+                        .width(279.dp)
+                        .height(259.dp),
+                    contentScale = ContentScale.Crop
+                )
+            }
         }
         Text(
             text = (if (allDescriptionEvent.title == "") stringResource(R.string.base_title) else allDescriptionEvent.title),
-            style = VolunteersCaseTheme.typography.titleLarge.copy(fontSize = 19.sp, color = Black),
+            style = VolunteersCaseTheme.typography.titleLarge.copy(
+                fontSize = 19.sp,
+                color = Black
+            ),
             modifier = Modifier
                 .padding(top = 15.dp, start = 10.dp)
                 .fillMaxWidth()
         )
         Text(
             text = (if (allDescriptionEvent.description == "") stringResource(R.string.base_description) else allDescriptionEvent.description),
-            style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Grey),
+            style = VolunteersCaseTheme.typography.titleMedium.copy(
+                fontSize = 15.sp,
+                color = Grey
+            ),
             modifier = Modifier
                 .padding(top = 9.dp)
                 .width(300.dp)
@@ -539,7 +597,6 @@ fun OverallDescriptionEventCard(
             onClick = onClick
         )
     }
-
 }
 
 /**
@@ -572,12 +629,18 @@ fun EventMonitoringCard(
     ) {
         Text(
             text = count.toString(),
-            style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 48.sp, color = Arctic),
+            style = VolunteersCaseTheme.typography.titleMedium.copy(
+                fontSize = 48.sp,
+                color = Arctic
+            ),
             modifier = Modifier.padding(start = 35.dp, top = 14.dp)
         )
         Text(
             text = parameter,
-            style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 22.sp, color = Arctic),
+            style = VolunteersCaseTheme.typography.titleMedium.copy(
+                fontSize = 22.sp,
+                color = Arctic
+            ),
             modifier = Modifier.padding(end = 15.dp, top = 18.dp, start = 22.dp),
             textAlign = TextAlign.Center
         )
@@ -621,12 +684,18 @@ fun UserCountCard(
         ) {
             Text(
                 text = "Всего:",
-                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+                style = VolunteersCaseTheme.typography.titleMedium.copy(
+                    fontSize = 15.sp,
+                    color = Arctic
+                ),
                 modifier = Modifier.padding(start = 5.dp, end = 5.dp)
             )
             Text(
                 text = countAll.toString(),
-                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
+                style = VolunteersCaseTheme.typography.titleMedium.copy(
+                    fontSize = 15.sp,
+                    color = Arctic
+                )
             )
         }
 
@@ -637,12 +706,18 @@ fun UserCountCard(
         ) {
             Text(
                 text = "Новые:",
-                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+                style = VolunteersCaseTheme.typography.titleMedium.copy(
+                    fontSize = 15.sp,
+                    color = Arctic
+                ),
                 modifier = Modifier.padding(start = 5.dp, end = 5.dp)
             )
             Text(
                 text = countNew.toString(),
-                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
+                style = VolunteersCaseTheme.typography.titleMedium.copy(
+                    fontSize = 15.sp,
+                    color = Arctic
+                )
             )
         }
 
@@ -654,19 +729,23 @@ fun UserCountCard(
         ) {
             Text(
                 text = "Активные:",
-                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic),
+                style = VolunteersCaseTheme.typography.titleMedium.copy(
+                    fontSize = 15.sp,
+                    color = Arctic
+                ),
                 modifier = Modifier.padding(start = 5.dp, end = 5.dp)
             )
             Text(
                 text = countActive.toString(),
-                style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 15.sp, color = Arctic)
+                style = VolunteersCaseTheme.typography.titleMedium.copy(
+                    fontSize = 15.sp,
+                    color = Arctic
+                )
             )
         }
 
     }
-
 }
-
 
 @Preview
 @Composable
@@ -706,7 +785,7 @@ private fun EventCardPreview() {
     EventCard(
         modifier = Modifier,
         allDescriptionEvent = AllDescriptionEvent(
-            R.drawable.ic_launcher_background,
+            "",
             "Соседский книжный шкаф",
             "Создай в своём дворе библиотеку для всех желающих: поставь полку, делись книгами и поддерживай в ней порядок.",
             time = "13:40",
@@ -760,7 +839,7 @@ private fun OverallDescriptionEventCardPreview() {
         OverallDescriptionEventCard(
             modifier = Modifier,
             allDescriptionEvent = AllDescriptionEvent(
-                R.drawable.ic_launcher_background,
+                "",
                 "Соседский книжный шкаф",
                 "Создай в своём дворе библиотеку для всех желающих: поставь полку, делись книгами и поддерживай в ней порядок.",
                 time = "13:40",

@@ -6,11 +6,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -18,17 +26,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import org.adt.core.entities.AllDescriptionEvent
 import org.adt.core.entities.UserRole
 import org.adt.presentation.components.CustomBottomBar
 import org.adt.presentation.components.CustomSearchTextField
 import org.adt.presentation.components.TypingText
+import org.adt.presentation.components.cards.EventCard
+import org.adt.presentation.components.cards.formatEventDate
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
+import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable
@@ -79,17 +92,10 @@ fun AdminScreenContent(
         Column(
             Modifier
                 .fillMaxSize()
-                .padding(horizontal = 40.dp),
+                .padding(horizontal = 40.dp).verticalScroll(rememberScrollState()),
             Arrangement.spacedBy(20.dp),
             Alignment.CenterHorizontally
         ) {
-//            Icon(
-//                painterResource(R.drawable.ic_app),
-//                "Header logo",
-//                Modifier.size(50.dp).clip(RoundedCornerShape(5.dp)),
-//                Color.Unspecified
-//            )
-
             Column(
                 Modifier.fillMaxWidth(),
                 Arrangement.spacedBy(20.dp),
@@ -165,14 +171,57 @@ fun AdminScreenContent(
                     }
                 }
             }
-        }
 
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-            CustomBottomBar(
-                Modifier.padding(horizontal = 40.dp),
-                UserRole.ADMIN, Destinations.AdminHome, bottomBarNavigateAction
-            )
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(VolunteersCaseTheme.colors.secondaryBackground)
+                    .padding(horizontal = 10.dp, vertical = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    "каталог мероприятий",
+                    style = VolunteersCaseTheme.typography.titleLarge
+                )
+                if (uiState.eventsListLoading) {
+                    CircularProgressIndicator()
+                } else {
+                    LazyVerticalGrid(
+                        GridCells.Fixed(2),
+                        Modifier
+                            .padding(top = 32.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        items(uiState.eventsList.take(4)) { event ->
+                            val (formattedTime, formattedDate) = formatEventDate(event.dateTimestamp)
+
+                            EventCard(
+                                Modifier,
+                                AllDescriptionEvent(
+                                    event.cover?.link ?: "",
+                                    event.name,
+                                    event.description,
+                                    formattedTime,
+                                    formattedDate
+                                )
+                            )
+                        }
+                    }
+                }
+            }
         }
+    }
+
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+        CustomBottomBar(
+            Modifier
+                .padding(horizontal = 40.dp)
+                .padding(bottom = 15.dp),
+            UserRole.ADMIN, Destinations.AdminHome, bottomBarNavigateAction
+        )
     }
 }
 

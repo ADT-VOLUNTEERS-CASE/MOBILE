@@ -3,11 +3,13 @@ package org.adt.data.repository
 import org.adt.core.entities.Location
 import org.adt.core.entities.Tag
 import org.adt.core.entities.request.AuthRequest
+import org.adt.core.entities.request.EventRequest
 import org.adt.core.entities.request.FindLocationRequest
 import org.adt.core.entities.request.LocationRequest
 import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.response.AuthResponse
+import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.FindLocationResponse
 import org.adt.core.entities.response.UserResponse
 import retrofit2.Response
@@ -272,7 +274,28 @@ interface RetrofitRepository {
         @Header("Authorization") auth: String,
         @Query("page") page: Int,
         @Query("size") size: Int,
-    )//: Response<EventsResponse>
+    ): Response<EventResponse>
+
+    /**
+     * SUCCESS:
+     *
+     *           204 | OK
+     *
+     * ERRORS:
+     *
+     *           400 | Invalid data
+     *
+     *           403 | Forbidden (Expired Token)
+     *
+     *           404 | Cover or location can't be founded by current id
+     *
+     *           409 | Current cover or location are already taken
+     */
+    @POST("event/create")
+    suspend fun createEvent(
+        @Header("Authorization") auth: String,
+        @Body request: EventRequest
+    ): Response<Int>
 
     //endregion
 

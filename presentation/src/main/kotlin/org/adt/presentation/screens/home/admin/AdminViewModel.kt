@@ -62,6 +62,31 @@ class AdminViewModel @Inject constructor(
         }
     }
 
+    fun getEvents() {
+        _uiState.update { it.copy(eventsListLoading = true) }
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = _dataRepository.getEvents()
+
+            if (response.isSuccessful) {
+                _uiState.update {
+                    it.copy(
+                        eventsList = response.data().content,
+                        eventsListLoading = false
+                    )
+                }
+
+                Log.i("events", "Successful get events")
+                return@launch
+            }
+
+            populateFailure(
+                displayMessage = "Неизвестная ошибка",
+                logMessage = "Failure: Invalid data",
+                tagSuffix = "Events"
+            )
+        }
+    }
+
     fun deauthenticate(navigateAction: () -> Unit) {
         viewModelScope.launch {
             Dispatchers.IO { _dataRepository.deauthenticate() }
@@ -82,5 +107,9 @@ class AdminViewModel @Inject constructor(
         }
 
         Log.e("AdminViewModel::${tagSuffix}", logMessage)
+    }
+
+    init {
+        getEvents()
     }
 }

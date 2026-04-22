@@ -1,9 +1,9 @@
-package org.adt.core.entities
+package org.adt.core.entities.user
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Event(
+data class UserEvents(
     val eventId: Long = -1,
     val name: String,
     val status: String,

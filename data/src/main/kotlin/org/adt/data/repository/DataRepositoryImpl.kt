@@ -6,10 +6,12 @@ import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.Location
 import org.adt.core.entities.UserRole
 import org.adt.core.entities.request.AuthRequest
+import org.adt.core.entities.request.EventRequest
 import org.adt.core.entities.request.FindLocationRequest
 import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.response.ErrorResponse
+import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.UserResponse
 import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.abstraction.DataRepository
@@ -143,7 +145,11 @@ internal class DataRepositoryImpl @Inject constructor(
     }
 
     override suspend fun refreshToken(): GeneralResponse<String> {
-        val refreshToken = persistenceRepository.getRefreshToken() ?: return GeneralResponse.failure(401, "Not authorized")
+        val refreshToken =
+            persistenceRepository.getRefreshToken() ?: return GeneralResponse.failure(
+                401,
+                "Not authorized"
+            )
 
         val request = RefreshRequest(refreshToken)
         val response = networkRepository.refreshToken(request)
@@ -169,8 +175,11 @@ internal class DataRepositoryImpl @Inject constructor(
         persistenceRepository.removeToken()
     }
 
-    override suspend fun findLocation(address: String) : GeneralResponse<List<Location>> {
-        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401,"Not authorized")
+    override suspend fun findLocation(address: String): GeneralResponse<List<Location>> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(
+            401,
+            "Not authorized"
+        )
         val request = FindLocationRequest(address)
         val response = networkRepository.findLocation(token, 0, 10, request)
 
@@ -188,7 +197,10 @@ internal class DataRepositoryImpl @Inject constructor(
             val error = parseError(response.errorBody())
             persistenceRepository.removeToken()
 
-            return GeneralResponse.failure(response.code(), error?.message ?: "HTTP ${response.code()}")
+            return GeneralResponse.failure(
+                response.code(),
+                error?.message ?: "HTTP ${response.code()}"
+            )
         }
 
         return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
@@ -215,6 +227,86 @@ internal class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
         }
 
-        return GeneralResponse.failure(response.code(),"HTTP ${response.code()}")
+        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+    }
+
+
+    override suspend fun getEvents(): GeneralResponse<EventResponse> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val response = networkRepository.getEvents(token, 0, 10)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.body()!!)
+        }
+
+        if (response.code() == 403) {
+            val request = refreshToken()
+
+            if (request.isSuccessful) {
+                return getEvents()
+            }
+
+            val error = parseError(response.errorBody())
+            persistenceRepository.removeToken()
+
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+        }
+
+        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+    }
+
+    override suspend fun createEvent(
+        name: String,
+        status: String,
+        description: String,
+        coverId: Long,
+        coordinatorId: Long,
+        maxCapacity: Long,
+        dateTimestamp: String,
+        locationId: Long,
+        tagIds: List<Long>
+    ): GeneralResponse<Int> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val request = EventRequest(
+            name,
+            status,
+            description,
+            coverId,
+            coordinatorId,
+            maxCapacity,
+            dateTimestamp,
+            locationId,
+            tagIds
+        )
+        val response = networkRepository.createEvent(token, request)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.code())
+        }
+
+        if (response.code() == 403) {
+            val request = refreshToken()
+
+            if (request.isSuccessful) {
+                return createEvent(
+                    name,
+                    status,
+                    description,
+                    coverId,
+                    coordinatorId,
+                    maxCapacity,
+                    dateTimestamp,
+                    locationId,
+                    tagIds
+                )
+            }
+
+            val error = parseError(response.errorBody())
+            persistenceRepository.removeToken()
+
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+        }
+
+        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
     }
 }
