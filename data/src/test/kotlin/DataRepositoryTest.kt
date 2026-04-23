@@ -1,5 +1,3 @@
-package org.adt.data.repository
-
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -10,11 +8,15 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import org.adt.core.annotations.AssociatedWith
 import org.adt.core.entities.UserRole
 import org.adt.core.entities.request.AuthRequest
+import org.adt.core.entities.request.FindLocationRequest
 import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.response.AuthResponse
+import org.adt.core.entities.response.FindLocationResponse
 import org.adt.core.entities.response.UserResponse
 import org.adt.data.abstraction.PersistenceRepository
+import org.adt.data.repository.DataRepositoryImpl
+import org.adt.data.repository.RetrofitRepository
 import org.adt.domain.abstraction.DataRepository
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -46,6 +48,9 @@ class DataRepositoryTest {
     var authenticatedUser: MockUserModel? = null
 
     val userInfoAuthorizationSlot = slot<String>()
+
+    val locations = arrayOf("Moscow", "Saint-Petersburg", "TestLocation")
+    val findLocationRequestSlot = slot<FindLocationRequest>()
 
     @Before
     fun setup() {
@@ -136,6 +141,31 @@ class DataRepositoryTest {
                         )
                     )
                 }
+            }
+
+            coEvery {
+                findLocation(
+                    any(),
+                    any(),
+                    any(),
+                    capture(findLocationRequestSlot)
+                )
+            } answers {
+                val mockElementsCount =
+                    if (locations.contains(findLocationRequestSlot.captured.address)) 1L else 0L
+
+                Response.success(
+                    FindLocationResponse(
+                        listOf(),
+                        0,
+                        0,
+                        mockElementsCount,
+                        mockElementsCount,
+                        first = true,
+                        last = false
+                    )
+                )
+
             }
         }
 
@@ -374,5 +404,19 @@ class DataRepositoryTest {
         assert(!response.isSuccessful) { "UserInfo call should fail for deauthenticated user." }
     }
 
+    @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.FIND_LOCATION)
+    fun `Find location test`() = runBlocking {
+        val result = dataRepository.findLocation("Saint-Petersburg")
 
+        assert(result.data().size == 1)
+    }
+
+    @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.REQUEST_ACCESS_TOKEN)
+    fun `FTest`() = runBlocking {
+        val result = dataRepository.findLocation("Saint-Petersburg")
+
+        assert(result.data().size == 1)
+    }
 }

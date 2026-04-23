@@ -30,6 +30,7 @@ class DataRepositoryImpl @Inject constructor(
         const val DEAUTHENTICATE = "deauthenticate"
         const val FIND_LOCATION = "findLocation"
         const val USER_INFO = "userInfo"
+        const val REQUEST_ACCESS_TOKEN = "requestFreshAccessToken"
     }
 
     private val json = Json { ignoreUnknownKeys = true }
