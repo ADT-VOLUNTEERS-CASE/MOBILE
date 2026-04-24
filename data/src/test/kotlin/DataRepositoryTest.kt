@@ -6,6 +6,7 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.adt.core.annotations.AssociatedWith
+import org.adt.core.entities.Location
 import org.adt.core.entities.UserRole
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.FindLocationRequest
@@ -19,8 +20,8 @@ import org.adt.data.repository.DataRepositoryImpl
 import org.adt.data.repository.RetrofitRepository
 import org.adt.domain.abstraction.DataRepository
 import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import retrofit2.Response
 import kotlin.random.Random
 
@@ -52,7 +53,7 @@ class DataRepositoryTest {
     val locations = arrayOf("Moscow", "Saint-Petersburg", "TestLocation")
     val findLocationRequestSlot = slot<FindLocationRequest>()
 
-    @Before
+    @BeforeEach
     fun setup() {
         usersList.clear()
         tokenStore = Pair("", "")
@@ -156,7 +157,9 @@ class DataRepositoryTest {
 
                 Response.success(
                     FindLocationResponse(
-                        listOf(),
+                        List(mockElementsCount.toInt()) {
+                            Location(-1, "", "", 0f, 0f)
+                        },
                         0,
                         0,
                         mockElementsCount,
@@ -406,17 +409,28 @@ class DataRepositoryTest {
 
     @Test
     @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.FIND_LOCATION)
-    fun `Find location test`() = runBlocking {
+    fun `Find Location By Name Test`() = runBlocking {
         val result = dataRepository.findLocation("Saint-Petersburg")
 
         assert(result.data().size == 1)
     }
 
     @Test
-    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.REQUEST_ACCESS_TOKEN)
-    fun `FTest`() = runBlocking {
-        val result = dataRepository.findLocation("Saint-Petersburg")
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.FIND_LOCATION)
+    fun `Find Location By Wrong Name Should Fail Test`() = runBlocking {
+        val result = dataRepository.findLocation("Abracadabra")
 
-        assert(result.data().size == 1)
+        assert(result.data().isEmpty())
+    }
+
+    @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.REQUEST_ACCESS_TOKEN)
+    fun `Request Access Token Test`() = runBlocking {
+        registerTestUserWithRole(UserRole.VOLUNTEER, "volunteer@debug.mail", "volunteer")
+        assertAuthSuccess("volunteer@debug.mail", "volunteer")
+
+        val result = dataRepository.requestFreshAccessToken()
+
+        assert(result.data().isNotBlank())
     }
 }
