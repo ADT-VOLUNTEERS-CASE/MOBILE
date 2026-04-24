@@ -1,3 +1,5 @@
+package org.adt.data
+
 import org.adt.core.testFixtures.ArchRulesHelper
 import org.junit.jupiter.api.Test
 

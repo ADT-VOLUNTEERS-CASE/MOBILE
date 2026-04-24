@@ -23,7 +23,7 @@ class PersistenceRepositoryImpl @Inject constructor(
 ) : PersistenceRepository {
     companion object {
         private val KEY_TOKEN = stringPreferencesKey("accessToken")
-        private val KEY_REFRESH_TOKEN = stringPreferencesKey("refreshToken")
+        private val KEY_REFRESH_TOKEN = stringPreferencesKey("requestFreshAccessToken")
     }
 
     val tokenFlow: Flow<String?> = context.dataStore.data.map { prefs ->
