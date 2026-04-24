@@ -19,7 +19,7 @@ import org.adt.data.abstraction.PersistenceRepository
 import org.adt.data.repository.DataRepositoryImpl
 import org.adt.data.repository.RetrofitRepository
 import org.adt.domain.abstraction.DataRepository
-import org.junit.Assert.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import retrofit2.Response

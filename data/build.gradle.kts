@@ -69,6 +69,5 @@ dependencies{
 
     testImplementation(testFixtures(project(":core")))
 
-    testImplementation(libs.junit)
     testImplementation(libs.mockk)
 }
