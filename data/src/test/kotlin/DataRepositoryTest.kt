@@ -134,7 +134,7 @@ class DataRepositoryTest {
             coEvery { userInfo(any()) } answers {
                 if (authenticatedUser == null) {
                     Response.error(
-                        401,
+                        403,
                         """{}""".toResponseBody("application/json".toMediaType())
                     )
                 } else {
@@ -322,15 +322,6 @@ class DataRepositoryTest {
         assertAuthFailure("volunteer@debug.mail", "wrong")
 
         assert(!dataRepository.authorized())
-    }
-
-    @Test
-    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.REFRESH_TOKEN)
-    fun `Request New Access Token Succeeds Test`() = runBlocking {
-        registerTestUserWithRole(UserRole.VOLUNTEER, "volunteer@debug.mail", "volunteer")
-        assertAuthSuccess("volunteer@debug.mail", "volunteer")
-
-        assert(dataRepository.requestFreshAccessToken().isSuccessful)
     }
 
     @Test

@@ -26,7 +26,6 @@ class DataRepositoryImpl @Inject constructor(
         const val AUTHORIZED = "authorized"
         const val REGISTER = "register"
         const val AUTHENTICATE = "authenticate"
-        const val REFRESH_TOKEN = "refreshToken"
         const val DEAUTHENTICATE = "deauthenticate"
         const val FIND_LOCATION = "findLocation"
         const val USER_INFO = "userInfo"
