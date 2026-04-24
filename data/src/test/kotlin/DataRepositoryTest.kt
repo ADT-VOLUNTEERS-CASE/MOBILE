@@ -25,7 +25,9 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import retrofit2.Response
+import java.util.UUID
 import kotlin.random.Random
+import kotlin.uuid.Uuid
 
 data class MockUserModel(
     val email: String = "", val password: String = "", val role: UserRole = UserRole.VOLUNTEER
@@ -70,7 +72,7 @@ class DataRepositoryTest {
             coEvery { registerVolunteer(request = capture(registerRequestSlot)) } answers {
                 authenticatedUser = addCapturedUserToListAndRetrieve(UserRole.VOLUNTEER)
 
-                val refreshToken = Random.nextBytes(128).toString()
+                val refreshToken = UUID.randomUUID().toString()
                 tokenStore = tokenStore.copy(second = refreshToken)
 
                 Response.success(AuthResponse(refreshToken = refreshToken))
