@@ -121,7 +121,7 @@ class DataRepositoryTest {
 
                 if (authenticatedUser == null) {
                     Response.error(
-                        -1,
+                        401,
                         """{}""".toResponseBody("application/json".toMediaType())
                     )
                 } else {
