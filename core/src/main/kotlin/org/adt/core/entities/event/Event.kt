@@ -14,5 +14,5 @@ data class Event(
     val maxCapacity: Long,
     val dateTimestamp: String,
     val location: EventLocation,
-    val tags: List<Tag>,
-    )
+    val tags: List<Tag>
+)

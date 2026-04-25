@@ -1,10 +1,15 @@
 package org.adt.data.repository
 
 import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.ResponseBody
 import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.Location
 import org.adt.core.entities.UserRole
+import org.adt.core.entities.event.Cover
+import org.adt.core.entities.event.Event
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.EventRequest
 import org.adt.core.entities.request.FindLocationRequest
@@ -12,9 +17,12 @@ import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.response.ErrorResponse
 import org.adt.core.entities.response.EventResponse
+import org.adt.core.entities.response.FindEventRequest
+import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
 import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.abstraction.DataRepository
+import java.io.File
 import javax.inject.Inject
 
 internal class DataRepositoryImpl @Inject constructor(
@@ -29,6 +37,15 @@ internal class DataRepositoryImpl @Inject constructor(
         } catch (_: Exception) {
             null
         }
+    }
+
+    fun createMultipart(file: File): MultipartBody.Part {
+        val requestFile = file.asRequestBody("image/*".toMediaType())
+        return MultipartBody.Part.createFormData(
+            name = "file",
+            filename = file.name,
+            body = requestFile
+        )
     }
 
     override suspend fun ping(): GeneralResponse<String> {
@@ -175,6 +192,39 @@ internal class DataRepositoryImpl @Inject constructor(
         persistenceRepository.removeToken()
     }
 
+    //TODO: Need FIX
+    override suspend fun findEvent(name: String): GeneralResponse<List<Event>> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(
+            401,
+            "Not authorized"
+        )
+        val request = FindEventRequest(name)
+        val response = networkRepository.findEvent(token, 0, 10, request)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.body()!!.content)
+        }
+
+        if (response.code() == 403) {
+            val request = refreshToken()
+
+            if (request.isSuccessful) {
+                return findEvent(name)
+            }
+
+            val error = parseError(response.errorBody())
+            persistenceRepository.removeToken()
+
+            return GeneralResponse.failure(
+                response.code(),
+                error?.message ?: "HTTP ${response.code()}"
+            )
+        }
+
+        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+    }
+
+
     override suspend fun findLocation(address: String): GeneralResponse<List<Location>> {
         val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(
             401,
@@ -219,6 +269,57 @@ internal class DataRepositoryImpl @Inject constructor(
 
             if (request.isSuccessful) {
                 return userInfo()
+            }
+
+            val error = parseError(response.errorBody())
+            persistenceRepository.removeToken()
+
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+        }
+
+        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+    }
+
+    override suspend fun uploadCover(file: File): GeneralResponse<Cover> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+
+        val filePart = createMultipart(file)
+
+        val response = networkRepository.uploadCover(token, filePart)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.body()!!)
+        }
+
+        if (response.code() == 403) {
+            val request = refreshToken()
+
+            if (request.isSuccessful) {
+                return uploadCover(file)
+            }
+
+            val error = parseError(response.errorBody())
+            persistenceRepository.removeToken()
+
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+        }
+
+        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+    }
+
+    override suspend fun createUserEvent(eventId: Int): GeneralResponse<UserEventResponse> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val response = networkRepository.createUserEvent(token, eventId)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.body()!!)
+        }
+
+        if (response.code() == 403) {
+            val request = refreshToken()
+
+            if (request.isSuccessful) {
+                return createUserEvent(eventId)
             }
 
             val error = parseError(response.errorBody())

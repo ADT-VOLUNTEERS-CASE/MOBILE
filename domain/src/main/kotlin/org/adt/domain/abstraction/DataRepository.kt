@@ -3,8 +3,12 @@ package org.adt.domain.abstraction
 import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.Location
 import org.adt.core.entities.UserRole
+import org.adt.core.entities.event.Cover
+import org.adt.core.entities.event.Event
 import org.adt.core.entities.response.EventResponse
+import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
+import java.io.File
 
 interface DataRepository {
     suspend fun ping(): GeneralResponse<String>
@@ -29,10 +33,15 @@ interface DataRepository {
 
     suspend fun deauthenticate()
 
+    suspend fun findEvent(name: String): GeneralResponse<List<Event>>
+
     suspend fun findLocation(address: String): GeneralResponse<List<Location>>
 
     suspend fun userInfo(): GeneralResponse<UserResponse>
 
+    suspend fun uploadCover(file: File) : GeneralResponse<Cover>
+
+    suspend fun createUserEvent(eventId: Int): GeneralResponse<UserEventResponse>
 
     suspend fun getEvents(): GeneralResponse<EventResponse>
 

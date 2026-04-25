@@ -92,7 +92,7 @@ fun AdminScreenContent(
         Column(
             Modifier
                 .fillMaxSize()
-                .padding(horizontal = 40.dp).verticalScroll(rememberScrollState()),
+                .padding(horizontal = 40.dp),
             Arrangement.spacedBy(20.dp),
             Alignment.CenterHorizontally
         ) {
@@ -181,36 +181,9 @@ fun AdminScreenContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    "каталог мероприятий",
+                    "'-'",
                     style = VolunteersCaseTheme.typography.titleLarge
                 )
-                if (uiState.eventsListLoading) {
-                    CircularProgressIndicator()
-                } else {
-                    LazyVerticalGrid(
-                        GridCells.Fixed(2),
-                        Modifier
-                            .padding(top = 32.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        items(uiState.eventsList.take(4)) { event ->
-                            val (formattedTime, formattedDate) = formatEventDate(event.dateTimestamp)
-
-                            EventCard(
-                                Modifier,
-                                AllDescriptionEvent(
-                                    event.cover?.link ?: "",
-                                    event.name,
-                                    event.description,
-                                    formattedTime,
-                                    formattedDate
-                                )
-                            )
-                        }
-                    }
-                }
             }
         }
     }

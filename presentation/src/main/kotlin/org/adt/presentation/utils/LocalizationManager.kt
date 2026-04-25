@@ -16,7 +16,7 @@ object LocalizationManager {
             SUCCESS -> "Успешно!"
 
             BAD_REQUEST -> "Неверные данные"
-            ALREADY_EXISTS -> "Пользователь уже существует"
+            ALREADY_EXISTS -> "Уже существует"
 
             NO_INTERNET -> "Проверьте подключение к Сети"
 

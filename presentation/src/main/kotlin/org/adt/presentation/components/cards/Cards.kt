@@ -38,8 +38,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import org.adt.core.entities.AllDescriptionEvent
+import org.adt.core.entities.EventStatus
 import org.adt.presentation.R
 import org.adt.presentation.components.CustomLiteRoundedButton
+import org.adt.presentation.components.buttons.ButtonStyle
+import org.adt.presentation.components.buttons.CustomButton
 import org.adt.presentation.components.buttons.SquaredIconButton
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
@@ -438,7 +441,8 @@ fun AddEventCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
 @Composable
 fun EventCard(
     modifier: Modifier = Modifier,
-    allDescriptionEvent: AllDescriptionEvent
+    allDescriptionEvent: AllDescriptionEvent,
+    onClick: () -> Unit
 ) {
 
     val state = rememberScrollState()
@@ -446,8 +450,9 @@ fun EventCard(
     Box(
         modifier = modifier
             .height(190.dp)
-            .width(145.dp)
-            .background(color = Abyss, shape = RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(8.dp))
+            .background(color = Abyss)
+            .clickable(onClick = onClick)
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -527,8 +532,15 @@ fun EventCard(
 fun OverallDescriptionEventCard(
     modifier: Modifier = Modifier,
     allDescriptionEvent: AllDescriptionEvent,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
+    val buttonText = when {
+        !enabled -> "Вы записаны"
+        allDescriptionEvent.status != EventStatus.ONGOING -> "Завершено"
+        else -> "Приступить!"
+    }
+
     val state = rememberScrollState()
     Column(
         modifier = modifier
@@ -587,14 +599,16 @@ fun OverallDescriptionEventCard(
                 .height(61.dp)
                 .verticalScroll(state)
         )
-        CustomLiteRoundedButton(
-            modifier = Modifier.padding(
+
+        CustomButton(
+            text = buttonText, modifier = Modifier.padding(
                 start = 11.dp,
                 end = 10.dp,
                 top = 28.dp
             ),
-            text = "Приступить!",
-            onClick = onClick
+            style = ButtonStyle.Filled,
+            onClick = onClick,
+            enabled = allDescriptionEvent.status == EventStatus.ONGOING && enabled
         )
     }
 }
@@ -789,9 +803,10 @@ private fun EventCardPreview() {
             "Соседский книжный шкаф",
             "Создай в своём дворе библиотеку для всех желающих: поставь полку, делись книгами и поддерживай в ней порядок.",
             time = "13:40",
-            date = "01.01"
-        ),
-    )
+            date = "01.01",
+            EventStatus.ONGOING
+        )
+    ) {}
 
 }
 
@@ -843,7 +858,8 @@ private fun OverallDescriptionEventCardPreview() {
                 "Соседский книжный шкаф",
                 "Создай в своём дворе библиотеку для всех желающих: поставь полку, делись книгами и поддерживай в ней порядок.",
                 time = "13:40",
-                date = "01.01"
+                date = "01.01",
+                EventStatus.ONGOING
             )
         ) {}
     }

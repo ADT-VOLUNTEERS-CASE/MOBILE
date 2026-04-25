@@ -1,7 +1,9 @@
 package org.adt.data.repository
 
+import okhttp3.MultipartBody
 import org.adt.core.entities.Location
 import org.adt.core.entities.Tag
+import org.adt.core.entities.event.Cover
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.EventRequest
 import org.adt.core.entities.request.FindLocationRequest
@@ -10,16 +12,21 @@ import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.response.AuthResponse
 import org.adt.core.entities.response.EventResponse
+import org.adt.core.entities.response.FindEventRequest
 import org.adt.core.entities.response.FindLocationResponse
+import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.io.File
 
 interface RetrofitRepository {
     //---------------------
@@ -116,6 +123,34 @@ interface RetrofitRepository {
         @Body request: RefreshRequest
     ): Response<AuthResponse>
     //endregion
+
+    //---------------------------
+    //   user-event-controller
+    //---------------------------
+    //region user event controller content
+
+
+    /**
+     * SUCCESS:
+     *
+     *           201 | OK
+     *
+     * ERRORS:
+     *
+     *           403 | Forbidden (Expired Token)
+     *
+     *           404 | Does not exist
+     *
+     *           404 | Already exists or event's full
+     */
+    @POST("user-event/create/{eventId}")
+    suspend fun createUserEvent(
+        @Header("Authorization") auth: String,
+        @Path("eventId") eventId: Int,
+    ): Response<UserEventResponse>
+
+    //endregion
+
 
     //--------------------
     //   tag-controller
@@ -269,6 +304,25 @@ interface RetrofitRepository {
      *
      *           403 | Forbidden (Expired Token)
      */
+    @POST("event/search")
+    suspend fun findEvent(
+        @Header("Authorization") auth: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+        @Body request: FindEventRequest
+    ): Response<EventResponse>
+
+    /**
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           400 | Invalid data
+     *
+     *           403 | Forbidden (Expired Token)
+     */
     @GET("event/all")
     suspend fun getEvents(
         @Header("Authorization") auth: String,
@@ -304,7 +358,12 @@ interface RetrofitRepository {
     //----------------------
     //region cover controller content
 
-
+    @Multipart
+    @POST("cover/create")
+    suspend fun uploadCover(
+        @Header("Authorization") auth: String,
+        @Part file: MultipartBody.Part
+    ): Response<Cover>
 
     //endregion
 

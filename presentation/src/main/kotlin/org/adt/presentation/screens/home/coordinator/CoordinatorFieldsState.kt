@@ -1,5 +1,7 @@
 package org.adt.presentation.screens.home.coordinator
 
+import java.time.LocalDateTime
+
 data class CoordinatorFieldsState(
     val name: String = "",
     val status: String = "",
@@ -7,6 +9,7 @@ data class CoordinatorFieldsState(
     val coverId: Long = 0,
     val coordinatorId: Long = 0,
     val maxCapacity: Long = 0,
+    val selectedDateTime: LocalDateTime? = null,
     val dateTimestamp: String = "",
     val locationId: Long = 0,
     val tagIds: List<Long> = listOf()
