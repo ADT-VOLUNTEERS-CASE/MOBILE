@@ -13,7 +13,6 @@ import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
 import org.adt.core.entities.event.Event
 import org.adt.domain.abstraction.DataRepository
-import org.adt.presentation.utils.LocalizationManager.message
 import javax.inject.Inject
 
 @HiltViewModel

@@ -1,6 +1,5 @@
 package org.adt.presentation.screens.home.coordinator
 
-// УДАЛИТЕ импорт android.os.FileUtils
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.widget.Toast
@@ -43,7 +42,6 @@ import org.adt.presentation.components.TypingText
 import org.adt.presentation.components.buttons.ButtonStyle
 import org.adt.presentation.components.buttons.ButtonVariant
 import org.adt.presentation.components.buttons.CustomButton
-import org.adt.presentation.components.buttons.CustomTranslucentButton
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
@@ -269,34 +267,6 @@ object CoordinatorFileUtils {
         }
     }
 }
-
-@Composable
-fun showDateTimePicker(
-    context: android.content.Context,
-    onDateTimeSelected: (LocalDateTime) -> Unit
-) {
-    val calendar = Calendar.getInstance()
-
-    DatePickerDialog(
-        context,
-        { _, year, month, day ->
-            TimePickerDialog(
-                context,
-                { _, hour, minute ->
-                    val selectedDateTime = LocalDateTime.of(year, month + 1, day, hour, minute)
-                    onDateTimeSelected(selectedDateTime)
-                },
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
-                true
-            ).show()
-        },
-        calendar.get(Calendar.YEAR),
-        calendar.get(Calendar.MONTH),
-        calendar.get(Calendar.DAY_OF_MONTH)
-    ).show()
-}
-
 
 @Preview
 @Composable

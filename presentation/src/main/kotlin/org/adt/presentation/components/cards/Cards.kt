@@ -40,7 +40,6 @@ import coil.compose.AsyncImage
 import org.adt.core.entities.AllDescriptionEvent
 import org.adt.core.entities.EventStatus
 import org.adt.presentation.R
-import org.adt.presentation.components.CustomLiteRoundedButton
 import org.adt.presentation.components.buttons.ButtonStyle
 import org.adt.presentation.components.buttons.CustomButton
 import org.adt.presentation.components.buttons.SquaredIconButton

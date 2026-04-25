@@ -12,12 +12,8 @@ import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
 import org.adt.core.entities.Location
 import org.adt.domain.abstraction.DataRepository
-import org.adt.presentation.screens.register.RegisterFieldsState
-import org.adt.presentation.screens.register.RegisterState
 import org.adt.presentation.utils.LocalizationManager.message
 import java.io.File
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -93,7 +89,7 @@ class CoordinatorViewModel @Inject constructor(
             )
 
             if (response.isSuccessful) {
-                _uiState.update { CoordinatorState(createError = "Мероприятие создано!") }
+                _uiState.update { CoordinatorState(createError = "Мероприятие создано") }
                 _fieldsState.update { CoordinatorFieldsState() }
             } else {
                 _uiState.update { it.copy(isLoading = false, createError = response.message) }
