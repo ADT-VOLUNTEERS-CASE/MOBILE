@@ -12,7 +12,7 @@ import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.response.AuthResponse
 import org.adt.core.entities.response.EventResponse
-import org.adt.core.entities.response.FindEventRequest
+import org.adt.core.entities.request.FindEventRequest
 import org.adt.core.entities.response.FindLocationResponse
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse

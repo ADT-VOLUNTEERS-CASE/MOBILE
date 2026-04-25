@@ -1,12 +1,13 @@
 package org.adt.core.entities.event
 
 import kotlinx.serialization.Serializable
+import org.adt.core.entities.EventStatus
 import org.adt.core.entities.Tag
 
 @Serializable
 data class Event(
     val eventId: Long,
-    val status: String,
+    val status: EventStatus,
     val name: String,
     val description: String,
     val cover: Cover?,

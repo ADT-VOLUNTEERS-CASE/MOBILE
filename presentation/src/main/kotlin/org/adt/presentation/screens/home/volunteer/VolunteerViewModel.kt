@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -43,13 +44,16 @@ class VolunteerViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { it.copy(searchMode = true, searchModeLoading = true) }
 
-            val responseLocation = _dataRepository.findLocation(uiState.searchValue)
-            val responseEvent = _dataRepository.findEvent(uiState.searchValue)
+            val responseLocation = async { _dataRepository.findLocation(uiState.searchValue) }
+            val responseEvent = async { _dataRepository.findEvent(uiState.searchValue) }
 
-            val locations = if (responseLocation.isSuccessful) responseLocation.data() else emptyList()
-            val events = if (responseEvent.isSuccessful) responseEvent.data() else emptyList()
+            val locationsResp = responseLocation.await()
+            val eventsResp = responseEvent.await()
 
-            if (locations.isNotEmpty()) {
+            val locations = if (locationsResp.isSuccessful) locationsResp.data() else emptyList()
+            val events = if (eventsResp.isSuccessful) eventsResp.data() else emptyList()
+
+            if (locations.isNotEmpty() || events.isNotEmpty()) {
                 _uiState.update {
                     it.copy(
                         searchModeLoading = false,
@@ -75,10 +79,11 @@ class VolunteerViewModel @Inject constructor(
             val eventsResponse = _dataRepository.getEvents()
 
             if (eventsResponse.isSuccessful && userResponse.isSuccessful) {
-                val userEventsIds = userResponse.data().events.map { it.eventId}.toSet()
+                val userEventsIds = userResponse.data().events.map { it.eventId }.toSet()
                 val allEvents = eventsResponse.data().content
 
-                val sortedEvents = allEvents.sortedByDescending { userEventsIds.contains(it.eventId) }
+                val sortedEvents =
+                    allEvents.sortedByDescending { userEventsIds.contains(it.eventId) }
 
                 _uiState.update {
                     it.copy(
@@ -90,11 +95,8 @@ class VolunteerViewModel @Inject constructor(
                 return@launch
             }
 
-            populateFailure(
-                displayMessage = "Не удалось загрузить данные",
-                logMessage = "Failure: Invalid data",
-                tagSuffix = "Events"
-            )
+            _uiState.update { it.copy(eventsListLoading = false) }
+            Log.e("VolunteerViewModel::Events", "Failure: Invalid data")
         }
     }
 
@@ -115,9 +117,7 @@ class VolunteerViewModel @Inject constructor(
     }
 
     fun selectEvent(event: Event) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(selectedEvent = event, eventPicker = true) }
-        }
+        _uiState.update { it.copy(selectedEvent = event, eventPicker = true) }
     }
 
     fun deauthenticate(navigateAction: () -> Unit) {

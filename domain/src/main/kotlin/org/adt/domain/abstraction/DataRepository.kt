@@ -33,17 +33,17 @@ interface DataRepository {
 
     suspend fun deauthenticate()
 
-    suspend fun findEvent(name: String): GeneralResponse<List<Event>>
+    suspend fun findEvent(name: String, retried: Boolean= false): GeneralResponse<List<Event>>
 
     suspend fun findLocation(address: String): GeneralResponse<List<Location>>
 
     suspend fun userInfo(): GeneralResponse<UserResponse>
 
-    suspend fun uploadCover(file: File) : GeneralResponse<Cover>
+    suspend fun uploadCover(file: File,retried: Boolean = false): GeneralResponse<Cover>
 
-    suspend fun createUserEvent(eventId: Int): GeneralResponse<UserEventResponse>
+    suspend fun createUserEvent(eventId: Int,retried: Boolean= false): GeneralResponse<UserEventResponse>
 
-    suspend fun getEvents(): GeneralResponse<EventResponse>
+    suspend fun getEvents(retried: Boolean= false): GeneralResponse<EventResponse>
 
     suspend fun createEvent(
         name: String,
@@ -54,7 +54,7 @@ interface DataRepository {
         maxCapacity: Long,
         dateTimestamp: String,
         locationId: Long,
-        tagIds: List<Long>
+        tagIds: List<Long>,retried: Boolean= false
     ): GeneralResponse<Int>
 
 }

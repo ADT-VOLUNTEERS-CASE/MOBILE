@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class EventLocation(
     val locationId: Long,
     val address: String,
-    val latitude: Float,
-    val longitude: Float
+    val latitude: Double,
+    val longitude: Double
 )
 

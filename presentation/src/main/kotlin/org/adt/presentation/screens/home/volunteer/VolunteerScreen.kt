@@ -33,7 +33,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import org.adt.core.entities.AllDescriptionEvent
-import org.adt.core.entities.EventStatus
 import org.adt.core.entities.UserRole
 import org.adt.core.entities.event.Event
 import org.adt.presentation.components.CustomBottomBar
@@ -104,8 +103,6 @@ fun VolunteerScreenContent(
             onToastShown.invoke()
         }
     }
-
-    val selectedEvent = uiState.selectedEvent
 
     BackHandler(uiState.searchMode, searchModeChangedAction)
 
@@ -236,11 +233,7 @@ fun VolunteerScreenContent(
                                                 event.description,
                                                 formattedTime,
                                                 formattedDate,
-                                                when (event.status) {
-                                                    "ONGOING" -> EventStatus.ONGOING
-                                                    "IN_PROGRESS" -> EventStatus.IN_PROGRESS
-                                                    else -> EventStatus.COMPLETED
-                                                }
+                                                event.status
                                             )
                                         ) { eventPickerAction(event) }
                                     }
@@ -273,6 +266,7 @@ fun VolunteerScreenContent(
     }
 
     if (uiState.eventPicker && uiState.selectedEvent != null) {
+        val selectedEvent = uiState.selectedEvent
         val (formattedTime, formattedDate) = formatEventDate(selectedEvent.dateTimestamp)
         val isAlreadyRegistered = uiState.selectedEvent.let {
             uiState.registeredEventIds.contains(it.eventId.toLong())
@@ -287,11 +281,7 @@ fun VolunteerScreenContent(
                         selectedEvent.description,
                         formattedTime,
                         formattedDate,
-                        when (selectedEvent.status) {
-                            "ONGOING" -> EventStatus.ONGOING
-                            "IN_PROGRESS" -> EventStatus.IN_PROGRESS
-                            else -> EventStatus.COMPLETED
-                        }
+                        selectedEvent.status
                     ), !isAlreadyRegistered
                 )
                 { eventPickerButtonAction(selectedEvent.eventId.toInt()) }

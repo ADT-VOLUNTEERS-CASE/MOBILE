@@ -17,7 +17,7 @@ import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.response.ErrorResponse
 import org.adt.core.entities.response.EventResponse
-import org.adt.core.entities.response.FindEventRequest
+import org.adt.core.entities.request.FindEventRequest
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
 import org.adt.data.abstraction.PersistenceRepository
@@ -192,8 +192,9 @@ internal class DataRepositoryImpl @Inject constructor(
         persistenceRepository.removeToken()
     }
 
-    //TODO: Need FIX
-    override suspend fun findEvent(name: String): GeneralResponse<List<Event>> {
+    override suspend fun findEvent(
+        name: String, retried: Boolean
+    ): GeneralResponse<List<Event>> {
         val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(
             401,
             "Not authorized"
@@ -205,11 +206,10 @@ internal class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.success(response.body()!!.content)
         }
 
-        if (response.code() == 403) {
-            val request = refreshToken()
-
-            if (request.isSuccessful) {
-                return findEvent(name)
+        if (response.code() == 403 && !retried) {
+            val refresh = refreshToken()
+            if (refresh.isSuccessful) {
+                return findEvent(name, retried = true)
             }
 
             val error = parseError(response.errorBody())
@@ -280,7 +280,7 @@ internal class DataRepositoryImpl @Inject constructor(
         return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
     }
 
-    override suspend fun uploadCover(file: File): GeneralResponse<Cover> {
+    override suspend fun uploadCover(file: File, retried: Boolean): GeneralResponse<Cover> {
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
 
         val filePart = createMultipart(file)
@@ -291,11 +291,10 @@ internal class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.success(response.body()!!)
         }
 
-        if (response.code() == 403) {
-            val request = refreshToken()
-
-            if (request.isSuccessful) {
-                return uploadCover(file)
+        if (response.code() == 403 && !retried) {
+            val refresh = refreshToken()
+            if (refresh.isSuccessful) {
+                return uploadCover(file, retried = true)
             }
 
             val error = parseError(response.errorBody())
@@ -307,7 +306,10 @@ internal class DataRepositoryImpl @Inject constructor(
         return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
     }
 
-    override suspend fun createUserEvent(eventId: Int): GeneralResponse<UserEventResponse> {
+    override suspend fun createUserEvent(
+        eventId: Int,
+        retried: Boolean
+    ): GeneralResponse<UserEventResponse> {
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
         val response = networkRepository.createUserEvent(token, eventId)
 
@@ -315,11 +317,10 @@ internal class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.success(response.body()!!)
         }
 
-        if (response.code() == 403) {
-            val request = refreshToken()
-
-            if (request.isSuccessful) {
-                return createUserEvent(eventId)
+        if (response.code() == 403 && !retried) {
+            val refresh = refreshToken()
+            if (refresh.isSuccessful) {
+                return createUserEvent(eventId, retried = true)
             }
 
             val error = parseError(response.errorBody())
@@ -332,7 +333,7 @@ internal class DataRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun getEvents(): GeneralResponse<EventResponse> {
+    override suspend fun getEvents(retried: Boolean): GeneralResponse<EventResponse> {
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
         val response = networkRepository.getEvents(token, 0, 10)
 
@@ -340,11 +341,10 @@ internal class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.success(response.body()!!)
         }
 
-        if (response.code() == 403) {
-            val request = refreshToken()
-
-            if (request.isSuccessful) {
-                return getEvents()
+        if (response.code() == 403 && !retried) {
+            val refresh = refreshToken()
+            if (refresh.isSuccessful) {
+                return getEvents(retried = true)
             }
 
             val error = parseError(response.errorBody())
@@ -365,7 +365,7 @@ internal class DataRepositoryImpl @Inject constructor(
         maxCapacity: Long,
         dateTimestamp: String,
         locationId: Long,
-        tagIds: List<Long>
+        tagIds: List<Long>, retried: Boolean
     ): GeneralResponse<Int> {
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
         val request = EventRequest(
@@ -385,10 +385,9 @@ internal class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.success(response.code())
         }
 
-        if (response.code() == 403) {
-            val request = refreshToken()
-
-            if (request.isSuccessful) {
+        if (response.code() == 403 && !retried) {
+            val refresh = refreshToken()
+            if (refresh.isSuccessful) {
                 return createEvent(
                     name,
                     status,
@@ -398,7 +397,8 @@ internal class DataRepositoryImpl @Inject constructor(
                     maxCapacity,
                     dateTimestamp,
                     locationId,
-                    tagIds
+                    tagIds,
+                    retried = true
                 )
             }
 

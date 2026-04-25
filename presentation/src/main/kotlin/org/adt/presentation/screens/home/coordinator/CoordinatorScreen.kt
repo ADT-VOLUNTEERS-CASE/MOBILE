@@ -24,6 +24,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -93,7 +94,7 @@ fun CoordinatorScreenContent(
     animationOverride: Boolean = false
 ) {
     val context = LocalContext.current
-    val visualFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
+    val visualFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm") }
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -145,7 +146,11 @@ fun CoordinatorScreenContent(
             ) {
 
 
-                Text("Создание\nмероприятия", style = VolunteersCaseTheme.typography.titleLarge.copy(textAlign = TextAlign.Center), modifier = Modifier.fillMaxWidth())
+                Text(
+                    "Создание\nмероприятия",
+                    style = VolunteersCaseTheme.typography.titleLarge.copy(textAlign = TextAlign.Center),
+                    modifier = Modifier.fillMaxWidth()
+                )
 
                 CustomTextField(Modifier, "Название") { updateFields(fields.copy(name = it)) }
 
@@ -170,15 +175,34 @@ fun CoordinatorScreenContent(
                     onClick = {
                         // Вызываем встроенный Android UI
                         val calendar = Calendar.getInstance()
-                        DatePickerDialog(context, { _, year, month, day ->
-                            TimePickerDialog(context, { _, hour, minute ->
-                                val dt = LocalDateTime.of(year, month + 1, day, hour, minute)
-                                updateFields(fields.copy(
-                                    selectedDateTime = dt,
-                                    dateTimestamp = dt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"))
-                                ))
-                            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show()
-                        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
+                        DatePickerDialog(
+                            context,
+                            { _, year, month, day ->
+                                TimePickerDialog(
+                                    context,
+                                    { _, hour, minute ->
+                                        val dt =
+                                            LocalDateTime.of(year, month + 1, day, hour, minute)
+                                        updateFields(
+                                            fields.copy(
+                                                selectedDateTime = dt,
+                                                dateTimestamp = dt.format(
+                                                    DateTimeFormatter.ofPattern(
+                                                        "yyyy-MM-dd'T'HH:mm:ss"
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    },
+                                    calendar.get(Calendar.HOUR_OF_DAY),
+                                    calendar.get(Calendar.MINUTE),
+                                    true
+                                ).show()
+                            },
+                            calendar.get(Calendar.YEAR),
+                            calendar.get(Calendar.MONTH),
+                            calendar.get(Calendar.DAY_OF_MONTH)
+                        ).show()
                     },
                     style = ButtonStyle.Filled
                 )
@@ -221,7 +245,7 @@ fun CoordinatorScreenContent(
 
                 Spacer(Modifier.height(32.dp))
 
-                CustomButton (
+                CustomButton(
                     text = "Опубликовать",
                     enabled = fields.name.isNotBlank() &&
                             uiState.selectedLocation != null &&
@@ -257,9 +281,10 @@ fun CoordinatorScreenContent(
 object CoordinatorFileUtils {
     fun getFileFromUri(context: android.content.Context, uri: android.net.Uri): File? {
         return try {
-            val inputStream = context.contentResolver.openInputStream(uri) ?: return null
             val file = File(context.cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
-            file.outputStream().use { inputStream.copyTo(it) }
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                file.outputStream().use { output -> input.copyTo(output) }
+            } ?: return null
             file
         } catch (e: Exception) {
             e.printStackTrace()

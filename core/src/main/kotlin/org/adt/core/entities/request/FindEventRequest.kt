@@ -1,4 +1,4 @@
-package org.adt.core.entities.response
+package org.adt.core.entities.request
 
 import kotlinx.serialization.Serializable
 

@@ -1,7 +1,6 @@
 package org.adt.presentation.components.cards
 
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -443,7 +442,6 @@ fun EventCard(
     allDescriptionEvent: AllDescriptionEvent,
     onClick: () -> Unit
 ) {
-
     val state = rememberScrollState()
 
     Box(
@@ -457,27 +455,18 @@ fun EventCard(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (allDescriptionEvent.image.isEmpty()) {
-                Image(
-                    painter = painterResource(id = R.drawable.baseimage),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(top = 5.dp)
-                        .clip(shape = RoundedCornerShape(8.dp))
-                        .width(134.dp)
-                        .height(125.dp),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                AsyncImage(
-                    allDescriptionEvent.image, "event cover", Modifier
-                        .padding(top = 5.dp)
-                        .clip(shape = RoundedCornerShape(8.dp))
-                        .width(134.dp)
-                        .height(125.dp),
-                    contentScale = ContentScale.Crop
-                )
-            }
+            AsyncImage(
+                model = allDescriptionEvent.image,
+                contentDescription = "event cover",
+                modifier = Modifier
+                    .padding(top = 5.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .width(134.dp)
+                    .height(125.dp),
+                error = painterResource(R.drawable.baseimage),
+                fallback = painterResource(R.drawable.baseimage),
+                contentScale = ContentScale.Crop
+            )
 
             Text(
                 text = allDescriptionEvent.title,
@@ -556,25 +545,15 @@ fun OverallDescriptionEventCard(
                 .background(color = Abyss, shape = RoundedCornerShape(17.dp)),
             contentAlignment = Alignment.Center
         ) {
-            if (allDescriptionEvent.image.isEmpty()) {
-                Image(
-                    painter = painterResource(id = R.drawable.baseimage),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .clip(shape = RoundedCornerShape(17.dp))
-                        .width(279.dp)
-                        .height(259.dp),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                AsyncImage(
-                    allDescriptionEvent.image, "event cover", Modifier
-                        .clip(shape = RoundedCornerShape(17.dp))
-                        .width(279.dp)
-                        .height(259.dp),
-                    contentScale = ContentScale.Crop
-                )
-            }
+            AsyncImage(
+                allDescriptionEvent.image, "event cover", Modifier
+                    .clip(shape = RoundedCornerShape(17.dp))
+                    .width(279.dp)
+                    .height(259.dp),
+                contentScale = ContentScale.Crop,
+                fallback = painterResource(id = R.drawable.baseimage),
+                error = painterResource(id = R.drawable.baseimage)
+            )
         }
         Text(
             text = (if (allDescriptionEvent.title == "") stringResource(R.string.base_title) else allDescriptionEvent.title),

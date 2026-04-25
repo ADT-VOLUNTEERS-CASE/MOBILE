@@ -85,7 +85,7 @@ class CoordinatorViewModel @Inject constructor(
                 maxCapacity = fields.maxCapacity,
                 dateTimestamp = fields.dateTimestamp,
                 locationId = state.selectedLocation.locationId,
-                tagIds = fields.tagIds
+                tagIds = fields.tagIds, false
             )
 
             if (response.isSuccessful) {
