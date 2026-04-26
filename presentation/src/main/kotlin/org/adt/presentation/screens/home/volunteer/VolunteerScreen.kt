@@ -17,8 +17,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -36,15 +39,19 @@ import org.adt.core.entities.AllDescriptionEvent
 import org.adt.core.entities.UserRole
 import org.adt.core.entities.event.Event
 import org.adt.presentation.components.CustomBottomBar
+import org.adt.presentation.components.CustomCalendar
 import org.adt.presentation.components.CustomSearchTextField
 import org.adt.presentation.components.TypingText
 import org.adt.presentation.components.cards.EventCard
+import org.adt.presentation.components.cards.EventSearchCard
 import org.adt.presentation.components.cards.OverallDescriptionEventCard
 import org.adt.presentation.components.cards.formatEventDate
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
+import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Milk
+import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
 
 
@@ -77,10 +84,14 @@ fun VolunteerScreen(
             viewModel.onEventPickerChange(false)
         },
         eventPickerButtonAction = { viewModel.createUserEvent(it) },
-        onToastShown = { viewModel.clearEventError() }
+        onToastShown = { viewModel.clearEventError() },
+        onCalendarToggleAction = { viewModel.onCalendarToggle(it) },
+        onLocationClickAction = { viewModel.selectLocationAndFilterEvents(it) },
+        onResetFilterAction = { viewModel.resetLocationFilter(returnToSearch = true) }
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VolunteerScreenContent(
     uiState: VolunteerState = VolunteerState(),
@@ -91,11 +102,16 @@ fun VolunteerScreenContent(
     bottomBarNavigateAction: (destination: Destinations) -> Unit = {},
     eventPickerAction: (event: Event) -> Unit = {},
     eventPickerChangeAction: () -> Unit = {},
-    eventPickerButtonAction: (Int) -> Unit = {},
+    eventPickerButtonAction: (Long) -> Unit = {},
     onToastShown: () -> Unit = {},
+    onCalendarToggleAction: (show: Boolean) -> Unit = {},
+    onLocationClickAction: (String) -> Unit = {},
+    onResetFilterAction: () -> Unit = {},
     animationOverride: Boolean = false,
 ) {
     val context = LocalContext.current
+    val sheetState = rememberModalBottomSheetState()
+
 
     LaunchedEffect(uiState.eventError) {
         uiState.eventError?.let { error ->
@@ -104,7 +120,9 @@ fun VolunteerScreenContent(
         }
     }
 
-    BackHandler(uiState.searchMode, searchModeChangedAction)
+    BackHandler(uiState.isLocationFiltering, onResetFilterAction)
+
+    BackHandler(uiState.searchMode && !uiState.isLocationFiltering, searchModeChangedAction)
 
     BackHandler(uiState.eventPicker, eventPickerChangeAction)
 
@@ -112,7 +130,6 @@ fun VolunteerScreenContent(
         Modifier
             .fillMaxSize()
             .background(Abyss)
-            .padding(vertical = 15.dp)
     ) {
         Column(
             Modifier
@@ -146,7 +163,10 @@ fun VolunteerScreenContent(
 
                 if (uiState.searchMode) {
                     if (uiState.searchModeLoading) {
-                        CircularProgressIndicator()
+                        CircularProgressIndicator(
+                            modifier = Modifier.padding(top = 32.dp),
+                            color = Mint
+                        )
                     } else if (uiState.searchModeListEvent.isNotEmpty() || uiState.searchModeListLocation.isNotEmpty()) {
                         Column(Modifier.fillMaxWidth()) {
                             if (uiState.searchModeListEvent.isNotEmpty()) {
@@ -157,11 +177,11 @@ fun VolunteerScreenContent(
                                     )
                                 )
                                 uiState.searchModeListEvent.forEach { data ->
-                                    Text(
-                                        data.name,
-                                        color = Arctic,
-                                        modifier = Modifier.padding(vertical = 4.dp)
-                                    )
+                                    EventSearchCard(
+                                        Modifier,
+                                        data.cover?.link,
+                                        data.name
+                                    ) { eventPickerAction(data) }
                                 }
                             }
                             if (uiState.searchModeListLocation.isNotEmpty()) {
@@ -173,11 +193,9 @@ fun VolunteerScreenContent(
                                     )
                                 )
                                 uiState.searchModeListLocation.forEach { data ->
-                                    Text(
-                                        data.address,
-                                        color = Arctic,
-                                        modifier = Modifier.padding(vertical = 4.dp)
-                                    )
+                                    TextButton(onClick = { onLocationClickAction(data.address) }) {
+                                        Text(data.address, color = Arctic)
+                                    }
                                 }
                             }
                         }
@@ -190,13 +208,6 @@ fun VolunteerScreenContent(
                             )
                         )
                     }
-                    Text(
-                        uiState.searchModeResult,
-                        style = VolunteersCaseTheme.typography.titleMedium.copy(
-                            Arctic,
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
                 } else {
                     Column(
                         Modifier
@@ -206,22 +217,44 @@ fun VolunteerScreenContent(
                             .padding(horizontal = 10.dp, vertical = 20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(
-                            "Каталог мероприятий",
-                            style = VolunteersCaseTheme.typography.titleLarge
-                        )
+                        val displayEvents = if (uiState.isLocationFiltering) uiState.filteredEventsByLocation else uiState.eventsList
+                        val title = if (uiState.isLocationFiltering) "События: ${uiState.selectedLocationAddress}" else "Каталог мероприятий"
+
+                        Column(
+                            Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                title,
+                                style = VolunteersCaseTheme.typography.titleLarge
+                            )
+                            if (uiState.isLocationFiltering) {
+                                TextButton(onClick = onResetFilterAction) {
+                                    Text("Сбросить", color = Mint)
+                                }
+                            } else {
+                                TextButton(onClick = { onCalendarToggleAction(true) }) {
+                                    Text("Мой календарь", color = Mint)
+                                }
+                            }
+                        }
+
                         if (uiState.eventsListLoading) {
-                            CircularProgressIndicator()
+                            CircularProgressIndicator(
+                                modifier = Modifier.padding(top = 32.dp),
+                                color = Mint
+                            )
                         } else {
                             FlowRow(
                                 modifier = Modifier
-                                    .padding(top = 32.dp)
+                                    .padding(top = 10.dp)
                                     .fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalArrangement = Arrangement.spacedBy(10.dp),
                                 maxItemsInEachRow = 2
                             ) {
-                                uiState.eventsList.forEach { event ->
+                                displayEvents.forEach { event ->
                                     val (formattedTime, formattedDate) = formatEventDate(event.dateTimestamp)
 
                                     Box(Modifier.fillMaxWidth(0.48f)) {
@@ -239,19 +272,24 @@ fun VolunteerScreenContent(
                                     }
                                 }
                             }
+
+                            if (displayEvents.isEmpty() && uiState.isLocationFiltering) {
+                                Text("В этой локации пока нет запланированных дел", color = Lagoon, modifier = Modifier.padding(top = 20.dp))
+                            }
                         }
                     }
-                }
-            }
+                    TextButton(logoutAction, contentPadding = PaddingValues(2.dp)) {
+                        Text(
+                            "Выйти",
+                            style = VolunteersCaseTheme.typography.titleMedium.copy(
+                                Arctic,
+                                fontWeight = FontWeight.Normal
+                            )
+                        )
+                    }
 
-            TextButton(logoutAction, contentPadding = PaddingValues(2.dp)) {
-                Text(
-                    "Выйти",
-                    style = VolunteersCaseTheme.typography.titleMedium.copy(
-                        Arctic,
-                        fontWeight = FontWeight.Normal
-                    )
-                )
+                    Spacer(Modifier.height(100.dp))
+                }
             }
         }
     }
@@ -259,7 +297,7 @@ fun VolunteerScreenContent(
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
         CustomBottomBar(
             Modifier
-                .padding(horizontal = 40.dp)
+                .padding(horizontal = 30.dp)
                 .padding(bottom = 15.dp),
             UserRole.VOLUNTEER, Destinations.VolunteerHome, bottomBarNavigateAction
         )
@@ -269,7 +307,7 @@ fun VolunteerScreenContent(
         val selectedEvent = uiState.selectedEvent
         val (formattedTime, formattedDate) = formatEventDate(selectedEvent.dateTimestamp)
         val isAlreadyRegistered = uiState.selectedEvent.let {
-            uiState.registeredEventIds.contains(it.eventId.toLong())
+            uiState.registeredEventIds.contains(it.eventId)
         }
 
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -284,7 +322,42 @@ fun VolunteerScreenContent(
                         selectedEvent.status
                     ), !isAlreadyRegistered
                 )
-                { eventPickerButtonAction(selectedEvent.eventId.toInt()) }
+                { eventPickerButtonAction(selectedEvent.eventId) }
+            }
+        }
+    }
+
+
+    if (uiState.showCalendar) {
+        ModalBottomSheet(
+            onDismissRequest = { onCalendarToggleAction(false) },
+            sheetState = sheetState,
+            containerColor = Arctic,
+            scrimColor = Abyss.copy(alpha = 0.5f),
+            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp), dragHandle = {
+
+            }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 40.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    text = "Календарь",
+                    style = VolunteersCaseTheme.typography.titleLarge,
+                    modifier = Modifier.padding(top = 10.dp)
+                )
+
+                CustomCalendar(
+                    eventsByDate = uiState.userEventsByDate,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(Modifier.height(100.dp))
             }
         }
     }

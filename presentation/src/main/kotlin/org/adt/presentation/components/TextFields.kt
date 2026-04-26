@@ -13,6 +13,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -49,13 +51,11 @@ fun CustomTextField(
     //isError: Boolean = false,
     onValueChange: (String) -> Unit
 ) {
-    var textFieldValue by remember { mutableStateOf(value) }
     var isPasswordVisible by remember { mutableStateOf(false) }
 
     TextField(
-        textFieldValue,
+        value,
         {
-            textFieldValue = it
             onValueChange(it)
         },
         modifier
@@ -78,7 +78,8 @@ fun CustomTextField(
             unfocusedLabelColor = Void,
             focusedLabelColor = Void.copy(0.05f),
             unfocusedIndicatorColor = Graphite.copy(0.05f),
-            focusedIndicatorColor = Graphite
+            focusedIndicatorColor = Graphite,
+            selectionColors = TextSelectionColors(Graphite, Graphite.copy(0.2f))
         ), trailingIcon = {
 //            if (type == "password") {
 //                IconButton({ isPasswordVisible = !isPasswordVisible }, Modifier.size(24.dp)) {
@@ -106,13 +107,11 @@ fun CustomSearchTextField(
     onValueChange: (String) -> Unit,
     onConfirm: (String) -> Unit
 ) {
-    var textFieldValue by remember { mutableStateOf(value) }
     val focusManager = LocalFocusManager.current
 
     BasicTextField(
-        textFieldValue,
+        value,
         {
-            textFieldValue = it
             onValueChange(it)
         },
         modifier
@@ -127,7 +126,7 @@ fun CustomSearchTextField(
         keyboardActions = KeyboardActions(
             onSearch = {
                 focusManager.clearFocus()
-                onConfirm(textFieldValue)
+                onConfirm(value)
             }
         ),
         decorationBox = { innerTextField ->
@@ -140,7 +139,7 @@ fun CustomSearchTextField(
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Box {
-                    if (textFieldValue.isEmpty()) {
+                    if (value.isEmpty()) {
                         Text(
                             label,
                             style = VolunteersCaseTheme.typography.titleMedium.copy(Silver)

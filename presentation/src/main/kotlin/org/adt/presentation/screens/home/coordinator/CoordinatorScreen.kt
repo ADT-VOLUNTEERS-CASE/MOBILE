@@ -1,7 +1,5 @@
 package org.adt.presentation.screens.home.coordinator
 
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,10 +15,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -47,11 +59,16 @@ import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
+import org.adt.presentation.theme.Grey
+import org.adt.presentation.theme.Lagoon
+import org.adt.presentation.theme.Mint
+import org.adt.presentation.theme.Void
 import org.adt.presentation.theme.VolunteersCaseTheme
 import java.io.File
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Calendar
 
 @Composable
 fun CoordinatorScreen(
@@ -76,10 +93,13 @@ fun CoordinatorScreen(
                     popUpTo(navController.graph.id) { inclusive = true }
                 }
             }
-        }
+        },
+        setShowDatePicker = { viewModel.setShowDatePicker(it) },
+        setShowTimePicker = { viewModel.setShowTimePicker(it) },
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CoordinatorScreenContent(
     uiState: CoordinatorState = CoordinatorState(),
@@ -91,6 +111,8 @@ fun CoordinatorScreenContent(
     createAction: () -> Unit = {},
     clearMessage: () -> Unit = {},
     logoutAction: () -> Unit = {},
+    setShowDatePicker: (Boolean) -> Unit = {},
+    setShowTimePicker: (Boolean) -> Unit = {},
     animationOverride: Boolean = false
 ) {
     val context = LocalContext.current
@@ -112,11 +134,125 @@ fun CoordinatorScreenContent(
         }
     }
 
+    if (uiState.showDatePicker) {
+        val datePickerState = rememberDatePickerState(
+            selectableDates = object : SelectableDates {
+                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                    return utcTimeMillis >= System.currentTimeMillis() - 86400000L
+                }
+            }
+        )
+        DatePickerDialog(
+            onDismissRequest = { setShowDatePicker(false) },
+            confirmButton = {
+                TextButton(onClick = {
+                    val selectedDate = datePickerState.selectedDateMillis?.let {
+                        Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
+                    }
+                    if (selectedDate != null) {
+                        val currentDt = fields.selectedDateTime ?: LocalDateTime.now()
+                        updateFields(fields.copy(selectedDateTime = selectedDate.atTime(currentDt.toLocalTime())))
+                        setShowDatePicker(false)
+                        setShowTimePicker(true)
+                    }
+                }) { Text("ОК", color = Mint) }
+            },
+            dismissButton = {
+                TextButton(onClick = { setShowDatePicker(false) }) {
+                    Text(
+                        "Отмена",
+                        color = Arctic
+                    )
+                }
+            },
+            colors = DatePickerDefaults.colors(containerColor = Abyss.copy(0.6f))
+        ) {
+            DatePicker(
+                state = datePickerState,
+                colors = DatePickerDefaults.colors(
+                    containerColor = Arctic,
+                    titleContentColor = Graphite,
+                    headlineContentColor = Graphite,
+                    dividerColor = Graphite.copy(0.4f),
+                    weekdayContentColor = Graphite,
+                    dayContentColor = Graphite,
+                    selectedDayContainerColor = Lagoon,
+                    selectedDayContentColor = Void,
+                    todayContentColor = Lagoon,
+                    todayDateBorderColor = Color.Transparent,
+                    dateTextFieldColors = TextFieldDefaults.colors(
+                        focusedContainerColor = Arctic,
+                        unfocusedContainerColor = Arctic,
+                        focusedTextColor = Void,
+                        unfocusedTextColor = Grey,
+                        cursorColor = Graphite,
+                        unfocusedIndicatorColor = Graphite,
+                        focusedIndicatorColor = Graphite,
+                        selectionColors = TextSelectionColors(Graphite, Graphite.copy(0.2f))
+                    )
+                )
+            )
+        }
+    }
+
+    if (uiState.showTimePicker) {
+        val timePickerState = rememberTimePickerState()
+        AlertDialog(
+            onDismissRequest = { setShowTimePicker(false) },
+            confirmButton = {
+                TextButton(onClick = {
+                    val date = fields.selectedDateTime?.toLocalDate() ?: LocalDateTime.now().toLocalDate()
+                    val finalDateTime = date.atTime(timePickerState.hour, timePickerState.minute)
+
+                    if (finalDateTime.isBefore(LocalDateTime.now())) {
+                        Toast.makeText(context, "Время уже прошло!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        updateFields(
+                            fields.copy(
+                                selectedDateTime = finalDateTime,
+                                dateTimestamp = finalDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"))
+                            )
+                        )
+                        setShowTimePicker(false)
+                    }
+                }) { Text("ОК", color = Lagoon) }
+            },
+            dismissButton = {
+                TextButton(onClick = { setShowTimePicker(false) }) {
+                    Text(
+                        "Отмена",
+                        color = Arctic
+                    )
+                }
+            },
+            text = {
+                TimePicker(
+                    state = timePickerState,
+                    colors = TimePickerDefaults.colors(
+                        clockDialColor = Graphite.copy(0.9f),
+                        clockDialSelectedContentColor = Abyss,
+                        clockDialUnselectedContentColor = Arctic,
+                        selectorColor = Mint,
+                        periodSelectorSelectedContainerColor = Mint,
+                        periodSelectorBorderColor = Graphite.copy(0.8f),
+                        periodSelectorSelectedContentColor = Lagoon,
+                        periodSelectorUnselectedContentColor = Void,
+                        periodSelectorUnselectedContainerColor = Arctic,
+                        timeSelectorSelectedContainerColor = Mint,
+                        timeSelectorSelectedContentColor = Abyss,
+                        timeSelectorUnselectedContentColor = Void,
+                        timeSelectorUnselectedContainerColor = Graphite.copy(0.1f)
+                    )
+                )
+            },
+            containerColor = Arctic
+        )
+    }
+
     Box(
         Modifier
             .fillMaxSize()
             .background(Abyss)
-            .padding(vertical = 15.dp)
     ) {
         Column(
             Modifier
@@ -126,9 +262,8 @@ fun CoordinatorScreenContent(
             Arrangement.spacedBy(20.dp),
             Alignment.CenterHorizontally
         ) {
-
             TypingText(
-                Modifier,
+                Modifier.padding(top = 100.dp),
                 text = "Твоё следующее доброе дело ждёт своего момента",
                 charDelay = if (animationOverride) 0L else 40L,
                 animationOverride = animationOverride
@@ -136,7 +271,6 @@ fun CoordinatorScreenContent(
 
             Column(
                 Modifier
-                    .padding(top = 50.dp)
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
                     .background(VolunteersCaseTheme.colors.secondaryBackground)
@@ -172,38 +306,7 @@ fun CoordinatorScreenContent(
                     text = if (fields.selectedDateTime != null)
                         "Дата: ${fields.selectedDateTime.format(visualFormatter)}"
                     else "Выбрать дату и время",
-                    onClick = {
-                        // Вызываем встроенный Android UI
-                        val calendar = Calendar.getInstance()
-                        DatePickerDialog(
-                            context,
-                            { _, year, month, day ->
-                                TimePickerDialog(
-                                    context,
-                                    { _, hour, minute ->
-                                        val dt =
-                                            LocalDateTime.of(year, month + 1, day, hour, minute)
-                                        updateFields(
-                                            fields.copy(
-                                                selectedDateTime = dt,
-                                                dateTimestamp = dt.format(
-                                                    DateTimeFormatter.ofPattern(
-                                                        "yyyy-MM-dd'T'HH:mm:ss"
-                                                    )
-                                                )
-                                            )
-                                        )
-                                    },
-                                    calendar.get(Calendar.HOUR_OF_DAY),
-                                    calendar.get(Calendar.MINUTE),
-                                    true
-                                ).show()
-                            },
-                            calendar.get(Calendar.YEAR),
-                            calendar.get(Calendar.MONTH),
-                            calendar.get(Calendar.DAY_OF_MONTH)
-                        ).show()
-                    },
+                    onClick = { setShowDatePicker(true) },
                     style = ButtonStyle.Filled
                 )
 
@@ -225,7 +328,10 @@ fun CoordinatorScreenContent(
 
                 if (uiState.isSearchMode) {
                     if (uiState.searchLoading) {
-                        CircularProgressIndicator(Modifier.padding(8.dp))
+                        CircularProgressIndicator(
+                            modifier = Modifier.padding(top = 32.dp),
+                            color = Mint
+                        )
                     } else {
                         uiState.searchResults.forEach { location ->
                             TextButton(onClick = { onSelectLocation(location) }) {
@@ -266,14 +372,16 @@ fun CoordinatorScreenContent(
                     )
                 )
             }
+
+            Spacer(Modifier.height(100.dp))
         }
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
             CustomBottomBar(
                 Modifier
-                    .padding(horizontal = 40.dp)
+                    .padding(horizontal = 30.dp)
                     .padding(bottom = 15.dp),
-                UserRole.COORDINATOR, Destinations.CoordinatorHome, { }
-            )
+                UserRole.COORDINATOR, Destinations.CoordinatorHome
+            ) { }
         }
     }
 }

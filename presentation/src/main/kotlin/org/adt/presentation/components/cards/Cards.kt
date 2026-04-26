@@ -524,8 +524,9 @@ fun OverallDescriptionEventCard(
     onClick: () -> Unit
 ) {
     val buttonText = when {
-        !enabled -> "Вы записаны"
-        allDescriptionEvent.status != EventStatus.ONGOING -> "Завершено"
+        !enabled -> "Заявка подана"
+        allDescriptionEvent.status == EventStatus.COMPLETED -> "Завершено"
+        allDescriptionEvent.status != EventStatus.ONGOING -> "Уже началось"
         else -> "Приступить!"
     }
 
@@ -739,6 +740,40 @@ fun UserCountCard(
     }
 }
 
+@Composable
+fun EventSearchCard(
+    modifier: Modifier = Modifier,
+    image: String?,
+    name: String,
+    onClick: () -> Unit
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .clip(RoundedCornerShape(5.dp))
+            .clickable(onClick = onClick)
+            .then(modifier),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AsyncImage(
+            image, null, Modifier
+                .size(40.dp)
+                .clip(shape = RoundedCornerShape(12.dp)),
+            contentScale = ContentScale.Crop,
+            fallback = painterResource(id = R.drawable.baseimage),
+            error = painterResource(id = R.drawable.baseimage)
+        )
+
+        Text(
+            name,
+            color = Arctic,
+            modifier = Modifier
+        )
+    }
+}
+
 @Preview
 @Composable
 private fun UserCountCardPreview() {
@@ -853,4 +888,14 @@ private fun EventMonitoringCardPreview() {
         count = 10,
         parameter = "подозрительных входа"
     )
+}
+
+@Preview
+@Composable
+private fun EventSearchCardPreview() {
+    EventSearchCard(
+        modifier = Modifier,
+        image = "",
+        name = "Example"
+    ) {}
 }

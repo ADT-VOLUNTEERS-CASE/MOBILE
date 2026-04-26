@@ -13,6 +13,7 @@ import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.response.AuthResponse
 import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.request.FindEventRequest
+import org.adt.core.entities.request.TagRequest
 import org.adt.core.entities.response.FindLocationResponse
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
@@ -146,7 +147,7 @@ interface RetrofitRepository {
     @POST("user-event/create/{eventId}")
     suspend fun createUserEvent(
         @Header("Authorization") auth: String,
-        @Path("eventId") eventId: Int,
+        @Path("eventId") eventId: Long,
     ): Response<UserEventResponse>
 
     //endregion
@@ -156,6 +157,23 @@ interface RetrofitRepository {
     //   tag-controller
     //--------------------
     //region tag controller content
+
+    /**
+     * SUCCESS:
+     *
+     *           201 | OK
+     *
+     * ERRORS:
+     *
+     *           403 | Forbidden (Expired Token)
+     *
+     *           409 | Already exists
+     */
+    @POST("tag/create")
+    suspend fun createTag(
+        @Header("Authorization") auth: String,
+        @Body request: TagRequest
+    ): Response<Void>
 
     /**
      * SUCCESS:
@@ -189,7 +207,7 @@ interface RetrofitRepository {
     suspend fun deleteTagByName(
         @Header("Authorization") auth: String,
         @Path("tagName") tagName: String,
-    ): Response<Tag>
+    ): Response<Void>
 
     /**
      * SUCCESS:
@@ -202,7 +220,7 @@ interface RetrofitRepository {
      *
      *           404 | Does not exist
      */
-    @GET("tag/name/{tagId}")
+    @GET("tag/id/{tagId}")
     suspend fun getTagById(
         @Header("Authorization") auth: String,
         @Path("tagId") tagId: Int,
@@ -219,11 +237,11 @@ interface RetrofitRepository {
      *
      *           404 | Does not exist
      */
-    @DELETE("tag/name/{tagId}")
+    @DELETE("tag/id/{tagId}")
     suspend fun deleteTagById(
         @Header("Authorization") auth: String,
         @Path("tagId") tagId: Int,
-    ): Response<Tag>
+    ): Response<Void>
 
     //endregion
 
@@ -349,7 +367,7 @@ interface RetrofitRepository {
     suspend fun createEvent(
         @Header("Authorization") auth: String,
         @Body request: EventRequest
-    ): Response<Int>
+    ): Response<Void>
 
     //endregion
 

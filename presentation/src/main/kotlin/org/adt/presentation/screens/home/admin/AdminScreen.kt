@@ -31,6 +31,7 @@ import org.adt.presentation.components.TypingText
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
+import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable
@@ -76,7 +77,6 @@ fun AdminScreenContent(
         Modifier
             .fillMaxSize()
             .background(Abyss)
-            .padding(vertical = 15.dp)
     ) {
         Column(
             Modifier
@@ -136,7 +136,7 @@ fun AdminScreenContent(
                     )
 
                     if (uiState.searchModeLoading) {
-                        CircularProgressIndicator()
+                        CircularProgressIndicator(modifier = Modifier.padding(top = 32.dp), color = Mint)
                     } else if (uiState.searchModeList.isNotEmpty()) {
                         LazyColumn(Modifier.fillMaxWidth()) {
                             items(uiState.searchModeList) { data ->
@@ -180,7 +180,7 @@ fun AdminScreenContent(
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
         CustomBottomBar(
             Modifier
-                .padding(horizontal = 40.dp)
+                .padding(horizontal = 30.dp)
                 .padding(bottom = 15.dp),
             UserRole.ADMIN, Destinations.AdminHome, bottomBarNavigateAction
         )

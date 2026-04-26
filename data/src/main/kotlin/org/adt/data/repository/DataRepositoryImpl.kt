@@ -39,7 +39,7 @@ internal class DataRepositoryImpl @Inject constructor(
         }
     }
 
-    fun createMultipart(file: File): MultipartBody.Part {
+    private fun createCoverFile(file: File): MultipartBody.Part {
         val requestFile = file.asRequestBody("image/*".toMediaType())
         return MultipartBody.Part.createFormData(
             name = "file",
@@ -283,7 +283,7 @@ internal class DataRepositoryImpl @Inject constructor(
     override suspend fun uploadCover(file: File, retried: Boolean): GeneralResponse<Cover> {
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
 
-        val filePart = createMultipart(file)
+        val filePart = createCoverFile(file)
 
         val response = networkRepository.uploadCover(token, filePart)
 
@@ -307,7 +307,7 @@ internal class DataRepositoryImpl @Inject constructor(
     }
 
     override suspend fun createUserEvent(
-        eventId: Int,
+        eventId: Long,
         retried: Boolean
     ): GeneralResponse<UserEventResponse> {
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")

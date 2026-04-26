@@ -13,7 +13,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
 import org.adt.core.entities.event.Event
+import org.adt.core.utils.ApiStatus
 import org.adt.domain.abstraction.DataRepository
+import java.time.OffsetDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,7 +30,14 @@ class VolunteerViewModel @Inject constructor(
     }
 
     fun onSearchModeChange(value: Boolean) {
-        _uiState.update { it.copy(searchMode = value) }
+        _uiState.update {
+            it.copy(
+                searchMode = value,
+                searchValue = if (!value) "" else it.searchValue,
+                searchModeListEvent = if (!value) emptyList() else it.searchModeListEvent,
+                searchModeListLocation = if (!value) emptyList() else it.searchModeListLocation
+            )
+        }
     }
 
     fun onEventPickerChange(value: Boolean) {
@@ -85,10 +94,19 @@ class VolunteerViewModel @Inject constructor(
                 val sortedEvents =
                     allEvents.sortedByDescending { userEventsIds.contains(it.eventId) }
 
+                val eventsByDate = userResponse.data().events.groupBy {
+                    try {
+                        OffsetDateTime.parse(it.dateTimestamp).toLocalDate()
+                    } catch (e: Exception) {
+                        java.time.LocalDateTime.parse(it.dateTimestamp).toLocalDate()
+                    }
+                }
+
                 _uiState.update {
                     it.copy(
                         eventsList = sortedEvents,
                         registeredEventIds = userEventsIds,
+                        userEventsByDate = eventsByDate,
                         eventsListLoading = false
                     )
                 }
@@ -100,15 +118,52 @@ class VolunteerViewModel @Inject constructor(
         }
     }
 
-    fun createUserEvent(eventId: Int) {
+    fun selectLocationAndFilterEvents(locationAddress: String) {
+        val allEvents = _uiState.value.eventsList
+        val filtered = allEvents.filter { it.location.address == locationAddress }
+
+        _uiState.update {
+            it.copy(
+                filteredEventsByLocation = filtered,
+                isLocationFiltering = true,
+                selectedLocationAddress = locationAddress,
+                searchMode = false
+            )
+        }
+    }
+
+    fun resetLocationFilter(returnToSearch: Boolean = false) {
+        _uiState.update {
+            it.copy(
+                isLocationFiltering = false,
+                filteredEventsByLocation = emptyList(),
+                selectedLocationAddress = "",
+                searchMode = returnToSearch,
+                searchValue = if (returnToSearch) it.searchValue else ""
+            )
+        }
+    }
+
+    fun createUserEvent(eventId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             val response = _dataRepository.createUserEvent(eventId)
             if (response.isSuccessful) {
                 getEvents()
                 _uiState.update { it.copy(eventPicker = false) }
-            } else {
-                _uiState.update { it.copy(eventError = "Ошибка", eventPicker = false) }
+                return@launch
             }
+
+            if (response.status == ApiStatus.ALREADY_EXISTS) {
+                _uiState.update {
+                    it.copy(
+                        eventError = "Заявка уже существует, мероприятие не принимает заявки или достигнут лимит мест",
+                        eventPicker = false
+                    )
+                }
+                return@launch
+            }
+
+            _uiState.update { it.copy(eventError = "Ошибка", eventPicker = false) }
         }
     }
 
@@ -125,6 +180,10 @@ class VolunteerViewModel @Inject constructor(
             Dispatchers.IO { _dataRepository.deauthenticate() }
             navigateAction.invoke()
         }
+    }
+
+    fun onCalendarToggle(show: Boolean) {
+        _uiState.update { it.copy(showCalendar = show) }
     }
 
     private fun populateFailure(

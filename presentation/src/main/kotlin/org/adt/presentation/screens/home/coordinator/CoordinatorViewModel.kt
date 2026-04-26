@@ -14,14 +14,13 @@ import org.adt.core.entities.Location
 import org.adt.domain.abstraction.DataRepository
 import org.adt.presentation.utils.LocalizationManager.message
 import java.io.File
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class CoordinatorViewModel @Inject constructor(
     private val _dataRepository: DataRepository,
 ) : ViewModel() {
-
-
     private val _uiState = MutableStateFlow(CoordinatorState())
     private val _fieldsState = MutableStateFlow(CoordinatorFieldsState())
 
@@ -72,6 +71,12 @@ class CoordinatorViewModel @Inject constructor(
             return
         }
 
+        val now = LocalDateTime.now()
+        if (fields.selectedDateTime.isBefore(now)) {
+            _uiState.update { it.copy(createError = "Нельзя создать мероприятие в прошлом") }
+            return
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { it.copy(isLoading = true) }
             val user = _dataRepository.userInfo()
@@ -85,7 +90,7 @@ class CoordinatorViewModel @Inject constructor(
                 maxCapacity = fields.maxCapacity,
                 dateTimestamp = fields.dateTimestamp,
                 locationId = state.selectedLocation.locationId,
-                tagIds = fields.tagIds, false
+                tagIds = fields.tagIds
             )
 
             if (response.isSuccessful) {
@@ -95,6 +100,14 @@ class CoordinatorViewModel @Inject constructor(
                 _uiState.update { it.copy(isLoading = false, createError = response.message) }
             }
         }
+    }
+
+    fun setShowDatePicker(show: Boolean) {
+        _uiState.update { it.copy(showDatePicker = show) }
+    }
+
+    fun setShowTimePicker(show: Boolean) {
+        _uiState.update { it.copy(showTimePicker = show) }
     }
 
     fun clearMessage() {

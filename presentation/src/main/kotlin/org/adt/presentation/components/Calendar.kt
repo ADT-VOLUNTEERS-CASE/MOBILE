@@ -33,6 +33,7 @@ import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import kotlinx.coroutines.launch
+import org.adt.core.entities.user.UserEvents
 import org.adt.presentation.R
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Aqua
@@ -40,12 +41,16 @@ import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
-fun CustomCalendar(modifier: Modifier = Modifier) {
+fun CustomCalendar(
+    eventsByDate: Map<LocalDate, List<UserEvents>>,
+    modifier: Modifier = Modifier
+) {
     val coroutineScope = rememberCoroutineScope()
 
     val currentMonth = remember { YearMonth.now() }
@@ -89,13 +94,11 @@ fun CustomCalendar(modifier: Modifier = Modifier) {
 
         HorizontalCalendar(
             state = state,
-            contentHeightMode = ContentHeightMode.Wrap,
             dayContent = { day ->
-                Day(day)
+                val eventsOnDay = eventsByDate[day.date] ?: emptyList()
+                Day(day, eventsOnDay)
             },
-            monthHeader = {
-                MonthHeader(daysOfWeek = daysOfWeek)
-            }
+            monthHeader = { MonthHeader(daysOfWeek = daysOfWeek) }
         )
     }
 }
@@ -139,7 +142,11 @@ private fun CalendarHeader(
 
 @Composable
 private fun MonthHeader(daysOfWeek: List<DayOfWeek>) {
-    Row(Modifier.fillMaxWidth().padding(vertical = 16.dp)) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp)
+    ) {
         daysOfWeek.forEach { dayOfWeek ->
             Text(
                 modifier = Modifier.weight(1f),
@@ -157,36 +164,37 @@ private fun MonthHeader(daysOfWeek: List<DayOfWeek>) {
 }
 
 @Composable
-private fun Day(day: CalendarDay) {
-    val isWeekend =
-        day.date.dayOfWeek == DayOfWeek.SATURDAY || day.date.dayOfWeek == DayOfWeek.SUNDAY
+private fun Day(day: CalendarDay, events: List<UserEvents>) {
     val isCurrentMonth = day.position == DayPosition.MonthDate
 
     Box(
         modifier = Modifier.aspectRatio(1f),
         contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .size(32.dp)
-                .then(
-                    if (isWeekend) {
-                        Modifier
-                            .clip(CircleShape)
-                            .background(Mint)
-                    } else Modifier
-                ),
-            contentAlignment = Alignment.Center
-        ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = day.date.dayOfMonth.toString(),
                 style = VolunteersCaseTheme.typography.titleMedium.copy(
-                    color = if (isCurrentMonth) Graphite else Graphite.copy(0.5f),
-                    fontWeight = FontWeight.Normal,
-                    textAlign = TextAlign.Center
+                    color = if (isCurrentMonth) Graphite else Graphite.copy(0.5f)
                 )
-
             )
+
+            if (events.isNotEmpty() && isCurrentMonth) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    modifier = Modifier.padding(top = 2.dp)
+                ) {
+                    val dotCount = if (events.size > 1) 2 else 1
+                    repeat(dotCount) {
+                        Box(
+                            Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(Mint)
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -194,5 +202,35 @@ private fun Day(day: CalendarDay) {
 @Preview
 @Composable
 private fun CustomCalendarPreview() {
-    CustomCalendar()
+    val mockEvents = mapOf(
+        LocalDate.now() to listOf(
+            UserEvents(
+                name = "Посадка деревьев",
+                status = "CONFIRMED",
+                dateTimestamp = "2026-04-26T10:00:00"
+            )
+        ),
+        LocalDate.now().plusDays(2) to listOf(
+            UserEvents(
+                name = "Сбор мусора",
+                status = "PENDING",
+                dateTimestamp = "2026-04-28T10:00:00"
+            ),
+            UserEvents(
+                name = "Помощь приюту",
+                status = "PENDING",
+                dateTimestamp = "2026-04-28T14:00:00"
+            )
+        )
+    )
+
+    VolunteersCaseTheme {
+        Box(
+            modifier = Modifier
+                .background(Abyss)
+                .padding(20.dp)
+        ) {
+            CustomCalendar(eventsByDate = mockEvents)
+        }
+    }
 }
