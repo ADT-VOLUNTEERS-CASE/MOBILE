@@ -5,6 +5,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.ResponseBody
+import org.adt.core.annotations.RepositoryImpl
 import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.Location
 import org.adt.core.entities.UserRole
@@ -25,10 +26,22 @@ import org.adt.domain.abstraction.DataRepository
 import java.io.File
 import javax.inject.Inject
 
-internal class DataRepositoryImpl @Inject constructor(
+@RepositoryImpl
+class DataRepositoryImpl @Inject constructor(
     private val networkRepository: RetrofitRepository,
     private val persistenceRepository: PersistenceRepository
 ) : DataRepository {
+    companion object {
+        const val PING = "ping"
+        const val AUTHORIZED = "authorized"
+        const val REGISTER = "register"
+        const val AUTHENTICATE = "authenticate"
+        const val DEAUTHENTICATE = "deauthenticate"
+        const val FIND_LOCATION = "findLocation"
+        const val USER_INFO = "userInfo"
+        const val REQUEST_ACCESS_TOKEN = "requestFreshAccessToken"
+    }
+
     private val json = Json { ignoreUnknownKeys = true }
 
     private fun parseError(errorBody: ResponseBody?): ErrorResponse? {
@@ -109,7 +122,7 @@ internal class DataRepositoryImpl @Inject constructor(
         }
 
         if (response.code() == 403 && !retried) {
-            val refreshResult = refreshToken()
+            val refreshResult = requestFreshAccessToken()
 
             if (refreshResult.isSuccessful) {
                 return register(
@@ -238,7 +251,7 @@ internal class DataRepositoryImpl @Inject constructor(
         }
 
         if (response.code() == 403) {
-            val request = refreshToken()
+            val request = requestFreshAccessToken()
 
             if (request.isSuccessful) {
                 return findLocation(address)
@@ -265,7 +278,7 @@ internal class DataRepositoryImpl @Inject constructor(
         }
 
         if (response.code() == 403) {
-            val request = refreshToken()
+            val request = requestFreshAccessToken()
 
             if (request.isSuccessful) {
                 return userInfo()

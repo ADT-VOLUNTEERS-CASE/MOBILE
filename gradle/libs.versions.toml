@@ -1,12 +1,15 @@
 [versions]
 agp = "8.13.2"
 android = "0.8.1"
+archunitJunit5 = "1.4.1"
 compose = "2.10.0"
 converterScalars = "2.11.0"
 dagger = "2.57.2"
 gson = "2.13.2"
 javaxInject = "1"
+junitJupiter = "5.10.2"
 kotlin = "2.2.0" # Not available: awaiting Dagger issue resolution (https://github.com/google/dagger/issues/5001)
+mockk = "1.14.9"
 serialization = "2.2.0" # Not available: awaiting Dagger issue resolution (https://github.com/google/dagger/issues/5001)
 coreKtx = "1.17.0"
 junit = "4.13.2"
@@ -41,12 +44,11 @@ ksp = "2.3.4"
 symbolProcessingApi = "2.3.3"
 
 stability-analyzer = "0.6.6"
-appcompat = "1.7.1"
-material = "1.13.0"
 
 [libraries]
 android = { module = "io.github.sergio-sastre.ComposablePreviewScanner:android", version.ref = "android" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunitJunit5" }
 compose = { module = "com.kizitonwose.calendar:compose", version.ref = "compose" }
 converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "converterScalars" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
@@ -75,7 +77,11 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
 
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junitJupiter" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoetKsp" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 converter-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "serializationConverter" }
 
@@ -91,9 +97,6 @@ symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-ap
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
-
-androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
