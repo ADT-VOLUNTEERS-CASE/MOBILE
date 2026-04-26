@@ -11,6 +11,10 @@ data class AdminState(
     val searchModeLoading: Boolean = false,
     val eventsList: List<Event> = listOf(),
     val eventsListLoading: Boolean = false,
+    val tagInput: String = "",
+    val deleteEventId: String = "",
+    val deleteCoverId: String = "",
+    val toastMessage: String? = null
 ) {
     val isFormValid: Boolean get() = searchValue.isNotBlank()
 }

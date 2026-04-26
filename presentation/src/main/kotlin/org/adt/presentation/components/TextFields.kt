@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -51,11 +50,13 @@ fun CustomTextField(
     //isError: Boolean = false,
     onValueChange: (String) -> Unit
 ) {
+    var textFieldValue by remember { mutableStateOf(value) }
     var isPasswordVisible by remember { mutableStateOf(false) }
 
     TextField(
-        value,
+        textFieldValue,
         {
+            textFieldValue = it
             onValueChange(it)
         },
         modifier
@@ -107,11 +108,13 @@ fun CustomSearchTextField(
     onValueChange: (String) -> Unit,
     onConfirm: (String) -> Unit
 ) {
+    var textFieldValue by remember { mutableStateOf(value) }
     val focusManager = LocalFocusManager.current
 
     BasicTextField(
-        value,
+        textFieldValue,
         {
+            textFieldValue = it
             onValueChange(it)
         },
         modifier
@@ -126,7 +129,7 @@ fun CustomSearchTextField(
         keyboardActions = KeyboardActions(
             onSearch = {
                 focusManager.clearFocus()
-                onConfirm(value)
+                onConfirm(textFieldValue)
             }
         ),
         decorationBox = { innerTextField ->
@@ -139,7 +142,7 @@ fun CustomSearchTextField(
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Box {
-                    if (value.isEmpty()) {
+                    if (textFieldValue.isEmpty()) {
                         Text(
                             label,
                             style = VolunteersCaseTheme.typography.titleMedium.copy(Silver)

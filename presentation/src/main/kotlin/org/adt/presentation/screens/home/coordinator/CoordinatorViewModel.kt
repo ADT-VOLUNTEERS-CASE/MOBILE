@@ -31,6 +31,33 @@ class CoordinatorViewModel @Inject constructor(
         _fieldsState.update { newState }
     }
 
+    fun loadApplications(eventId: Long) {
+        viewModelScope.launch {
+            val res = _dataRepository.getEventApplications(eventId, "PENDING")
+            if (res.isSuccessful) _uiState.update { it.copy(applications = res.data()) }
+        }
+    }
+
+    fun approve(eventId: Long, userId: Long) {
+        viewModelScope.launch {
+            val res = _dataRepository.updateApplicationStatus(eventId, userId, "ACCEPTED", null)
+            if (res.isSuccessful) {
+                loadApplications(eventId)
+                loadMyEvents()
+            }
+        }
+    }
+
+    fun reject(eventId: Long, userId: Long, reason: String = "Не подходит по критериям") {
+        viewModelScope.launch {
+            val res = _dataRepository.updateApplicationStatus(eventId, userId, "REJECTED", reason)
+            if (res.isSuccessful) {
+                loadApplications(eventId)
+                loadMyEvents()
+            }
+        }
+    }
+
     fun uploadCover(file: File) {
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { it.copy(isUploadingCover = true) }
@@ -98,6 +125,25 @@ class CoordinatorViewModel @Inject constructor(
                 _fieldsState.update { CoordinatorFieldsState() }
             } else {
                 _uiState.update { it.copy(isLoading = false, createError = response.message) }
+            }
+        }
+    }
+
+    init {
+        loadMyEvents()
+    }
+
+    fun loadMyEvents() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.update { it.copy(eventsLoading = true) }
+            val response = _dataRepository.getCoordinatorEvents()
+            if (response.isSuccessful) {
+                _uiState.update { it.copy(
+                    myEvents = response.data().content,
+                    eventsLoading = false
+                ) }
+            } else {
+                _uiState.update { it.copy(eventsLoading = false) }
             }
         }
     }

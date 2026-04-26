@@ -3,17 +3,20 @@ package org.adt.data.repository
 import okhttp3.MultipartBody
 import org.adt.core.entities.Location
 import org.adt.core.entities.Tag
+import org.adt.core.entities.event.CoordinatorEventsResponse
 import org.adt.core.entities.event.Cover
+import org.adt.core.entities.request.ApplicationStatusRequest
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.EventRequest
+import org.adt.core.entities.request.FindEventRequest
 import org.adt.core.entities.request.FindLocationRequest
 import org.adt.core.entities.request.LocationRequest
 import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
+import org.adt.core.entities.request.TagRequest
+import org.adt.core.entities.response.ApplicationsResponse
 import org.adt.core.entities.response.AuthResponse
 import org.adt.core.entities.response.EventResponse
-import org.adt.core.entities.request.FindEventRequest
-import org.adt.core.entities.request.TagRequest
 import org.adt.core.entities.response.FindLocationResponse
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
@@ -23,11 +26,11 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Multipart
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
-import java.io.File
 
 interface RetrofitRepository {
     //---------------------
@@ -145,13 +148,36 @@ interface RetrofitRepository {
      *           404 | Already exists or event's full
      */
     @POST("user-event/create/{eventId}")
-    suspend fun createUserEvent(
+    suspend fun createEventApplication(
         @Header("Authorization") auth: String,
         @Path("eventId") eventId: Long,
     ): Response<UserEventResponse>
 
-    //endregion
+    @GET("user-event/coordinator/events/{eventId}/applications")
+    suspend fun getEventApplications(
+        @Header("Authorization") auth: String,
+        @Path("eventId") eventId: Long,
+        @Query("status") status: String?,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20
+    ): Response<ApplicationsResponse>
 
+    @PATCH("user-event/coordinator/events/{eventId}/applications/{userId}/status")
+    suspend fun updateApplicationStatus(
+        @Header("Authorization") auth: String,
+        @Path("eventId") eventId: Long,
+        @Path("userId") userId: Long,
+        @Body request: ApplicationStatusRequest
+    ): Response<UserEventResponse>
+
+    @GET("user-event/coordinator/events")
+    suspend fun getCoordinatorEvents(
+        @Header("Authorization") auth: String,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 10
+    ): Response<CoordinatorEventsResponse>
+
+    //endregion
 
     //--------------------
     //   tag-controller
@@ -369,6 +395,25 @@ interface RetrofitRepository {
         @Body request: EventRequest
     ): Response<Void>
 
+    /**
+     * SUCCESS:
+     *
+     *           204 | OK
+     *
+     * ERRORS:
+     *
+     *           400 | Invalid data
+     *
+     *           403 | Forbidden (Expired Token)
+     *
+     *           404 | Location can't be founded by current id
+     */
+    @DELETE("event/delete/{eventId}")
+    suspend fun deleteEvent(
+        @Header("Authorization") auth: String,
+        @Path("eventId") eventId: Long
+    ): Response<Void>
+
     //endregion
 
     //----------------------
@@ -376,12 +421,48 @@ interface RetrofitRepository {
     //----------------------
     //region cover controller content
 
+    /**
+     * SUCCESS:
+     *
+     *           201 | OK
+     *
+     * ERRORS:
+     *
+     *           400 | Invalid file
+     *
+     *           403 | Forbidden (Expired Token)
+     *
+     *           413 | Too much
+     *
+     *           500 | Error with uploading file in s3
+     */
     @Multipart
     @POST("cover/create")
     suspend fun uploadCover(
         @Header("Authorization") auth: String,
         @Part file: MultipartBody.Part
     ): Response<Cover>
+
+    /**
+     * SUCCESS:
+     *
+     *           204 | OK
+     *
+     * ERRORS:
+     *
+     *           404 | Not found
+     *
+     *           403 | Forbidden (Expired Token)
+     *
+     *           409 | Cover is used for event
+     *
+     *           500 | Error with deleting file from s3
+     */
+    @DELETE("cover/{coverId}")
+    suspend fun deleteCover(
+        @Header("Authorization") auth: String,
+        @Path("coverId") coverId: Long
+    ): Response<Void>
 
     //endregion
 

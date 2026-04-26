@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +27,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
@@ -55,6 +55,8 @@ import org.adt.presentation.components.TypingText
 import org.adt.presentation.components.buttons.ButtonStyle
 import org.adt.presentation.components.buttons.ButtonVariant
 import org.adt.presentation.components.buttons.CustomButton
+import org.adt.presentation.components.cards.ApplicationCard
+import org.adt.presentation.components.cards.EventSummaryCard
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
@@ -96,6 +98,9 @@ fun CoordinatorScreen(
         },
         setShowDatePicker = { viewModel.setShowDatePicker(it) },
         setShowTimePicker = { viewModel.setShowTimePicker(it) },
+        onApprove = { eventId, userId -> viewModel.approve(eventId, userId) },
+        onReject = { eventId, userId -> viewModel.reject(eventId, userId) },
+        onLoadApplications = { eventId -> viewModel.loadApplications(eventId) },
     )
 }
 
@@ -113,6 +118,9 @@ fun CoordinatorScreenContent(
     logoutAction: () -> Unit = {},
     setShowDatePicker: (Boolean) -> Unit = {},
     setShowTimePicker: (Boolean) -> Unit = {},
+    onApprove: (Long, Long) -> Unit = { _, _ -> },
+    onReject: (Long, Long) -> Unit = { _, _ -> },
+    onLoadApplications: (Long) -> Unit = {},
     animationOverride: Boolean = false
 ) {
     val context = LocalContext.current
@@ -201,7 +209,8 @@ fun CoordinatorScreenContent(
             onDismissRequest = { setShowTimePicker(false) },
             confirmButton = {
                 TextButton(onClick = {
-                    val date = fields.selectedDateTime?.toLocalDate() ?: LocalDateTime.now().toLocalDate()
+                    val date =
+                        fields.selectedDateTime?.toLocalDate() ?: LocalDateTime.now().toLocalDate()
                     val finalDateTime = date.atTime(timePickerState.hour, timePickerState.minute)
 
                     if (finalDateTime.isBefore(LocalDateTime.now())) {
@@ -328,14 +337,20 @@ fun CoordinatorScreenContent(
 
                 if (uiState.isSearchMode) {
                     if (uiState.searchLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.padding(top = 32.dp),
-                            color = Mint
-                        )
+                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.padding(top = 32.dp),
+                                color = Mint
+                            )
+                        }
                     } else {
-                        uiState.searchResults.forEach { location ->
-                            TextButton(onClick = { onSelectLocation(location) }) {
-                                Text(location.address, color = Graphite)
+                        Column(Modifier.fillMaxWidth(), Arrangement.spacedBy(6.dp)) {
+                            uiState.searchResults.forEach { location ->
+                                Text(
+                                    location.address,
+                                    style = VolunteersCaseTheme.typography.titleMedium.copy(Graphite),
+                                    modifier = Modifier.clickable { onSelectLocation(location) }
+                                )
                             }
                         }
                     }
@@ -349,7 +364,7 @@ fun CoordinatorScreenContent(
                     )
                 }
 
-                Spacer(Modifier.height(32.dp))
+                Spacer(Modifier.height(10.dp))
 
                 CustomButton(
                     text = "Опубликовать",
@@ -361,6 +376,51 @@ fun CoordinatorScreenContent(
                     onClick = createAction,
                     variant = ButtonVariant.Wide
                 )
+            }
+
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(VolunteersCaseTheme.colors.secondaryBackground)
+                    .padding(horizontal = 10.dp, vertical = 20.dp),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    "Мои мероприятия",
+                    style = VolunteersCaseTheme.typography.titleLarge,
+                    color = Graphite
+                )
+
+                if (uiState.myEvents.isNotEmpty()) {
+                    uiState.myEvents.forEach { event ->
+                        EventSummaryCard(event = event) {
+                            onLoadApplications(event.eventId)
+                        }
+                    }
+                } else {
+                    Text(
+                        "Пока пусто...",
+                        style = VolunteersCaseTheme.typography.titleMedium.copy(Graphite)
+                    )
+                }
+
+                if (uiState.applications.isNotEmpty()) {
+                    Spacer(Modifier.height(10.dp))
+                    Text(
+                        "Заявки на участие",
+                        style = VolunteersCaseTheme.typography.titleLarge,
+                        color = Graphite
+                    )
+                    uiState.applications.forEach { app ->
+                        ApplicationCard(
+                            app = app,
+                            onApprove = { onApprove(app.eventId.toLong(), app.userId.toLong()) },
+                            onReject = { onReject(app.eventId.toLong(), app.userId.toLong()) }
+                        )
+                    }
+                }
             }
 
             TextButton(logoutAction, contentPadding = PaddingValues(2.dp)) {

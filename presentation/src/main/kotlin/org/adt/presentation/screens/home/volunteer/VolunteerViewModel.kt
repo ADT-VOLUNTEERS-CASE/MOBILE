@@ -146,7 +146,7 @@ class VolunteerViewModel @Inject constructor(
 
     fun createUserEvent(eventId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            val response = _dataRepository.createUserEvent(eventId)
+            val response = _dataRepository.createEventApplication(eventId)
             if (response.isSuccessful) {
                 getEvents()
                 _uiState.update { it.copy(eventPicker = false) }

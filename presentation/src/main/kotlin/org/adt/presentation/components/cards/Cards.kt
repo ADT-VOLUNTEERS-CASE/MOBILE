@@ -38,16 +38,21 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import org.adt.core.entities.AllDescriptionEvent
 import org.adt.core.entities.EventStatus
+import org.adt.core.entities.event.CoordinatorEventSummary
+import org.adt.core.entities.event.EventApplication
 import org.adt.presentation.R
+import org.adt.presentation.components.buttons.ButtonColorScheme
 import org.adt.presentation.components.buttons.ButtonStyle
 import org.adt.presentation.components.buttons.CustomButton
 import org.adt.presentation.components.buttons.SquaredIconButton
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Black
+import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Grey
 import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Silver
+import org.adt.presentation.theme.Void
 import org.adt.presentation.theme.VolunteersCaseTheme
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -772,6 +777,124 @@ fun EventSearchCard(
             modifier = Modifier
         )
     }
+}
+
+@Composable
+fun ApplicationCard(
+    app: EventApplication,
+    onApprove: () -> Unit,
+    onReject: () -> Unit
+) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Graphite.copy(0.3f))
+            .padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "${app.firstname} ${app.lastname}",
+                style = VolunteersCaseTheme.typography.titleMedium,
+                color = Arctic
+            )
+            Text(
+                text = app.createdAt?.substringBefore("T") ?: "",
+                style = VolunteersCaseTheme.typography.labelSmall,
+                color = Graphite
+            )
+        }
+
+        Text(text = app.email, color = Lagoon, style = VolunteersCaseTheme.typography.titleMedium)
+
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            CustomButton(
+                modifier = Modifier.weight(1f),
+                text = "Принять",
+                onClick = onApprove,
+                colors = ButtonColorScheme(Lagoon.copy(0.8f), Arctic)
+            )
+            CustomButton(
+                modifier = Modifier.weight(1f),
+                text = "Отклонить",
+                onClick = onReject,
+                colors = ButtonColorScheme(Color.Red.copy(0.5f), Graphite)
+            )
+        }
+    }
+}
+
+@Composable
+fun EventSummaryCard(
+    event: CoordinatorEventSummary,
+    onClick: () -> Unit
+) {
+    val remainingPlaces = (event.maxCapacity - event.acceptedCount).coerceAtLeast(0)
+
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(Graphite.copy(0.3f))
+            .clickable { onClick() }
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = event.eventName,
+                style = VolunteersCaseTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = Arctic
+            )
+
+            if (event.pendingCount > 0) {
+                Box(
+                    Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Lagoon)
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "+${event.pendingCount}",
+                        color = Void,
+                        style = VolunteersCaseTheme.typography.labelSmall
+                    )
+                }
+            }
+        }
+
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            StatusChip("Принято: ${event.acceptedCount}", Lagoon)
+            StatusChip("Отклонено: ${event.rejectedCount}", Color.Red.copy(0.6f))
+
+            StatusChip(
+                text = "Осталось: $remainingPlaces",
+                color = if (remainingPlaces > 0) Arctic.copy(0.9f) else Graphite
+            )
+        }
+    }
+}
+
+@Composable
+fun StatusChip(text: String, color: Color) {
+    Text(
+        text = text,
+        color = color,
+        style = VolunteersCaseTheme.typography.labelSmall
+    )
 }
 
 @Preview
