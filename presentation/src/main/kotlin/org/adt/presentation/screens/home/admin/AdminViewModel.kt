@@ -30,6 +30,58 @@ class AdminViewModel @Inject constructor(
         _uiState.update { it.copy(searchMode = value) }
     }
 
+    fun onTagInputChange(value: String) = _uiState.update { it.copy(tagInput = value) }
+    fun onDeleteEventIdChange(value: String) = _uiState.update { it.copy(deleteEventId = value) }
+    fun onDeleteCoverIdChange(value: String) = _uiState.update { it.copy(deleteCoverId = value) }
+    fun clearToast() = _uiState.update { it.copy(toastMessage = null) }
+
+    private fun sendToast(message: String) {
+        _uiState.update { it.copy(toastMessage = message) }
+    }
+
+    fun createTag() {
+        val name = _uiState.value.tagInput
+        if (name.isBlank()) return
+        viewModelScope.launch(Dispatchers.IO) {
+            val resp = _dataRepository.createTag(name)
+            sendToast(if (resp.isSuccessful) "Тег создан" else "Ошибка: ${resp.status}")
+        }
+    }
+
+    fun getTagInfo() {
+        val name = _uiState.value.tagInput
+        if (name.isBlank()) return
+        viewModelScope.launch(Dispatchers.IO) {
+            val resp = _dataRepository.getTagByName(name)
+            sendToast(if (resp.isSuccessful) "ID: ${resp.data().tagId}" else "Не найден")
+        }
+    }
+
+    fun deleteTag() {
+        val name = _uiState.value.tagInput
+        if (name.isBlank()) return
+        viewModelScope.launch(Dispatchers.IO) {
+            val resp = _dataRepository.deleteTagByName(name)
+            sendToast(if (resp.isSuccessful) "Тег удален" else "Ошибка")
+        }
+    }
+
+    fun deleteEvent() {
+        val id = _uiState.value.deleteEventId.toLongOrNull() ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            val resp = _dataRepository.deleteEvent(id)
+            sendToast(if (resp.isSuccessful) "Событие удалено" else "Ошибка удаления")
+        }
+    }
+
+    fun deleteCover() {
+        val id = _uiState.value.deleteCoverId.toLongOrNull() ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            val resp = _dataRepository.deleteCover(id)
+            sendToast(if (resp.isSuccessful) "Обложка удалена" else "Ошибка удаления")
+        }
+    }
+
     fun findLocation() {
         val uiState = _uiState.value
 
@@ -62,6 +114,31 @@ class AdminViewModel @Inject constructor(
         }
     }
 
+    fun getEvents() {
+        _uiState.update { it.copy(eventsListLoading = true) }
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = _dataRepository.getEvents()
+
+            if (response.isSuccessful) {
+                _uiState.update {
+                    it.copy(
+                        eventsList = response.data().content,
+                        eventsListLoading = false
+                    )
+                }
+
+                Log.i("events", "Successful get events")
+                return@launch
+            }
+
+            populateFailure(
+                displayMessage = "Неизвестная ошибка",
+                logMessage = "Failure: Invalid data",
+                tagSuffix = "Events"
+            )
+        }
+    }
+
     fun deauthenticate(navigateAction: () -> Unit) {
         viewModelScope.launch {
             Dispatchers.IO { _dataRepository.deauthenticate() }
@@ -82,5 +159,9 @@ class AdminViewModel @Inject constructor(
         }
 
         Log.e("AdminViewModel::${tagSuffix}", logMessage)
+    }
+
+    init {
+        getEvents()
     }
 }

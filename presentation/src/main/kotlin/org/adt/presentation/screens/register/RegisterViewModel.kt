@@ -97,17 +97,17 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-    private fun populateFailure(message: String, logMessage:String, tagSuffix: String = "Main") {
+    private fun populateFailure(message: String, logMessage: String, tagSuffix: String = "Main") {
         _uiState.update { it.copy(registerError = message, isLoading = false) }
 
         Log.e("RegisterViewModel::${tagSuffix}", message)
     }
 
-    private fun populateLoadingState(state: Boolean){
+    private fun populateLoadingState(state: Boolean) {
         _uiState.update { it.copy(isLoading = state) }
     }
 
-    private fun clearErrorMessage(){
+    private fun clearErrorMessage() {
         _uiState.update { it.copy(registerError = null) }
     }
 }

@@ -1,19 +1,34 @@
 package org.adt.data.repository
 
 import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.ResponseBody
 import org.adt.core.annotations.RepositoryImpl
 import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.Location
+import org.adt.core.entities.Tag
 import org.adt.core.entities.UserRole
+import org.adt.core.entities.event.CoordinatorEventsResponse
+import org.adt.core.entities.event.Cover
+import org.adt.core.entities.event.Event
+import org.adt.core.entities.event.EventApplication
+import org.adt.core.entities.request.ApplicationStatusRequest
 import org.adt.core.entities.request.AuthRequest
+import org.adt.core.entities.request.EventRequest
 import org.adt.core.entities.request.FindLocationRequest
 import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.response.ErrorResponse
+import org.adt.core.entities.response.EventResponse
+import org.adt.core.entities.request.FindEventRequest
+import org.adt.core.entities.request.TagRequest
+import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
 import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.abstraction.DataRepository
+import java.io.File
 import javax.inject.Inject
 
 @RepositoryImpl
@@ -40,6 +55,15 @@ class DataRepositoryImpl @Inject constructor(
         } catch (_: Exception) {
             null
         }
+    }
+
+    private fun createCoverFile(file: File): MultipartBody.Part {
+        val requestFile = file.asRequestBody("image/*".toMediaType())
+        return MultipartBody.Part.createFormData(
+            name = "file",
+            filename = file.name,
+            body = requestFile
+        )
     }
 
     override suspend fun ping(): GeneralResponse<String> {
@@ -156,7 +180,11 @@ class DataRepositoryImpl @Inject constructor(
     }
 
     override suspend fun requestFreshAccessToken(): GeneralResponse<String> {
-        val refreshToken = persistenceRepository.getRefreshToken() ?: return GeneralResponse.failure(401, "Not authorized")
+        val refreshToken =
+            persistenceRepository.getRefreshToken() ?: return GeneralResponse.failure(
+                401,
+                "Not authorized"
+            )
 
         val request = RefreshRequest(refreshToken)
         val response = networkRepository.refreshToken(request)
@@ -182,8 +210,44 @@ class DataRepositoryImpl @Inject constructor(
         persistenceRepository.removeToken()
     }
 
-    override suspend fun findLocation(address: String) : GeneralResponse<List<Location>> {
-        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401,"Not authorized")
+    override suspend fun findEvent(
+        name: String, retried: Boolean
+    ): GeneralResponse<List<Event>> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(
+            401,
+            "Not authorized"
+        )
+        val request = FindEventRequest(name)
+        val response = networkRepository.findEvent(token, 0, 10, request)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.body()!!.content)
+        }
+
+        if (response.code() == 403 && !retried) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return findEvent(name, retried = true)
+            }
+
+            val error = parseError(response.errorBody())
+            persistenceRepository.removeToken()
+
+            return GeneralResponse.failure(
+                response.code(),
+                error?.message ?: "HTTP ${response.code()}"
+            )
+        }
+
+        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+    }
+
+
+    override suspend fun findLocation(address: String): GeneralResponse<List<Location>> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(
+            401,
+            "Not authorized"
+        )
         val request = FindLocationRequest(address)
         val response = networkRepository.findLocation(token, 0, 10, request)
 
@@ -201,7 +265,10 @@ class DataRepositoryImpl @Inject constructor(
             val error = parseError(response.errorBody())
             persistenceRepository.removeToken()
 
-            return GeneralResponse.failure(response.code(), error?.message ?: "HTTP ${response.code()}")
+            return GeneralResponse.failure(
+                response.code(),
+                error?.message ?: "HTTP ${response.code()}"
+            )
         }
 
         return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
@@ -228,6 +295,339 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
         }
 
-        return GeneralResponse.failure(response.code(),"HTTP ${response.code()}")
+        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+    }
+
+    override suspend fun uploadCover(file: File, retried: Boolean): GeneralResponse<Cover> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+
+        val filePart = createCoverFile(file)
+
+        val response = networkRepository.uploadCover(token, filePart)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.body()!!)
+        }
+
+        if (response.code() == 403 && !retried) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return uploadCover(file, retried = true)
+            }
+
+            val error = parseError(response.errorBody())
+            persistenceRepository.removeToken()
+
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+        }
+
+        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+    }
+
+    override suspend fun createEventApplication(
+        eventId: Long,
+        retried: Boolean
+    ): GeneralResponse<UserEventResponse> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val response = networkRepository.createEventApplication(token, eventId)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.body()!!)
+        }
+
+        if (response.code() == 403 && !retried) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return createEventApplication(eventId, retried = true)
+            }
+
+            val error = parseError(response.errorBody())
+            persistenceRepository.removeToken()
+
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+        }
+
+        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+    }
+
+
+    override suspend fun getEvents(retried: Boolean): GeneralResponse<EventResponse> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val response = networkRepository.getEvents(token, 0, 10)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.body()!!)
+        }
+
+        if (response.code() == 403 && !retried) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return getEvents(retried = true)
+            }
+
+            val error = parseError(response.errorBody())
+            persistenceRepository.removeToken()
+
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+        }
+
+        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+    }
+
+    override suspend fun getCoordinatorEvents(retried: Boolean): GeneralResponse<CoordinatorEventsResponse> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val response = networkRepository.getCoordinatorEvents(token, 0, 10)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.body()!!)
+        }
+
+        if (response.code() == 403 && !retried) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return getCoordinatorEvents(retried = true)
+            }
+
+            val error = parseError(response.errorBody())
+            persistenceRepository.removeToken()
+
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+        }
+
+        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+    }
+
+    override suspend fun createEvent(
+        name: String,
+        status: String,
+        description: String,
+        coverId: Long,
+        coordinatorId: Long,
+        maxCapacity: Long,
+        dateTimestamp: String,
+        locationId: Long,
+        tagIds: List<Long>, retried: Boolean
+    ): GeneralResponse<Int> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val request = EventRequest(
+            name,
+            status,
+            description,
+            coverId,
+            coordinatorId,
+            maxCapacity,
+            dateTimestamp,
+            locationId,
+            tagIds
+        )
+        val response = networkRepository.createEvent(token, request)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.code())
+        }
+
+        if (response.code() == 403 && !retried) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return createEvent(
+                    name,
+                    status,
+                    description,
+                    coverId,
+                    coordinatorId,
+                    maxCapacity,
+                    dateTimestamp,
+                    locationId,
+                    tagIds,
+                    retried = true
+                )
+            }
+
+            val error = parseError(response.errorBody())
+            persistenceRepository.removeToken()
+
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+        }
+
+        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+    }
+
+    override suspend fun deleteEvent(
+        eventId: Long,
+        retried: Boolean
+    ): GeneralResponse<Int> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(
+            401,
+            "Not authorized"
+        )
+        val response = networkRepository.deleteEvent(token, eventId)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.code())
+        }
+
+        if (response.code() == 403 && !retried) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return deleteEvent(eventId, retried = true)
+            }
+            persistenceRepository.removeToken()
+            return GeneralResponse.failure(403, "Session expired")
+        }
+
+        val error = parseError(response.errorBody())
+        return GeneralResponse.failure(response.code(), error?.message ?: "HTTP ${response.code()}")
+    }
+
+    override suspend fun deleteCover(
+        coverId: Long,
+        retried: Boolean
+    ): GeneralResponse<Int> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(
+            401,
+            "Not authorized"
+        )
+        val response = networkRepository.deleteCover(token, coverId)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.code())
+        }
+
+        if (response.code() == 403 && !retried) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return deleteCover(coverId, retried = true)
+            }
+            persistenceRepository.removeToken()
+        }
+
+        val error = parseError(response.errorBody())
+        return GeneralResponse.failure(response.code(), error?.message ?: "HTTP ${response.code()}")
+    }
+
+    override suspend fun createTag(
+        tagName: String,
+        retried: Boolean
+    ): GeneralResponse<Int> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(
+            401,
+            "Not authorized"
+        )
+        val response = networkRepository.createTag(token, TagRequest(tagName))
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.code())
+        }
+
+        if (response.code() == 403 && !retried) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return createTag(tagName, retried = true)
+            }
+            persistenceRepository.removeToken()
+            return GeneralResponse.failure(403, "Session expired")
+        }
+
+        val error = parseError(response.errorBody())
+        return GeneralResponse.failure(response.code(), error?.message ?: "HTTP ${response.code()}")
+    }
+
+    override suspend fun getTagByName(
+        tagName: String,
+        retried: Boolean
+    ): GeneralResponse<Tag> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(
+            401,
+            "Not authorized"
+        )
+        val response = networkRepository.getTagByName(token, tagName)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.body()!!)
+        }
+
+        if (response.code() == 403 && !retried) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return getTagByName(tagName, retried = true)
+            }
+            persistenceRepository.removeToken()
+            return GeneralResponse.failure(403, "Session expired")
+        }
+
+        val error = parseError(response.errorBody())
+        return GeneralResponse.failure(response.code(), error?.message ?: "HTTP ${response.code()}")
+    }
+
+    override suspend fun deleteTagByName(
+        tagName: String,
+        retried: Boolean
+    ): GeneralResponse<Int> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(
+            401,
+            "Not authorized"
+        )
+        val response = networkRepository.deleteTagByName(token, tagName)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.code())
+        }
+
+        if (response.code() == 403 && !retried) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return deleteTagByName(tagName, retried = true)
+            }
+            persistenceRepository.removeToken()
+            return GeneralResponse.failure(403, "Session expired")
+        }
+
+        val error = parseError(response.errorBody())
+        return GeneralResponse.failure(response.code(), error?.message ?: "HTTP ${response.code()}")
+    }
+
+    override suspend fun getEventApplications(
+        eventId: Long,
+        status: String?
+    ): GeneralResponse<List<EventApplication>> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
+        val response = networkRepository.getEventApplications(token, eventId, status)
+
+        if (response.isSuccessful) return GeneralResponse.success(response.body()!!.content)
+
+        if (response.code() == 403) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return getEventApplications(eventId, status)
+            }
+            persistenceRepository.removeToken()
+            return GeneralResponse.failure(403, "Session expired")
+        }
+
+        return GeneralResponse.failure(response.code())
+    }
+
+    override suspend fun updateApplicationStatus(
+        eventId: Long,
+        userId: Long,
+        status: String,
+        reason: String?
+    ): GeneralResponse<UserEventResponse> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
+        val request = ApplicationStatusRequest(status, reason)
+        val response = networkRepository.updateApplicationStatus(token, eventId, userId, request)
+
+        if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
+
+        if (response.code() == 403) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return updateApplicationStatus(eventId, userId, status, reason)
+            }
+            persistenceRepository.removeToken()
+            return GeneralResponse.failure(403, "Session expired")
+        }
+
+        return GeneralResponse.failure(response.code())
     }
 }
