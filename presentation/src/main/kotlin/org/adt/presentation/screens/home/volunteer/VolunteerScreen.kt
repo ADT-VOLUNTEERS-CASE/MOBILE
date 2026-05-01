@@ -46,6 +46,7 @@ import org.adt.presentation.components.cards.EventCard
 import org.adt.presentation.components.cards.EventSearchCard
 import org.adt.presentation.components.cards.OverallDescriptionEventCard
 import org.adt.presentation.components.cards.formatEventDate
+import org.adt.presentation.components.shaders.ShaderBox
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
@@ -53,6 +54,7 @@ import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
+import org.adt.presentation.utils.ShaderPresets
 
 
 @Composable
@@ -109,28 +111,24 @@ fun VolunteerScreenContent(
     onResetFilterAction: () -> Unit = {},
     animationOverride: Boolean = false,
 ) {
-    val context = LocalContext.current
-    val sheetState = rememberModalBottomSheetState()
+    ShaderBox(modifier = Modifier.fillMaxSize(), ShaderPresets.DarkGreenBackground) {
+        val context = LocalContext.current
+        val sheetState = rememberModalBottomSheetState()
 
 
-    LaunchedEffect(uiState.eventError) {
-        uiState.eventError?.let { error ->
-            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-            onToastShown.invoke()
+        LaunchedEffect(uiState.eventError) {
+            uiState.eventError?.let { error ->
+                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                onToastShown.invoke()
+            }
         }
-    }
 
-    BackHandler(uiState.isLocationFiltering, onResetFilterAction)
+        BackHandler(uiState.isLocationFiltering, onResetFilterAction)
 
-    BackHandler(uiState.searchMode && !uiState.isLocationFiltering, searchModeChangedAction)
+        BackHandler(uiState.searchMode && !uiState.isLocationFiltering, searchModeChangedAction)
 
-    BackHandler(uiState.eventPicker, eventPickerChangeAction)
+        BackHandler(uiState.eventPicker, eventPickerChangeAction)
 
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Abyss)
-    ) {
         Column(
             Modifier
                 .fillMaxSize()
@@ -217,8 +215,10 @@ fun VolunteerScreenContent(
                             .padding(horizontal = 10.dp, vertical = 20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        val displayEvents = if (uiState.isLocationFiltering) uiState.filteredEventsByLocation else uiState.eventsList
-                        val title = if (uiState.isLocationFiltering) "События: ${uiState.selectedLocationAddress}" else "Каталог мероприятий"
+                        val displayEvents =
+                            if (uiState.isLocationFiltering) uiState.filteredEventsByLocation else uiState.eventsList
+                        val title =
+                            if (uiState.isLocationFiltering) "События: ${uiState.selectedLocationAddress}" else "Каталог мероприятий"
 
                         Column(
                             Modifier.fillMaxWidth(),
@@ -274,7 +274,11 @@ fun VolunteerScreenContent(
                             }
 
                             if (displayEvents.isEmpty() && uiState.isLocationFiltering) {
-                                Text("В этой локации пока нет запланированных дел", color = Lagoon, modifier = Modifier.padding(top = 20.dp))
+                                Text(
+                                    "В этой локации пока нет запланированных дел",
+                                    color = Lagoon,
+                                    modifier = Modifier.padding(top = 20.dp)
+                                )
                             }
                         }
                     }
@@ -291,73 +295,74 @@ fun VolunteerScreenContent(
                     Spacer(Modifier.height(100.dp))
                 }
             }
-        }
-    }
 
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-        CustomBottomBar(
-            Modifier
-                .padding(horizontal = 30.dp)
-                .padding(bottom = 15.dp),
-            UserRole.VOLUNTEER, Destinations.VolunteerHome, bottomBarNavigateAction
-        )
-    }
-
-    if (uiState.eventPicker && uiState.selectedEvent != null) {
-        val selectedEvent = uiState.selectedEvent
-        val (formattedTime, formattedDate) = formatEventDate(selectedEvent.dateTimestamp)
-        val isAlreadyRegistered = uiState.selectedEvent.let {
-            uiState.registeredEventIds.contains(it.eventId)
         }
 
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Dialog(eventPickerChangeAction, DialogProperties()) {
-                OverallDescriptionEventCard(
-                    Modifier, AllDescriptionEvent(
-                        selectedEvent.cover?.link ?: "",
-                        selectedEvent.name,
-                        selectedEvent.description,
-                        formattedTime,
-                        formattedDate,
-                        selectedEvent.status
-                    ), !isAlreadyRegistered
-                )
-                { eventPickerButtonAction(selectedEvent.eventId) }
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+            CustomBottomBar(
+                Modifier
+                    .padding(horizontal = 30.dp)
+                    .padding(bottom = 15.dp),
+                UserRole.VOLUNTEER, Destinations.VolunteerHome, bottomBarNavigateAction
+            )
+        }
+
+        if (uiState.eventPicker && uiState.selectedEvent != null) {
+            val selectedEvent = uiState.selectedEvent
+            val (formattedTime, formattedDate) = formatEventDate(selectedEvent.dateTimestamp)
+            val isAlreadyRegistered = uiState.selectedEvent.let {
+                uiState.registeredEventIds.contains(it.eventId)
+            }
+
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Dialog(eventPickerChangeAction, DialogProperties()) {
+                    OverallDescriptionEventCard(
+                        Modifier, AllDescriptionEvent(
+                            selectedEvent.cover?.link ?: "",
+                            selectedEvent.name,
+                            selectedEvent.description,
+                            formattedTime,
+                            formattedDate,
+                            selectedEvent.status
+                        ), !isAlreadyRegistered
+                    )
+                    { eventPickerButtonAction(selectedEvent.eventId) }
+                }
             }
         }
-    }
 
 
-    if (uiState.showCalendar) {
-        ModalBottomSheet(
-            onDismissRequest = { onCalendarToggleAction(false) },
-            sheetState = sheetState,
-            containerColor = Arctic,
-            scrimColor = Abyss.copy(alpha = 0.5f),
-            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp), dragHandle = {
+        if (uiState.showCalendar) {
+            ModalBottomSheet(
+                onDismissRequest = { onCalendarToggleAction(false) },
+                sheetState = sheetState,
+                containerColor = Arctic,
+                scrimColor = Abyss.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp), dragHandle = {
 
-            }
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-                    .padding(bottom = 40.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                }
             ) {
-                Text(
-                    text = "Календарь",
-                    style = VolunteersCaseTheme.typography.titleLarge,
-                    modifier = Modifier.padding(top = 10.dp)
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .padding(bottom = 40.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text(
+                        text = "Календарь",
+                        style = VolunteersCaseTheme.typography.titleLarge,
+                        modifier = Modifier.padding(top = 10.dp)
+                    )
 
-                CustomCalendar(
-                    eventsByDate = uiState.userEventsByDate,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    CustomCalendar(
+                        eventsByDate = uiState.userEventsByDate,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                Spacer(Modifier.height(100.dp))
+                    Spacer(Modifier.height(100.dp))
+                }
             }
         }
     }
