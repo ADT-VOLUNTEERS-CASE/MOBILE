@@ -38,6 +38,7 @@ import androidx.navigation.NavHostController
 import org.adt.core.entities.AllDescriptionEvent
 import org.adt.core.entities.UserRole
 import org.adt.core.entities.event.Event
+import org.adt.core.entities.response.UserResponse
 import org.adt.presentation.components.bars.CustomBottomBar
 import org.adt.presentation.components.CustomCalendar
 import org.adt.presentation.components.CustomSearchTextField
@@ -45,6 +46,7 @@ import org.adt.presentation.components.TypingText
 import org.adt.presentation.components.cards.EventCard
 import org.adt.presentation.components.cards.EventSearchCard
 import org.adt.presentation.components.cards.OverallDescriptionEventCard
+import org.adt.presentation.components.cards.ProfileCard
 import org.adt.presentation.components.cards.formatEventDate
 import org.adt.presentation.components.shaders.ShaderBox
 import org.adt.presentation.navigation.Destinations
@@ -207,6 +209,12 @@ fun VolunteerScreenContent(
                         )
                     }
                 } else {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        ProfileCard {} //TODO: use actual user firstName
+                    }
                     Column(
                         Modifier
                             .fillMaxWidth()

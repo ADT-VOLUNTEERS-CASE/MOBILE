@@ -100,6 +100,7 @@ dependencies {
     implementation(project("::data"))
     implementation(project("::core"))
     implementation(project("::storage"))
+    implementation(libs.androidx.compose.ui.geometry)
 
 
     implementation(libs.hilt.android)

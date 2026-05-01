@@ -43,7 +43,6 @@ half4 main(float2 fragCoord) {
     half3 color = mix(background, emerald, f);
     color = mix(color, highlight, length(q) * 0.4);
 
-    // Vertical mask & polish
     float verticalMask = smoothstep(-0.5, 1.0, uv.y);
     color *= verticalMask;
     color += background * 5.5;

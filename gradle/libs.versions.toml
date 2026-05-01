@@ -44,6 +44,7 @@ ksp = "2.3.4"
 symbolProcessingApi = "2.3.3"
 
 stability-analyzer = "0.6.6"
+uiGeometry = "1.11.0"
 
 [libraries]
 android = { module = "io.github.sergio-sastre.ComposablePreviewScanner:android", version.ref = "android" }
@@ -98,6 +99,7 @@ symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-ap
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+androidx-compose-ui-geometry = { group = "androidx.compose.ui", name = "ui-geometry", version.ref = "uiGeometry" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
