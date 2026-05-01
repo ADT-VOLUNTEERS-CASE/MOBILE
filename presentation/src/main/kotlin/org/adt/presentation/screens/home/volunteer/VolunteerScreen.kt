@@ -19,15 +19,21 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,22 +44,19 @@ import androidx.navigation.NavHostController
 import org.adt.core.entities.AllDescriptionEvent
 import org.adt.core.entities.UserRole
 import org.adt.core.entities.event.Event
-import org.adt.core.entities.response.UserResponse
-import org.adt.presentation.components.bars.CustomBottomBar
 import org.adt.presentation.components.CustomCalendar
 import org.adt.presentation.components.CustomSearchTextField
-import org.adt.presentation.components.TypingText
+import org.adt.presentation.components.bars.CustomBottomBar
+import org.adt.presentation.components.bars.TopNavigationBar
 import org.adt.presentation.components.cards.EventCard
-import org.adt.presentation.components.cards.EventSearchCard
 import org.adt.presentation.components.cards.OverallDescriptionEventCard
-import org.adt.presentation.components.cards.ProfileCard
 import org.adt.presentation.components.cards.formatEventDate
+import org.adt.presentation.components.misc.rememberSyncedScrollState
 import org.adt.presentation.components.shaders.ShaderBox
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Lagoon
-import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.utils.ShaderPresets
@@ -117,6 +120,10 @@ fun VolunteerScreenContent(
         val context = LocalContext.current
         val sheetState = rememberModalBottomSheetState()
 
+        val scrollBehavior =
+            TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+
+        val syncedScrollState = rememberSyncedScrollState()
 
         LaunchedEffect(uiState.eventError) {
             uiState.eventError?.let { error ->
@@ -131,179 +138,189 @@ fun VolunteerScreenContent(
 
         BackHandler(uiState.eventPicker, eventPickerChangeAction)
 
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(horizontal = 40.dp)
-                .verticalScroll(rememberScrollState()),
-            Arrangement.spacedBy(20.dp),
-            Alignment.CenterHorizontally
-        ) {
-            Column(
-                Modifier
-                    .padding(top = 100.dp)
-                    .fillMaxWidth(),
-                Arrangement.spacedBy(20.dp),
-                Alignment.CenterHorizontally
-            ) {
-                TypingText(
-                    Modifier,
-                    text = "Твоё следующее доброе дело ждёт своего момента",
-                    charDelay = if (animationOverride) 0L else 40L,
-                    animationOverride = animationOverride
-                )
-
-                CustomSearchTextField(
-                    Modifier,
-                    "Поиск по ключевым словам",
-                    uiState.searchValue,
-                    searchFieldValueChangedAction,
-                    searchFieldOnConfirmAction
-                )
-
-                if (uiState.searchMode) {
-                    if (uiState.searchModeLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.padding(top = 32.dp),
-                            color = Mint
-                        )
-                    } else if (uiState.searchModeListEvent.isNotEmpty() || uiState.searchModeListLocation.isNotEmpty()) {
-                        Column(Modifier.fillMaxWidth()) {
-                            if (uiState.searchModeListEvent.isNotEmpty()) {
-                                Text(
-                                    "Мероприятия",
-                                    style = VolunteersCaseTheme.typography.titleLarge.copy(
-                                        Milk, fontWeight = FontWeight.SemiBold
-                                    )
-                                )
-                                uiState.searchModeListEvent.forEach { data ->
-                                    EventSearchCard(
-                                        Modifier,
-                                        data.cover?.link,
-                                        data.name
-                                    ) { eventPickerAction(data) }
-                                }
-                            }
-                            if (uiState.searchModeListLocation.isNotEmpty()) {
-                                Spacer(Modifier.height(10.dp))
-                                Text(
-                                    "Локации",
-                                    style = VolunteersCaseTheme.typography.titleLarge.copy(
-                                        Milk, fontWeight = FontWeight.SemiBold
-                                    )
-                                )
-                                uiState.searchModeListLocation.forEach { data ->
-                                    TextButton(onClick = { onLocationClickAction(data.address) }) {
-                                        Text(data.address, color = Arctic)
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        Text(
-                            "Ничего не найдено",
-                            style = VolunteersCaseTheme.typography.titleMedium.copy(
-                                Arctic,
-                                fontWeight = FontWeight.Normal
-                            )
-                        )
-                    }
-                } else {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        ProfileCard {} //TODO: use actual user firstName
-                    }
+        Column {
+            CustomSearchTextField(
+                Modifier,
+                "Поиск по ключевым словам",
+                uiState.searchValue,
+                searchFieldValueChangedAction,
+                searchFieldOnConfirmAction
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            Scaffold(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(syncedScrollState.connection),
+                containerColor = Color.Transparent,
+                topBar = {
+                    TopNavigationBar(
+                        modifier = Modifier.graphicsLayer {
+                            translationY = 0f
+                        },
+                        scale = syncedScrollState.scaleFactor,
+                        scrollBehavior = scrollBehavior
+                    )
+                }) { paddingValues ->
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(PaddingValues(horizontal = 20.dp))
+                        .verticalScroll(rememberScrollState()),
+                    Arrangement.spacedBy(20.dp),
+                    Alignment.CenterHorizontally
+                ) {
+                    Spacer(modifier = Modifier.height(30.dp))
                     Column(
                         Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(VolunteersCaseTheme.colors.secondaryBackground)
-                            .padding(horizontal = 10.dp, vertical = 20.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .fillMaxWidth(),
+                        Arrangement.spacedBy(20.dp),
+                        Alignment.CenterHorizontally
                     ) {
-                        val displayEvents =
-                            if (uiState.isLocationFiltering) uiState.filteredEventsByLocation else uiState.eventsList
-                        val title =
-                            if (uiState.isLocationFiltering) "События: ${uiState.selectedLocationAddress}" else "Каталог мероприятий"
 
-                        Column(
-                            Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                title,
-                                style = VolunteersCaseTheme.typography.titleLarge
-                            )
-                            if (uiState.isLocationFiltering) {
-                                TextButton(onClick = onResetFilterAction) {
-                                    Text("Сбросить", color = Mint)
-                                }
-                            } else {
-                                TextButton(onClick = { onCalendarToggleAction(true) }) {
-                                    Text("Мой календарь", color = Mint)
-                                }
-                            }
-                        }
-
-                        if (uiState.eventsListLoading) {
+                        /*
+                    if (uiState.searchMode) {
+                        if (uiState.searchModeLoading) {
                             CircularProgressIndicator(
                                 modifier = Modifier.padding(top = 32.dp),
                                 color = Mint
                             )
-                        } else {
-                            FlowRow(
-                                modifier = Modifier
-                                    .padding(top = 10.dp)
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalArrangement = Arrangement.spacedBy(10.dp),
-                                maxItemsInEachRow = 2
-                            ) {
-                                displayEvents.forEach { event ->
-                                    val (formattedTime, formattedDate) = formatEventDate(event.dateTimestamp)
-
-                                    Box(Modifier.fillMaxWidth(0.48f)) {
-                                        EventCard(
+                        } else if (uiState.searchModeListEvent.isNotEmpty() || uiState.searchModeListLocation.isNotEmpty()) {
+                            Column(Modifier.fillMaxWidth()) {
+                                if (uiState.searchModeListEvent.isNotEmpty()) {
+                                    Text(
+                                        "Мероприятия",
+                                        style = VolunteersCaseTheme.typography.titleLarge.copy(
+                                            Milk, fontWeight = FontWeight.SemiBold
+                                        )
+                                    )
+                                    uiState.searchModeListEvent.forEach { data ->
+                                        EventSearchCard(
                                             Modifier,
-                                            AllDescriptionEvent(
-                                                event.cover?.link ?: "",
-                                                event.name,
-                                                event.description,
-                                                formattedTime,
-                                                formattedDate,
-                                                event.status
-                                            )
-                                        ) { eventPickerAction(event) }
+                                            data.cover?.link,
+                                            data.name
+                                        ) { eventPickerAction(data) }
+                                    }
+                                }
+                                if (uiState.searchModeListLocation.isNotEmpty()) {
+                                    Spacer(Modifier.height(10.dp))
+                                    Text(
+                                        "Локации",
+                                        style = VolunteersCaseTheme.typography.titleLarge.copy(
+                                            Milk, fontWeight = FontWeight.SemiBold
+                                        )
+                                    )
+                                    uiState.searchModeListLocation.forEach { data ->
+                                        TextButton(onClick = { onLocationClickAction(data.address) }) {
+                                            Text(data.address, color = Arctic)
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            Text(
+                                "Ничего не найдено",
+                                style = VolunteersCaseTheme.typography.titleMedium.copy(
+                                    Arctic,
+                                    fontWeight = FontWeight.Normal
+                                )
+                            )
+                        }
+                    } else { */
+                        Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(VolunteersCaseTheme.colors.secondaryBackground)
+                                .padding(horizontal = 10.dp, vertical = 20.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            val displayEvents =
+                                if (uiState.isLocationFiltering) uiState.filteredEventsByLocation else uiState.eventsList
+                            val title =
+                                if (uiState.isLocationFiltering) "События: ${uiState.selectedLocationAddress}" else "Каталог мероприятий"
+
+                            Column(
+                                Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    title,
+                                    style = VolunteersCaseTheme.typography.titleLarge
+                                )
+                                if (uiState.isLocationFiltering) {
+                                    TextButton(onClick = onResetFilterAction) {
+                                        Text("Сбросить", color = Mint)
+                                    }
+                                } else {
+                                    TextButton(onClick = { onCalendarToggleAction(true) }) {
+                                        Text("Мой календарь", color = Mint)
                                     }
                                 }
                             }
 
-                            if (displayEvents.isEmpty() && uiState.isLocationFiltering) {
-                                Text(
-                                    "В этой локации пока нет запланированных дел",
-                                    color = Lagoon,
-                                    modifier = Modifier.padding(top = 20.dp)
+                            if (uiState.eventsListLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.padding(top = 32.dp),
+                                    color = Mint
                                 )
+                            } else {
+                                FlowRow(
+                                    modifier = Modifier
+                                        .padding(top = 10.dp)
+                                        .fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                                    maxItemsInEachRow = 2
+                                ) {
+                                    displayEvents.forEach { event ->
+                                        val (formattedTime, formattedDate) = formatEventDate(event.dateTimestamp)
+
+                                        Box(Modifier.fillMaxWidth(0.48f)) {
+                                            EventCard(
+                                                Modifier,
+                                                AllDescriptionEvent(
+                                                    event.cover?.link ?: "",
+                                                    event.name,
+                                                    event.description,
+                                                    formattedTime,
+                                                    formattedDate,
+                                                    event.status
+                                                )
+                                            ) { eventPickerAction(event) }
+                                        }
+                                    }
+                                }
+
+                                if (displayEvents.isEmpty() && uiState.isLocationFiltering) {
+                                    Text(
+                                        "В этой локации пока нет запланированных дел",
+                                        color = Lagoon,
+                                        modifier = Modifier.padding(top = 20.dp)
+                                    )
+                                }
                             }
                         }
-                    }
-                    TextButton(logoutAction, contentPadding = PaddingValues(2.dp)) {
-                        Text(
-                            "Выйти",
-                            style = VolunteersCaseTheme.typography.titleMedium.copy(
-                                Arctic,
-                                fontWeight = FontWeight.Normal
+                        repeat(25) {
+                            Text("123")
+                        }
+                        TextButton(logoutAction, contentPadding = PaddingValues(2.dp)) {
+                            Text(
+                                "Выйти",
+                                style = VolunteersCaseTheme.typography.titleMedium.copy(
+                                    Arctic,
+                                    fontWeight = FontWeight.Normal
+                                )
                             )
-                        )
+                        }
+
+                        Spacer(Modifier.height(100.dp))
                     }
-
-                    Spacer(Modifier.height(100.dp))
                 }
-            }
 
+
+            }
         }
 
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
