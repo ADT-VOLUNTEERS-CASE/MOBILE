@@ -1,4 +1,4 @@
-package org.adt.presentation.components
+package org.adt.presentation.components.bars
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
