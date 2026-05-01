@@ -38,7 +38,7 @@ import androidx.navigation.NavHostController
 import org.adt.core.entities.AllDescriptionEvent
 import org.adt.core.entities.UserRole
 import org.adt.core.entities.event.Event
-import org.adt.presentation.components.CustomBottomBar
+import org.adt.presentation.components.bars.CustomBottomBar
 import org.adt.presentation.components.CustomCalendar
 import org.adt.presentation.components.CustomSearchTextField
 import org.adt.presentation.components.TypingText
