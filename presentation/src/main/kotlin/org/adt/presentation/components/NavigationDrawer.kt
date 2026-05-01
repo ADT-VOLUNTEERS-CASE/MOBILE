@@ -27,16 +27,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.adt.presentation.theme.VolunteersCaseTheme
+import kotlin.math.abs
 
 @Composable
 fun NavigationDrawer(
@@ -47,11 +49,11 @@ fun NavigationDrawer(
     val density = LocalDensity.current
     val drawerWidthPx = with(density) { 360.dp.toPx() }
 
-    val closeMenuIconRotationAngle = remember {
+    val closeMenuIconMirrorScale by remember {
         derivedStateOf {
-            if (drawerState.currentOffset.isNaN()) 0f
+            if (drawerState.currentOffset.isNaN()) 1f
             else {
-                (drawerState.currentOffset / drawerWidthPx).coerceIn(0f, 1f) * 180f
+                (1 - (abs(drawerState.currentOffset) / drawerWidthPx) * 4).coerceIn(-1f,1f)
             }
         }
     }
@@ -87,7 +89,8 @@ fun NavigationDrawer(
                             Icon(
                                 modifier = Modifier
                                     .padding(horizontal = 4.dp)
-                                    .rotate(closeMenuIconRotationAngle.value),
+                                    .scale(closeMenuIconMirrorScale, 1f)
+                                ,
                                 imageVector = Icons.AutoMirrored.Outlined.MenuOpen,
                                 contentDescription = "Close menu"
                             )
