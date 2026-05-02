@@ -1,7 +1,9 @@
 package org.adt.presentation.components.cards
 
+import android.service.autofill.OnClickAction
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,12 +44,14 @@ fun SettingsCategoryCard(
     description: String = "Configure your settings here",
     contentDescription: String = "",
     iconVector: ImageVector = Icons.Default.Settings,
+    onClickAction: () -> Unit = {}
 ) {
     Box(
         modifier = modifier
             .widthIn(min = 300.dp)
             .heightIn(min = 60.dp)
             .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClickAction)
     ) {
         Box(
             modifier = Modifier

@@ -22,6 +22,7 @@ data class VolunteerState(
     val showCalendar: Boolean = false,
     val filteredEventsByLocation: List<Event> = listOf(),
     val isLocationFiltering: Boolean = false,
+    val firstName: String = "",
     val selectedLocationAddress: String = ""
 ) {
     val isFormValid: Boolean get() = searchValue.isNotBlank()

@@ -8,6 +8,7 @@ import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,15 +22,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.tooling.preview.Preview
 import org.adt.presentation.components.cards.ProfileCard
+import org.adt.presentation.screens.home.volunteer.home.VolunteerState
 import org.adt.presentation.theme.VolunteersCaseTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SyncedTopNavigationBar(
     modifier: Modifier = Modifier,
+    firstName: String = "",
     scrollBehavior: TopAppBarScrollBehavior,
     scale: Float,
-    onSettingsNavigateAction: () -> Unit = {}
+    onSettingsNavigateAction: () -> Unit = {},
+    onNotificationsNavigateAction: () -> Unit = {}
 ) {
     TopAppBar(
         modifier = modifier,
@@ -40,24 +44,10 @@ fun SyncedTopNavigationBar(
         ),
         title = {
             ProfileCard(
-                scaleFactor = scale
+                scaleFactor = scale,
+                firstName = firstName
             ) {
                 onSettingsNavigateAction.invoke()
-            }
-        },
-        navigationIcon = {
-            AnimatedVisibility(
-                visible = scale < 0.2f,
-                enter = fadeIn() + expandHorizontally(),
-                exit = fadeOut() + shrinkHorizontally()
-            ) {
-                IconButton(onClick = { /* do something */ }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Localized description",
-                        tint = Color.White
-                    )
-                }
             }
         },
         actions = {
@@ -66,10 +56,10 @@ fun SyncedTopNavigationBar(
                 enter = fadeIn() + expandHorizontally(),
                 exit = fadeOut() + shrinkHorizontally()
             ) {
-                IconButton(onClick = { /* do something */ }) {
+                IconButton(onClick = onNotificationsNavigateAction) {
                     Icon(
-                        imageVector = Icons.Filled.Menu,
-                        contentDescription = "Localized description",
+                        imageVector = Icons.Filled.Notifications,
+                        contentDescription = "Notifications navigation",
                         tint = Color.White
                     )
                 }

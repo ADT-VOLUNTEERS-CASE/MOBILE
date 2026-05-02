@@ -28,6 +28,10 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,6 +54,7 @@ import org.adt.presentation.components.bars.SyncedTopNavigationBar
 import org.adt.presentation.components.cards.EventCard
 import org.adt.presentation.components.cards.OverallDescriptionEventCard
 import org.adt.presentation.components.cards.formatEventDate
+import org.adt.presentation.components.misc.NotImplementedSheet
 import org.adt.presentation.components.misc.rememberSyncedScrollState
 import org.adt.presentation.components.shaders.ShaderBox
 import org.adt.presentation.navigation.Destinations
@@ -120,6 +125,8 @@ fun VolunteerScreenContent(
     onSettingsNavigateAction: () -> Unit = {},
     animationOverride: Boolean = false,
 ) {
+    var showWIPSheet by remember { mutableStateOf(false) }
+
     ShaderBox(modifier = Modifier.fillMaxSize(), ShaderPresets.DarkGreenBackground) {
         val context = LocalContext.current
         val sheetState = rememberModalBottomSheetState()
@@ -165,8 +172,10 @@ fun VolunteerScreenContent(
                                 translationY = 0f
                             },
                             scale = syncedScrollState.scaleFactor,
+                            firstName = uiState.firstName,
                             scrollBehavior = scrollBehavior,
-                            onSettingsNavigateAction = onSettingsNavigateAction
+                            onSettingsNavigateAction = onSettingsNavigateAction,
+                            onNotificationsNavigateAction = { showWIPSheet = true }
                         )
                     }) { paddingValues ->
                     Column(
@@ -177,7 +186,7 @@ fun VolunteerScreenContent(
                         Arrangement.spacedBy(20.dp),
                         Alignment.CenterHorizontally
                     ) {
-                        Spacer(modifier = Modifier.height(30.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
                         Column(
                             Modifier
                                 .fillMaxWidth(),
@@ -275,8 +284,11 @@ fun VolunteerScreenContent(
                             Spacer(Modifier.height(100.dp))
                         }
                     }
-
-
+                    if (showWIPSheet) {
+                        NotImplementedSheet(
+                            onDismiss = { showWIPSheet = false }
+                        )
+                    }
                 }
             }
             Box(
