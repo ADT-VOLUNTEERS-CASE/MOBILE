@@ -1,5 +1,7 @@
 package org.adt.presentation.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -25,7 +27,33 @@ import org.adt.presentation.screens.splash.SplashViewModel
 
 @Composable
 fun NavigationGraph(navController: NavHostController, innerPadding: PaddingValues = PaddingValues()) {
-    NavHost(navController, startDestination = Destinations.Splash) {
+    NavHost(
+        navController, startDestination = Destinations.Splash,
+        enterTransition = {
+            slideIntoContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                animationSpec = tween(700)
+            )
+        },
+        exitTransition = {
+            slideOutOfContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                animationSpec = tween(700)
+            )
+        },
+        popEnterTransition = {
+            slideIntoContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.End,
+                animationSpec = tween(700)
+            )
+        },
+        popExitTransition = {
+            slideOutOfContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.End,
+                animationSpec = tween(700)
+            )
+        }
+    ) {
         composable<Destinations.Splash> {
             val viewModel: SplashViewModel = hiltViewModel()
             SplashScreen(navController, viewModel)
