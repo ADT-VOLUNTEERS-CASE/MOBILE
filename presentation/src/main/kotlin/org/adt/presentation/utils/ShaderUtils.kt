@@ -10,7 +10,8 @@ import androidx.compose.ui.platform.LocalContext
 value class Shader(val path: String)
 
 enum class ShaderPresets(val shader: Shader) {
-    DarkGreenBackground(Shader("shaders/LiquidNoise.glsl"))
+    DarkGreenBackground(Shader("shaders/LiquidNoise.glsl")),
+    DarkGrayBackground(Shader("shaders/GrayNoise.glsl"))
 }
 
 @Composable
