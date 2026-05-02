@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,12 +27,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -40,6 +47,7 @@ import org.adt.core.entities.AllDescriptionEvent
 import org.adt.core.entities.EventStatus
 import org.adt.core.entities.event.CoordinatorEventSummary
 import org.adt.core.entities.event.EventApplication
+import org.adt.core.entities.event.EventLocation
 import org.adt.presentation.R
 import org.adt.presentation.components.buttons.ButtonColorScheme
 import org.adt.presentation.components.buttons.ButtonStyle
@@ -447,67 +455,100 @@ fun EventCard(
     allDescriptionEvent: AllDescriptionEvent,
     onClick: () -> Unit
 ) {
-    val state = rememberScrollState()
-
     Box(
         modifier = modifier
+            .fillMaxWidth()
             .height(190.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(color = Abyss)
             .clickable(onClick = onClick)
     ) {
-        Column(
+        AsyncImage(
+            model = allDescriptionEvent.image,
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth(0.7f)
+                .fillMaxHeight()
+                .graphicsLayer { alpha = 0.99f }
+                .drawWithContent {
+                    drawContent()
+                    drawRect(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(Color.White, Color.Transparent),
+                            startX = 0f,
+                            endX = size.width
+                        ),
+                        blendMode = BlendMode.DstIn
+                    )
+                },
+            contentScale = ContentScale.Crop,
+            error = painterResource(R.drawable.baseimage),
+            fallback = painterResource(R.drawable.baseimage)
+        )
+
+        Row(
             modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            AsyncImage(
-                model = allDescriptionEvent.image,
-                contentDescription = "event cover",
-                modifier = Modifier
-                    .padding(top = 5.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .width(134.dp)
-                    .height(125.dp),
-                error = painterResource(R.drawable.baseimage),
-                fallback = painterResource(R.drawable.baseimage),
-                contentScale = ContentScale.Crop
-            )
+            Spacer(modifier = Modifier.weight(1f))
 
-            Text(
-                text = allDescriptionEvent.title,
+            Column(
                 modifier = Modifier
-                    .padding(top = 9.dp)
-                    .width(145.dp)
-                    .height(13.dp)
-                    .horizontalScroll(state),
-                style = VolunteersCaseTheme.typography.titleLarge.copy(
-                    fontSize = 11.sp,
-                    color = Arctic,
-                    fontWeight = FontWeight.SemiBold
-
-                ), textAlign = TextAlign.Center
-            )
-            Text(
-                text = allDescriptionEvent.date,
-                style = VolunteersCaseTheme.typography.titleLarge.copy(
-                    fontSize = 8.sp, color = Arctic,
-                    fontWeight = FontWeight.SemiBold
-                ),
-                modifier = Modifier
-                    .padding(top = 3.dp, bottom = 3.dp)
-                    .height(10.dp)
-            )
-            Text(
-                text = allDescriptionEvent.time,
-                style = VolunteersCaseTheme.typography.titleLarge.copy(
-                    fontSize = 8.sp, color = Arctic,
-                    fontWeight = FontWeight.SemiBold
-                ),
-                modifier = Modifier.height(10.dp)
-            )
+                    .weight(1f)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = allDescriptionEvent.title,
+                    modifier = Modifier,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                    style = VolunteersCaseTheme.typography.titleLarge.copy(
+                        fontSize = 14.sp,
+                        color = Arctic,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+                Text(
+                    text = when (allDescriptionEvent.status) {
+                        EventStatus.ONGOING -> "Предстоит!"
+                        EventStatus.IN_PROGRESS -> "Уже идёт!"
+                        EventStatus.COMPLETED -> "Завершено!"
+                    },
+                    style = VolunteersCaseTheme.typography.titleLarge.copy(
+                        fontSize = 11.sp,
+                        color = Arctic.copy(alpha = 0.7f)
+                    ),
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+                Text(
+                    text = allDescriptionEvent.date,
+                    style = VolunteersCaseTheme.typography.titleLarge.copy(
+                        fontSize = 11.sp,
+                        color = Arctic.copy(alpha = 0.7f)
+                    ),
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+                Text(
+                    text = allDescriptionEvent.time,
+                    style = VolunteersCaseTheme.typography.titleLarge.copy(
+                        fontSize = 11.sp,
+                        color = Arctic.copy(alpha = 0.7f)
+                    )
+                )
+                Text(
+                    text = allDescriptionEvent.location.address,
+                    style = VolunteersCaseTheme.typography.titleLarge.copy(
+                        fontSize = 11.sp,
+                        color = Arctic.copy(alpha = 0.7f)
+                    ),
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
         }
     }
 }
+
 
 
 /**
@@ -538,7 +579,7 @@ fun OverallDescriptionEventCard(
     val state = rememberScrollState()
     Column(
         modifier = modifier
-            .width(321.dp)
+            .fillMaxWidth()
             .height(492.dp)
             .background(color = Arctic, RoundedCornerShape(17.dp)),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -940,7 +981,8 @@ private fun EventCardPreview() {
             "Создай в своём дворе библиотеку для всех желающих: поставь полку, делись книгами и поддерживай в ней порядок.",
             time = "13:40",
             date = "01.01",
-            EventStatus.ONGOING
+            EventStatus.ONGOING,
+            EventLocation()
         )
     ) {}
 
@@ -995,7 +1037,8 @@ private fun OverallDescriptionEventCardPreview() {
                 "Создай в своём дворе библиотеку для всех желающих: поставь полку, делись книгами и поддерживай в ней порядок.",
                 time = "13:40",
                 date = "01.01",
-                EventStatus.ONGOING
+                EventStatus.ONGOING,
+                location = EventLocation()
             )
         ) {}
     }
