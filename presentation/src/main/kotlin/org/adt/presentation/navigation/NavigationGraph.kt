@@ -12,8 +12,10 @@ import org.adt.presentation.screens.home.admin.AdminScreen
 import org.adt.presentation.screens.home.admin.AdminViewModel
 import org.adt.presentation.screens.home.coordinator.CoordinatorScreen
 import org.adt.presentation.screens.home.coordinator.CoordinatorViewModel
-import org.adt.presentation.screens.home.volunteer.VolunteerScreen
-import org.adt.presentation.screens.home.volunteer.VolunteerViewModel
+import org.adt.presentation.screens.home.volunteer.home.VolunteerScreen
+import org.adt.presentation.screens.home.volunteer.home.VolunteerViewModel
+import org.adt.presentation.screens.home.volunteer.profile.ProfileScreen
+import org.adt.presentation.screens.home.volunteer.profile.ProfileViewModel
 import org.adt.presentation.screens.register.RegisterScreen
 import org.adt.presentation.screens.register.RegisterViewModel
 import org.adt.presentation.screens.register.admin.AdminRegisterScreen
@@ -55,6 +57,10 @@ fun NavigationGraph(navController: NavHostController, innerPadding: PaddingValue
         composable<Destinations.VolunteerHome> {
             val viewModel: VolunteerViewModel = hiltViewModel()
             VolunteerScreen(navController, viewModel)
+        }
+        composable<Destinations.VolunteerProfile> {
+            val viewModel: ProfileViewModel = hiltViewModel()
+            ProfileScreen(navController, viewModel)
         }
     }
 }

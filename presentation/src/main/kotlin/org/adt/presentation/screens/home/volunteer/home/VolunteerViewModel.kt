@@ -1,4 +1,4 @@
-package org.adt.presentation.screens.home.volunteer
+package org.adt.presentation.screens.home.volunteer.home
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import org.adt.core.entities.event.Event
 import org.adt.core.utils.ApiStatus
 import org.adt.domain.abstraction.DataRepository
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import javax.inject.Inject
 
@@ -60,7 +61,8 @@ class VolunteerViewModel @Inject constructor(
             val eventsResp = responseEvent.await()
 
             val locations = if (locationsResp.isSuccessful) locationsResp.data() else emptyList()
-            val events = if (eventsResp.isSuccessful) eventsResp.data() else emptyList()
+            val events = if (eventsResp.isSuccessful) eventsResp.data()
+                .sortedBy { it.status } else emptyList()
 
             if (locations.isNotEmpty() || events.isNotEmpty()) {
                 _uiState.update {
@@ -92,13 +94,16 @@ class VolunteerViewModel @Inject constructor(
                 val allEvents = eventsResponse.data().content
 
                 val sortedEvents =
-                    allEvents.sortedByDescending { userEventsIds.contains(it.eventId) }
+                    allEvents.sortedWith(
+                        compareByDescending<Event> { userEventsIds.contains(it.eventId) }
+                            .thenBy { it.status }
+                    )
 
                 val eventsByDate = userResponse.data().events.groupBy {
                     try {
                         OffsetDateTime.parse(it.dateTimestamp).toLocalDate()
                     } catch (e: Exception) {
-                        java.time.LocalDateTime.parse(it.dateTimestamp).toLocalDate()
+                        LocalDateTime.parse(it.dateTimestamp).toLocalDate()
                     }
                 }
 
@@ -116,6 +121,10 @@ class VolunteerViewModel @Inject constructor(
             _uiState.update { it.copy(eventsListLoading = false) }
             Log.e("VolunteerViewModel::Events", "Failure: Invalid data")
         }
+    }
+
+    fun setSearchModeValue(isActive: Boolean) {
+        _uiState.update { it.copy(searchMode = isActive) }
     }
 
     fun selectLocationAndFilterEvents(locationAddress: String) {

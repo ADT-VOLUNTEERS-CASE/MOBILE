@@ -26,6 +26,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -105,8 +107,10 @@ fun CustomSearchTextField(
     modifier: Modifier = Modifier,
     label: String,
     value: String = "",
+    verticalScale: Float = 1f,
     onValueChange: (String) -> Unit,
-    onConfirm: (String) -> Unit
+    onConfirm: (String) -> Unit,
+    onFocused: (FocusState) -> Unit = {}
 ) {
     var textFieldValue by remember { mutableStateOf(value) }
     val focusManager = LocalFocusManager.current
@@ -119,10 +123,11 @@ fun CustomSearchTextField(
         },
         modifier
             .fillMaxWidth()
-            .height(35.dp)
+            .height((48 * verticalScale).dp)
             .clip(RoundedCornerShape(8.dp))
             .background(Milk)
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .onFocusEvent(onFocused),
         singleLine = true,
         textStyle = VolunteersCaseTheme.typography.titleMedium.copy(color = Void),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
@@ -137,7 +142,9 @@ fun CustomSearchTextField(
                 Icon(
                     painterResource(R.drawable.ic_search),
                     contentDescription = "Search",
-                    modifier = Modifier.size(18.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .size(18.dp),
                     tint = Graphite
                 )
                 Spacer(modifier = Modifier.width(12.dp))
@@ -164,5 +171,5 @@ private fun CustomTextFieldPreview() {
 @Preview
 @Composable
 private fun CustomSearchTextFieldPreview() {
-    CustomSearchTextField(Modifier, "CustomSearchTextField", "", {}, {})
+    CustomSearchTextField(Modifier, "CustomSearchTextField", "", 1f, {}, {})
 }

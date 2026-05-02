@@ -1,7 +1,8 @@
-package org.adt.presentation.screens.home.volunteer
+package org.adt.presentation.screens.home.volunteer.home
 
 import org.adt.core.entities.Location
 import org.adt.core.entities.event.Event
+import org.adt.core.entities.user.UserEvents
 import java.time.LocalDate
 
 data class VolunteerState(
@@ -17,7 +18,7 @@ data class VolunteerState(
     val eventPicker: Boolean = false,
     val eventError: String? = null,
     val registeredEventIds: Set<Long> = emptySet(),
-    val userEventsByDate: Map<LocalDate, List<org.adt.core.entities.user.UserEvents>> = emptyMap(),
+    val userEventsByDate: Map<LocalDate, List<UserEvents>> = emptyMap(),
     val showCalendar: Boolean = false,
     val filteredEventsByLocation: List<Event> = listOf(),
     val isLocationFiltering: Boolean = false,

@@ -25,10 +25,11 @@ import org.adt.presentation.theme.VolunteersCaseTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopNavigationBar(
+fun SyncedTopNavigationBar(
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior,
-    scale: Float
+    scale: Float,
+    onSettingsNavigateAction: () -> Unit = {}
 ) {
     TopAppBar(
         modifier = modifier,
@@ -41,7 +42,7 @@ fun TopNavigationBar(
             ProfileCard(
                 scaleFactor = scale
             ) {
-                // Navigate to user settings
+                onSettingsNavigateAction.invoke()
             }
         },
         navigationIcon = {
@@ -84,6 +85,6 @@ fun TopNavigationBar(
 private fun TopNavigationBarPreview() {
     VolunteersCaseTheme {
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-        //TopNavigationBar(scrollBehavior = scrollBehavior,)
+        //SyncedTopNavigationBar(scrollBehavior = scrollBehavior,)
     }
 }

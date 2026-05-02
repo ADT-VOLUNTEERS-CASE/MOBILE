@@ -44,7 +44,6 @@ fun ShaderBox(
 
     Box(
         modifier = Modifier
-            .fillMaxSize()
             .drawWithCache {
                 shader.setFloatUniform("iTime", time)
                 shader.setFloatUniform("iResolution", size.width, size.height)

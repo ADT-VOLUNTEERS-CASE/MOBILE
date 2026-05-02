@@ -143,6 +143,7 @@ fun AdminScreenContent(
                     Modifier,
                     "Поиск по адресу",
                     uiState.searchValue,
+                    1f,
                     searchFieldValueChangedAction,
                     searchFieldOnConfirmAction
                 )

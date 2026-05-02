@@ -30,6 +30,9 @@ sealed class Destinations {
     @Serializable
     data object VolunteerHome : Destinations()
 
+    @Serializable
+    data object VolunteerProfile : Destinations()
+
     companion object {
         fun mapRole(userRole: UserRole): Destinations {
             return when (userRole) {

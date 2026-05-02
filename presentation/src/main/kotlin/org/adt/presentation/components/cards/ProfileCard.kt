@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,19 +51,9 @@ fun ProfileCard(
             .clickable(onClick = onClick)
 
     ) {
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .graphicsLayer {
-                    renderEffect = createBlurEffect(
-                        15f, 15f, Shader.TileMode.CLAMP
-                    ).asComposeRenderEffect()
-                    clip = true
-                }
-        )
         Row(
             modifier
-                .padding(top = (36 * scaleFactor).dp)
+                .padding(top = (2 * scaleFactor).dp)
                 .height((64 + (16 * scaleFactor)).dp)
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -82,11 +73,12 @@ fun ProfileCard(
 
             Text(
                 modifier = Modifier
-                    .weight(6f),
+                    .weight(7f),
                 text = firstName,
-                style = VolunteersCaseTheme.typography.labelLarge.copy(fontSize = (22 + (8 * scaleFactor * 0.8f)).sp),
+                style = VolunteersCaseTheme.typography.labelLarge.copy(fontSize = (22 + (6 * scaleFactor * 0.8f)).sp),
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 color = VolunteersCaseTheme.colors.text,
             )
             Spacer(modifier = Modifier.width(8.dp))
