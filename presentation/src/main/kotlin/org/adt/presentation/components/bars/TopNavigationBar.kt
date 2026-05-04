@@ -29,7 +29,7 @@ import org.adt.presentation.theme.VolunteersCaseTheme
 @Composable
 fun SyncedTopNavigationBar(
     modifier: Modifier = Modifier,
-    firstName: String = "",
+    firstName: String = "Пользователь",
     scrollBehavior: TopAppBarScrollBehavior,
     scale: Float,
     onSettingsNavigateAction: () -> Unit = {},
@@ -75,6 +75,6 @@ fun SyncedTopNavigationBar(
 private fun TopNavigationBarPreview() {
     VolunteersCaseTheme {
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-        //SyncedTopNavigationBar(scrollBehavior = scrollBehavior,)
+        SyncedTopNavigationBar(scrollBehavior = scrollBehavior, scale = 1f)
     }
 }

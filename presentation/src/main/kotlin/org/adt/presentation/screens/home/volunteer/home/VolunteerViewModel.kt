@@ -112,13 +112,15 @@ class VolunteerViewModel @Inject constructor(
                         eventsList = sortedEvents,
                         registeredEventIds = userEventsIds,
                         userEventsByDate = eventsByDate,
-                        eventsListLoading = false
+                        eventsListLoading = false,
+                        firstName = userResponse.data().firstname.toString()
                     )
                 }
                 return@launch
             }
 
             _uiState.update { it.copy(eventsListLoading = false) }
+
             Log.e("VolunteerViewModel::Events", "Failure: Invalid data")
         }
     }

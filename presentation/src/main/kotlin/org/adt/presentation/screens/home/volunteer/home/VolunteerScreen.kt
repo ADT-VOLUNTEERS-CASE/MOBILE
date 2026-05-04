@@ -271,15 +271,6 @@ fun VolunteerScreenContent(
                                     }
                                 }
                             }
-                            TextButton(logoutAction, contentPadding = PaddingValues(2.dp)) {
-                                Text(
-                                    "Выйти",
-                                    style = VolunteersCaseTheme.typography.titleMedium.copy(
-                                        Arctic,
-                                        fontWeight = FontWeight.Normal
-                                    )
-                                )
-                            }
 
                             Spacer(Modifier.height(100.dp))
                         }

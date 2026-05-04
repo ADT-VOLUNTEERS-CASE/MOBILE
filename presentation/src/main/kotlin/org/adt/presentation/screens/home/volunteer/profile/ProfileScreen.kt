@@ -2,6 +2,7 @@
 
 package org.adt.presentation.screens.home.volunteer.profile
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChatBubbleOutline
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,6 +42,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -46,9 +50,7 @@ import org.adt.presentation.R
 import org.adt.presentation.components.buttons.CustomWideButton
 import org.adt.presentation.components.cards.SettingsCategoryCard
 import org.adt.presentation.components.misc.NotImplementedSheet
-import org.adt.presentation.components.shaders.ShaderBox
 import org.adt.presentation.theme.VolunteersCaseTheme
-import org.adt.presentation.utils.ShaderPresets
 
 @Composable
 fun ProfileScreen(
@@ -70,9 +72,10 @@ fun ProfileScreenContent(
 ) {
     var showWIPSheet by remember { mutableStateOf(false) }
 
-    ShaderBox(
-        modifier = Modifier.fillMaxSize(),
-        preset = ShaderPresets.DarkGrayBackground
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
     ) {
         Scaffold(containerColor = Color.Transparent) { contentPadding ->
             Column(
@@ -88,7 +91,7 @@ fun ProfileScreenContent(
                     topBar = {
                         TopAppBar(
                             modifier = Modifier.height(64.dp),
-                            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.DarkGray),
+                            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black),
                             title = {
                                 Text(
                                     text = profileState.firstName,
@@ -149,18 +152,19 @@ fun ProfileScreenContent(
 
                         }
 
-                        SettingsCategoryCard {
+                        SettingsCategoryCard(title = "Безопасность", description = "Защищаем Вас и Ваши достижения", iconVector = Icons.Default.Shield) {
                             showWIPSheet = true
                         }
-                        SettingsCategoryCard {
+                        SettingsCategoryCard(title = "История", description = "Посмотрите свои прошлые события", iconVector = Icons.Default.ChatBubbleOutline) {
                             showWIPSheet = true
                         }
-                        SettingsCategoryCard {
-                            showWIPSheet = true
+                        Spacer(modifier = Modifier.height(45.dp))
+                        CustomWideButton("Выйти из аккаунта") {
+                            onLogoutAction.invoke()
                         }
                     }
                 }
-                }
+            }
             if (showWIPSheet) {
                 NotImplementedSheet {
                     showWIPSheet = false

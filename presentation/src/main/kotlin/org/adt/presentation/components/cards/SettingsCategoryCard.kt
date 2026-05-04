@@ -52,21 +52,8 @@ fun SettingsCategoryCard(
             .heightIn(min = 60.dp)
             .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClickAction)
+            .background(Color(0xFF181818))
     ) {
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .background(Color.DarkGray.copy(alpha = 0.4f))
-                .blur(radius = 12.dp)
-                .border(
-                    width = 0.5.dp,
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color.Transparent, Color.Gray.copy(alpha = 0.2f))
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                )
-        )
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.Top,
@@ -117,8 +104,6 @@ fun SettingsCategoryCard(
 @Composable
 private fun SettingsCategoryCardPreview() {
     VolunteersCaseTheme {
-        ShaderBox(modifier = Modifier, preset = ShaderPresets.DarkGrayBackground) {
-            SettingsCategoryCard()
-        }
+        SettingsCategoryCard()
     }
 }
