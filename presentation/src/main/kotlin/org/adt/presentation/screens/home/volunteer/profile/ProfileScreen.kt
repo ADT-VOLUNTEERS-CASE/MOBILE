@@ -129,27 +129,14 @@ fun ProfileScreenContent(
                         ) {
                             Text(
                                 modifier = Modifier,
-                                text = "Пользователь",
+                                text = profileState.firstName,
                                 style = VolunteersCaseTheme.typography.labelLarge.copy(fontSize = 32.sp),
                                 fontWeight = FontWeight.SemiBold,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 color = VolunteersCaseTheme.colors.text,
                             )
-                            Spacer(modifier = Modifier.height(35.dp))
-                            AsyncImage(
-                                modifier = Modifier
-                                    .size(64.dp)
-                                    .clip(CircleShape),
-                                model = ImageRequest.Builder(LocalContext.current)
-                                    .data("https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fpreview.redd.it%2Fbattle-cats-icons-v0-9hjbm5yawvoc1.png%3Fwidth%3D640%26crop%3Dsmart%26auto%3Dwebp%26s%3D16d5c788048900222349f5b3fc944f715ba732c1&f=1&nofb=1&ipt=4e53ca0e899cc097b600dc2bd46b31f04147785dc97dcb176fa6d05d919c35ce") //TODO: use actual user avatar
-                                    .crossfade(true)
-                                    .build(),
-                                placeholder = painterResource(R.drawable.ic_single),
-                                contentDescription = "Profile image",
-                            )
-                            Spacer(modifier = Modifier.height(30.dp))
-
+                            Spacer(modifier = Modifier.height(60.dp))
                         }
 
                         SettingsCategoryCard(title = "Безопасность", description = "Защищаем Вас и Ваши достижения", iconVector = Icons.Default.Shield) {
@@ -158,7 +145,7 @@ fun ProfileScreenContent(
                         SettingsCategoryCard(title = "История", description = "Посмотрите свои прошлые события", iconVector = Icons.Default.ChatBubbleOutline) {
                             showWIPSheet = true
                         }
-                        Spacer(modifier = Modifier.height(45.dp))
+                        Spacer(modifier = Modifier.height(150.dp))
                         CustomWideButton("Выйти из аккаунта") {
                             onLogoutAction.invoke()
                         }
