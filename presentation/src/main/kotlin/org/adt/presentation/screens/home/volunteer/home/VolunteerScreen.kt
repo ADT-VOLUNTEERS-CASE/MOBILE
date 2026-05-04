@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -40,7 +39,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -175,7 +173,8 @@ fun VolunteerScreenContent(
                             firstName = uiState.firstName,
                             scrollBehavior = scrollBehavior,
                             onSettingsNavigateAction = onSettingsNavigateAction,
-                            onNotificationsNavigateAction = { showWIPSheet = true }
+                            onNotificationsNavigateAction = { showWIPSheet = true },
+                            onCalendarNavigateAction = onCalendarToggleAction
                         )
                     }) { paddingValues ->
                     Column(
@@ -218,10 +217,6 @@ fun VolunteerScreenContent(
                                     if (uiState.isLocationFiltering) {
                                         TextButton(onClick = onResetFilterAction) {
                                             Text("Сбросить", color = Mint)
-                                        }
-                                    } else {
-                                        TextButton(onClick = { onCalendarToggleAction(true) }) {
-                                            Text("Мой календарь", color = Mint)
                                         }
                                     }
                                 }

@@ -6,8 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -22,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.tooling.preview.Preview
 import org.adt.presentation.components.cards.ProfileCard
-import org.adt.presentation.screens.home.volunteer.home.VolunteerState
 import org.adt.presentation.theme.VolunteersCaseTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,7 +31,8 @@ fun SyncedTopNavigationBar(
     scrollBehavior: TopAppBarScrollBehavior,
     scale: Float,
     onSettingsNavigateAction: () -> Unit = {},
-    onNotificationsNavigateAction: () -> Unit = {}
+    onNotificationsNavigateAction: () -> Unit = {},
+    onCalendarNavigateAction: (Boolean) -> Unit= {},
 ) {
     TopAppBar(
         modifier = modifier,
@@ -65,6 +64,21 @@ fun SyncedTopNavigationBar(
                 }
             }
         },
+        navigationIcon = {
+            AnimatedVisibility(
+                visible = scale < 0.2f,
+                enter = fadeIn() + expandHorizontally(),
+                exit = fadeOut() + shrinkHorizontally()
+            ) {
+                IconButton(onClick = { onCalendarNavigateAction.invoke(true) }) {
+                    Icon(
+                        imageVector = Icons.Filled.CalendarMonth,
+                        contentDescription = "Calendar navigation",
+                        tint = Color.White
+                    )
+                }
+            }
+        },
         scrollBehavior = scrollBehavior
     )
 }
@@ -75,6 +89,6 @@ fun SyncedTopNavigationBar(
 private fun TopNavigationBarPreview() {
     VolunteersCaseTheme {
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-        SyncedTopNavigationBar(scrollBehavior = scrollBehavior, scale = 1f)
+        SyncedTopNavigationBar(scrollBehavior = scrollBehavior, scale = 1f,)
     }
 }
