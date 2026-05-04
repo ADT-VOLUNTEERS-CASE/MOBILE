@@ -7,20 +7,25 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTopAppBarState
@@ -39,8 +44,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
@@ -59,6 +67,7 @@ import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.screens.home.volunteer.search.SearchOverlay
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
+import org.adt.presentation.theme.Black
 import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
@@ -134,6 +143,8 @@ fun VolunteerScreenContent(
 
         val syncedScrollState = rememberSyncedScrollState()
 
+        var isFilterChipSelected by remember { mutableStateOf(false) }
+
         LaunchedEffect(uiState.eventError) {
             uiState.eventError?.let { error ->
                 Toast.makeText(context, error, Toast.LENGTH_LONG).show()
@@ -202,22 +213,53 @@ fun VolunteerScreenContent(
                             ) {
                                 val displayEvents =
                                     if (uiState.isLocationFiltering) uiState.filteredEventsByLocation else uiState.eventsList
-                                val title =
-                                    if (uiState.isLocationFiltering) "События: ${uiState.selectedLocationAddress}" else "Каталог мероприятий"
 
                                 Column(
                                     Modifier.fillMaxWidth(),
                                     verticalArrangement = Arrangement.spacedBy(4.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Text(
-                                        title,
-                                        style = VolunteersCaseTheme.typography.titleLarge
-                                    )
-                                    if (uiState.isLocationFiltering) {
-                                        TextButton(onClick = onResetFilterAction) {
-                                            Text("Сбросить", color = Mint)
-                                        }
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(
+                                            4.dp,
+                                            Alignment.CenterHorizontally
+                                        ),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            "Каталог мероприятий",
+                                            style = VolunteersCaseTheme.typography.titleLarge
+                                        )
+                                        FilterChip(
+                                            selected = isFilterChipSelected,
+                                            label = {
+                                                Text(
+                                                    text = "Мои",
+                                                    style = VolunteersCaseTheme.typography.labelLarge.copy(
+                                                        fontSize = 13.sp
+                                                    ),
+                                                    fontWeight = FontWeight.Normal,
+                                                    maxLines = 2,
+                                                    overflow = TextOverflow.Ellipsis,
+                                                    color = Black.copy(alpha = 0.7f)
+                                                )
+                                            },
+                                            trailingIcon = Trailing@{
+                                                if (!isFilterChipSelected) {
+                                                    return@Trailing
+                                                }
+
+                                                Icon(
+                                                    modifier = Modifier.size(12.dp),
+                                                    imageVector = Icons.Default.Check,
+                                                    contentDescription = "My events filter enabled"
+                                                )
+                                            },
+                                            onClick = {
+                                                isFilterChipSelected = !isFilterChipSelected
+                                            })
                                     }
                                 }
 
