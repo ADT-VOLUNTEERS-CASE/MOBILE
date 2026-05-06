@@ -1,4 +1,11 @@
-# VolunteersCase
+# ЦГВ: Проекты
+
+<img src="assets/logo.svg" alt="Logo" width="400" height="400" />
+
+---
+
+![Build & Test](https://github.com/ADT-VOLUNTEERS-CASE/MOBILE/actions/workflows/pr_build.yml/badge.svg)
+![Compose Preview](https://github.com/ADT-VOLUNTEERS-CASE/MOBILE/actions/workflows/roborazzi-diff.yml/badge.svg)
 
 Мобильное приложение для Центра городских волонтеров Санкт-Петербурга.
 
@@ -29,7 +36,7 @@
 
 ## Структура модулей
 
-```
+```text
 presentation/   Экраны, ViewModel, навигация, темы и компоненты UI
 domain/         Бизнес-логика и контракты репозиториев
 data/           Работа с сетью, репозитории данных, модели API
