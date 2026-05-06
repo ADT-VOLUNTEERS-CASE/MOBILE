@@ -1,13 +1,17 @@
-# ЦГВ: Проекты
-
-<img src="assets/logo.svg" alt="Logo" width="400" height="400" />
-
----
+<div align="center">
+  
+<h1> ЦГВ: Проекты </h1>
 
 ![Build & Test](https://github.com/ADT-VOLUNTEERS-CASE/MOBILE/actions/workflows/pr_build.yml/badge.svg)
 ![Compose Preview](https://github.com/ADT-VOLUNTEERS-CASE/MOBILE/actions/workflows/roborazzi-diff.yml/badge.svg)
 
+<img src="assets/logo.svg" alt="Logo" width="400" height="400" />
+
 Мобильное приложение для Центра городских волонтеров Санкт-Петербурга.
+
+</div>
+
+---
 
 ## Что делает приложение
 
