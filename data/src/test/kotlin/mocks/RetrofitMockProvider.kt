@@ -5,10 +5,16 @@ import io.mockk.mockk
 import io.mockk.slot
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody.Companion.toResponseBody
+import org.adt.core.entities.EventStatus
 import org.adt.core.entities.Location
+import org.adt.core.entities.Tag
 import org.adt.core.entities.UserRole
+import org.adt.core.entities.event.Cover
 import org.adt.core.entities.event.Event
+import org.adt.core.entities.event.EventLocation
+import org.adt.core.entities.event.EventUser
 import org.adt.core.entities.request.AuthRequest
+import org.adt.core.entities.request.EventRequest
 import org.adt.core.entities.request.FindLocationRequest
 import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
@@ -27,14 +33,9 @@ object RetrofitMockProvider {
     var tokenStore: Pair<String, String> = "" to ""
     var authenticatedUser: MockUserModel? = null
 
-    val registerRequestSlot = slot<RegisterRequest>()
-    val authRequestSlot = slot<AuthRequest>()
-    val refreshRequestSlot = slot<RefreshRequest>()
-
     const val EXCEPTED_PING_RESPONSE = "Pong!"
 
     val locations = arrayOf("Moscow", "Saint-Petersburg", "TestLocation")
-    val findLocationRequestSlot = slot<FindLocationRequest>()
 
     fun createMock(): RetrofitRepository {
         return mockk(relaxed = true) {
@@ -44,7 +45,12 @@ object RetrofitMockProvider {
             // region Registration
 
             coEvery { registerVolunteer(request = any()) } answers {
-                authenticatedUser = addCapturedUserToListAndRetrieve(UserRole.VOLUNTEER)
+                val request = firstArg<RegisterRequest>()
+                authenticatedUser = addCapturedUserToListAndRetrieve(
+                    request.email,
+                    request.password,
+                    UserRole.VOLUNTEER
+                )
 
                 val refreshToken = UUID.randomUUID().toString()
                 tokenStore = tokenStore.copy(second = refreshToken)
@@ -53,23 +59,27 @@ object RetrofitMockProvider {
             }
 
             coEvery {
-                registerCoordinator(
-                    request = capture(registerRequestSlot), auth = ""
-                )
+                registerCoordinator(auth = any(), request = any())
             } answers {
-                addCapturedUserToListAndRetrieve(UserRole.COORDINATOR)
+                val request = secondArg<RegisterRequest>()
+                addCapturedUserToListAndRetrieve(
+                    request.email,
+                    request.password,
+                    UserRole.COORDINATOR
+                )
                 Response.success(AuthResponse())
             }
 
-            coEvery { registerAdmin(request = capture(registerRequestSlot), auth = "") } answers {
-                addCapturedUserToListAndRetrieve(UserRole.ADMIN)
+            coEvery { registerAdmin(auth = any(), request = any()) } answers {
+                val request = secondArg<RegisterRequest>()
+                addCapturedUserToListAndRetrieve(request.email, request.password, UserRole.ADMIN)
                 Response.success(AuthResponse())
             }
 
             //endregion
 
-            coEvery { authenticate(capture(authRequestSlot)) } answers {
-                val request = authRequestSlot.captured
+            coEvery { authenticate(any()) } answers {
+                val request = firstArg<AuthRequest>()
                 val user = usersList.firstOrNull { user ->
                     request.email == user.email && request.password == user.password
                 }
@@ -90,9 +100,7 @@ object RetrofitMockProvider {
                 }
             }
 
-            coEvery { refreshToken(capture(refreshRequestSlot)) } answers {
-                val request = refreshRequestSlot.captured
-
+            coEvery { refreshToken(any()) } answers {
                 if (authenticatedUser == null) {
                     Response.error(
                         401,
@@ -124,14 +132,15 @@ object RetrofitMockProvider {
 
             coEvery {
                 findLocation(
-                    any(),
-                    any(),
-                    any(),
-                    capture(findLocationRequestSlot)
+                    auth = any(),
+                    page = any(),
+                    size = any(),
+                    request = any()
                 )
             } answers {
+                val request = arg<FindLocationRequest>(3)
                 val mockElementsCount =
-                    if (locations.contains(findLocationRequestSlot.captured.address)) 1L else 0L
+                    if (locations.contains(request.address)) 1L else 0L
 
                 Response.success(
                     FindLocationResponse(
@@ -148,7 +157,24 @@ object RetrofitMockProvider {
                 )
             }
             coEvery { createEvent(any(), any()) } answers {
-                eventsList.add(secondArg())
+                val eventRequest = secondArg<EventRequest>()
+                val event = Event(
+                    eventId = -1,
+                    status = when (eventRequest.status) {
+                        EventStatus.ONGOING.name -> EventStatus.ONGOING
+                        EventStatus.IN_PROGRESS.name -> EventStatus.IN_PROGRESS
+                        EventStatus.COMPLETED.name -> EventStatus.COMPLETED
+                        else -> EventStatus.ONGOING
+                    },
+                    name = eventRequest.name,
+                    description = eventRequest.description,
+                    cover = Cover(coverId = eventRequest.coverId),
+                    coordinator = EventUser(userId = eventRequest.coordinatorId),
+                    maxCapacity = eventRequest.maxCapacity,
+                    dateTimestamp = eventRequest.dateTimestamp,
+                    location = EventLocation(locationId = eventRequest.locationId),
+                    tags = eventRequest.tagIds.map { Tag(tagId = it, "NothingTag") })
+                eventsList.add(event)
                 Response.success(null)
             }
         }
@@ -161,10 +187,14 @@ object RetrofitMockProvider {
         tokenStore = Pair(newAccessToken, newRefreshToken)
     }
 
-    internal fun addCapturedUserToListAndRetrieve(role: UserRole): MockUserModel {
+    internal fun addCapturedUserToListAndRetrieve(
+        email: String,
+        password: String,
+        role: UserRole
+    ): MockUserModel {
         val user = MockUserModel(
-            email = registerRequestSlot.captured.email,
-            password = registerRequestSlot.captured.password,
+            email = email,
+            password = password,
             role = role
         )
 

@@ -57,7 +57,9 @@ abstract class BaseDataRepositoryTest {
     }
 
     internal suspend fun registerTestUserWithRole(
-        role: UserRole, email: String = "test@debug.mail", password: String = "password"
+        role: UserRole,
+        email: String = "test@debug.mail",
+        password: String = "password"
     ) {
         val result = dataRepository.register(
             firstname = "TestUser",
