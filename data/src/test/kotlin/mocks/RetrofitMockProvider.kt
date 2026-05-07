@@ -7,6 +7,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.adt.core.entities.Location
 import org.adt.core.entities.UserRole
+import org.adt.core.entities.event.Event
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.FindLocationRequest
 import org.adt.core.entities.request.RefreshRequest
@@ -22,6 +23,7 @@ import kotlin.random.Random
 
 object RetrofitMockProvider {
     var usersList: MutableList<MockUserModel> = mutableListOf()
+    var eventsList: MutableList<Event> = mutableListOf()
     var tokenStore: Pair<String, String> = "" to ""
     var authenticatedUser: MockUserModel? = null
 
@@ -144,7 +146,10 @@ object RetrofitMockProvider {
                         last = false
                     )
                 )
-
+            }
+            coEvery { createEvent(any(), any()) } answers {
+                eventsList.add(secondArg())
+                Response.success(null)
             }
         }
     }

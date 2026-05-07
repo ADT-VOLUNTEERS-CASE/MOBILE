@@ -6,10 +6,12 @@ import org.adt.core.annotations.AssociatedWith
 import org.adt.core.entities.UserRole
 import org.adt.core.entities.response.UserResponse
 import org.adt.data.mocks.RetrofitMockProvider.EXCEPTED_PING_RESPONSE
+import org.adt.data.mocks.RetrofitMockProvider.eventsList
 import org.adt.data.mocks.RetrofitMockProvider.usersList
 import org.adt.data.repository.DataRepositoryImpl
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import javax.xml.crypto.Data
 
 data class MockUserModel(
     val email: String = "", val password: String = "", val role: UserRole = UserRole.VOLUNTEER
@@ -188,5 +190,75 @@ class DataRepositoryTest : BaseDataRepositoryTest() {
         val result = dataRepository.requestFreshAccessToken()
 
         assert(result.data().isNotBlank())
+    }
+
+    @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.CREATE_EVENT)
+    fun `Create Event Test`() = runBlocking {
+        createTestEvent()
+
+        assert(eventsList.isNotEmpty())
+    }
+
+    @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.CREATE_EVENT_APPLICATION)
+    fun `Create Event Application Test`() = runBlocking {
+        // TODO: Not Implemented Yet...
+    }
+
+    @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.CREATE_TAG)
+    fun `Create Tag Test`() = runBlocking {
+        // TODO: Not Implemented Yet...
+    }
+    @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.DELETE_COVER)
+    fun `Delete Cover Test`() = runBlocking {
+        // TODO: Not Implemented Yet...
+    }
+    @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.DELETE_EVENT)
+    fun `Delete Event Test`() = runBlocking {
+        // TODO: Not Implemented Yet...
+    }
+    @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.DELETE_TAG_BY_NAME)
+    fun `Delete Tag By Name Test`() = runBlocking {
+        // TODO: Not Implemented Yet...
+    }
+    @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.FIND_EVENT)
+    fun `Find Event Test`() = runBlocking {
+        // TODO: Not Implemented Yet...
+    }
+    @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.GET_COORDINATOR_EVENTS)
+    fun `Get Coordinator Events Test`() = runBlocking {
+        // TODO: Not Implemented Yet...
+    }
+    @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.GET_EVENT_APPLICATIONS)
+    fun `Get Event Applications Test`() = runBlocking {
+        // TODO: Not Implemented Yet...
+    }
+    @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.GET_EVENTS)
+    fun `Get Events Test`() = runBlocking {
+        // TODO: Not Implemented Yet...
+    }
+    @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.GET_TAG_BY_NAME)
+    fun `Get Tag By Name Test`() = runBlocking {
+        // TODO: Not Implemented Yet...
+    }
+    @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.UPDATE_APPLICATION_STATUS)
+    fun `Update Application Status Test`() = runBlocking {
+        // TODO: Not Implemented Yet...
+    }
+    @Test
+    @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.UPLOAD_COVER)
+    fun `Upload Cover Test`() = runBlocking {
+        // TODO: Not Implemented Yet...
     }
 }

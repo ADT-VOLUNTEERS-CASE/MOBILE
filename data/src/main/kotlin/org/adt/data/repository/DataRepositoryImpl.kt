@@ -37,6 +37,7 @@ class DataRepositoryImpl @Inject constructor(
     private val persistenceRepository: PersistenceRepository
 ) : DataRepository {
     companion object {
+        // Methods names for reflection in ArchUnit
         const val PING = "ping"
         const val AUTHORIZED = "authorized"
         const val REGISTER = "register"
@@ -45,6 +46,19 @@ class DataRepositoryImpl @Inject constructor(
         const val FIND_LOCATION = "findLocation"
         const val USER_INFO = "userInfo"
         const val REQUEST_ACCESS_TOKEN = "requestFreshAccessToken"
+        const val CREATE_EVENT = "createEvent"
+        const val CREATE_EVENT_APPLICATION = "createEventApplication"
+        const val CREATE_TAG = "createTag"
+        const val DELETE_COVER = "deleteCover"
+        const val DELETE_EVENT = "deleteEvent"
+        const val DELETE_TAG_BY_NAME = "deleteTagByName"
+        const val FIND_EVENT = "findEvent"
+        const val GET_COORDINATOR_EVENTS = "getCoordinatorEvents"
+        const val GET_EVENT_APPLICATIONS = "getEventApplications"
+        const val GET_EVENTS = "getEvents"
+        const val GET_TAG_BY_NAME = "getTagByName"
+        const val UPDATE_APPLICATION_STATUS = "updateApplicationStatus"
+        const val UPLOAD_COVER = "uploadCover"
     }
 
     private val json = Json { ignoreUnknownKeys = true }

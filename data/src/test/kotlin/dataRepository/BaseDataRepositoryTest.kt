@@ -6,6 +6,7 @@ import org.adt.data.abstraction.PersistenceRepository
 import org.adt.data.mocks.PersistenceMockProvider
 import org.adt.data.mocks.RetrofitMockProvider
 import org.adt.data.mocks.RetrofitMockProvider.authenticatedUser
+import org.adt.data.mocks.RetrofitMockProvider.eventsList
 import org.adt.data.mocks.RetrofitMockProvider.tokenStore
 import org.adt.data.mocks.RetrofitMockProvider.usersList
 import org.adt.data.repository.DataRepositoryImpl
@@ -34,8 +35,25 @@ abstract class BaseDataRepositoryTest {
 
     internal fun reset() {
         usersList.clear()
+        eventsList.clear()
         tokenStore = "" to ""
         authenticatedUser = null
+    }
+
+    internal suspend fun createTestEvent(){
+        val result =
+            dataRepository.createEvent(
+                name = "TestEvent",
+                status = "Ongoing",
+                description = "",
+                coverId = 5,
+                coordinatorId = 1,
+                maxCapacity = 10,
+                dateTimestamp = "",
+                locationId = 1,
+                tagIds = listOf()
+            )
+        assert(result.isSuccessful)
     }
 
     internal suspend fun registerTestUserWithRole(
