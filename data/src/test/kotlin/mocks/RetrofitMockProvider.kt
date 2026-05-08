@@ -16,7 +16,6 @@ import org.adt.core.entities.event.EventUser
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.EventRequest
 import org.adt.core.entities.request.FindLocationRequest
-import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.response.AuthResponse
 import org.adt.core.entities.response.FindLocationResponse
@@ -46,10 +45,11 @@ object RetrofitMockProvider {
 
             coEvery { registerVolunteer(request = any()) } answers {
                 val request = firstArg<RegisterRequest>()
+
                 authenticatedUser = addCapturedUserToListAndRetrieve(
-                    request.email,
-                    request.password,
-                    UserRole.VOLUNTEER
+                    email = request.email,
+                    password = request.password,
+                    role = UserRole.VOLUNTEER,
                 )
 
                 val refreshToken = UUID.randomUUID().toString()
@@ -59,20 +59,28 @@ object RetrofitMockProvider {
             }
 
             coEvery {
-                registerCoordinator(auth = any(), request = any())
+                registerCoordinator(request = any(), auth = any())
             } answers {
-                val request = secondArg<RegisterRequest>()
+                val request = firstArg<RegisterRequest>()
+
                 addCapturedUserToListAndRetrieve(
-                    request.email,
-                    request.password,
-                    UserRole.COORDINATOR
+                    email = request.email,
+                    password = request.password,
+                    role = UserRole.COORDINATOR
                 )
+
                 Response.success(AuthResponse())
             }
 
-            coEvery { registerAdmin(auth = any(), request = any()) } answers {
-                val request = secondArg<RegisterRequest>()
-                addCapturedUserToListAndRetrieve(request.email, request.password, UserRole.ADMIN)
+            coEvery { registerAdmin(request = any(), auth = any()) } answers {
+                val request = firstArg<RegisterRequest>()
+
+                addCapturedUserToListAndRetrieve(
+                    email = request.email,
+                    password = request.password,
+                    role = UserRole.ADMIN
+                )
+
                 Response.success(AuthResponse())
             }
 
