@@ -14,7 +14,7 @@ data class UserResponse(
     val email: String? = null,
     val tags: List<Tag> = listOf(),
     val events: List<UserEvents> = listOf(),
-    val workLocation: String? = "",
+    val workLocation: String? = null,
     val admin: Boolean = false,
     val coordinator: Boolean = false
 )
