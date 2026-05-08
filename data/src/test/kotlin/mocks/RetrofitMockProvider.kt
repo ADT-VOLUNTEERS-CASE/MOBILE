@@ -2,7 +2,6 @@ package org.adt.data.mocks
 
 import io.mockk.coEvery
 import io.mockk.mockk
-import io.mockk.slot
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.adt.core.entities.EventStatus
@@ -59,9 +58,9 @@ object RetrofitMockProvider {
             }
 
             coEvery {
-                registerCoordinator(request = any(), auth = any())
+                registerCoordinator(auth = any(), request = any())
             } answers {
-                val request = firstArg<RegisterRequest>()
+                val request = secondArg<RegisterRequest>()
 
                 addCapturedUserToListAndRetrieve(
                     email = request.email,
@@ -72,8 +71,8 @@ object RetrofitMockProvider {
                 Response.success(AuthResponse())
             }
 
-            coEvery { registerAdmin(request = any(), auth = any()) } answers {
-                val request = firstArg<RegisterRequest>()
+            coEvery { registerAdmin(auth = any(), request = any()) } answers {
+                val request = secondArg<RegisterRequest>()
 
                 addCapturedUserToListAndRetrieve(
                     email = request.email,
