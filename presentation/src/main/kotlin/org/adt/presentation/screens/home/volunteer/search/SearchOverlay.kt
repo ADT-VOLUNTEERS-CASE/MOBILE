@@ -8,6 +8,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -69,7 +70,9 @@ fun SearchOverlay(
                 )
                 .padding(top = 16.dp)
                 .pointerInput(Unit) {
-                    focusManager.clearFocus()
+                    detectTapGestures {
+                        focusManager.clearFocus()
+                    }
                 }
                 .fillMaxSize()
                 .clickable(enabled = false) { }
