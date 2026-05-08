@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
 import org.adt.domain.abstraction.DataRepository
 import javax.inject.Inject
@@ -17,16 +18,16 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel() {
     private val _state = MutableStateFlow(ProfileState())
 
-    val state get() =
-            _state.asStateFlow()
+    val state = _state.asStateFlow()
 
     init {
         requestUserInfo()
     }
 
-    fun logout(){
-        viewModelScope.launch(Dispatchers.IO) {
-            dataRepository.deauthenticate()
+    fun logout(navigateAction: () -> Unit) {
+        viewModelScope.launch {
+            Dispatchers.IO { dataRepository.deauthenticate() }
+            navigateAction.invoke()
         }
     }
 

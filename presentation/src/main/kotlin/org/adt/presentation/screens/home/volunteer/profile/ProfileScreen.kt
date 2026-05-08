@@ -2,17 +2,13 @@
 
 package org.adt.presentation.screens.home.volunteer.profile
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -33,23 +29,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import org.adt.presentation.R
 import org.adt.presentation.components.buttons.CustomWideButton
 import org.adt.presentation.components.cards.SettingsCategoryCard
 import org.adt.presentation.components.misc.NotImplementedSheet
+import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable
@@ -60,7 +50,15 @@ fun ProfileScreen(
     ProfileScreenContent(
         profileState = viewModel.state.collectAsState().value,
         onBackPressedAction = { navController.popBackStack() },
-        onLogoutAction = { viewModel.logout() }
+        onLogoutAction = {
+            viewModel.logout {
+                navController.navigate(Destinations.Splash) {
+                    popUpTo(navController.graph.id){
+                        inclusive = true
+                    }
+                }
+            }
+        }
     )
 }
 
@@ -72,94 +70,86 @@ fun ProfileScreenContent(
 ) {
     var showWIPSheet by remember { mutableStateOf(false) }
 
-    Box(
+    Scaffold(
         modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-    ) {
-        Scaffold(containerColor = Color.Transparent) { contentPadding ->
-            Column(
-                modifier = Modifier
-                    .padding(contentPadding)
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Scaffold(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    containerColor = Color.Transparent,
-                    topBar = {
-                        TopAppBar(
-                            modifier = Modifier.height(64.dp),
-                            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black),
-                            title = {
-                                Text(
-                                    text = profileState.firstName,
-                                    style = VolunteersCaseTheme.typography.labelLarge.copy(fontSize = 22.sp),
-                                    fontWeight = FontWeight.SemiBold,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = VolunteersCaseTheme.colors.text,
-                                )
-                            },
-                            navigationIcon = {
-                                IconButton(onClick = onBackPressedAction) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = "Back",
-                                        tint = Color.White
-                                    )
-                                }
-                            }
+            .fillMaxSize(),
+        containerColor = Color.Black,
+        topBar = {
+            TopAppBar(
+                modifier = Modifier.height(64.dp),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black),
+                title = {
+                    Text(
+                        text = profileState.firstName,
+                        style = VolunteersCaseTheme.typography.labelLarge.copy(fontSize = 22.sp),
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        color = VolunteersCaseTheme.colors.text,
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackPressedAction) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.White
                         )
-                    })
-                { paddingValues ->
-                    Column(
-                        Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                            .padding(paddingValues)
-                            .padding(horizontal = 30.dp, vertical = 50.dp),
-                        Arrangement.spacedBy(20.dp),
-                        Alignment.CenterHorizontally
-                    ) {
-                        Column(
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                modifier = Modifier,
-                                text = profileState.firstName,
-                                style = VolunteersCaseTheme.typography.labelLarge.copy(fontSize = 32.sp),
-                                fontWeight = FontWeight.SemiBold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                color = VolunteersCaseTheme.colors.text,
-                            )
-                            Spacer(modifier = Modifier.height(60.dp))
-                        }
-
-                        SettingsCategoryCard(title = "Безопасность", description = "Защищаем Вас и Ваши достижения", iconVector = Icons.Default.Shield) {
-                            showWIPSheet = true
-                        }
-                        SettingsCategoryCard(title = "История", description = "Посмотрите свои прошлые события", iconVector = Icons.Default.ChatBubbleOutline) {
-                            showWIPSheet = true
-                        }
-                        Spacer(modifier = Modifier.height(150.dp))
-                        CustomWideButton("Выйти из аккаунта") {
-                            onLogoutAction.invoke()
-                        }
                     }
                 }
+            )
+        })
+    { paddingValues ->
+        Column(
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(paddingValues)
+                .padding(horizontal = 30.dp, vertical = 50.dp),
+            Arrangement.spacedBy(20.dp),
+            Alignment.CenterHorizontally
+        ) {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    modifier = Modifier,
+                    text = profileState.firstName,
+                    style = VolunteersCaseTheme.typography.labelLarge.copy(fontSize = 32.sp),
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = VolunteersCaseTheme.colors.text,
+                )
+                Spacer(modifier = Modifier.height(60.dp))
             }
-            if (showWIPSheet) {
-                NotImplementedSheet {
-                    showWIPSheet = false
-                }
+
+            SettingsCategoryCard(
+                title = "Безопасность",
+                description = "Защищаем Вас и Ваши достижения",
+                iconVector = Icons.Default.Shield
+            ) {
+                showWIPSheet = true
             }
+            SettingsCategoryCard(
+                title = "История",
+                description = "Посмотрите свои прошлые события",
+                iconVector = Icons.Default.ChatBubbleOutline
+            ) {
+                showWIPSheet = true
+            }
+            Spacer(modifier = Modifier.height(150.dp))
+            CustomWideButton("Выйти из аккаунта") {
+                onLogoutAction.invoke()
             }
         }
-
+        if (showWIPSheet) {
+            NotImplementedSheet {
+                showWIPSheet = false
+            }
+        }
+    }
 }
 
 @Preview
