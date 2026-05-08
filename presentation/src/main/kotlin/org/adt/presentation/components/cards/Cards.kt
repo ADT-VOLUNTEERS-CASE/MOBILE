@@ -4,7 +4,6 @@ package org.adt.presentation.components.cards
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -514,6 +513,7 @@ fun EventCard(
                         EventStatus.ONGOING -> "Предстоит!"
                         EventStatus.IN_PROGRESS -> "Уже идёт!"
                         EventStatus.COMPLETED -> "Завершено!"
+                        else -> "Неизвестно"
                     },
                     style = VolunteersCaseTheme.typography.titleLarge.copy(
                         fontSize = 11.sp,
@@ -548,7 +548,6 @@ fun EventCard(
         }
     }
 }
-
 
 
 /**
