@@ -1,6 +1,7 @@
 package org.adt.data.dataRepository
 
 import io.mockk.junit5.MockKExtension
+import org.adt.core.entities.EventStatus
 import org.adt.core.entities.UserRole
 import org.adt.data.abstraction.PersistenceRepository
 import org.adt.data.mocks.PersistenceMockProvider
@@ -44,7 +45,7 @@ abstract class BaseDataRepositoryTest {
         val result =
             dataRepository.createEvent(
                 name = "TestEvent",
-                status = "Ongoing",
+                status = EventStatus.ONGOING.name,
                 description = "",
                 coverId = 5,
                 coordinatorId = 1,
