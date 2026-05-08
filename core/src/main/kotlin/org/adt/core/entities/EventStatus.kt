@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 enum class EventStatus {
     ONGOING,
     IN_PROGRESS,
-    COMPLETED
+    COMPLETED,
+    UNKNOWN,
 }

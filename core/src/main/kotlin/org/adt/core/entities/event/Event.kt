@@ -7,7 +7,7 @@ import org.adt.core.entities.Tag
 @Serializable
 data class Event(
     val eventId: Long = -1,
-    val status: EventStatus = EventStatus.IN_PROGRESS,
+    val status: EventStatus = EventStatus.UNKNOWN,
     val name: String = "",
     val description: String = "",
     val cover: Cover? = null,
