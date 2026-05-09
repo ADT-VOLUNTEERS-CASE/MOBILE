@@ -57,8 +57,8 @@ import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Silver
 import org.adt.presentation.theme.VolunteersCaseTheme
-import org.adt.presentation.theme.extendedColor
 import org.adt.presentation.theme.VolunteersCaseTheme.typography
+import org.adt.presentation.theme.extendedColor
 
 @Composable
 fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegisterViewModel) {
@@ -145,7 +145,7 @@ fun AdminRegisterScreenContent(
         Text(
             "VOLUNTEERS",
             Modifier.offset { IntOffset(0, offsetYText.value.toInt()) },
-            style = VolunteersCaseTheme.typography.displayLarge.copy(Abyss, 40.sp)
+            style = typography.displayLarge.copy(Abyss, 40.sp)
         )
 
         Column(
@@ -187,7 +187,7 @@ fun AdminRegisterScreenContent(
                                 UserRole.COORDINATOR -> "Координатор"
                                 UserRole.VOLUNTEER -> "Волонтер"
                                 UserRole.NONE -> "Роль не выбрана"
-                            }, style = VolunteersCaseTheme.typography.titleMedium.copy(Lagoon)
+                            }, style = typography.titleMedium.copy(Lagoon)
                         )
 
                         Spacer(Modifier.width(4.dp))
@@ -298,7 +298,7 @@ fun AdminRegisterScreenContent(
                                 UserRole.COORDINATOR -> "Координатор"
                                 else -> "Волонтер"
                             }, Modifier.clickable { roleSelectedAction.invoke(userRole) },
-                            style = VolunteersCaseTheme.typography.titleMedium.copy(
+                            style = typography.titleMedium.copy(
                                 if (chosen) Lagoon else Arctic,
                                 fontWeight = if (chosen) FontWeight.Bold else FontWeight.Medium
                             )

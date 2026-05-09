@@ -12,7 +12,6 @@ import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
-import org.adt.presentation.theme.VolunteersCaseTheme.typography
 
 object ButtonDefaultsProvider {
 

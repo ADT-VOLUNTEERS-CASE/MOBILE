@@ -30,7 +30,7 @@ class SplashViewModel @Inject constructor(
                 return@launch
             }
 
-            Log.d("SplashViewModel::Ping", result.data())
+            Log.i("SplashViewModel::Ping", result.data())
         }
     }
 

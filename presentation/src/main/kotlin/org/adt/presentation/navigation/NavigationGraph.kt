@@ -1,5 +1,7 @@
 package org.adt.presentation.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -12,8 +14,10 @@ import org.adt.presentation.screens.home.admin.AdminScreen
 import org.adt.presentation.screens.home.admin.AdminViewModel
 import org.adt.presentation.screens.home.coordinator.CoordinatorScreen
 import org.adt.presentation.screens.home.coordinator.CoordinatorViewModel
-import org.adt.presentation.screens.home.volunteer.VolunteerScreen
-import org.adt.presentation.screens.home.volunteer.VolunteerViewModel
+import org.adt.presentation.screens.home.volunteer.home.VolunteerScreen
+import org.adt.presentation.screens.home.volunteer.home.VolunteerViewModel
+import org.adt.presentation.screens.home.volunteer.profile.ProfileScreen
+import org.adt.presentation.screens.home.volunteer.profile.ProfileViewModel
 import org.adt.presentation.screens.register.RegisterScreen
 import org.adt.presentation.screens.register.RegisterViewModel
 import org.adt.presentation.screens.register.admin.AdminRegisterScreen
@@ -23,7 +27,33 @@ import org.adt.presentation.screens.splash.SplashViewModel
 
 @Composable
 fun NavigationGraph(navController: NavHostController, innerPadding: PaddingValues = PaddingValues()) {
-    NavHost(navController, startDestination = Destinations.Splash) {
+    NavHost(
+        navController, startDestination = Destinations.Splash,
+        enterTransition = {
+            slideIntoContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                animationSpec = tween(700)
+            )
+        },
+        exitTransition = {
+            slideOutOfContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                animationSpec = tween(700)
+            )
+        },
+        popEnterTransition = {
+            slideIntoContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.End,
+                animationSpec = tween(700)
+            )
+        },
+        popExitTransition = {
+            slideOutOfContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.End,
+                animationSpec = tween(700)
+            )
+        }
+    ) {
         composable<Destinations.Splash> {
             val viewModel: SplashViewModel = hiltViewModel()
             SplashScreen(navController, viewModel)
@@ -55,6 +85,10 @@ fun NavigationGraph(navController: NavHostController, innerPadding: PaddingValue
         composable<Destinations.VolunteerHome> {
             val viewModel: VolunteerViewModel = hiltViewModel()
             VolunteerScreen(navController, viewModel)
+        }
+        composable<Destinations.VolunteerProfile> {
+            val viewModel: ProfileViewModel = hiltViewModel()
+            ProfileScreen(navController, viewModel)
         }
     }
 }

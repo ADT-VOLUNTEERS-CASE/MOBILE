@@ -4,9 +4,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Cover(
-    val coverId: Long,
-    val link: String,
-    val createdAt: Long,
-    val deletedAt: Long?,
-    val fileMetadata: CoverMetadata,
+    val coverId: Long = -1,
+    val link: String = "",
+    val createdAt: Long = -1,
+    val deletedAt: Long? = null,
+    val fileMetadata: CoverMetadata = CoverMetadata(),
 )
