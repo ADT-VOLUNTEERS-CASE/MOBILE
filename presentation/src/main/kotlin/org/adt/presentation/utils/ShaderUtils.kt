@@ -18,6 +18,8 @@ enum class ShaderPresets(val shader: Shader) {
 
 @Composable
 fun loadShaderFromAssets(shaderPreset: ShaderPresets): RuntimeShader {
+    val fallbackPath = "shaders/Fallback.glsl"
+
     val context = LocalContext.current
     val path = shaderPreset.shader.path
 
@@ -27,7 +29,7 @@ fun loadShaderFromAssets(shaderPreset: ShaderPresets): RuntimeShader {
                 context.assets.open(path).bufferedReader().use { it.readText() }
             } catch (e: IOException) {
                 Log.e("ShaderUtils", "Shader asset not found: $path", e)
-                ""
+                context.assets.open(fallbackPath).bufferedReader().use { it.readText() }
             }
 
         RuntimeShader(source)

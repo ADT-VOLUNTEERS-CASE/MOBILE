@@ -34,7 +34,6 @@ import org.adt.presentation.components.cards.EventSearchCard
 import org.adt.presentation.components.shaders.ShaderBox
 import org.adt.presentation.screens.home.volunteer.home.VolunteerState
 import org.adt.presentation.theme.Arctic
-import org.adt.presentation.theme.Black
 import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
@@ -123,7 +122,6 @@ fun SearchOverlay(
                     modifier = Modifier.fillMaxWidth(),
                     text = if (uiState.searchValue.isNotBlank()) "Ничего не найдено" else "Попробуйте что-нибудь ввести!",
                     style = VolunteersCaseTheme.typography.titleLarge.copy(
-                        Black,
                         fontWeight = FontWeight.Normal
                     ),
                     color = Color.White,

@@ -19,11 +19,9 @@ import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.response.AuthResponse
 import org.adt.core.entities.response.FindLocationResponse
 import org.adt.core.entities.response.UserResponse
-import org.adt.data.dataRepository.MockUserModel
 import org.adt.data.repository.RetrofitRepository
 import retrofit2.Response
 import java.util.UUID
-import kotlin.random.Random
 
 object RetrofitMockProvider {
     var usersList: MutableList<MockUserModel> = mutableListOf()
@@ -171,6 +169,7 @@ object RetrofitMockProvider {
                         EventStatus.ONGOING.name -> EventStatus.ONGOING
                         EventStatus.IN_PROGRESS.name -> EventStatus.IN_PROGRESS
                         EventStatus.COMPLETED.name -> EventStatus.COMPLETED
+                        EventStatus.UNKNOWN.name -> EventStatus.UNKNOWN
                         else -> EventStatus.ONGOING
                     },
                     name = eventRequest.name,
@@ -188,8 +187,8 @@ object RetrofitMockProvider {
     }
 
     internal fun rotateTokenPair() {
-        val newAccessToken = Random.nextBytes(128).toString()
-        val newRefreshToken = Random.nextBytes(128).toString()
+        val newAccessToken = UUID.randomUUID().toString()
+        val newRefreshToken = UUID.randomUUID().toString()
 
         tokenStore = Pair(newAccessToken, newRefreshToken)
     }
