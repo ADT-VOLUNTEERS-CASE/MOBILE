@@ -39,8 +39,8 @@ class DataRepositoryTest : BaseDataRepositoryTest() {
     fun `Register Coordinator Test`() = runBlocking {
         registerTestUserWithRole(UserRole.COORDINATOR)
 
-        coVerify(exactly = 1) { retrofitMockRepository.registerCoordinator("", any()) }
-        assertEquals(usersList.size, 1)
+        coVerify(exactly = 1) { retrofitMockRepository.registerCoordinator(any(), any()) }
+        assertEquals(1, usersList.size)
     }
 
     @Test
@@ -49,7 +49,7 @@ class DataRepositoryTest : BaseDataRepositoryTest() {
         registerTestUserWithRole(UserRole.ADMIN)
 
         coVerify(exactly = 1) { retrofitMockRepository.registerAdmin("", any()) }
-        assertEquals(usersList.size, 1)
+        assertEquals(1, usersList.size)
     }
 
     @Test
