@@ -12,10 +12,6 @@ import org.adt.data.repository.DataRepositoryImpl
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-data class MockUserModel(
-    val email: String = "", val password: String = "", val role: UserRole = UserRole.VOLUNTEER
-)
-
 class DataRepositoryTest : BaseDataRepositoryTest() {
     @Test
     @AssociatedWith(DataRepositoryImpl::class, DataRepositoryImpl.PING)
