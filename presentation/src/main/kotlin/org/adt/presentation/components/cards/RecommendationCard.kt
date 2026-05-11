@@ -1,11 +1,10 @@
 package org.adt.presentation.components.cards
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,8 +13,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,47 +22,69 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import org.adt.core.entities.event.Event
+import org.adt.core.entities.event.EventLocation
+import org.adt.presentation.R
+import org.adt.presentation.components.TrailingIconRow
+import org.adt.presentation.components.icons.IconSource
 import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable
-fun RecommendationCard(modifier: Modifier = Modifier, event: Event) {
+fun RecommendationCard(
+    modifier: Modifier = Modifier,
+    event: Event,
+    backgroundImageOverride: Painter? = null,
+    onClick: () -> Unit = {}
+) {
     Card(
         modifier = modifier
-            .width(320.dp)
-            .height(180.dp)
+            .width(300.dp)
+            .height(460.dp)
             .padding(8.dp),
         shape = RoundedCornerShape(16.dp),
-        onClick = { /* Navigate to details */ }
+        onClick = onClick
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            AsyncImage(
-                model = event.cover?.link,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .drawWithContent {
-                        drawContent()
-                        drawRect(
-                            brush = Brush.horizontalGradient(
-                                colors = listOf(
-                                    Color.Transparent,
-                                    Color.Black.copy(alpha = 0.4f)
-                                )
+            val imageModifier = Modifier
+                .fillMaxSize()
+                .drawWithContent {
+                    drawContent()
+                    drawRect(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.4f)
                             )
                         )
-                    }
-            )
+                    )
+                }
+
+            if (backgroundImageOverride != null) {
+                Image(
+                    painter = backgroundImageOverride,
+                    modifier = imageModifier,
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null
+                )
+            } else {
+                AsyncImage(
+                    model = event.cover?.link,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = imageModifier
+                )
+            }
 
             Row(
                 modifier = Modifier
@@ -90,56 +111,24 @@ fun RecommendationCard(modifier: Modifier = Modifier, event: Event) {
                     .align(Alignment.BottomStart),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                Box(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = event.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.White,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-
+                TrailingIconRow(
+                    modifier = Modifier,
+                    icon = IconSource.Vector(Icons.Default.CalendarMonth),
+                    text = event.localizedDate
+                )
+                TrailingIconRow(
+                    modifier = Modifier,
+                    icon = IconSource.Vector(Icons.Default.LocationOn),
+                    text = event.location.address
+                )
                 Text(
-                    text = event.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.9f),
-                    maxLines = 1,
+                    text = event.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = null,
-                        tint = Color.White.copy(alpha = 0.7f),
-                        modifier = Modifier.size(14.dp)
-                    )
-                    Spacer(Modifier.width(4.dp))
-                    Text(
-                        text = event.location.address,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.7f)
-                    )
-                }
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        tint = Color.White.copy(alpha = 0.7f),
-                        modifier = Modifier.size(14.dp)
-                    )
-                    Spacer(Modifier.width(4.dp))
-                    Text(
-                        //TODO: convert timestamp to actual date
-                        text = "${event.maxCapacity} • ${event.dateTimestamp}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.7f)
-                    )
-                }
             }
         }
     }
@@ -149,7 +138,16 @@ fun RecommendationCard(modifier: Modifier = Modifier, event: Event) {
 @Preview
 @Composable
 private fun RecommendationCardPreview() {
-    VolunteersCaseTheme{
-        RecommendationCard(event = Event(name = "Park Event", maxCapacity = 10))
+    VolunteersCaseTheme {
+        RecommendationCard(
+            event = Event(
+                name = "Уборка в парке",
+                description = "Плановая уборка",
+                location = EventLocation(address = "Центральная улица"),
+                dateTimestamp = "1778528250",
+                maxCapacity = 10
+            ),
+            backgroundImageOverride = painterResource(R.drawable.baseimage)
+        )
     }
 }
