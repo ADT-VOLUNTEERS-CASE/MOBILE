@@ -1,5 +1,6 @@
 package org.adt.presentation.components.cards
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -53,11 +55,10 @@ fun RecommendationCard(modifier: Modifier = Modifier, event: Event) {
                     .drawWithContent {
                         drawContent()
                         drawRect(
-                            brush = Brush.verticalGradient(
+                            brush = Brush.horizontalGradient(
                                 colors = listOf(
-                                    Color.Black.copy(alpha = 0.4f),
                                     Color.Transparent,
-                                    Color.Black.copy(alpha = 0.8f)
+                                    Color.Black.copy(alpha = 0.4f)
                                 )
                             )
                         )
@@ -89,13 +90,15 @@ fun RecommendationCard(modifier: Modifier = Modifier, event: Event) {
                     .align(Alignment.BottomStart),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                Text(
-                    text = event.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Box(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = event.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
 
                 Text(
                     text = event.description,
@@ -131,6 +134,7 @@ fun RecommendationCard(modifier: Modifier = Modifier, event: Event) {
                     )
                     Spacer(Modifier.width(4.dp))
                     Text(
+                        //TODO: convert timestamp to actual date
                         text = "${event.maxCapacity} • ${event.dateTimestamp}",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.White.copy(alpha = 0.7f)

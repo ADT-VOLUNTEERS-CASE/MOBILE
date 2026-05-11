@@ -41,10 +41,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -56,6 +56,7 @@ import org.adt.core.entities.AllDescriptionEvent
 import org.adt.core.entities.event.Event
 import org.adt.presentation.components.CustomCalendar
 import org.adt.presentation.components.CustomSearchTextField
+import org.adt.presentation.components.RecommendationsCarousel
 import org.adt.presentation.components.bars.SyncedTopNavigationBar
 import org.adt.presentation.components.cards.EventCard
 import org.adt.presentation.components.cards.OverallDescriptionEventCard
@@ -169,7 +170,9 @@ fun VolunteerScreenContent(
                     onConfirm = searchFieldOnConfirmAction,
                     onFocused = searchFieldOnFocusAction,
                 )
+
                 Spacer(modifier = Modifier.height((15 * syncedScrollState.scaleFactor).dp))
+
                 Scaffold(
                     modifier = Modifier
                         .fillMaxSize()
@@ -177,9 +180,6 @@ fun VolunteerScreenContent(
                     containerColor = Color.Transparent,
                     topBar = {
                         SyncedTopNavigationBar(
-                            modifier = Modifier.graphicsLayer {
-                                translationY = 0f
-                            },
                             scale = syncedScrollState.scaleFactor,
                             firstName = uiState.firstName,
                             scrollBehavior = scrollBehavior,
@@ -196,9 +196,11 @@ fun VolunteerScreenContent(
                         Arrangement.spacedBy(20.dp),
                         Alignment.CenterHorizontally
                     ) {
-                        Spacer(modifier = Modifier.height(8.dp))
+                        RecommendationsCarousel()
+
                         Column(
                             Modifier
+                                .padding(horizontal = 8.dp)
                                 .fillMaxWidth(),
                             Arrangement.spacedBy(20.dp),
                             Alignment.CenterHorizontally
@@ -214,29 +216,25 @@ fun VolunteerScreenContent(
                                 val displayEvents =
                                     if (uiState.isLocationFiltering) uiState.filteredEventsByLocation else uiState.eventsList
 
-                                Column(
-                                    Modifier.fillMaxWidth(),
-                                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
                                     Spacer(modifier = Modifier.height(10.dp))
+
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(
-                                            4.dp,
-                                            Alignment.CenterHorizontally
-                                        ),
+                                        horizontalArrangement = Arrangement.Center,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            "Каталог мероприятий",
+                                            modifier = Modifier.weight(1f),
+                                            text = "Каталог мероприятий",
+                                            textAlign = TextAlign.Center,
                                             style = VolunteersCaseTheme.typography.titleLarge
                                         )
                                         FilterChip(
+                                            modifier = Modifier.padding(horizontal = 8.dp),
                                             selected = isFilterChipSelected,
                                             label = {
                                                 Text(
-                                                    text = "Мои",
+                                                    text = "Только мои",
                                                     style = VolunteersCaseTheme.typography.labelLarge.copy(
                                                         fontSize = 13.sp
                                                     ),
@@ -261,7 +259,7 @@ fun VolunteerScreenContent(
                                                 isFilterChipSelected = !isFilterChipSelected
                                             })
                                     }
-                                }
+
 
                                 if (uiState.eventsListLoading) {
                                     CircularProgressIndicator(
@@ -319,6 +317,7 @@ fun VolunteerScreenContent(
                     }
                 }
             }
+
             Box(
                 modifier = Modifier.padding(top = 80.dp),
                 contentAlignment = Alignment.BottomCenter
@@ -326,19 +325,11 @@ fun VolunteerScreenContent(
                 SearchOverlay(
                     uiState,
                     {})
-                { data -> }
+                { data ->
+
+                }
             }
         }
-        /*
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-            CustomBottomBar(
-                Modifier
-                    .padding(30.dp)
-                    .padding(bottom = 15.dp),
-                UserRole.VOLUNTEER, Destinations.VolunteerHome, bottomBarNavigateAction
-            )
-        }
-        */
 
         if (uiState.eventPicker && uiState.selectedEvent != null) {
             val selectedEvent = uiState.selectedEvent

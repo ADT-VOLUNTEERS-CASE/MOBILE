@@ -8,7 +8,7 @@ import org.adt.core.entities.Tag
 data class Event(
     val eventId: Long = -1,
     val status: EventStatus = EventStatus.UNKNOWN,
-    val name: String = "",
+    val name: String = "Test event",
     val description: String = "",
     val cover: Cover? = null,
     val coordinator: EventUser = EventUser(),
