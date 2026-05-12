@@ -34,4 +34,18 @@ data class Event(
         } catch (_: Exception) {
             dateTimestamp
         }
+    val localizedDateTime: String
+        get() = try {
+            val epoch = dateTimestamp.toLong()
+            val instant = Instant.ofEpochSecond(epoch)
+
+            val formatter = DateTimeFormatter
+                .ofPattern("dd MMMM HH:mm")
+                .withZone(ZoneId.systemDefault())
+
+            formatter.format(instant)
+
+        } catch (_: Exception) {
+            dateTimestamp
+        }
 }
