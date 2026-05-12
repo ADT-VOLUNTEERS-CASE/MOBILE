@@ -489,6 +489,20 @@ class DataRepositoryImpl @Inject constructor(
         return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
     }
 
+    override suspend fun getEventById(eventId: Long): GeneralResponse<Event> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(
+            401,
+            "Not authorized"
+        )
+        val response = networkRepository.getEventById(token, eventId)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.body()!!)
+        }
+        //TODO: handle session expiration!
+        return GeneralResponse.failure(response.code())
+    }
+
     override suspend fun deleteEvent(
         eventId: Long,
         retried: Boolean

@@ -68,6 +68,8 @@ interface DataRepository {
         retried: Boolean = false
     ): GeneralResponse<Int>
 
+    suspend fun getEventById(eventId: Long): GeneralResponse<Event>
+
     suspend fun deleteEvent(eventId: Long, retried: Boolean = false): GeneralResponse<Int>
 
     suspend fun deleteCover(coverId: Long, retried: Boolean = false): GeneralResponse<Int>

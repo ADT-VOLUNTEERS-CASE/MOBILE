@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,7 +38,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import org.adt.core.entities.event.Event
 import org.adt.core.entities.event.EventLocation
 import org.adt.presentation.R
 import org.adt.presentation.components.buttons.ButtonVariant
@@ -49,10 +48,22 @@ import org.adt.presentation.theme.VolunteersCaseTheme
 @Composable
 fun EventDetailsScreen(
     modifier: Modifier = Modifier,
-    eventData: Event = Event(),
+    viewModel: EventDetailsViewModel,
+) {
+    EventDetailsScreenContent(
+        modifier = modifier,
+        uiState = viewModel.uiState.collectAsState().value
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EventDetailsScreenContent(
+    modifier: Modifier = Modifier,
+    uiState: EventDetailsState,
     backgroundImageOverride: Painter? = null,
 ) {
-
+    //TODO: Add loading indication
     Scaffold(
         modifier = Modifier.fillMaxSize(), topBar = {
             CenterAlignedTopAppBar(
@@ -77,7 +88,8 @@ fun EventDetailsScreen(
                 .padding(contentPadding)
                 .fillMaxSize()
                 .background(Color.Black)
-                .padding(horizontal = 8.dp),
+                .padding(horizontal = 8.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val imageModifier = Modifier
@@ -96,27 +108,22 @@ fun EventDetailsScreen(
                 )
             } else {
                 AsyncImage(
-                    model = eventData.cover?.link,
+                    model = uiState.cover?.link,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = imageModifier
                 )
             }
-            Box(
-                modifier = Modifier
-                    .padding(bottom = 16.dp)
-                    .fillMaxSize(),
-                contentAlignment = Alignment.BottomCenter
-            ) {
+
                 Column(
                     modifier = Modifier
                         .padding(horizontal = 8.dp)
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
+                        .padding(bottom = 16.dp)
+                        .fillMaxWidth()
                 ) {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = eventData.name,
+                        text = uiState.name,
                         color = VolunteersCaseTheme.colors.text,
                         style = VolunteersCaseTheme.typography.titleLarge.copy(fontSize = 36.sp),
                         textAlign = TextAlign.Center
@@ -146,7 +153,7 @@ fun EventDetailsScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = eventData.description,
+                        text = uiState.description,
                         color = VolunteersCaseTheme.colors.text.copy(alpha = 0.9f),
                         style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 16.sp),
                         fontWeight = FontWeight.Normal,
@@ -201,7 +208,7 @@ fun EventDetailsScreen(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = eventData.location.address,
+                                text = uiState.location.address,
                                 color = VolunteersCaseTheme.colors.text.copy(alpha = 0.9f),
                                 style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 16.sp),
                                 fontWeight = FontWeight.Normal,
@@ -217,7 +224,7 @@ fun EventDetailsScreen(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = eventData.localizedDateTime,
+                                text = uiState.localizedDateTime,
                                 color = VolunteersCaseTheme.colors.text.copy(alpha = 0.9f),
                                 style = VolunteersCaseTheme.typography.titleMedium.copy(fontSize = 16.sp),
                                 fontWeight = FontWeight.Normal,
@@ -225,11 +232,13 @@ fun EventDetailsScreen(
                             )
                         }
                     }
+                    Spacer(modifier = Modifier.height(32.dp))
+                    CustomButton(
+                        text = "Подать заявку",
+                        variant = ButtonVariant.RoughRounded,
+                        modifier = Modifier.height(52.dp),
+                    ) { }
                 }
-                CustomButton(text = "Подать заявку",
-                    variant = ButtonVariant.RoughRounded,
-                    modifier = Modifier.height(52.dp), ) { }
-            }
         }
     }
 }
@@ -238,12 +247,13 @@ fun EventDetailsScreen(
 @Composable
 private fun EventDetailsScreenPreview() {
     VolunteersCaseTheme {
-        EventDetailsScreen(
-            eventData = Event(
+        EventDetailsScreenContent(
+            uiState = EventDetailsState(
                 name = "Уборка в парке",
                 description = "Loreum ipsum",
                 location = EventLocation(address = "Центральная улица"),
-                dateTimestamp = "1778602195"),
+                localizedDateTime = "12 мая 19:07"
+            ),
             backgroundImageOverride = painterResource(R.drawable.baseimage)
         )
     }

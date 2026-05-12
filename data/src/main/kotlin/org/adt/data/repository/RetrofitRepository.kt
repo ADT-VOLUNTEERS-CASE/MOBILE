@@ -5,6 +5,7 @@ import org.adt.core.entities.Location
 import org.adt.core.entities.Tag
 import org.adt.core.entities.event.CoordinatorEventsResponse
 import org.adt.core.entities.event.Cover
+import org.adt.core.entities.event.Event
 import org.adt.core.entities.request.ApplicationStatusRequest
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.EventRequest
@@ -410,6 +411,24 @@ interface RetrofitRepository {
         @Header("Authorization") auth: String,
         @Body request: EventRequest
     ): Response<Void>
+
+    /**
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           401 | Unauthorized
+     *
+     *           404 | Event can't be founded by current id
+     */
+
+    @GET("event/{eventId}")
+    suspend fun getEventById(
+        @Header("Authorization") auth: String,
+        @Path("eventId") eventId: Long,
+    ): Response<Event>
 
     /**
      * SUCCESS:

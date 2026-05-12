@@ -99,7 +99,14 @@ fun VolunteerScreen(
             }
         },
         bottomBarNavigateAction = { navController.navigate(it) },
-        eventPickerAction = { viewModel.selectEvent(it) },
+        eventPickerAction = {
+            navController.navigate(
+                Destinations.EventDetails(
+                    it.eventId
+                )
+            )
+            //viewModel.selectEvent(it)
+        },
         eventPickerChangeAction = {
             viewModel.onEventPickerChange(false)
         },

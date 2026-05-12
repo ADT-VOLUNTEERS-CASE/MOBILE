@@ -2,6 +2,7 @@ package org.adt.presentation.navigation
 
 import kotlinx.serialization.Serializable
 import org.adt.core.entities.UserRole
+import org.adt.core.entities.event.Event
 
 @Serializable
 sealed class Destinations {
@@ -32,6 +33,9 @@ sealed class Destinations {
 
     @Serializable
     data object VolunteerProfile : Destinations()
+
+    @Serializable
+    data class EventDetails(val id: Long) : Destinations()
 
     companion object {
         fun mapRole(userRole: UserRole): Destinations {
