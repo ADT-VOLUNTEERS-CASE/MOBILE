@@ -377,6 +377,22 @@ interface RetrofitRepository {
     /**
      * SUCCESS:
      *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           403 | Forbidden (Expired Token)
+     */
+    @GET("event/recommended")
+    suspend fun getRecommendedEvents(
+        @Header("Authorization") auth: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+    ): Response<EventResponse>
+
+    /**
+     * SUCCESS:
+     *
      *           204 | OK
      *
      * ERRORS:

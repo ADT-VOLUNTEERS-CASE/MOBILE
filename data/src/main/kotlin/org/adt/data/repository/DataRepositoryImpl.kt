@@ -37,7 +37,7 @@ class DataRepositoryImpl @Inject constructor(
     private val persistenceRepository: PersistenceRepository
 ) : DataRepository {
     companion object {
-        // Methods names for reflection in ArchUnit
+        // Method names for reflection in ArchUnit
         const val PING = "ping"
         const val AUTHORIZED = "authorized"
         const val REGISTER = "register"
@@ -374,6 +374,29 @@ class DataRepositoryImpl @Inject constructor(
         }
 
         if (response.code() == 403 && !retried) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return getEvents(retried = true)
+            }
+
+            val error = parseError(response.errorBody())
+            persistenceRepository.removeToken()
+
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+        }
+
+        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+    }
+
+    override suspend fun getRecommendedEvents(): GeneralResponse<EventResponse> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val response = networkRepository.getRecommendedEvents(token, 0, 10)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.body()!!)
+        }
+
+        if (response.code() == 403) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return getEvents(retried = true)

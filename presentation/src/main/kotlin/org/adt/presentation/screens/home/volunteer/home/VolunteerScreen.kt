@@ -56,7 +56,7 @@ import org.adt.core.entities.AllDescriptionEvent
 import org.adt.core.entities.event.Event
 import org.adt.presentation.components.CustomCalendar
 import org.adt.presentation.components.CustomSearchTextField
-import org.adt.presentation.components.RecommendationsCarousel
+import org.adt.presentation.components.RecommendationsRow
 import org.adt.presentation.components.bars.SyncedTopNavigationBar
 import org.adt.presentation.components.cards.EventCard
 import org.adt.presentation.components.cards.OverallDescriptionEventCard
@@ -196,7 +196,7 @@ fun VolunteerScreenContent(
                         Arrangement.spacedBy(20.dp),
                         Alignment.CenterHorizontally
                     ) {
-                        RecommendationsCarousel()
+                        RecommendationsRow(events = uiState.recommendedEventsList)
 
                         Column(
                             Modifier
@@ -214,51 +214,53 @@ fun VolunteerScreenContent(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 val displayEvents =
-                                    if (uiState.isLocationFiltering) uiState.filteredEventsByLocation else uiState.eventsList
+                                    if (uiState.isLocationFiltering)
+                                        uiState.filteredEventsByLocation
+                                    else uiState.eventsList
 
-                                    Spacer(modifier = Modifier.height(10.dp))
+                                Spacer(modifier = Modifier.height(10.dp))
 
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.Center,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            modifier = Modifier.weight(1f),
-                                            text = "Каталог мероприятий",
-                                            textAlign = TextAlign.Center,
-                                            style = VolunteersCaseTheme.typography.titleLarge
-                                        )
-                                        FilterChip(
-                                            modifier = Modifier.padding(horizontal = 8.dp),
-                                            selected = isFilterChipSelected,
-                                            label = {
-                                                Text(
-                                                    text = "Только мои",
-                                                    style = VolunteersCaseTheme.typography.labelLarge.copy(
-                                                        fontSize = 13.sp
-                                                    ),
-                                                    fontWeight = FontWeight.Normal,
-                                                    maxLines = 2,
-                                                    overflow = TextOverflow.Ellipsis,
-                                                    color = Black.copy(alpha = 0.7f)
-                                                )
-                                            },
-                                            trailingIcon = Trailing@{
-                                                if (!isFilterChipSelected) {
-                                                    return@Trailing
-                                                }
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        modifier = Modifier.weight(1f),
+                                        text = "Каталог мероприятий",
+                                        textAlign = TextAlign.Center,
+                                        style = VolunteersCaseTheme.typography.titleLarge
+                                    )
+                                    FilterChip(
+                                        modifier = Modifier.padding(horizontal = 8.dp),
+                                        selected = isFilterChipSelected,
+                                        label = {
+                                            Text(
+                                                text = "Только мои",
+                                                style = VolunteersCaseTheme.typography.labelLarge.copy(
+                                                    fontSize = 13.sp
+                                                ),
+                                                fontWeight = FontWeight.Normal,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis,
+                                                color = Black.copy(alpha = 0.7f)
+                                            )
+                                        },
+                                        trailingIcon = Trailing@{
+                                            if (!isFilterChipSelected) {
+                                                return@Trailing
+                                            }
 
-                                                Icon(
-                                                    modifier = Modifier.size(12.dp),
-                                                    imageVector = Icons.Default.Check,
-                                                    contentDescription = "My events filter enabled"
-                                                )
-                                            },
-                                            onClick = {
-                                                isFilterChipSelected = !isFilterChipSelected
-                                            })
-                                    }
+                                            Icon(
+                                                modifier = Modifier.size(12.dp),
+                                                imageVector = Icons.Default.Check,
+                                                contentDescription = "My events filter enabled"
+                                            )
+                                        },
+                                        onClick = {
+                                            isFilterChipSelected = !isFilterChipSelected
+                                        })
+                                }
 
 
                                 if (uiState.eventsListLoading) {
@@ -397,6 +399,15 @@ fun VolunteerScreenContent(
 @Composable
 private fun VolunteerScreenPreview() {
     VolunteersCaseTheme {
-        VolunteerScreenContent(animationOverride = true, searchModeChangedAction = {})
+        VolunteerScreenContent(
+            uiState = VolunteerState(
+                eventsList = listOf(Event(), Event()), recommendedEventsList = listOf(
+                    Event(),
+                    Event()
+                )
+            ),
+            animationOverride = true,
+            searchModeChangedAction = {}
+        )
     }
 }

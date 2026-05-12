@@ -51,6 +51,8 @@ interface DataRepository {
 
     suspend fun getEvents(retried: Boolean = false): GeneralResponse<EventResponse>
 
+    suspend fun getRecommendedEvents(): GeneralResponse<EventResponse>
+
     suspend fun getCoordinatorEvents(retried: Boolean = false): GeneralResponse<CoordinatorEventsResponse>
 
     suspend fun createEvent(

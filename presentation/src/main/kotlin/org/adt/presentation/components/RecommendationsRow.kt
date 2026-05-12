@@ -26,7 +26,7 @@ import org.adt.presentation.theme.VolunteersCaseTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecommendationsCarousel(
+fun RecommendationsRow(
     modifier: Modifier = Modifier,
     events: List<Event> = listOf(Event(), Event())
 ) {
@@ -62,8 +62,8 @@ fun RecommendationsCarousel(
 
 @Preview
 @Composable
-private fun RecommendationsCarouselPreview() {
+private fun RecommendationsRowPreview() {
     VolunteersCaseTheme {
-        RecommendationsCarousel()
+        RecommendationsRow()
     }
 }
