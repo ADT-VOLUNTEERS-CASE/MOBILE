@@ -1,5 +1,6 @@
 package org.adt.presentation.screens.exception
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,14 +23,29 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import org.adt.presentation.R
 import org.adt.presentation.components.CustomRoundedButton
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.VolunteersCaseTheme
 
+
+@Composable
+fun NoConnectionScreen(
+    modifier: Modifier = Modifier,
+    navController: NavHostController,
+    viewModel: NoConnectionScreenViewModel = hiltViewModel<NoConnectionScreenViewModel>(),
+) {
+    BackHandler(enabled = true) {
+        // Restricts manual back navigation
+    }
+
+    NoConnectionScreenContent(
+        modifier = modifier,
+        onClick = { viewModel.refresh { navController.popBackStack() } })
+}
 
 /**
  * The screen indicates that there is no Internet connection
@@ -38,15 +54,12 @@ import org.adt.presentation.theme.VolunteersCaseTheme
  *
  * @param onClick function to be invoked on button click
  *
- * @param navController controller for switching between screens.
- *
- * @sample [NoConnectionPreview]
+ * @sample [NoConnectionScreenContentPreview]
  */
 @Composable
-fun NoConnectionScreen(
+fun NoConnectionScreenContent(
     modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    navController: NavHostController
+    onClick: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -98,16 +111,8 @@ fun NoConnectionScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 53.dp),
-                text = "Попробовать еще раз",
+                text = "Обновить!",
                 onClick = onClick
-            )
-
-            CustomRoundedButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 53.dp),
-                text = "Назад",
-                onClick = { navController.popBackStack() }
             )
         }
     }
@@ -117,8 +122,8 @@ fun NoConnectionScreen(
 
 @Preview
 @Composable
-private fun NoConnectionPreview() {
+private fun NoConnectionScreenContentPreview() {
     VolunteersCaseTheme {
-        NoConnectionScreen(Modifier, {}, navController = rememberNavController())
+        NoConnectionScreenContent(Modifier) {}
     }
 }
