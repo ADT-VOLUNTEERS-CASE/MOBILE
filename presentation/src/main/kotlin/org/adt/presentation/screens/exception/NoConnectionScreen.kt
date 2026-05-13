@@ -3,11 +3,14 @@ package org.adt.presentation.screens.exception
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -46,17 +49,20 @@ fun NoConnectionScreen(
     navController: NavHostController
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-            .background(color = Abyss),
+            .background(color = Abyss)
+            .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Column(
-            modifier = modifier
-                .width(300.dp)
-                .height(300.dp)
-                .background(Arctic, shape = RoundedCornerShape(20.dp)),
+            modifier = Modifier
+                .weight(1f, fill = false)
+                .sizeIn(maxWidth = 400.dp, maxHeight = 400.dp)
+                .fillMaxWidth()
+                .background(Arctic, shape = RoundedCornerShape(20.dp))
+                .padding(horizontal = 24.dp, vertical = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -69,22 +75,41 @@ fun NoConnectionScreen(
                 painter = painterResource(R.drawable.ic_worried_face),
                 contentDescription = null,
                 modifier = Modifier
-                    .padding(top = 30.dp)
-                    .size(120.dp)
+                    .padding(top = 24.dp)
+                    .sizeIn(
+                        maxWidth = 120.dp,
+                        maxHeight = 120.dp
+                    )
+                    .fillMaxSize()
             )
 
         }
-        CustomRoundedButton(
-            modifier = Modifier
-                .padding(top = 30.dp)
-                .width(300.dp)
-                .height(53.dp), text = "Попробовать еще раз", onClick = onClick )
 
-        CustomRoundedButton(
+        Spacer(modifier = Modifier.height(64.dp))
+
+        Column(
             modifier = Modifier
-                .padding(top = 10.dp)
-                .width(300.dp)
-                .height(53.dp), text = "Назад", onClick = { navController.popBackStack() })
+                .widthIn(max = 320.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            CustomRoundedButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 53.dp),
+                text = "Попробовать еще раз",
+                onClick = onClick
+            )
+
+            CustomRoundedButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 53.dp),
+                text = "Назад",
+                onClick = { navController.popBackStack() }
+            )
+        }
     }
 
 }
