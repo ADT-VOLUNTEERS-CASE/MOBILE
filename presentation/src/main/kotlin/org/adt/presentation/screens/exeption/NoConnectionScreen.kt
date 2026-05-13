@@ -78,7 +78,7 @@ fun NoConnectionScreen(
             modifier = Modifier
                 .padding(top = 30.dp)
                 .width(300.dp)
-                .height(53.dp), text = "Попробовать еще раз", onClick = { onClick })
+                .height(53.dp), text = "Попробовать еще раз", onClick = onClick )
 
         CustomRoundedButton(
             modifier = Modifier
