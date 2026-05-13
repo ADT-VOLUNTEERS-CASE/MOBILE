@@ -1,4 +1,4 @@
-package org.adt.presentation.screens.exeption
+package org.adt.presentation.screens.exception
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
