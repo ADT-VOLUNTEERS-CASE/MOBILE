@@ -32,7 +32,8 @@ import org.adt.presentation.theme.VolunteersCaseTheme
 @Composable
 fun RecommendationsRow(
     modifier: Modifier = Modifier,
-    events: List<Event> = listOf(Event(), Event())
+    events: List<Event> = listOf(Event(), Event()),
+    onNavigateAction: (eventId: Long) -> Unit = {}
 ) {
     val pagerState = rememberPagerState(pageCount = { events.size })
 
@@ -64,7 +65,8 @@ fun RecommendationsRow(
         ) { page ->
             RecommendationCard(
                 modifier = Modifier.fillMaxWidth(),
-                event = events[page]
+                event = events[page],
+                onClick = { onNavigateAction.invoke(events[page].eventId) }
             )
         }
 

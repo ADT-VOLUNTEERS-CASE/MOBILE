@@ -89,16 +89,6 @@ fun VolunteerScreen(
         searchFieldOnConfirmAction = {
             viewModel.findLocationAndEvents()
         },
-        logoutAction = {
-            viewModel.deauthenticate {
-                navController.navigate(Destinations.Splash) {
-                    popUpTo(navController.graph.id) {
-                        inclusive = true
-                    }
-                }
-            }
-        },
-        bottomBarNavigateAction = { navController.navigate(it) },
         eventPickerAction = {
             navController.navigate(
                 Destinations.EventDetails(
@@ -113,10 +103,10 @@ fun VolunteerScreen(
         eventPickerButtonAction = { viewModel.createUserEvent(it) },
         onToastShown = { viewModel.clearEventError() },
         onCalendarToggleAction = { viewModel.onCalendarToggle(it) },
-        onLocationClickAction = { viewModel.selectLocationAndFilterEvents(it) },
         searchFieldOnFocusAction = { it: FocusState -> viewModel.setSearchModeValue(it.isFocused) },
         onResetFilterAction = { viewModel.resetLocationFilter(returnToSearch = true) },
-        onSettingsNavigateAction = { navController.navigate(Destinations.VolunteerProfile) }
+        onSettingsNavigateAction = { navController.navigate(Destinations.VolunteerProfile) },
+        onRecommendedNavigateAction = {eventId -> navController.navigate(Destinations.EventDetails(eventId))}
     )
 }
 
@@ -127,18 +117,15 @@ fun VolunteerScreenContent(
     searchModeChangedAction: () -> Unit = {},
     searchFieldValueChangedAction: (it: String) -> Unit = {},
     searchFieldOnConfirmAction: (_: String) -> Unit = {},
-    logoutAction: () -> Unit = {},
-    bottomBarNavigateAction: (destination: Destinations) -> Unit = {},
     eventPickerAction: (event: Event) -> Unit = {},
     eventPickerChangeAction: () -> Unit = {},
     eventPickerButtonAction: (Long) -> Unit = {},
     onToastShown: () -> Unit = {},
     onCalendarToggleAction: (show: Boolean) -> Unit = {},
-    onLocationClickAction: (String) -> Unit = {},
     onResetFilterAction: () -> Unit = {},
     searchFieldOnFocusAction: (FocusState) -> Unit = {},
     onSettingsNavigateAction: () -> Unit = {},
-    animationOverride: Boolean = false,
+    onRecommendedNavigateAction: (eventId: Long) -> Unit = {},
 ) {
     var showWIPSheet by remember { mutableStateOf(false) }
 
@@ -203,7 +190,10 @@ fun VolunteerScreenContent(
                         Arrangement.spacedBy(20.dp),
                         Alignment.CenterHorizontally
                     ) {
-                        RecommendationsRow(events = uiState.recommendedEventsList)
+                        RecommendationsRow(
+                            events = uiState.recommendedEventsList,
+                            onNavigateAction = onRecommendedNavigateAction
+                        )
 
                         Column(
                             Modifier
@@ -413,7 +403,6 @@ private fun VolunteerScreenPreview() {
                     Event()
                 )
             ),
-            animationOverride = true,
             searchModeChangedAction = {}
         )
     }
