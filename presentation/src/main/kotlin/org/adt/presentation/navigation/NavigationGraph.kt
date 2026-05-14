@@ -100,7 +100,11 @@ fun NavigationGraph(navController: NavHostController, innerPadding: PaddingValue
                     factory.create(event.id)
                 }
 
-            EventDetailsScreen(viewModel = viewModel)
+            EventDetailsScreen(
+                viewModel = viewModel,
+                onBackNavigationAction = {
+                    navController.popBackStack()
+                })
         }
     }
 }

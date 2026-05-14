@@ -11,19 +11,20 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.adt.core.utils.ApiStatus
 import org.adt.domain.abstraction.DataRepository
 
 @HiltViewModel(assistedFactory = EventDetailsViewModel.Factory::class)
 class EventDetailsViewModel @AssistedInject constructor(
     @Assisted private val eventId: Long,
-    private val dataRepository: DataRepository
+    private val _dataRepository: DataRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(EventDetailsState())
     val uiState = _uiState.asStateFlow()
 
     fun updateCardDetails() {
         viewModelScope.launch(Dispatchers.IO) {
-            val response = dataRepository.getEventById(eventId)
+            val response = _dataRepository.getEventById(eventId)
 
             if (!response.isSuccessful)
                 return@launch
@@ -39,8 +40,46 @@ class EventDetailsViewModel @AssistedInject constructor(
         }
     }
 
+    fun retrieveEventApplicationStatus() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = _dataRepository.getApplicationStatus(eventId)
+
+            if (response.isSuccessful) {
+                _uiState.update { it.copy(applicationStatus = response.status.toString()) }
+            }
+        }
+    }
+
+    fun sendEventApplication() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = _dataRepository.createEventApplication(eventId)
+
+            if (response.isSuccessful) {
+                _uiState.update { it.copy(applicationStatus = "Заявка отправлена!") }
+                return@launch
+            }
+
+            if (response.status == ApiStatus.ALREADY_EXISTS) {
+                _uiState.update {
+                    it.copy(
+                        // TODO: display error message
+                    )
+                }
+                return@launch
+            }
+
+            _uiState.update {
+                it.copy(
+                    // TODO: display general error
+                )
+            }
+        }
+        retrieveEventApplicationStatus()
+    }
+
     init {
         updateCardDetails()
+        retrieveEventApplicationStatus()
     }
 
     @AssistedFactory

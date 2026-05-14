@@ -8,5 +8,6 @@ data class EventDetailsState(
     val description: String = "",
     val cover: Cover? = null,
     val location: EventLocation = EventLocation(),
-    val localizedDateTime: String = ""
+    val localizedDateTime: String = "",
+    val applicationStatus: String = "", // TODO: Separate available statuses to enum
 )

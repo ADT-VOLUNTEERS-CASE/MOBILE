@@ -15,6 +15,7 @@ import org.adt.core.entities.request.LocationRequest
 import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.request.TagRequest
+import org.adt.core.entities.response.ApplicationStatusResponse
 import org.adt.core.entities.response.ApplicationsResponse
 import org.adt.core.entities.response.AuthResponse
 import org.adt.core.entities.response.EventResponse
@@ -162,6 +163,12 @@ interface RetrofitRepository {
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20
     ): Response<ApplicationsResponse>
+
+    @GET("user-event/status/{eventId}")
+    suspend fun getApplicationStatus(
+        @Header("Authorization") auth: String,
+        @Path("eventId") eventId: Long,
+    ): Response<ApplicationStatusResponse?>
 
     @PATCH("user-event/coordinator/events/{eventId}/applications/{userId}/status")
     suspend fun updateApplicationStatus(

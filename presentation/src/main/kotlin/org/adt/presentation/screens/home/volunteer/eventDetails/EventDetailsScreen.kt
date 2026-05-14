@@ -40,19 +40,24 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import org.adt.core.entities.event.EventLocation
 import org.adt.presentation.R
+import org.adt.presentation.components.buttons.ButtonDefaultsProvider
+import org.adt.presentation.components.buttons.ButtonStyle
 import org.adt.presentation.components.buttons.ButtonVariant
 import org.adt.presentation.components.buttons.CustomButton
+import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.VolunteersCaseTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventDetailsScreen(
     modifier: Modifier = Modifier,
+    onBackNavigationAction: () -> Unit,
     viewModel: EventDetailsViewModel,
 ) {
     EventDetailsScreenContent(
-        modifier = modifier,
-        uiState = viewModel.uiState.collectAsState().value
+        modifier = modifier, onApplicationSendAction = viewModel::sendEventApplication,
+        uiState = viewModel.uiState.collectAsState().value,
+        onBackNavigationAction = onBackNavigationAction
     )
 }
 
@@ -61,6 +66,8 @@ fun EventDetailsScreen(
 fun EventDetailsScreenContent(
     modifier: Modifier = Modifier,
     uiState: EventDetailsState,
+    onApplicationSendAction: () -> Unit = {},
+    onBackNavigationAction: ()-> Unit = {},
     backgroundImageOverride: Painter? = null,
 ) {
     //TODO: Add loading indication
@@ -71,7 +78,7 @@ fun EventDetailsScreenContent(
                 navigationIcon = {
                     IconButton(
                         modifier = Modifier.padding(start = 8.dp),
-                        onClick = { /* TODO: Navigate action! */ }
+                        onClick = onBackNavigationAction
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
@@ -233,11 +240,28 @@ fun EventDetailsScreenContent(
                         }
                     }
                     Spacer(modifier = Modifier.height(32.dp))
+
+                    val isButtonAltered = uiState.applicationStatus != ""
+
+                    val buttonText = when (uiState.applicationStatus) {
+                        "PENDING" -> "Заявка уже отправлена!"
+                        "SUCCESS" -> "Ваша заявка была принята!"
+                        else -> "Подать заявку"
+                    }
+
                     CustomButton(
-                        text = "Подать заявку",
+                        text = buttonText,
                         variant = ButtonVariant.RoughRounded,
+                        colors = ButtonDefaultsProvider.colors(
+                            ButtonVariant.RoughRounded,
+                            ButtonStyle.Filled,
+                            true
+                        )
+                            .copy(containerColor = if (isButtonAltered) Color.Yellow else Lagoon),
+                        enabled = uiState.applicationStatus.isEmpty(),
                         modifier = Modifier.height(52.dp),
-                    ) { }
+                        onClick = onApplicationSendAction
+                    )
                 }
         }
     }

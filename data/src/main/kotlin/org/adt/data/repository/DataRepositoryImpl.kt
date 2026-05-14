@@ -17,13 +17,13 @@ import org.adt.core.entities.event.EventApplication
 import org.adt.core.entities.request.ApplicationStatusRequest
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.EventRequest
+import org.adt.core.entities.request.FindEventRequest
 import org.adt.core.entities.request.FindLocationRequest
 import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
+import org.adt.core.entities.request.TagRequest
 import org.adt.core.entities.response.ErrorResponse
 import org.adt.core.entities.response.EventResponse
-import org.adt.core.entities.request.FindEventRequest
-import org.adt.core.entities.request.TagRequest
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
 import org.adt.data.abstraction.PersistenceRepository
@@ -655,6 +655,17 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, "Session expired")
         }
 
+        return GeneralResponse.failure(response.code())
+    }
+
+    override suspend fun getApplicationStatus(eventId: Long): GeneralResponse<String> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
+        val response = networkRepository.getApplicationStatus(token, eventId)
+
+        if (response.isSuccessful)
+            return GeneralResponse.success(response.body()?.status ?: "")
+
+        //TODO: handle session expire
         return GeneralResponse.failure(response.code())
     }
 
