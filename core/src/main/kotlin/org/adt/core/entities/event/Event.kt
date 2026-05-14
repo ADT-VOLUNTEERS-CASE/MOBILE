@@ -22,28 +22,28 @@ data class Event(
 ) {
     val localizedDate: String
         get() = try {
-            val epoch = dateTimestamp.toLong()
-            val instant = Instant.ofEpochSecond(epoch)
+            val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+            val localDateTime = inputFormatter.parse(dateTimestamp)
 
-            val formatter = DateTimeFormatter
+            val outputFormatter = DateTimeFormatter
                 .ofPattern("dd MMMM")
                 .withZone(ZoneId.systemDefault())
 
-            formatter.format(instant)
+            outputFormatter.format(localDateTime)
 
         } catch (_: Exception) {
             dateTimestamp
         }
     val localizedDateTime: String
         get() = try {
-            val epoch = dateTimestamp.toLong()
-            val instant = Instant.ofEpochSecond(epoch)
+            val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+            val localDateTime = inputFormatter.parse(dateTimestamp)
 
-            val formatter = DateTimeFormatter
+            val outputFormatter = DateTimeFormatter
                 .ofPattern("dd MMMM HH:mm")
                 .withZone(ZoneId.systemDefault())
 
-            formatter.format(instant)
+            outputFormatter.format(localDateTime)
 
         } catch (_: Exception) {
             dateTimestamp
