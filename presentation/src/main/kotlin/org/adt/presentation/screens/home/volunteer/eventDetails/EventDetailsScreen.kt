@@ -246,6 +246,7 @@ fun EventDetailsScreenContent(
                     val buttonText = when (uiState.applicationStatus) {
                         "PENDING" -> "Заявка уже отправлена!"
                         "SUCCESS" -> "Ваша заявка была принята!"
+                        "ALREADY_EXISTS" -> "Заявка уже отправлена!"
                         else -> "Подать заявку"
                     }
 
