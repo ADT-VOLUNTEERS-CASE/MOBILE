@@ -95,7 +95,6 @@ fun VolunteerScreen(
                     it.eventId
                 )
             )
-            //viewModel.selectEvent(it)
         },
         eventPickerChangeAction = {
             viewModel.onEventPickerChange(false)
@@ -106,7 +105,15 @@ fun VolunteerScreen(
         searchFieldOnFocusAction = { it: FocusState -> viewModel.setSearchModeValue(it.isFocused) },
         onResetFilterAction = { viewModel.resetLocationFilter(returnToSearch = true) },
         onSettingsNavigateAction = { navController.navigate(Destinations.VolunteerProfile) },
-        onRecommendedNavigateAction = {eventId -> navController.navigate(Destinations.EventDetails(eventId))}
+        onRecommendedNavigateAction = { eventId ->
+            navController.navigate(
+                Destinations.EventDetails(
+                    eventId
+                )
+            )
+        },
+        isParticipatingEvaluateAction = viewModel::isParticipatingEvaluate,
+        isParticipatingRecommendationEvaluateAction = viewModel::isParticipatingRecommendationEvaluate
     )
 }
 
@@ -126,6 +133,8 @@ fun VolunteerScreenContent(
     searchFieldOnFocusAction: (FocusState) -> Unit = {},
     onSettingsNavigateAction: () -> Unit = {},
     onRecommendedNavigateAction: (eventId: Long) -> Unit = {},
+    isParticipatingEvaluateAction: (AllDescriptionEvent) -> Boolean = { true }, //TODO: Refactor
+    isParticipatingRecommendationEvaluateAction: (Event) -> Boolean = { true }, //TODO: Refactor
 ) {
     var showWIPSheet by remember { mutableStateOf(false) }
 
@@ -192,6 +201,7 @@ fun VolunteerScreenContent(
                     ) {
                         RecommendationsRow(
                             events = uiState.recommendedEventsList,
+                            isParticipatingEvaluateAction = isParticipatingRecommendationEvaluateAction,
                             onNavigateAction = onRecommendedNavigateAction
                         )
 
@@ -283,6 +293,7 @@ fun VolunteerScreenContent(
                                                 EventCard(
                                                     Modifier,
                                                     AllDescriptionEvent(
+                                                        event.eventId,
                                                         event.cover?.link ?: "",
                                                         event.name,
                                                         event.description,
@@ -290,7 +301,8 @@ fun VolunteerScreenContent(
                                                         formattedDate,
                                                         event.status,
                                                         event.location
-                                                    )
+                                                    ),
+                                                    isParticipating = isParticipatingEvaluateAction
                                                 ) { eventPickerAction(event) }
                                             }
                                         }
@@ -341,6 +353,7 @@ fun VolunteerScreenContent(
                 Dialog(eventPickerChangeAction, DialogProperties()) {
                     OverallDescriptionEventCard(
                         Modifier.verticalScroll(rememberScrollState()), AllDescriptionEvent(
+                            selectedEvent.eventId,
                             selectedEvent.cover?.link ?: "",
                             selectedEvent.name,
                             selectedEvent.description,

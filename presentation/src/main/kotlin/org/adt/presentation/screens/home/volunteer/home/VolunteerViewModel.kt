@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
+import org.adt.core.entities.AllDescriptionEvent
 import org.adt.core.entities.event.Event
 import org.adt.core.utils.ApiStatus
 import org.adt.domain.abstraction.DataRepository
@@ -189,15 +189,11 @@ class VolunteerViewModel @Inject constructor(
         _uiState.update { it.copy(eventError = null) }
     }
 
-    fun selectEvent(event: Event) {
-        _uiState.update { it.copy(selectedEvent = event, eventPicker = true) }
+    fun isParticipatingEvaluate(event: AllDescriptionEvent): Boolean {
+        return uiState.value.registeredEventIds.contains(event.id)
     }
-
-    fun deauthenticate(navigateAction: () -> Unit) {
-        viewModelScope.launch {
-            Dispatchers.IO { _dataRepository.deauthenticate() }
-            navigateAction.invoke()
-        }
+    fun isParticipatingRecommendationEvaluate(event: Event): Boolean {
+        return uiState.value.registeredEventIds.contains(event.eventId)
     }
 
     fun onCalendarToggle(show: Boolean) {
