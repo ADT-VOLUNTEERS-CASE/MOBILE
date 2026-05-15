@@ -45,7 +45,19 @@ internal object NetworkModule {
                 .addHeader("Accept", "application/json")
                 .addHeader("Content-Type", "application/json")
                 .build()
-            chain.proceed(newRequest)
+
+            try {
+                chain.proceed(newRequest)
+            } catch (e: Exception) {
+                val errorBody = "{\"error\":\"${e.localizedMessage}\"}".toResponseBody("application/json".toMediaTypeOrNull())
+                okhttp3.Response.Builder()
+                    .request(newRequest)
+                    .protocol(okhttp3.Protocol.HTTP_1_1)
+                    .code(600) // Transport failure
+                    .message(e.message ?: "Network transport error")
+                    .body(errorBody)
+                    .build()
+            }
         }
     }
 
