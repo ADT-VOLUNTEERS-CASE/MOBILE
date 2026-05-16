@@ -3,6 +3,7 @@ package org.adt.presentation.screens.home.volunteer.home
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,14 +15,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -59,6 +65,7 @@ import org.adt.presentation.components.CustomSearchTextField
 import org.adt.presentation.components.bars.SyncedTopNavigationBar
 import org.adt.presentation.components.cards.EventCard
 import org.adt.presentation.components.cards.OverallDescriptionEventCard
+import org.adt.presentation.components.cards.VerticalEventCard
 import org.adt.presentation.components.cards.formatEventDate
 import org.adt.presentation.components.misc.NotImplementedSheet
 import org.adt.presentation.components.misc.rememberSyncedScrollState
@@ -72,6 +79,7 @@ import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.utils.ShaderPresets
+import java.time.LocalDate
 
 
 @Composable
@@ -136,7 +144,13 @@ fun VolunteerScreenContent(
 
     ShaderBox(modifier = Modifier.fillMaxSize(), ShaderPresets.DarkGreenBackground) {
         val context = LocalContext.current
-        val sheetState = rememberModalBottomSheetState()
+        val sheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true
+        )
+
+        var selectedDate by remember {
+            mutableStateOf<LocalDate?>(null)
+        }
 
         val scrollBehavior =
             TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
@@ -144,6 +158,46 @@ fun VolunteerScreenContent(
         val syncedScrollState = rememberSyncedScrollState()
 
         var isFilterChipSelected by remember { mutableStateOf(false) }
+
+        val displayEvents = remember(
+            uiState.eventsList,
+            uiState.filteredEventsByLocation,
+            uiState.isLocationFiltering,
+            isFilterChipSelected,
+            uiState.registeredEventIds
+        ) {
+            val baseList = if (uiState.isLocationFiltering) {
+                uiState.filteredEventsByLocation
+            } else {
+                uiState.eventsList
+            }
+
+            if (isFilterChipSelected) {
+                val userEvents = baseList.filter {
+                    uiState.registeredEventIds.contains(it.eventId)
+                }
+
+                val otherEvents = baseList.filterNot {
+                    uiState.registeredEventIds.contains(it.eventId)
+                }
+
+                userEvents + otherEvents
+            } else {
+                baseList
+            }
+        }
+
+        val selectedDateEvents = remember(selectedDate, uiState.eventsList) {
+
+            if (selectedDate == null) {
+                emptyList()
+            } else {
+                uiState.eventsList.filter {
+
+                    it.dateTimestamp.startsWith(selectedDate.toString())
+                }
+            }
+        }
 
         LaunchedEffect(uiState.eventError) {
             uiState.eventError?.let { error ->
@@ -211,19 +265,87 @@ fun VolunteerScreenContent(
                                     .padding(horizontal = 10.dp, vertical = 20.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                val displayEvents =
-                                    if (uiState.isLocationFiltering) uiState.filteredEventsByLocation else uiState.eventsList
+//                                val displayEvents =
+//                                    if (uiState.isLocationFiltering) uiState.filteredEventsByLocation else uiState.eventsList
 
                                 Column(
                                     Modifier.fillMaxWidth(),
                                     verticalArrangement = Arrangement.spacedBy(4.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
+                                    Spacer(modifier = Modifier.height(20.dp))
+
+
+
+                                    if (uiState.recEventsList.isNotEmpty()) {
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(bottom = 10.dp),
+                                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                                        ) {
+
+                                            Column(
+                                                Modifier.fillMaxWidth(),
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                Text(
+                                                    "Рекомендации",
+                                                    style = VolunteersCaseTheme.typography.titleLarge
+                                                )
+                                            }
+
+                                            val carouselState = rememberLazyListState(
+                                                initialFirstVisibleItemIndex = Int.MAX_VALUE / 2
+                                            )
+
+                                            LazyRow(
+                                                state = carouselState,
+                                                flingBehavior = rememberSnapFlingBehavior(
+                                                    carouselState
+                                                ),
+                                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(240.dp)
+                                            ) {
+
+                                                items(Int.MAX_VALUE) { index ->
+
+                                                    val realIndex =
+                                                        index % uiState.recEventsList.size
+
+                                                    val event = uiState.recEventsList[realIndex]
+
+                                                    val (formattedTime, formattedDate) = formatEventDate(
+                                                        event.dateTimestamp
+                                                    )
+
+                                                    EventCard(
+                                                        modifier = Modifier
+                                                            .width(340.dp)
+                                                            .padding(vertical = 8.dp),
+                                                        allDescriptionEvent = AllDescriptionEvent(
+                                                            event.cover?.link ?: "",
+                                                            event.name,
+                                                            event.description,
+                                                            formattedTime,
+                                                            formattedDate,
+                                                            event.status,
+                                                            event.location
+                                                        )
+                                                    ) {
+                                                        eventPickerAction(event)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                     Spacer(modifier = Modifier.height(10.dp))
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.spacedBy(
-                                            4.dp,
+                                            8.dp,
                                             Alignment.CenterHorizontally
                                         ),
                                         verticalAlignment = Alignment.CenterVertically
@@ -259,7 +381,11 @@ fun VolunteerScreenContent(
                                             },
                                             onClick = {
                                                 isFilterChipSelected = !isFilterChipSelected
-                                            })
+                                            },
+                                            colors = FilterChipDefaults.filterChipColors(
+                                                selectedContainerColor = Color(0xFF12402A).copy(0.1f)
+                                            )
+                                        )
                                     }
                                 }
 
@@ -283,7 +409,7 @@ fun VolunteerScreenContent(
                                             )
 
                                             Box(Modifier.fillMaxWidth()) {
-                                                EventCard(
+                                                VerticalEventCard (
                                                     Modifier,
                                                     AllDescriptionEvent(
                                                         event.cover?.link ?: "",
@@ -324,9 +450,14 @@ fun VolunteerScreenContent(
                 contentAlignment = Alignment.BottomCenter
             ) {
                 SearchOverlay(
-                    uiState,
-                    {})
-                { data -> }
+                    uiState = uiState,
+                    eventPickerAction = { event ->
+                        eventPickerAction(event)
+                    },
+                    onLocationClickAction = { location ->
+                        onLocationClickAction(location)
+                    }
+                )
             }
         }
         /*
@@ -372,30 +503,77 @@ fun VolunteerScreenContent(
                 sheetState = sheetState,
                 containerColor = Arctic,
                 scrimColor = Abyss.copy(alpha = 0.5f),
-                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp), dragHandle = {
-
-                }
+                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+                dragHandle = { BottomSheetDefaults.DragHandle(color = Color.LightGray) }
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
                         .padding(horizontal = 20.dp)
                         .padding(bottom = 40.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
                         text = "Календарь",
                         style = VolunteersCaseTheme.typography.titleLarge,
-                        modifier = Modifier.padding(top = 10.dp)
+                        modifier = Modifier.padding(top = 16.dp)
                     )
 
                     CustomCalendar(
                         eventsByDate = uiState.userEventsByDate,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        onDateClick = { date ->
+                            selectedDate = date
+                        }
                     )
 
-                    Spacer(Modifier.height(100.dp))
+                    if (selectedDate != null) {
+
+                        Text(
+                            text = "События на $selectedDate",
+                            style = VolunteersCaseTheme.typography.titleMedium,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 12.dp)
+                        )
+
+                        Spacer(Modifier.height(8.dp))
+
+                        if (selectedDateEvents.isEmpty()) {
+
+                            Text(
+                                text = "Нет мероприятий",
+                                color = Lagoon
+                            )
+
+                        } else {
+
+                            selectedDateEvents.forEach { event ->
+
+                                val (formattedTime, formattedDate) =
+                                    formatEventDate(event.dateTimestamp)
+
+                                EventCard(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    allDescriptionEvent = AllDescriptionEvent(
+                                        event.cover?.link ?: "",
+                                        event.name,
+                                        event.description,
+                                        formattedTime,
+                                        formattedDate,
+                                        event.status,
+                                        event.location
+                                    )
+                                ) {
+                                    eventPickerAction(event)
+                                }
+
+                                Spacer(Modifier.height(12.dp))
+                            }
+                        }
+                    }
                 }
             }
         }

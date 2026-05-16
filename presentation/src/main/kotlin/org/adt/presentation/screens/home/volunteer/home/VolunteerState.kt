@@ -14,6 +14,8 @@ data class VolunteerState(
     val searchModeLoading: Boolean = false,
     val eventsList: List<Event> = listOf(),
     val eventsListLoading: Boolean = false,
+    val recEventsList: List<Event> = listOf(),
+    val recEventsListLoading: Boolean = false,
     val selectedEvent: Event? = null,
     val eventPicker: Boolean = false,
     val eventError: String? = null,

@@ -435,14 +435,14 @@ fun CoordinatorScreenContent(
 
             Spacer(Modifier.height(100.dp))
         }
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-            CustomBottomBar(
-                Modifier
-                    .padding(horizontal = 30.dp)
-                    .padding(bottom = 15.dp),
-                UserRole.COORDINATOR, Destinations.CoordinatorHome
-            ) { }
-        }
+//        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+//            CustomBottomBar(
+//                Modifier
+//                    .padding(horizontal = 30.dp)
+//                    .padding(bottom = 15.dp),
+//                UserRole.COORDINATOR, Destinations.CoordinatorHome
+//            ) { }
+//        }
     }
 }
 

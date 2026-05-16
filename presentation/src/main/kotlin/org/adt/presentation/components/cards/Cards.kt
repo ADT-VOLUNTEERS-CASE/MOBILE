@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -449,7 +450,7 @@ fun AddEventCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
  */
 
 @Composable
-fun EventCard(
+fun VerticalEventCard(
     modifier: Modifier = Modifier,
     allDescriptionEvent: AllDescriptionEvent,
     onClick: () -> Unit
@@ -459,7 +460,7 @@ fun EventCard(
             .fillMaxWidth()
             .height(190.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(color = Abyss)
+            .background(Color(0xFF12402A))
             .clickable(onClick = onClick)
     ) {
         AsyncImage(
@@ -545,6 +546,112 @@ fun EventCard(
                     modifier = Modifier.padding(top = 8.dp)
                 )
             }
+        }
+    }
+}
+
+/**
+ * The card consists of text and is used to view events title, time, date and image .
+ *
+ * @param modifier modifier for managing card sizes.
+ *
+ * @param allDescriptionEvent date class that stores image, title, description, time, date event.
+ *
+ * @sample [EventCardPreview]
+ */
+
+@Composable
+fun EventCard(
+    modifier: Modifier = Modifier,
+    allDescriptionEvent: AllDescriptionEvent,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .height(220.dp)
+            .shadow(
+                elevation = 12.dp,
+                shape = RoundedCornerShape(20.dp),
+                clip = false
+            )
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color(0xFF12402A))
+            .clickable(onClick = onClick)
+    ) {
+
+        AsyncImage(
+            model = allDescriptionEvent.image,
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            contentScale = ContentScale.Crop,
+            error = painterResource(R.drawable.baseimage),
+            fallback = painterResource(R.drawable.baseimage)
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.75f)
+                        )
+                    )
+                )
+        )
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+
+            Text(
+                text = allDescriptionEvent.title,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                style = VolunteersCaseTheme.typography.titleLarge.copy(
+                    fontSize = 16.sp,
+                    color = Arctic,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+
+            Text(
+                text = when (allDescriptionEvent.status) {
+                    EventStatus.ONGOING -> "Предстоит"
+                    EventStatus.IN_PROGRESS -> "Уже идет"
+                    EventStatus.COMPLETED -> "Завершено"
+                    else -> "Неизвестно"
+                },
+                style = VolunteersCaseTheme.typography.titleLarge.copy(
+                    color = Arctic.copy(alpha = 0.9f),
+                    fontSize = 12.sp
+                )
+            )
+
+            Text(
+                text = "${allDescriptionEvent.date} • ${allDescriptionEvent.time}",
+                style = VolunteersCaseTheme.typography.titleLarge.copy(
+                    color = Arctic.copy(alpha = 0.8f),
+                    fontSize = 11.sp
+                )
+            )
+
+            Text(
+                text = allDescriptionEvent.location.address,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = VolunteersCaseTheme.typography.titleLarge.copy(
+                    color = Arctic.copy(alpha = 0.7f),
+                    fontSize = 11.sp
+                )
+            )
         }
     }
 }
@@ -850,7 +957,11 @@ fun ApplicationCard(
             )
         }
 
-        Text(text = app.email, color = Lagoon, style = VolunteersCaseTheme.typography.titleMedium)
+        Text(
+            text = app.email,
+            color = Lagoon,
+            style = VolunteersCaseTheme.typography.titleMedium
+        )
 
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             CustomButton(

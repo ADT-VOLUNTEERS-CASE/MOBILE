@@ -388,6 +388,29 @@ class DataRepositoryImpl @Inject constructor(
         return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
     }
 
+    override suspend fun getRecommendedEvents(retried: Boolean): GeneralResponse<EventResponse> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val response = networkRepository.getEvents(token, 0, 10)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.body()!!)
+        }
+
+        if (response.code() == 403 && !retried) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return getEvents(retried = true)
+            }
+
+            val error = parseError(response.errorBody())
+            persistenceRepository.removeToken()
+
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+        }
+
+        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+    }
+
     override suspend fun getCoordinatorEvents(retried: Boolean): GeneralResponse<CoordinatorEventsResponse> {
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
         val response = networkRepository.getCoordinatorEvents(token, 0, 10)

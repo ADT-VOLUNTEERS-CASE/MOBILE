@@ -79,4 +79,5 @@ interface DataRepository {
     suspend fun getEventApplications(eventId: Long, status: String?): GeneralResponse<List<EventApplication>>
 
     suspend fun updateApplicationStatus(eventId: Long, userId: Long, status: String, reason: String?): GeneralResponse<UserEventResponse>
+    suspend fun getRecommendedEvents(retried: Boolean = false): GeneralResponse<EventResponse>
 }

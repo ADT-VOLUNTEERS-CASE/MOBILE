@@ -1,6 +1,7 @@
 package org.adt.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -43,12 +45,13 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
-import java.util.Locale
+
 
 @Composable
 fun CustomCalendar(
     eventsByDate: Map<LocalDate, List<UserEvents>>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDateClick: (LocalDate) -> Unit = {}
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -95,7 +98,11 @@ fun CustomCalendar(
             state = state,
             dayContent = { day ->
                 val eventsOnDay = eventsByDate[day.date] ?: emptyList()
-                Day(day, eventsOnDay)
+                Day(
+                    day, eventsOnDay,
+                    onClick = {
+                        onDateClick(day.date)
+                    })
             },
             monthHeader = { MonthHeader(daysOfWeek = daysOfWeek) }
         )
@@ -108,6 +115,9 @@ private fun CalendarHeader(
     onPreviousClick: () -> Unit,
     onNextClick: () -> Unit
 ) {
+    val configuration = LocalConfiguration.current
+    val locale = configuration.locales[0]
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -123,7 +133,7 @@ private fun CalendarHeader(
         }
 
         Text(
-            text = currentMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
+            text = currentMonth.month.getDisplayName(TextStyle.FULL, locale)
                 .replaceFirstChar { it.uppercase() } + " ${currentMonth.year}",
             style = VolunteersCaseTheme.typography.titleLarge.copy(color = Abyss)
         )
@@ -141,6 +151,9 @@ private fun CalendarHeader(
 
 @Composable
 private fun MonthHeader(daysOfWeek: List<DayOfWeek>) {
+    val configuration = LocalConfiguration.current
+    val locale = configuration.locales[0]
+
     Row(
         Modifier
             .fillMaxWidth()
@@ -155,7 +168,7 @@ private fun MonthHeader(daysOfWeek: List<DayOfWeek>) {
                 ),
                 text = dayOfWeek.getDisplayName(
                     TextStyle.SHORT,
-                    Locale.getDefault()
+                    locale
                 ).uppercase()
             )
         }
@@ -163,11 +176,18 @@ private fun MonthHeader(daysOfWeek: List<DayOfWeek>) {
 }
 
 @Composable
-private fun Day(day: CalendarDay, events: List<UserEvents>) {
+private fun Day(
+    day: CalendarDay, events: List<UserEvents>,
+    onClick: () -> Unit
+) {
     val isCurrentMonth = day.position == DayPosition.MonthDate
 
     Box(
-        modifier = Modifier.aspectRatio(1f),
+        modifier = Modifier
+            .aspectRatio(1f).clip(CircleShape)
+            .clickable {
+                onClick()
+            },
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

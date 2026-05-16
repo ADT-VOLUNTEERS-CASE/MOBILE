@@ -299,14 +299,14 @@ fun AdminScreenContent(
         }
     }
 
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-        CustomBottomBar(
-            Modifier
-                .padding(horizontal = 30.dp)
-                .padding(bottom = 15.dp),
-            UserRole.ADMIN, Destinations.AdminHome, bottomBarNavigateAction
-        )
-    }
+//    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+//        CustomBottomBar(
+//            Modifier
+//                .padding(horizontal = 30.dp)
+//                .padding(bottom = 15.dp),
+//            UserRole.ADMIN, Destinations.AdminHome, bottomBarNavigateAction
+//        )
+//    }
 }
 
 @Preview
