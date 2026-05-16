@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.adt.core.entities.EventStatus
+import org.adt.core.entities.event.Event
 import org.adt.core.entities.user.UserEvents
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Graphite
@@ -75,7 +76,7 @@ fun PlannedEventCalendarCard(
                         EventStatus.IN_PROGRESS.name.uppercase() -> "Уже идёт!"
                         EventStatus.COMPLETED.name.uppercase() -> "Завершено!"
                         EventStatus.UNKNOWN.name.uppercase() -> "Неизвестно"
-                        else -> ""
+                        else -> "Неизвестно"
                     },
                     style = VolunteersCaseTheme.typography.labelMedium,
                     color = when (userEvent.status.uppercase()) {
@@ -105,7 +106,7 @@ private fun PlannedEventCardPreview() {
             PlannedEventCalendarCard(
                 userEvent = UserEvents(
                     name = "Посадка саженцев в парке",
-                    status = "CONFIRMED",
+                    status = EventStatus.COMPLETED.name,
                     eventId = 1,
                     dateTimestamp = ""
                 ), onClick = {})
@@ -113,7 +114,7 @@ private fun PlannedEventCardPreview() {
             PlannedEventCalendarCard(
                 userEvent = UserEvents(
                     name = "Организация детского праздника",
-                    status = "PENDING",
+                    status = EventStatus.IN_PROGRESS.name,
                     eventId = 2,
                     dateTimestamp = ""
                 ), onClick = {})
