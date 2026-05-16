@@ -122,6 +122,7 @@ class VolunteerViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     eventsList = sortedEvents,
+                    filteredEventsByUserList = sortedEvents.filter { userEventsIds.contains(it.eventId) },
                     recommendedEventsList = recommendedEvents,
                     registeredEventIds = userEventsIds,
                     userEventsByDate = eventsByDate,

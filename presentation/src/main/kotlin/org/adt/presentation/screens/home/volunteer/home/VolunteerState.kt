@@ -13,6 +13,7 @@ data class VolunteerState(
     val searchModeResult: String = "",
     val searchModeLoading: Boolean = false,
     val eventsList: List<Event> = listOf(),
+    val filteredEventsByUserList: List<Event> = listOf(),
     val recommendedEventsList: List<Event> = listOf(),
     val eventsListLoading: Boolean = false,
     val selectedEvent: Event? = null,

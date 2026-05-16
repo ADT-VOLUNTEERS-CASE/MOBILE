@@ -188,7 +188,6 @@ fun VolunteerScreenContent(
                     )
                 }
         ) { paddingValues ->
-
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier
@@ -208,22 +207,15 @@ fun VolunteerScreenContent(
                     }
                     */
                     item(span = { GridItemSpan(maxLineSpan) }) {
-                        Spacer(modifier = Modifier.height(20.dp))
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .height(120.dp)
                                 .clip(RoundedCornerShape(16.dp))
                                 //.background(VolunteersCaseTheme.colors.secondaryBackground)
                                 .padding(top = 20.dp, bottom = 10.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 10.dp),
-                                horizontalArrangement = Arrangement.Center,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
                                 Text(
                                     modifier = Modifier.weight(1f),
                                     text = "Каталог мероприятий",
@@ -251,7 +243,7 @@ fun VolunteerScreenContent(
                                         }
                                     }
                                 )
-                            }
+
                         }
                     }
 
@@ -267,7 +259,12 @@ fun VolunteerScreenContent(
                             }
                         }
                     } else {
-                        items(uiState.eventsList) { event ->
+                        items(
+                            if (!isFilterChipSelected)
+                                uiState.eventsList
+                            else
+                                uiState.filteredEventsByUserList
+                        ) { event ->
                             CharityEventCard(
                                 event = event,
                                 onClick = { eventPickerAction(event) },
