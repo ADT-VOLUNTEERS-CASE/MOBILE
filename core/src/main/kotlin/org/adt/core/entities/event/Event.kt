@@ -40,7 +40,7 @@ data class Event(
             val localDateTime = inputFormatter.parse(dateTimestamp)
 
             val outputFormatter = DateTimeFormatter
-                .ofPattern("dd MMMM HH:mm")
+                .ofPattern("HH:mm")
                 .withZone(ZoneId.systemDefault())
 
             outputFormatter.format(localDateTime)
