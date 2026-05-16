@@ -184,7 +184,6 @@ fun VolunteerScreenContent(
                         scrollBehavior = scrollBehavior,
                         onSettingsNavigateAction = onSettingsNavigateAction,
                         onNotificationsNavigateAction = { showWIPSheet = true },
-                        onCalendarNavigateAction = onCalendarToggleAction
                     )
                 }
         ) { paddingValues ->

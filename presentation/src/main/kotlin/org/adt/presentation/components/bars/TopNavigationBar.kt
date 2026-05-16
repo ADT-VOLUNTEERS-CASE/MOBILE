@@ -32,7 +32,6 @@ fun SyncedTopNavigationBar(
     scale: Float,
     onSettingsNavigateAction: () -> Unit = {},
     onNotificationsNavigateAction: () -> Unit = {},
-    onCalendarNavigateAction: (Boolean) -> Unit= {},
 ) {
     TopAppBar(
         modifier = modifier,
@@ -59,21 +58,6 @@ fun SyncedTopNavigationBar(
                     Icon(
                         imageVector = Icons.Filled.Notifications,
                         contentDescription = "Notifications navigation",
-                        tint = Color.Black
-                    )
-                }
-            }
-        },
-        navigationIcon = {
-            AnimatedVisibility(
-                visible = scale < 0.2f,
-                enter = fadeIn() + expandHorizontally(),
-                exit = fadeOut() + shrinkHorizontally()
-            ) {
-                IconButton(onClick = { onCalendarNavigateAction.invoke(true) }) {
-                    Icon(
-                        imageVector = Icons.Filled.CalendarMonth,
-                        contentDescription = "Calendar navigation",
                         tint = Color.Black
                     )
                 }
