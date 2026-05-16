@@ -462,7 +462,7 @@ fun EventCard(
             .fillMaxWidth()
             .height(190.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(color = Abyss)
+            .background(Color(0xFFDBC7B5))
             .clickable(onClick = onClick)
     ) {
         AsyncImage(
@@ -471,7 +471,6 @@ fun EventCard(
             modifier = Modifier
                 .fillMaxWidth(0.7f)
                 .fillMaxHeight()
-                .graphicsLayer { alpha = 0.99f }
                 .drawWithContent {
                     drawContent()
                     drawRect(
@@ -556,7 +555,7 @@ fun EventCard(
                     .align(Alignment.TopStart)
                     .height(32.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color.Green.copy(alpha = 0.2f))
+                    .background(Color.Green.copy(alpha = 0.5f))
                     .padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {

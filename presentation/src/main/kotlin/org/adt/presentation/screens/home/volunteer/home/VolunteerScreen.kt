@@ -2,11 +2,10 @@ package org.adt.presentation.screens.home.volunteer.home
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -43,9 +46,7 @@ import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,23 +57,19 @@ import org.adt.core.entities.AllDescriptionEvent
 import org.adt.core.entities.event.Event
 import org.adt.presentation.components.CustomCalendar
 import org.adt.presentation.components.CustomSearchTextField
-import org.adt.presentation.components.RecommendationsRow
+import org.adt.presentation.components.bars.FancyBottomNavigationBar
 import org.adt.presentation.components.bars.SyncedTopNavigationBar
-import org.adt.presentation.components.cards.EventCard
+import org.adt.presentation.components.cards.CharityEventCard
 import org.adt.presentation.components.cards.OverallDescriptionEventCard
 import org.adt.presentation.components.cards.formatEventDate
 import org.adt.presentation.components.misc.NotImplementedSheet
 import org.adt.presentation.components.misc.rememberSyncedScrollState
-import org.adt.presentation.components.shaders.ShaderBox
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.screens.home.volunteer.search.SearchOverlay
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
-import org.adt.presentation.theme.Black
-import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
-import org.adt.presentation.utils.ShaderPresets
 
 
 @Composable
@@ -138,268 +135,225 @@ fun VolunteerScreenContent(
 ) {
     var showWIPSheet by remember { mutableStateOf(false) }
 
-    ShaderBox(modifier = Modifier.fillMaxSize(), ShaderPresets.DarkGreenBackground) {
-        val context = LocalContext.current
-        val sheetState = rememberModalBottomSheetState()
+    val context = LocalContext.current
+    val sheetState = rememberModalBottomSheetState()
 
-        val scrollBehavior =
-            TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+    val scrollBehavior =
+        TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
-        val syncedScrollState = rememberSyncedScrollState()
+    val syncedScrollState = rememberSyncedScrollState()
 
-        var isFilterChipSelected by remember { mutableStateOf(false) }
+    var isFilterChipSelected by remember { mutableStateOf(false) }
 
-        LaunchedEffect(uiState.eventError) {
-            uiState.eventError?.let { error ->
-                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                onToastShown.invoke()
-            }
+    LaunchedEffect(uiState.eventError) {
+        uiState.eventError?.let { error ->
+            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+            onToastShown.invoke()
         }
+    }
 
-        BackHandler(uiState.isLocationFiltering, onResetFilterAction)
-        BackHandler(uiState.searchMode && !uiState.isLocationFiltering, searchModeChangedAction)
-        BackHandler(uiState.eventPicker, eventPickerChangeAction)
+    BackHandler(uiState.isLocationFiltering, onResetFilterAction)
+    BackHandler(uiState.searchMode && !uiState.isLocationFiltering, searchModeChangedAction)
+    BackHandler(uiState.eventPicker, eventPickerChangeAction)
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column {
-                CustomSearchTextField(
-                    Modifier.padding(
-                        top = (35 * syncedScrollState.scaleFactor).dp, start = 16.dp, end = 16.dp
-                    ),
-                    label = "Поиск по ключевым словам",
-                    value = uiState.searchValue,
-                    verticalScale = syncedScrollState.scaleFactor,
-                    onValueChange = searchFieldValueChangedAction,
-                    onConfirm = searchFieldOnConfirmAction,
-                    onFocused = searchFieldOnFocusAction,
-                )
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column {
+            CustomSearchTextField(
+                Modifier.padding(
+                    top = (35 * syncedScrollState.scaleFactor).dp, start = 16.dp, end = 16.dp
+                ),
+                label = "Поиск по ключевым словам",
+                value = uiState.searchValue,
+                verticalScale = syncedScrollState.scaleFactor,
+                onValueChange = searchFieldValueChangedAction,
+                onConfirm = searchFieldOnConfirmAction,
+                onFocused = searchFieldOnFocusAction,
+            )
 
-                Spacer(modifier = Modifier.height((15 * syncedScrollState.scaleFactor).dp))
+            Spacer(modifier = Modifier.height((15 * syncedScrollState.scaleFactor).dp))
 
-                Scaffold(
+            Scaffold(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(syncedScrollState.connection),
+                containerColor = Color.Transparent,
+                topBar = {
+                    SyncedTopNavigationBar(
+                        scale = syncedScrollState.scaleFactor,
+                        firstName = uiState.firstName,
+                        scrollBehavior = scrollBehavior,
+                        onSettingsNavigateAction = onSettingsNavigateAction,
+                        onNotificationsNavigateAction = { showWIPSheet = true },
+                        onCalendarNavigateAction = onCalendarToggleAction
+                    )
+                }
+        ) { paddingValues ->
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
                     modifier = Modifier
                         .fillMaxSize()
-                        .nestedScroll(syncedScrollState.connection),
-                    containerColor = Color.Transparent,
-                    topBar = {
-                        SyncedTopNavigationBar(
-                            scale = syncedScrollState.scaleFactor,
-                            firstName = uiState.firstName,
-                            scrollBehavior = scrollBehavior,
-                            onSettingsNavigateAction = onSettingsNavigateAction,
-                            onNotificationsNavigateAction = { showWIPSheet = true },
-                            onCalendarNavigateAction = onCalendarToggleAction
-                        )
-                    }) { paddingValues ->
-                    Column(
-                        Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues)
-                            .verticalScroll(rememberScrollState()),
-                        Arrangement.spacedBy(20.dp),
-                        Alignment.CenterHorizontally
-                    ) {
+                        .padding(paddingValues),
+                    contentPadding = PaddingValues(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    /* TODO: Omit recommendations
+                    item(span = { GridItemSpan(maxLineSpan) }) {
                         RecommendationsRow(
                             events = uiState.recommendedEventsList,
                             isParticipatingEvaluateAction = isParticipatingRecommendationEvaluateAction,
                             onNavigateAction = onRecommendedNavigateAction
                         )
-
+                    }
+                    */
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Spacer(modifier = Modifier.height(20.dp))
                         Column(
-                            Modifier
-                                .padding(horizontal = 8.dp)
-                                .fillMaxWidth(),
-                            Arrangement.spacedBy(20.dp),
-                            Alignment.CenterHorizontally
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp))
+                                //.background(VolunteersCaseTheme.colors.secondaryBackground)
+                                .padding(top = 20.dp, bottom = 10.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Column(
-                                Modifier
+                            Row(
+                                modifier = Modifier
                                     .fillMaxWidth()
-                                    .clip(RoundedCornerShape(16.dp))
-                                    .background(VolunteersCaseTheme.colors.secondaryBackground)
-                                    .padding(horizontal = 10.dp, vertical = 20.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                                    .padding(horizontal = 10.dp),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                val displayEvents =
-                                    if (uiState.isLocationFiltering)
-                                        uiState.filteredEventsByLocation
-                                    else uiState.eventsList
-
-                                Spacer(modifier = Modifier.height(10.dp))
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        modifier = Modifier.weight(1f),
-                                        text = "Каталог мероприятий",
-                                        textAlign = TextAlign.Center,
-                                        style = VolunteersCaseTheme.typography.titleLarge
-                                    )
-                                    FilterChip(
-                                        modifier = Modifier.padding(horizontal = 8.dp),
-                                        selected = isFilterChipSelected,
-                                        label = {
-                                            Text(
-                                                text = "Только мои",
-                                                style = VolunteersCaseTheme.typography.labelLarge.copy(
-                                                    fontSize = 13.sp
-                                                ),
-                                                fontWeight = FontWeight.Normal,
-                                                maxLines = 2,
-                                                overflow = TextOverflow.Ellipsis,
-                                                color = Black.copy(alpha = 0.7f)
+                                Text(
+                                    modifier = Modifier.weight(1f),
+                                    text = "Каталог мероприятий",
+                                    textAlign = TextAlign.Center,
+                                    style = VolunteersCaseTheme.typography.titleLarge
+                                )
+                                FilterChip(
+                                    selected = isFilterChipSelected,
+                                    label = {
+                                        Text(
+                                            text = "Только мои",
+                                            style = VolunteersCaseTheme.typography.labelLarge.copy(
+                                                fontSize = 13.sp
                                             )
-                                        },
-                                        trailingIcon = Trailing@{
-                                            if (!isFilterChipSelected) {
-                                                return@Trailing
-                                            }
-
+                                        )
+                                    },
+                                    onClick = { isFilterChipSelected = !isFilterChipSelected },
+                                    trailingIcon = {
+                                        if (isFilterChipSelected) {
                                             Icon(
                                                 modifier = Modifier.size(12.dp),
                                                 imageVector = Icons.Default.Check,
-                                                contentDescription = "My events filter enabled"
+                                                contentDescription = null
                                             )
-                                        },
-                                        onClick = {
-                                            isFilterChipSelected = !isFilterChipSelected
-                                        })
-                                }
-
-
-                                if (uiState.eventsListLoading) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.padding(top = 32.dp),
-                                        color = Mint
-                                    )
-                                } else {
-                                    FlowRow(
-                                        modifier = Modifier
-                                            .padding(top = 10.dp)
-                                            .fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                                        maxItemsInEachRow = 1
-                                    ) {
-                                        displayEvents.forEach { event ->
-                                            val (formattedTime, formattedDate) = formatEventDate(
-                                                event.dateTimestamp
-                                            )
-
-                                            Box(Modifier.fillMaxWidth()) {
-                                                EventCard(
-                                                    Modifier,
-                                                    AllDescriptionEvent(
-                                                        event.eventId,
-                                                        event.cover?.link ?: "",
-                                                        event.name,
-                                                        event.description,
-                                                        formattedTime,
-                                                        formattedDate,
-                                                        event.status,
-                                                        event.location
-                                                    ),
-                                                    isParticipating = isParticipatingEvaluateAction
-                                                ) { eventPickerAction(event) }
-                                            }
                                         }
                                     }
-
-                                    if (displayEvents.isEmpty() && uiState.isLocationFiltering) {
-                                        Text(
-                                            "В этой локации пока нет запланированных дел",
-                                            color = Lagoon,
-                                            modifier = Modifier.padding(top = 20.dp)
-                                        )
-                                    }
-                                }
+                                )
                             }
-
-                            Spacer(Modifier.height(100.dp))
                         }
                     }
-                    if (showWIPSheet) {
-                        NotImplementedSheet(
-                            onDismiss = { showWIPSheet = false }
-                        )
+
+                    if (uiState.eventsListLoading) {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            Box(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(32.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(color = Mint)
+                            }
+                        }
+                    } else {
+                        items(uiState.eventsList) { event ->
+                            CharityEventCard(
+                                event = event,
+                                onClick = { eventPickerAction(event) },
+                                onFavoriteClick = { },
+                                isParticipating = isParticipatingRecommendationEvaluateAction.invoke(event)
+                            )
+                        }
+                    }
+
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Spacer(Modifier.height(100.dp))
                     }
                 }
             }
-
-            Box(
-                modifier = Modifier.padding(top = 80.dp),
-                contentAlignment = Alignment.BottomCenter
-            ) {
-                SearchOverlay(
-                    uiState,
-                    {})
-                { data ->
-
-                }
-            }
         }
 
-        if (uiState.eventPicker && uiState.selectedEvent != null) {
-            val selectedEvent = uiState.selectedEvent
-            val (formattedTime, formattedDate) = formatEventDate(selectedEvent.dateTimestamp)
-            val isAlreadyRegistered = uiState.selectedEvent.let {
-                uiState.registeredEventIds.contains(it.eventId)
-            }
-
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Dialog(eventPickerChangeAction, DialogProperties()) {
-                    OverallDescriptionEventCard(
-                        Modifier.verticalScroll(rememberScrollState()), AllDescriptionEvent(
-                            selectedEvent.eventId,
-                            selectedEvent.cover?.link ?: "",
-                            selectedEvent.name,
-                            selectedEvent.description,
-                            formattedTime,
-                            formattedDate,
-                            selectedEvent.status,
-                            selectedEvent.location
-                        ), !isAlreadyRegistered
-                    )
-                    { eventPickerButtonAction(selectedEvent.eventId) }
-                }
-            }
+        if (showWIPSheet) {
+            NotImplementedSheet(onDismiss = { showWIPSheet = false })
         }
 
+        Box(
+            modifier = Modifier.padding(top = 80.dp),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            SearchOverlay(uiState, {}, { data -> })
+        }
 
-        if (uiState.showCalendar) {
-            ModalBottomSheet(
-                onDismissRequest = { onCalendarToggleAction(false) },
-                sheetState = sheetState,
-                containerColor = Arctic,
-                scrimColor = Abyss.copy(alpha = 0.5f),
-                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp), dragHandle = {
+    }
+    /*
+    if (uiState.eventPicker && uiState.selectedEvent != null) {
+        val selectedEvent = uiState.selectedEvent
+        val (formattedTime, formattedDate) = formatEventDate(selectedEvent.dateTimestamp)
+        val isAlreadyRegistered = uiState.selectedEvent.let {
+            uiState.registeredEventIds.contains(it.eventId)
+        }
 
-                }
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Dialog(eventPickerChangeAction, DialogProperties()) {
+                OverallDescriptionEventCard(
+                    Modifier.verticalScroll(rememberScrollState()), AllDescriptionEvent(
+                        selectedEvent.eventId,
+                        selectedEvent.cover?.link ?: "",
+                        selectedEvent.name,
+                        selectedEvent.description,
+                        formattedTime,
+                        formattedDate,
+                        selectedEvent.status,
+                        selectedEvent.location
+                    ), !isAlreadyRegistered
+                )
+                { eventPickerButtonAction(selectedEvent.eventId) }
+            }
+        }
+    }*/
+
+
+    if (uiState.showCalendar) {
+        ModalBottomSheet(
+            onDismissRequest = { onCalendarToggleAction(false) },
+            sheetState = sheetState,
+            containerColor = Arctic,
+            scrimColor = Abyss.copy(alpha = 0.5f),
+            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp), dragHandle = {
+
+            }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 40.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                        .padding(bottom = 40.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Text(
-                        text = "Календарь",
-                        style = VolunteersCaseTheme.typography.titleLarge,
-                        modifier = Modifier.padding(top = 10.dp)
-                    )
+                Text(
+                    text = "Календарь",
+                    style = VolunteersCaseTheme.typography.titleLarge,
+                    modifier = Modifier.padding(top = 10.dp)
+                )
 
-                    CustomCalendar(
-                        eventsByDate = uiState.userEventsByDate,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                CustomCalendar(
+                    eventsByDate = uiState.userEventsByDate,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                    Spacer(Modifier.height(100.dp))
-                }
+                Spacer(Modifier.height(100.dp))
             }
         }
     }

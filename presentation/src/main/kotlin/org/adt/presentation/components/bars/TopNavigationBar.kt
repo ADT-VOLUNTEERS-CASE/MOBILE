@@ -59,7 +59,7 @@ fun SyncedTopNavigationBar(
                     Icon(
                         imageVector = Icons.Filled.Notifications,
                         contentDescription = "Notifications navigation",
-                        tint = Color.White
+                        tint = Color.Black
                     )
                 }
             }
@@ -74,7 +74,7 @@ fun SyncedTopNavigationBar(
                     Icon(
                         imageVector = Icons.Filled.CalendarMonth,
                         contentDescription = "Calendar navigation",
-                        tint = Color.White
+                        tint = Color.Black
                     )
                 }
             }

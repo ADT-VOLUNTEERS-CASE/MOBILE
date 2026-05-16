@@ -15,6 +15,8 @@ import org.adt.presentation.screens.home.admin.AdminScreen
 import org.adt.presentation.screens.home.admin.AdminViewModel
 import org.adt.presentation.screens.home.coordinator.CoordinatorScreen
 import org.adt.presentation.screens.home.coordinator.CoordinatorViewModel
+import org.adt.presentation.screens.home.volunteer.calendar.CalendarViewModel
+import org.adt.presentation.screens.home.volunteer.calendar.VolunteerCalendarScreen
 import org.adt.presentation.screens.home.volunteer.eventDetails.EventDetailsScreen
 import org.adt.presentation.screens.home.volunteer.eventDetails.EventDetailsViewModel
 import org.adt.presentation.screens.home.volunteer.home.VolunteerScreen
@@ -92,6 +94,13 @@ fun NavigationGraph(navController: NavHostController, innerPadding: PaddingValue
         composable<Destinations.VolunteerProfile> {
             val viewModel: ProfileViewModel = hiltViewModel()
             ProfileScreen(navController, viewModel)
+        }
+        composable<Destinations.VolunteerCalendar> {
+            val viewModel: CalendarViewModel = hiltViewModel()
+            VolunteerCalendarScreen(navController, viewModel)
+        }
+        composable<Destinations.VolunteerStatistics> {
+            //TODO
         }
         composable<Destinations.EventDetails> { backStackEntry ->
             val event = backStackEntry.toRoute<Destinations.EventDetails>()

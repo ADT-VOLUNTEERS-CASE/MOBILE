@@ -3,11 +3,19 @@ package org.adt.presentation.screens
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import org.adt.presentation.components.bars.FancyBottomNavigationBar
+import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.navigation.NavigationGraph
 import org.adt.presentation.theme.VolunteersCaseTheme
 
@@ -17,9 +25,35 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentDestination = navBackStackEntry?.destination
+
+            val allowedRoutes = listOf(
+                Destinations.VolunteerHome::class.qualifiedName,
+                Destinations.VolunteerCalendar::class.qualifiedName,
+                Destinations.VolunteerStatistics::class.qualifiedName,
+                Destinations.VolunteerProfile::class.qualifiedName
+            )
+
+            val shouldShowBottomBar = currentDestination?.hierarchy?.any { navDest ->
+                allowedRoutes.any { route ->
+                    navDest.route?.contains(route ?: "") == true
+                }
+            } == true
 
             VolunteersCaseTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    bottomBar = {
+                        AnimatedVisibility(
+                            visible = shouldShowBottomBar,
+                            enter = slideInVertically(initialOffsetY = { it }),
+                            exit = slideOutVertically(targetOffsetY = { it })
+                        ) {
+                            FancyBottomNavigationBar(navController = navController)
+                        }
+                    }
+                ) { innerPadding ->
                     NavigationGraph(navController, innerPadding)
                 }
             }

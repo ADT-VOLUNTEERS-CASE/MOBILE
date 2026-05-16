@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
@@ -66,7 +67,7 @@ fun ProfileCard(
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                color = VolunteersCaseTheme.colors.text,
+                color = Color.Black,
             )
             Spacer(modifier = Modifier.width(8.dp))
 
@@ -76,7 +77,7 @@ fun ProfileCard(
                     .size(16.dp),
                 imageVector = Icons.AutoMirrored.Outlined.ArrowForwardIos,
                 contentDescription = "Navigate right arrow",
-                tint = VolunteersCaseTheme.colors.text
+                tint = Color.Black
             )
         }
     }
