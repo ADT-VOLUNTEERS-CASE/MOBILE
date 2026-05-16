@@ -74,7 +74,13 @@ fun VolunteerCalendarScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = Abyss)
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Arctic)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Arctic,
+                    scrolledContainerColor = Color.Unspecified,
+                    navigationIconContentColor = Color.Unspecified,
+                    titleContentColor = Color.Unspecified,
+                    actionIconContentColor = Color.Unspecified
+                )
             )
         },
         containerColor = Arctic
