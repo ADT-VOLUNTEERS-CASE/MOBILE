@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -11,6 +12,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import org.adt.presentation.screens.authenticate.AuthenticateScreen
 import org.adt.presentation.screens.authenticate.AuthenticateViewModel
+import org.adt.presentation.screens.exception.NoConnectionScreen
+import org.adt.presentation.screens.exception.NoConnectionScreenViewModel
 import org.adt.presentation.screens.home.admin.AdminScreen
 import org.adt.presentation.screens.home.admin.AdminViewModel
 import org.adt.presentation.screens.home.coordinator.CoordinatorScreen
@@ -117,6 +120,10 @@ fun NavigationGraph(navController: NavHostController, innerPadding: PaddingValue
                 onBackNavigationAction = {
                     navController.popBackStack()
                 })
+        }
+        composable<Destinations.NoConnectionScreen> {
+            val viewModel: NoConnectionScreenViewModel = hiltViewModel()
+            NoConnectionScreen(Modifier, navController, viewModel)
         }
     }
 }

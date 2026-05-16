@@ -43,6 +43,9 @@ sealed class Destinations {
     @Serializable
     data class EventDetails(val id: Long) : Destinations()
 
+    @Serializable
+    data object NoConnectionScreen: Destinations()
+
     companion object {
         fun mapRole(userRole: UserRole): Destinations {
             return when (userRole) {
