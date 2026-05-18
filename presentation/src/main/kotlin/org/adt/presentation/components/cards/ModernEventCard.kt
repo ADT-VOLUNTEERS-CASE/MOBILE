@@ -199,7 +199,7 @@ fun CharityEventCard(
                         )
                         Spacer(modifier = Modifier.width(2.dp))
                         Text(
-                            text = "12",
+                            text = event.maxCapacity.toString(),
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black

@@ -1,8 +1,19 @@
 package org.adt.presentation.screens.home.volunteer.eventDetails
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,12 +24,23 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
@@ -30,26 +52,61 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import coil.compose.AsyncImage
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.adt.core.entities.event.EventLocation
 import org.adt.presentation.R
 import org.adt.presentation.components.buttons.ButtonDefaultsProvider
 import org.adt.presentation.components.buttons.ButtonStyle
 import org.adt.presentation.components.buttons.ButtonVariant
 import org.adt.presentation.components.buttons.CustomButton
-import org.adt.presentation.theme.*
+import org.adt.presentation.theme.Abyss
+import org.adt.presentation.theme.Arctic
+import org.adt.presentation.theme.Graphite
+import org.adt.presentation.theme.Lagoon
+import org.adt.presentation.theme.Mint
+import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable
 fun EventDetailsScreen(
     onBackNavigationAction: () -> Unit,
     viewModel: EventDetailsViewModel,
 ) {
+    var isRefreshing by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    fun refresh() {
+        scope.launch {
+            isRefreshing = true
+            viewModel.updateCardDetails()
+            viewModel.retrieveEventApplicationStatus()
+            delay(1000)
+            isRefreshing = false
+        }
+    }
+
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.updateCardDetails()
+        viewModel.retrieveEventApplicationStatus()
+    }
+
     val uiState = viewModel.uiState.collectAsState().value
-    EventDetailsScreenContent(
-        uiState = uiState,
-        onApplicationSendAction = viewModel::sendEventApplication,
-        onBackNavigationAction = onBackNavigationAction
-    )
+
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = { refresh() },
+        modifier = Modifier.fillMaxSize(),
+        state = rememberPullToRefreshState()
+    ) {
+        EventDetailsScreenContent(
+            uiState = uiState,
+            onApplicationSendAction = viewModel::sendEventApplication,
+            onBackNavigationAction = onBackNavigationAction
+        )
+    }
 }
 
 @Composable

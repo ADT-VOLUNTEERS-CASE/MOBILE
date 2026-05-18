@@ -51,11 +51,12 @@ class EventDetailsViewModel @AssistedInject constructor(
     }
 
     fun sendEventApplication() {
+        //_uiState.update { it.copy(applicationStatus = "PENDING") }
         viewModelScope.launch(Dispatchers.IO) {
             val response = _dataRepository.createEventApplication(eventId)
 
             if (response.isSuccessful) {
-                _uiState.update { it.copy(applicationStatus = "Заявка отправлена!") }
+                _uiState.update { it.copy(applicationStatus = "PENDING") }
                 return@launch
             }
 
@@ -74,6 +75,7 @@ class EventDetailsViewModel @AssistedInject constructor(
                 )
             }
         }
+        updateCardDetails()
         retrieveEventApplicationStatus()
     }
 
