@@ -51,6 +51,8 @@ interface DataRepository {
 
     suspend fun getEvents(retried: Boolean = false): GeneralResponse<EventResponse>
 
+    suspend fun getRecommendedEvents(): GeneralResponse<EventResponse>
+
     suspend fun getCoordinatorEvents(retried: Boolean = false): GeneralResponse<CoordinatorEventsResponse>
 
     suspend fun createEvent(
@@ -66,6 +68,8 @@ interface DataRepository {
         retried: Boolean = false
     ): GeneralResponse<Int>
 
+    suspend fun getEventById(eventId: Long): GeneralResponse<Event>
+
     suspend fun deleteEvent(eventId: Long, retried: Boolean = false): GeneralResponse<Int>
 
     suspend fun deleteCover(coverId: Long, retried: Boolean = false): GeneralResponse<Int>
@@ -77,6 +81,8 @@ interface DataRepository {
     suspend fun deleteTagByName(tagName: String, retried: Boolean = false): GeneralResponse<Int>
 
     suspend fun getEventApplications(eventId: Long, status: String?): GeneralResponse<List<EventApplication>>
+
+    suspend fun getApplicationStatus(eventId: Long): GeneralResponse<String>
 
     suspend fun updateApplicationStatus(eventId: Long, userId: Long, status: String, reason: String?): GeneralResponse<UserEventResponse>
 }

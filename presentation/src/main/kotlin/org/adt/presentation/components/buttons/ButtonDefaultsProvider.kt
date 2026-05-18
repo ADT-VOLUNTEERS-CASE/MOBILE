@@ -54,6 +54,7 @@ object ButtonDefaultsProvider {
                     ButtonVariant.LiteRounded -> Mint to Graphite
                     ButtonVariant.Rounded -> Lagoon to Arctic
                     ButtonVariant.Wide -> Abyss to Arctic
+                    ButtonVariant.RoughRounded -> Lagoon to Arctic
                 }
 
                 val (container, content) = base
@@ -80,5 +81,6 @@ object ButtonDefaultsProvider {
         ButtonVariant.LiteRounded -> RoundedCornerShape(17.dp)
         ButtonVariant.Rounded -> RoundedCornerShape(48.dp)
         ButtonVariant.Wide -> RoundedCornerShape(7.dp)
+        ButtonVariant.RoughRounded -> RoundedCornerShape(14.dp)
     }
 }

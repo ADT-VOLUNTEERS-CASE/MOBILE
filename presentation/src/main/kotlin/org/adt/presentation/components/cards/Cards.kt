@@ -20,6 +20,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -452,6 +454,7 @@ fun AddEventCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
 fun EventCard(
     modifier: Modifier = Modifier,
     allDescriptionEvent: AllDescriptionEvent,
+    isParticipating: (AllDescriptionEvent) -> Boolean,
     onClick: () -> Unit
 ) {
     Box(
@@ -459,7 +462,7 @@ fun EventCard(
             .fillMaxWidth()
             .height(190.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(color = Abyss)
+            .background(Color(0xFFDBC7B5))
             .clickable(onClick = onClick)
     ) {
         AsyncImage(
@@ -468,7 +471,6 @@ fun EventCard(
             modifier = Modifier
                 .fillMaxWidth(0.7f)
                 .fillMaxHeight()
-                .graphicsLayer { alpha = 0.99f }
                 .drawWithContent {
                     drawContent()
                     drawRect(
@@ -499,7 +501,6 @@ fun EventCard(
             ) {
                 Text(
                     text = allDescriptionEvent.title,
-                    modifier = Modifier,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                     style = VolunteersCaseTheme.typography.titleLarge.copy(
@@ -546,8 +547,38 @@ fun EventCard(
                 )
             }
         }
+
+        if (isParticipating(allDescriptionEvent)) {
+            Row(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .align(Alignment.TopStart)
+                    .height(32.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.Green.copy(alpha = 0.5f))
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = null,
+                    tint = Color.Green,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Вы участвуете!",
+                    color = Color.Green,
+                    style = VolunteersCaseTheme.typography.titleLarge.copy(
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                )
+            }
+        }
     }
 }
+
 
 
 /**
@@ -975,6 +1006,7 @@ private fun EventCardPreview() {
     EventCard(
         modifier = Modifier,
         allDescriptionEvent = AllDescriptionEvent(
+            -1,
             "",
             "Соседский книжный шкаф",
             "Создай в своём дворе библиотеку для всех желающих: поставь полку, делись книгами и поддерживай в ней порядок.",
@@ -982,7 +1014,8 @@ private fun EventCardPreview() {
             date = "01.01",
             EventStatus.ONGOING,
             EventLocation()
-        )
+        ),
+        isParticipating = {true}
     ) {}
 
 }
@@ -1031,6 +1064,7 @@ private fun OverallDescriptionEventCardPreview() {
         OverallDescriptionEventCard(
             modifier = Modifier,
             allDescriptionEvent = AllDescriptionEvent(
+                -1,
                 "",
                 "Соседский книжный шкаф",
                 "Создай в своём дворе библиотеку для всех желающих: поставь полку, делись книгами и поддерживай в ней порядок.",

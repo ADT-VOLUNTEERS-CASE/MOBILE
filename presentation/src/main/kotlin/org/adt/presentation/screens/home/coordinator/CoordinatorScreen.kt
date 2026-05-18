@@ -47,8 +47,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.adt.core.entities.Location
-import org.adt.core.entities.UserRole
-import org.adt.presentation.components.bars.CustomBottomBar
 import org.adt.presentation.components.CustomSearchTextField
 import org.adt.presentation.components.CustomTextField
 import org.adt.presentation.components.TypingText
@@ -435,6 +433,7 @@ fun CoordinatorScreenContent(
 
             Spacer(Modifier.height(100.dp))
         }
+        /*
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
             CustomBottomBar(
                 Modifier
@@ -443,6 +442,7 @@ fun CoordinatorScreenContent(
                 UserRole.COORDINATOR, Destinations.CoordinatorHome
             ) { }
         }
+        */
     }
 }
 

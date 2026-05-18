@@ -5,6 +5,7 @@ import org.adt.core.entities.Location
 import org.adt.core.entities.Tag
 import org.adt.core.entities.event.CoordinatorEventsResponse
 import org.adt.core.entities.event.Cover
+import org.adt.core.entities.event.Event
 import org.adt.core.entities.request.ApplicationStatusRequest
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.EventRequest
@@ -14,6 +15,7 @@ import org.adt.core.entities.request.LocationRequest
 import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.request.TagRequest
+import org.adt.core.entities.response.ApplicationStatusResponse
 import org.adt.core.entities.response.ApplicationsResponse
 import org.adt.core.entities.response.AuthResponse
 import org.adt.core.entities.response.EventResponse
@@ -161,6 +163,12 @@ interface RetrofitRepository {
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20
     ): Response<ApplicationsResponse>
+
+    @GET("user-event/status/{eventId}")
+    suspend fun getApplicationStatus(
+        @Header("Authorization") auth: String,
+        @Path("eventId") eventId: Long,
+    ): Response<ApplicationStatusResponse?>
 
     @PATCH("user-event/coordinator/events/{eventId}/applications/{userId}/status")
     suspend fun updateApplicationStatus(
@@ -377,6 +385,22 @@ interface RetrofitRepository {
     /**
      * SUCCESS:
      *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           403 | Forbidden (Expired Token)
+     */
+    @GET("event/recommended")
+    suspend fun getRecommendedEvents(
+        @Header("Authorization") auth: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+    ): Response<EventResponse>
+
+    /**
+     * SUCCESS:
+     *
      *           204 | OK
      *
      * ERRORS:
@@ -394,6 +418,24 @@ interface RetrofitRepository {
         @Header("Authorization") auth: String,
         @Body request: EventRequest
     ): Response<Void>
+
+    /**
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           401 | Unauthorized
+     *
+     *           404 | Event can't be founded by current id
+     */
+
+    @GET("event/{eventId}")
+    suspend fun getEventById(
+        @Header("Authorization") auth: String,
+        @Path("eventId") eventId: Long,
+    ): Response<Event>
 
     /**
      * SUCCESS:

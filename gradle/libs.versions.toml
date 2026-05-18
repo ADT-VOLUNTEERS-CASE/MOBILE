@@ -2,9 +2,11 @@
 agp = "8.13.2"
 android = "0.8.1"
 archunitJunit5 = "1.4.1"
+coilCompose = "2.7.0"
 compose = "2.10.0"
 converterScalars = "2.11.0"
 dagger = "2.57.2"
+dotsindicator = "5.1.0"
 gson = "2.13.2"
 javaxInject = "1"
 junitJupiter = "5.10.2"
@@ -50,10 +52,12 @@ uiGeometry = "1.11.0"
 android = { module = "io.github.sergio-sastre.ComposablePreviewScanner:android", version.ref = "android" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunitJunit5" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 compose = { module = "com.kizitonwose.calendar:compose", version.ref = "compose" }
 converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "converterScalars" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
+dotsindicator = { module = "com.tbuonomo:dotsindicator", version.ref = "dotsindicator" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 javax-inject = { module = "javax.inject:javax.inject", version.ref = "javaxInject" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
