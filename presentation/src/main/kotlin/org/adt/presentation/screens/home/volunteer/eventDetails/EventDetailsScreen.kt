@@ -349,21 +349,23 @@ private fun BottomActionSurface(uiState: EventDetailsState, onApply: () -> Unit)
         tonalElevation = 8.dp
     ) {
         Box(Modifier.navigationBarsPadding().padding(20.dp)) {
-            CustomButton(
-                text = btnText,
-                variant = ButtonVariant.RoughRounded,
-                colors = ButtonDefaultsProvider.colors(
-                    ButtonVariant.RoughRounded,
-                    ButtonStyle.Filled,
-                    true
-                ).copy(
-                    containerColor = btnColor,
-                    contentColor = if (status == "SUCCESS") Color.White else Abyss
-                ),
-                enabled = !isRegistered,
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                onClick = onApply
-            )
+            if (status != "COMPLETED") { //TODO: FIX INCORRECT STATUS
+                CustomButton(
+                    text = btnText,
+                    variant = ButtonVariant.RoughRounded,
+                    colors = ButtonDefaultsProvider.colors(
+                        ButtonVariant.RoughRounded,
+                        ButtonStyle.Filled,
+                        true
+                    ).copy(
+                        containerColor = btnColor,
+                        contentColor = if (status == "SUCCESS") Color.White else Abyss
+                    ),
+                    enabled = !isRegistered,
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    onClick = onApply
+                )
+            }
         }
     }
 }
