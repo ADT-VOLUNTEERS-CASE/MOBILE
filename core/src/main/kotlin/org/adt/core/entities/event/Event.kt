@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter
 data class Event(
     val eventId: Long = -1,
     val status: EventStatus = EventStatus.UNKNOWN,
-    val name: String = "Test event",
+    val name: String = "",
     val description: String = "",
     val cover: Cover? = null,
     val coordinator: EventUser = EventUser(),

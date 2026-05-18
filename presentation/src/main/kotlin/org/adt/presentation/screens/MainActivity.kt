@@ -18,6 +18,7 @@ import org.adt.presentation.components.bars.FancyBottomNavigationBar
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.navigation.NavigationGraph
 import org.adt.presentation.theme.VolunteersCaseTheme
+import androidx.navigation.NavDestination.Companion.hasRoute
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -26,18 +27,17 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentDestination = navBackStackEntry?.destination
 
-            val allowedRoutes = listOf(
-                Destinations.VolunteerHome::class.qualifiedName,
-                Destinations.VolunteerCalendar::class.qualifiedName,
-                Destinations.VolunteerStatistics::class.qualifiedName,
-                Destinations.VolunteerProfile::class.qualifiedName
+            val allowedRoutes = setOfNotNull(
+                Destinations.VolunteerHome,
+                Destinations.VolunteerCalendar,
+                Destinations.VolunteerStatistics,
+                Destinations.VolunteerProfile
             )
 
-            val shouldShowBottomBar = currentDestination?.hierarchy?.any { navDest ->
-                allowedRoutes.any { route ->
-                    navDest.route?.contains(route ?: "") == true
+            val shouldShowBottomBar = navBackStackEntry?.destination?.let { destination ->
+                allowedRoutes.any {route ->
+                    destination.hasRoute(route::class)
                 }
             } == true
 

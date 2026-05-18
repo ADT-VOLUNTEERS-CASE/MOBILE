@@ -83,7 +83,7 @@ fun ProfileScreen(
 
 @Composable
 fun ProfileScreenContent(
-    profileState: ProfileState = ProfileState(firstName = "Александр"),
+    profileState: ProfileState = ProfileState(),
     onLogoutAction: () -> Unit = {},
 ) {
     var showWIPSheet by remember { mutableStateOf(false) }
@@ -128,7 +128,7 @@ fun ProfileScreenContent(
                     Spacer(Modifier.height(16.dp))
 
                     Text(
-                        text = profileState.firstName.ifEmpty { "Волонтер" },
+                        text = profileState.firstName.ifEmpty { "Волонтёр" },
                         style = MaterialTheme.typography.headlineMedium,
                         color = Color.White,
                         fontWeight = FontWeight.Bold

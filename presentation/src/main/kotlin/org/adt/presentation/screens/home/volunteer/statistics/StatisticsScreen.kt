@@ -216,7 +216,8 @@ private fun ActivityChart(history: List<MonthlyActivity>) {
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.Bottom
             ) {
-                val maxEvents = history.maxOfOrNull { it.count }?.toFloat() ?: 1f
+                val maxEvents = (history.maxOfOrNull { it.count } ?: 0).coerceAtLeast(1).toFloat()
+
                 history.forEach { activity ->
                     Column(
                         modifier = Modifier.fillMaxHeight(),

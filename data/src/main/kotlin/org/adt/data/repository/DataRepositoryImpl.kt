@@ -396,10 +396,11 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.success(response.body()!!)
         }
 
+        /*
         if (response.code() == 403) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
-                return getEvents(retried = true)
+                return getRecommendedEvents(retried = true)
             }
 
             val error = parseError(response.errorBody())
@@ -407,6 +408,7 @@ class DataRepositoryImpl @Inject constructor(
 
             return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
         }
+         */
 
         return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
     }
