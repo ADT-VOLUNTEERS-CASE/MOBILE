@@ -11,6 +11,7 @@ import org.adt.core.entities.event.EventApplication
 import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
+import org.adt.core.entities.user.UserStatistics
 import java.io.File
 
 interface DataRepository {
@@ -41,6 +42,8 @@ interface DataRepository {
     suspend fun findLocation(address: String): GeneralResponse<List<Location>>
 
     suspend fun userInfo(): GeneralResponse<UserResponse>
+
+    suspend fun getUserStatistics(): GeneralResponse<UserStatistics>
 
     suspend fun uploadCover(file: File, retried: Boolean = false): GeneralResponse<Cover>
 

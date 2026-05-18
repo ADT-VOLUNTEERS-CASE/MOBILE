@@ -30,7 +30,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "API_BASE_URL", "\"https://adt.rss14.ru/api/v1/\"")
+        buildConfigField("String", "API_BASE_URL", "\"https://adt.rss14.ru/api/\"")
     }
 
     signingConfigs {
@@ -59,7 +59,7 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
-            buildConfigField("String", "API_BASE_URL", "\"https://adt.rss14.ru/api/v1/\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://adt.rss14.ru/api/\"")
         }
     }
 

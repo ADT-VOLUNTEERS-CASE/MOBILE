@@ -26,6 +26,7 @@ import org.adt.core.entities.response.ErrorResponse
 import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
+import org.adt.core.entities.user.UserStatistics
 import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.abstraction.DataRepository
 import java.io.File
@@ -310,6 +311,17 @@ class DataRepositoryImpl @Inject constructor(
         }
 
         return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+    }
+
+    override suspend fun getUserStatistics(): GeneralResponse<UserStatistics> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val response = networkRepository.userStatistics(token)
+
+        if (!response.isSuccessful){
+            return GeneralResponse.failure(response.code())
+        }
+
+        return GeneralResponse.success(response.body()!!)
     }
 
     override suspend fun uploadCover(file: File, retried: Boolean): GeneralResponse<Cover> {
