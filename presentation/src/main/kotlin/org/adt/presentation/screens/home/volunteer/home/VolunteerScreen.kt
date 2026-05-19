@@ -49,8 +49,9 @@ fun VolunteerScreen(
     navController: NavHostController,
     viewModel: VolunteerViewModel,
 ) {
-    val uiState = viewModel.uiState.collectAsState().value
-    var isRefreshing by remember { mutableStateOf(false) }
+    val uiState by viewModel.uiState.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+
     val scope = rememberCoroutineScope()
 
     VolunteerScreenContent(
@@ -58,11 +59,8 @@ fun VolunteerScreen(
         isRefreshing = isRefreshing,
         onRefreshAction = {
             scope.launch {
-                //isRefreshing = true
                 viewModel.findLocationAndEvents()
                 viewModel.getEvents()
-                delay(1000)
-                //isRefreshing = false
             }
         },
         searchModeChangedAction = { viewModel.onSearchModeChange(false) },

@@ -75,14 +75,17 @@ class EventDetailsViewModel @AssistedInject constructor(
                     // TODO: display general error
                 )
             }
+
+            updateCardDetails()
+            retrieveEventApplicationStatus()
         }
-        updateCardDetails()
-        retrieveEventApplicationStatus()
     }
 
     init {
-        updateCardDetails()
-        retrieveEventApplicationStatus()
+        viewModelScope.launch(Dispatchers.IO) {
+            updateCardDetails()
+            retrieveEventApplicationStatus()
+        }
     }
 
     @AssistedFactory

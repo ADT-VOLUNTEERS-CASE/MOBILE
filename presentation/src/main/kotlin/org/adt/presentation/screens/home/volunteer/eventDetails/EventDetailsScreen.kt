@@ -84,7 +84,6 @@ fun EventDetailsScreen(
             isRefreshing = true
             viewModel.updateCardDetails()
             viewModel.retrieveEventApplicationStatus()
-            delay(1000)
             isRefreshing = false
         }
     }
@@ -339,7 +338,7 @@ private fun BottomActionSurface(uiState: EventDetailsState, onApply: () -> Unit)
 
     val (btnText, btnColor) = when (status) {
         "PENDING", "ALREADY_EXISTS" -> "Заявка отправлена" to Color(0xFFFBC02D)
-        "SUCCESS" -> "Вы участвуете" to Mint
+        "SUCCESS", "ACCEPTED" -> "Вы участвуете" to Mint
         else -> "Принять участие" to Lagoon
     }
 
@@ -360,7 +359,7 @@ private fun BottomActionSurface(uiState: EventDetailsState, onApply: () -> Unit)
                         true
                     ).copy(
                         containerColor = btnColor,
-                        contentColor = if (status == "ACCEPTED") Color.White else Abyss
+                        contentColor = if (status == "ACCEPTED" || status == "SUCCESS") Color.White else Abyss
                     ),
                     enabled = !isRegistered,
                     modifier = Modifier.fillMaxWidth().height(56.dp),

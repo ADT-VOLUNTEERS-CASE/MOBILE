@@ -26,6 +26,9 @@ class VolunteerViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(VolunteerState())
     val uiState: StateFlow<VolunteerState> = _uiState.asStateFlow()
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
     fun onSearchValueChange(value: String) {
         _uiState.update { it.copy(searchValue = value) }
     }
@@ -52,6 +55,7 @@ class VolunteerViewModel @Inject constructor(
             return
 
         viewModelScope.launch(Dispatchers.IO) {
+            _isRefreshing.update { true }
             _uiState.update { it.copy(searchMode = true, searchModeLoading = true) }
 
             val responseLocation = async { _dataRepository.findLocation(uiState.searchValue) }
@@ -81,11 +85,13 @@ class VolunteerViewModel @Inject constructor(
                 )
             }
         }
+        _isRefreshing.update { false }
     }
 
     fun getEvents() {
         _uiState.update { it.copy(eventsListLoading = true) }
         viewModelScope.launch(Dispatchers.IO) {
+            _isRefreshing.update { true }
             val userResponse = _dataRepository.userInfo()
             val eventsResponse = _dataRepository.getEvents()
             val recommendedEventsResponse = _dataRepository.getRecommendedEvents()
@@ -131,6 +137,7 @@ class VolunteerViewModel @Inject constructor(
                 )
             }
         }
+        _isRefreshing.update { false }
     }
 
     fun setSearchModeValue(isActive: Boolean) {
@@ -165,6 +172,7 @@ class VolunteerViewModel @Inject constructor(
 
     fun createUserEvent(eventId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
+            _isRefreshing.update { true }
             val response = _dataRepository.createEventApplication(eventId)
             if (response.isSuccessful) {
                 getEvents()
@@ -183,6 +191,7 @@ class VolunteerViewModel @Inject constructor(
             }
 
             _uiState.update { it.copy(eventError = "Ошибка", eventPicker = false) }
+            _isRefreshing.update { false }
         }
     }
 
