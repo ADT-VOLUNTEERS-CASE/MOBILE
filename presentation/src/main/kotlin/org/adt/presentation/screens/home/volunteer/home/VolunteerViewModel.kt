@@ -129,9 +129,7 @@ class VolunteerViewModel @Inject constructor(
                 it.copy(
                     eventsList = sortedEvents,
                     filteredEventsByUserList = sortedEvents.filter { userEventsIds.contains(it.eventId) },
-                    recommendedEventsList = recommendedEvents,
                     registeredEventIds = userEventsIds,
-                    userEventsByDate = eventsByDate,
                     eventsListLoading = false,
                     firstName = userResponse.data().firstname.toString()
                 )
@@ -144,25 +142,10 @@ class VolunteerViewModel @Inject constructor(
         _uiState.update { it.copy(searchMode = isActive) }
     }
 
-    fun selectLocationAndFilterEvents(locationAddress: String) {
-        val allEvents = _uiState.value.eventsList
-        val filtered = allEvents.filter { it.location.address == locationAddress }
-
-        _uiState.update {
-            it.copy(
-                filteredEventsByLocation = filtered,
-                isLocationFiltering = true,
-                selectedLocationAddress = locationAddress,
-                searchMode = false
-            )
-        }
-    }
-
     fun resetLocationFilter(returnToSearch: Boolean = false) {
         _uiState.update {
             it.copy(
                 isLocationFiltering = false,
-                filteredEventsByLocation = emptyList(),
                 selectedLocationAddress = "",
                 searchMode = returnToSearch,
                 searchValue = if (returnToSearch) it.searchValue else ""
@@ -170,44 +153,12 @@ class VolunteerViewModel @Inject constructor(
         }
     }
 
-    fun createUserEvent(eventId: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _isRefreshing.update { true }
-            val response = _dataRepository.createEventApplication(eventId)
-            if (response.isSuccessful) {
-                getEvents()
-                _uiState.update { it.copy(eventPicker = false) }
-                return@launch
-            }
-
-            if (response.status == ApiStatus.ALREADY_EXISTS) {
-                _uiState.update {
-                    it.copy(
-                        eventError = "Заявка уже существует, мероприятие не принимает заявки или достигнут лимит мест",
-                        eventPicker = false
-                    )
-                }
-                return@launch
-            }
-
-            _uiState.update { it.copy(eventError = "Ошибка", eventPicker = false) }
-            _isRefreshing.update { false }
-        }
-    }
-
     fun clearEventError() {
         _uiState.update { it.copy(eventError = null) }
     }
 
-    fun isParticipatingEvaluate(event: AllDescriptionEvent): Boolean {
-        return uiState.value.registeredEventIds.contains(event.id)
-    }
     fun isParticipatingRecommendationEvaluate(event: Event): Boolean {
         return uiState.value.registeredEventIds.contains(event.eventId)
-    }
-
-    fun onCalendarToggle(show: Boolean) {
-        _uiState.update { it.copy(showCalendar = show) }
     }
 
     private fun populateFailure(
