@@ -22,6 +22,7 @@ import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.FindLocationResponse
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
+import org.adt.core.entities.user.UserStatistics
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -52,7 +53,7 @@ interface RetrofitRepository {
      *
      *           404 | Invalid email
      */
-    @POST("auth/authenticate")
+    @POST("v1/auth/authenticate")
     suspend fun authenticate(
         @Body request: AuthRequest
     ): Response<AuthResponse>
@@ -70,7 +71,7 @@ interface RetrofitRepository {
      *
      *           409 | User Already Exists
      */
-    @POST("auth/register")
+    @POST("v1/auth/register")
     suspend fun registerVolunteer(
         @Body request: RegisterRequest
     ): Response<AuthResponse>
@@ -88,7 +89,7 @@ interface RetrofitRepository {
      *
      *           409 | User Already Exists
      */
-    @POST("auth/register/coordinator")
+    @POST("v1/auth/register/coordinator")
     suspend fun registerCoordinator(
         @Header("Authorization") auth: String,
         @Body request: RegisterRequest
@@ -107,7 +108,7 @@ interface RetrofitRepository {
      *
      *           409 | User Already Exists
      */
-    @POST("auth/register/admin")
+    @POST("v1/auth/register/admin")
     suspend fun registerAdmin(
         @Header("Authorization") auth: String,
         @Body request: RegisterRequest
@@ -124,7 +125,7 @@ interface RetrofitRepository {
      *
      *           403 | Forbidden (Expired Token)
      */
-    @POST("auth/refreshtoken")
+    @POST("v1/auth/refreshtoken")
     suspend fun refreshToken(
         @Body request: RefreshRequest
     ): Response<AuthResponse>
@@ -149,13 +150,13 @@ interface RetrofitRepository {
      *
      *           404 | Already exists or event's full
      */
-    @POST("user-event/create/{eventId}")
+    @POST("v1/user-event/create/{eventId}")
     suspend fun createEventApplication(
         @Header("Authorization") auth: String,
         @Path("eventId") eventId: Long,
     ): Response<UserEventResponse>
 
-    @GET("user-event/coordinator/events/{eventId}/applications")
+    @GET("v1/user-event/coordinator/events/{eventId}/applications")
     suspend fun getEventApplications(
         @Header("Authorization") auth: String,
         @Path("eventId") eventId: Long,
@@ -164,13 +165,13 @@ interface RetrofitRepository {
         @Query("size") size: Int = 20
     ): Response<ApplicationsResponse>
 
-    @GET("user-event/status/{eventId}")
+    @GET("v1/user-event/status/{eventId}")
     suspend fun getApplicationStatus(
         @Header("Authorization") auth: String,
         @Path("eventId") eventId: Long,
     ): Response<ApplicationStatusResponse?>
 
-    @PATCH("user-event/coordinator/events/{eventId}/applications/{userId}/status")
+    @PATCH("v1/user-event/coordinator/events/{eventId}/applications/{userId}/status")
     suspend fun updateApplicationStatus(
         @Header("Authorization") auth: String,
         @Path("eventId") eventId: Long,
@@ -178,7 +179,7 @@ interface RetrofitRepository {
         @Body request: ApplicationStatusRequest
     ): Response<UserEventResponse>
 
-    @GET("user-event/coordinator/events")
+    @GET("v1/user-event/coordinator/events")
     suspend fun getCoordinatorEvents(
         @Header("Authorization") auth: String,
         @Query("page") page: Int = 0,
@@ -203,7 +204,7 @@ interface RetrofitRepository {
      *
      *           409 | Already exists
      */
-    @POST("tag/create")
+    @POST("v1/tag/create")
     suspend fun createTag(
         @Header("Authorization") auth: String,
         @Body request: TagRequest
@@ -220,7 +221,7 @@ interface RetrofitRepository {
      *
      *           404 | Does not exist
      */
-    @GET("tag/name/{tagName}")
+    @GET("v1/tag/name/{tagName}")
     suspend fun getTagByName(
         @Header("Authorization") auth: String,
         @Path("tagName") tagName: String,
@@ -237,7 +238,7 @@ interface RetrofitRepository {
      *
      *           404 | Does not exist
      */
-    @DELETE("tag/name/{tagName}")
+    @DELETE("v1/tag/name/{tagName}")
     suspend fun deleteTagByName(
         @Header("Authorization") auth: String,
         @Path("tagName") tagName: String,
@@ -254,7 +255,7 @@ interface RetrofitRepository {
      *
      *           404 | Does not exist
      */
-    @GET("tag/id/{tagId}")
+    @GET("v1/tag/id/{tagId}")
     suspend fun getTagById(
         @Header("Authorization") auth: String,
         @Path("tagId") tagId: Int,
@@ -271,7 +272,7 @@ interface RetrofitRepository {
      *
      *           404 | Does not exist
      */
-    @DELETE("tag/id/{tagId}")
+    @DELETE("v1/tag/id/{tagId}")
     suspend fun deleteTagById(
         @Header("Authorization") auth: String,
         @Path("tagId") tagId: Int,
@@ -294,7 +295,7 @@ interface RetrofitRepository {
      *
      *           403 | Forbidden (Expired Token)
      */
-    @POST("location/create")
+    @POST("v1/location/create")
     suspend fun createLocation(
         @Header("Authorization") auth: String,
         @Body request: LocationRequest
@@ -311,7 +312,7 @@ interface RetrofitRepository {
      *
      *           403 | Forbidden (Expired Token)
      */
-    @POST("location/all")
+    @POST("v1/location/all")
     suspend fun findLocation(
         @Header("Authorization") auth: String,
         @Query("page") page: Int,
@@ -332,7 +333,7 @@ interface RetrofitRepository {
      *
      *           404 | Does not exist
      */
-    @POST("location/update/{locationId}")
+    @POST("v1/location/update/{locationId}")
     suspend fun updateLocation(
         @Header("Authorization") auth: String,
         @Path("locationId") locationId: Int,
@@ -356,7 +357,7 @@ interface RetrofitRepository {
      *
      *           403 | Forbidden (Expired Token)
      */
-    @POST("event/search")
+    @POST("v1/event/search")
     suspend fun findEvent(
         @Header("Authorization") auth: String,
         @Query("page") page: Int,
@@ -375,7 +376,7 @@ interface RetrofitRepository {
      *
      *           403 | Forbidden (Expired Token)
      */
-    @GET("event/all")
+    @GET("v1/event/all")
     suspend fun getEvents(
         @Header("Authorization") auth: String,
         @Query("page") page: Int,
@@ -391,7 +392,7 @@ interface RetrofitRepository {
      *
      *           403 | Forbidden (Expired Token)
      */
-    @GET("event/recommended")
+    @GET("v1/event/recommended")
     suspend fun getRecommendedEvents(
         @Header("Authorization") auth: String,
         @Query("page") page: Int,
@@ -413,7 +414,7 @@ interface RetrofitRepository {
      *
      *           409 | Current cover or location are already taken
      */
-    @POST("event/create")
+    @POST("v1/event/create")
     suspend fun createEvent(
         @Header("Authorization") auth: String,
         @Body request: EventRequest
@@ -431,7 +432,7 @@ interface RetrofitRepository {
      *           404 | Event can't be founded by current id
      */
 
-    @GET("event/{eventId}")
+    @GET("v1/event/{eventId}")
     suspend fun getEventById(
         @Header("Authorization") auth: String,
         @Path("eventId") eventId: Long,
@@ -450,7 +451,7 @@ interface RetrofitRepository {
      *
      *           404 | Location can't be founded by current id
      */
-    @DELETE("event/delete/{eventId}")
+    @DELETE("v1/event/delete/{eventId}")
     suspend fun deleteEvent(
         @Header("Authorization") auth: String,
         @Path("eventId") eventId: Long
@@ -479,7 +480,7 @@ interface RetrofitRepository {
      *           500 | Error with uploading file in s3
      */
     @Multipart
-    @POST("cover/create")
+    @POST("v1/cover/create")
     suspend fun uploadCover(
         @Header("Authorization") auth: String,
         @Part file: MultipartBody.Part
@@ -500,7 +501,7 @@ interface RetrofitRepository {
      *
      *           500 | Error with deleting file from s3
      */
-    @DELETE("cover/{coverId}")
+    @DELETE("v1/cover/{coverId}")
     suspend fun deleteCover(
         @Header("Authorization") auth: String,
         @Path("coverId") coverId: Long
@@ -522,10 +523,15 @@ interface RetrofitRepository {
      *
      *           403 | Forbidden (Expired Token)
      */
-    @GET("user/me")
+    @GET("v1/user/me")
     suspend fun userInfo(
         @Header("Authorization") auth: String
     ): Response<UserResponse>
+
+    @GET("v2/user/statistics")
+    suspend fun userStatistics(
+        @Header("Authorization") auth: String
+    ): Response<UserStatistics>
     //endregion
 
     //---------------------
@@ -533,7 +539,7 @@ interface RetrofitRepository {
     //---------------------
     //region demo controller content
 
-    @GET("ping")
+    @GET("v1/ping")
     suspend fun ping(): Response<String>
 
     //endregion
