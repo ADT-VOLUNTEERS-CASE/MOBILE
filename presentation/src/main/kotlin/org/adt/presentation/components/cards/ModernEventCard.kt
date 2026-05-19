@@ -107,26 +107,6 @@ fun CharityEventCard(
 
                 Surface(
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp),
-                    color = Color.White.copy(alpha = 0.7f),
-                    shape = CircleShape
-                ) {
-                    IconButton(
-                        onClick = onFavoriteClick,
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.FavoriteBorder,
-                            contentDescription = null,
-                            tint = Color.Black,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                }
-
-                Surface(
-                    modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(8.dp),
                     color = statusColor.copy(alpha = 0.9f),
@@ -219,7 +199,7 @@ fun CharityEventCard(
                         )
                         Spacer(modifier = Modifier.width(2.dp))
                         Text(
-                            text = "12",
+                            text = event.maxCapacity.toString(),
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black

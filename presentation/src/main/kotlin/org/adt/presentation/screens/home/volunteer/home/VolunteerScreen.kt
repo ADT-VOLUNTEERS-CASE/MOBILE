@@ -1,18 +1,7 @@
 package org.adt.presentation.screens.home.volunteer.home
-
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -22,23 +11,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.rememberTopAppBarState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,18 +26,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.adt.core.entities.AllDescriptionEvent
 import org.adt.core.entities.event.Event
 import org.adt.presentation.components.CustomCalendar
 import org.adt.presentation.components.CustomSearchTextField
-import org.adt.presentation.components.bars.FancyBottomNavigationBar
 import org.adt.presentation.components.bars.SyncedTopNavigationBar
 import org.adt.presentation.components.cards.CharityEventCard
-import org.adt.presentation.components.cards.OverallDescriptionEventCard
-import org.adt.presentation.components.cards.formatEventDate
 import org.adt.presentation.components.misc.NotImplementedSheet
 import org.adt.presentation.components.misc.rememberSyncedScrollState
 import org.adt.presentation.navigation.Destinations
@@ -71,16 +44,25 @@ import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
 
-
 @Composable
 fun VolunteerScreen(
     navController: NavHostController,
     viewModel: VolunteerViewModel,
 ) {
-    val uiState = viewModel.uiState.collectAsState().value
+    val uiState by viewModel.uiState.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+
+    val scope = rememberCoroutineScope()
 
     VolunteerScreenContent(
         uiState = uiState,
+        isRefreshing = isRefreshing,
+        onRefreshAction = {
+            scope.launch {
+                viewModel.findLocationAndEvents()
+                viewModel.getEvents()
+            }
+        },
         searchModeChangedAction = { viewModel.onSearchModeChange(false) },
         searchFieldValueChangedAction = { viewModel.onSearchValueChange(it) },
         searchFieldOnConfirmAction = {
@@ -88,9 +70,7 @@ fun VolunteerScreen(
         },
         eventPickerAction = {
             navController.navigate(
-                Destinations.EventDetails(
-                    it.eventId
-                )
+                Destinations.EventDetails(it.eventId)
             )
         },
         eventPickerChangeAction = {
@@ -104,9 +84,7 @@ fun VolunteerScreen(
         onSettingsNavigateAction = { navController.navigate(Destinations.VolunteerProfile) },
         onRecommendedNavigateAction = { eventId ->
             navController.navigate(
-                Destinations.EventDetails(
-                    eventId
-                )
+                Destinations.EventDetails(eventId)
             )
         },
         isParticipatingEvaluateAction = viewModel::isParticipatingEvaluate,
@@ -118,6 +96,8 @@ fun VolunteerScreen(
 @Composable
 fun VolunteerScreenContent(
     uiState: VolunteerState = VolunteerState(),
+    isRefreshing: Boolean = false,
+    onRefreshAction: () -> Unit = {},
     searchModeChangedAction: () -> Unit = {},
     searchFieldValueChangedAction: (it: String) -> Unit = {},
     searchFieldOnConfirmAction: (_: String) -> Unit = {},
@@ -130,19 +110,14 @@ fun VolunteerScreenContent(
     searchFieldOnFocusAction: (FocusState) -> Unit = {},
     onSettingsNavigateAction: () -> Unit = {},
     onRecommendedNavigateAction: (eventId: Long) -> Unit = {},
-    isParticipatingEvaluateAction: (AllDescriptionEvent) -> Boolean = { true }, //TODO: Refactor
-    isParticipatingRecommendationEvaluateAction: (Event) -> Boolean = { true }, //TODO: Refactor
+    isParticipatingEvaluateAction: (AllDescriptionEvent) -> Boolean = { true },
+    isParticipatingRecommendationEvaluateAction: (Event) -> Boolean = { true },
 ) {
     var showWIPSheet by remember { mutableStateOf(false) }
-
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState()
-
-    val scrollBehavior =
-        TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val syncedScrollState = rememberSyncedScrollState()
-
     var isFilterChipSelected by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.eventError) {
@@ -186,35 +161,31 @@ fun VolunteerScreenContent(
                         onNotificationsNavigateAction = { showWIPSheet = true },
                     )
                 }
-        ) { paddingValues ->
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
+            ) { paddingValues ->
+                PullToRefreshBox(
+                    isRefreshing = isRefreshing,
+                    onRefresh = onRefreshAction,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues),
-                    contentPadding = PaddingValues(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    state = rememberPullToRefreshState()
                 ) {
-                    /* TODO: Omit recommendations
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        RecommendationsRow(
-                            events = uiState.recommendedEventsList,
-                            isParticipatingEvaluateAction = isParticipatingRecommendationEvaluateAction,
-                            onNavigateAction = onRecommendedNavigateAction
-                        )
-                    }
-                    */
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(120.dp)
-                                .clip(RoundedCornerShape(16.dp))
-                                //.background(VolunteersCaseTheme.colors.secondaryBackground)
-                                .padding(top = 20.dp, bottom = 10.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(120.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .padding(top = 20.dp, bottom = 10.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
                                 Text(
                                     modifier = Modifier.weight(1f),
                                     text = "Каталог мероприятий",
@@ -242,39 +213,39 @@ fun VolunteerScreenContent(
                                         }
                                     }
                                 )
-
-                        }
-                    }
-
-                    if (uiState.eventsListLoading) {
-                        item(span = { GridItemSpan(maxLineSpan) }) {
-                            Box(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(32.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator(color = Mint)
                             }
                         }
-                    } else {
-                        items(
-                            if (!isFilterChipSelected)
-                                uiState.eventsList
-                            else
-                                uiState.filteredEventsByUserList
-                        ) { event ->
-                            CharityEventCard(
-                                event = event,
-                                onClick = { eventPickerAction(event) },
-                                onFavoriteClick = { },
-                                isParticipating = isParticipatingRecommendationEvaluateAction.invoke(event)
-                            )
-                        }
-                    }
 
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        Spacer(Modifier.height(100.dp))
+                        if (uiState.eventsListLoading) {
+                            item(span = { GridItemSpan(maxLineSpan) }) {
+                                Box(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(32.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator(color = Mint)
+                                }
+                            }
+                        } else {
+                            items(
+                                if (!isFilterChipSelected)
+                                    uiState.eventsList
+                                else
+                                    uiState.filteredEventsByUserList
+                            ) { event ->
+                                CharityEventCard(
+                                    event = event,
+                                    onClick = { eventPickerAction(event) },
+                                    onFavoriteClick = { },
+                                    isParticipating = isParticipatingRecommendationEvaluateAction.invoke(event)
+                                )
+                            }
+                        }
+
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            Spacer(Modifier.height(100.dp))
+                        }
                     }
                 }
             }
@@ -290,35 +261,7 @@ fun VolunteerScreenContent(
         ) {
             SearchOverlay(uiState, {}, { data -> })
         }
-
     }
-    /*
-    if (uiState.eventPicker && uiState.selectedEvent != null) {
-        val selectedEvent = uiState.selectedEvent
-        val (formattedTime, formattedDate) = formatEventDate(selectedEvent.dateTimestamp)
-        val isAlreadyRegistered = uiState.selectedEvent.let {
-            uiState.registeredEventIds.contains(it.eventId)
-        }
-
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Dialog(eventPickerChangeAction, DialogProperties()) {
-                OverallDescriptionEventCard(
-                    Modifier.verticalScroll(rememberScrollState()), AllDescriptionEvent(
-                        selectedEvent.eventId,
-                        selectedEvent.cover?.link ?: "",
-                        selectedEvent.name,
-                        selectedEvent.description,
-                        formattedTime,
-                        formattedDate,
-                        selectedEvent.status,
-                        selectedEvent.location
-                    ), !isAlreadyRegistered
-                )
-                { eventPickerButtonAction(selectedEvent.eventId) }
-            }
-        }
-    }*/
-
 
     if (uiState.showCalendar) {
         ModalBottomSheet(
@@ -326,9 +269,8 @@ fun VolunteerScreenContent(
             sheetState = sheetState,
             containerColor = Arctic,
             scrimColor = Abyss.copy(alpha = 0.5f),
-            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp), dragHandle = {
-
-            }
+            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+            dragHandle = null
         ) {
             Column(
                 modifier = Modifier
@@ -361,10 +303,8 @@ private fun VolunteerScreenPreview() {
     VolunteersCaseTheme {
         VolunteerScreenContent(
             uiState = VolunteerState(
-                eventsList = listOf(Event(), Event()), recommendedEventsList = listOf(
-                    Event(),
-                    Event()
-                )
+                eventsList = listOf(Event(), Event()),
+                recommendedEventsList = listOf(Event(), Event())
             ),
             searchModeChangedAction = {}
         )

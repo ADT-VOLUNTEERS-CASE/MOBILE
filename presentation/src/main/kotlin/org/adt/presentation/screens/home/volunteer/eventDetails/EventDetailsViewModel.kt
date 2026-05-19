@@ -35,7 +35,8 @@ class EventDetailsViewModel @AssistedInject constructor(
                 description = data.description,
                 cover = data.cover,
                 location = data.location,
-                localizedDateTime = data.localizedDateTime
+                localizedDateTime = data.localizedDateTime,
+                eventStatus = data.status
             ) }
         }
     }
@@ -51,11 +52,12 @@ class EventDetailsViewModel @AssistedInject constructor(
     }
 
     fun sendEventApplication() {
+        //_uiState.update { it.copy(applicationStatus = "PENDING") }
         viewModelScope.launch(Dispatchers.IO) {
             val response = _dataRepository.createEventApplication(eventId)
 
             if (response.isSuccessful) {
-                _uiState.update { it.copy(applicationStatus = "Заявка отправлена!") }
+                _uiState.update { it.copy(applicationStatus = "PENDING") }
                 return@launch
             }
 
@@ -73,13 +75,17 @@ class EventDetailsViewModel @AssistedInject constructor(
                     // TODO: display general error
                 )
             }
+
+            updateCardDetails()
+            retrieveEventApplicationStatus()
         }
-        retrieveEventApplicationStatus()
     }
 
     init {
-        updateCardDetails()
-        retrieveEventApplicationStatus()
+        viewModelScope.launch(Dispatchers.IO) {
+            updateCardDetails()
+            retrieveEventApplicationStatus()
+        }
     }
 
     @AssistedFactory
