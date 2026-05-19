@@ -269,7 +269,7 @@ fun VolunteerScreenContent(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun VolunteerScreenPreview() {
     VolunteersCaseTheme {
