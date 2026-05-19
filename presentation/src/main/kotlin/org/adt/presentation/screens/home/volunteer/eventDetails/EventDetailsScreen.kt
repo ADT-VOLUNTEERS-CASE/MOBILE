@@ -57,6 +57,7 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import coil.compose.AsyncImage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.adt.core.entities.EventStatus
 import org.adt.core.entities.event.EventLocation
 import org.adt.presentation.R
 import org.adt.presentation.components.buttons.ButtonDefaultsProvider
@@ -349,7 +350,7 @@ private fun BottomActionSurface(uiState: EventDetailsState, onApply: () -> Unit)
         tonalElevation = 8.dp
     ) {
         Box(Modifier.navigationBarsPadding().padding(20.dp)) {
-            if (status != "COMPLETED") { //TODO: FIX INCORRECT STATUS
+            if (uiState.eventStatus != EventStatus.COMPLETED) {
                 CustomButton(
                     text = btnText,
                     variant = ButtonVariant.RoughRounded,
@@ -359,7 +360,7 @@ private fun BottomActionSurface(uiState: EventDetailsState, onApply: () -> Unit)
                         true
                     ).copy(
                         containerColor = btnColor,
-                        contentColor = if (status == "SUCCESS") Color.White else Abyss
+                        contentColor = if (status == "ACCEPTED") Color.White else Abyss
                     ),
                     enabled = !isRegistered,
                     modifier = Modifier.fillMaxWidth().height(56.dp),

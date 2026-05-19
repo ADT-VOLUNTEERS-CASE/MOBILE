@@ -35,7 +35,8 @@ class EventDetailsViewModel @AssistedInject constructor(
                 description = data.description,
                 cover = data.cover,
                 location = data.location,
-                localizedDateTime = data.localizedDateTime
+                localizedDateTime = data.localizedDateTime,
+                eventStatus = data.status
             ) }
         }
     }
