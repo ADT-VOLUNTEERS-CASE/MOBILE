@@ -14,6 +14,7 @@ import org.adt.core.entities.event.CoordinatorEventsResponse
 import org.adt.core.entities.event.Cover
 import org.adt.core.entities.event.Event
 import org.adt.core.entities.event.EventApplication
+import org.adt.core.entities.rating.CoordinatorRatingResponse
 import org.adt.core.entities.request.ApplicationStatusRequest
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.EventRequest
@@ -637,6 +638,24 @@ class DataRepositoryImpl @Inject constructor(
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return updateApplicationStatus(eventId, userId, status, reason)
+            }
+            persistenceRepository.removeToken()
+            return GeneralResponse.failure(403, "Session expired")
+        }
+
+        return GeneralResponse.failure(response.code())
+    }
+
+    override suspend fun getCoordinatorRating(period: String, retried: Boolean): GeneralResponse<CoordinatorRatingResponse> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
+        val response = networkRepository.getCoordinatorRating(token, period)
+
+        if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
+
+        if (response.code() == 403) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return getCoordinatorRating(period, true)
             }
             persistenceRepository.removeToken()
             return GeneralResponse.failure(403, "Session expired")

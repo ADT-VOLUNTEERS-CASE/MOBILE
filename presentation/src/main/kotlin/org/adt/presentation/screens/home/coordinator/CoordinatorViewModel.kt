@@ -1,5 +1,6 @@
 package org.adt.presentation.screens.home.coordinator
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,6 +27,33 @@ class CoordinatorViewModel @Inject constructor(
 
     val uiState: StateFlow<CoordinatorState> = _uiState.asStateFlow()
     val fieldsState: StateFlow<CoordinatorFieldsState> = _fieldsState.asStateFlow()
+
+    fun getRating() {
+        _uiState.update { it.copy(ratingListLoading = true) }
+        viewModelScope.launch(Dispatchers.IO) {
+            val ratingResponse = _dataRepository.getCoordinatorRating(_uiState.value.ratingType)
+
+            if (ratingResponse.isSuccessful) {
+                val ratingList = ratingResponse.data().content
+
+                _uiState.update {
+                    it.copy(
+                        ratingList = ratingList,
+                        ratingListLoading = false,
+                    )
+                }
+                return@launch
+            }
+
+            _uiState.update { it.copy(ratingListLoading = false) }
+
+            Log.e("VolunteerViewModel::Rating", "Failure: Invalid data")
+        }
+    }
+
+    fun toggleRatingType(currentType: String) {
+        _uiState.update { it.copy(ratingType = if (currentType == "monthly") "overall" else "monthly") }
+    }
 
     fun updateInputs(newState: CoordinatorFieldsState) {
         _fieldsState.update { newState }
@@ -64,9 +92,19 @@ class CoordinatorViewModel @Inject constructor(
             val response = _dataRepository.uploadCover(file)
 
             if (response.isSuccessful) {
-                _uiState.update { it.copy(selectedCover = response.data(), isUploadingCover = false) }
+                _uiState.update {
+                    it.copy(
+                        selectedCover = response.data(),
+                        isUploadingCover = false
+                    )
+                }
             } else {
-                _uiState.update { it.copy(createError = "Ошибка загрузки фото", isUploadingCover = false) }
+                _uiState.update {
+                    it.copy(
+                        createError = "Ошибка загрузки фото",
+                        isUploadingCover = false
+                    )
+                }
             }
         }
     }
@@ -130,6 +168,7 @@ class CoordinatorViewModel @Inject constructor(
     }
 
     init {
+        getRating()
         loadMyEvents()
     }
 
@@ -138,10 +177,12 @@ class CoordinatorViewModel @Inject constructor(
             _uiState.update { it.copy(eventsLoading = true) }
             val response = _dataRepository.getCoordinatorEvents()
             if (response.isSuccessful) {
-                _uiState.update { it.copy(
-                    myEvents = response.data().content,
-                    eventsLoading = false
-                ) }
+                _uiState.update {
+                    it.copy(
+                        myEvents = response.data().content,
+                        eventsLoading = false
+                    )
+                }
             } else {
                 _uiState.update { it.copy(eventsLoading = false) }
             }

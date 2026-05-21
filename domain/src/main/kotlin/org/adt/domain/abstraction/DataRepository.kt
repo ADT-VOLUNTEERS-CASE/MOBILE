@@ -8,6 +8,7 @@ import org.adt.core.entities.event.CoordinatorEventsResponse
 import org.adt.core.entities.event.Cover
 import org.adt.core.entities.event.Event
 import org.adt.core.entities.event.EventApplication
+import org.adt.core.entities.rating.CoordinatorRatingResponse
 import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
@@ -79,4 +80,7 @@ interface DataRepository {
     suspend fun getEventApplications(eventId: Long, status: String?): GeneralResponse<List<EventApplication>>
 
     suspend fun updateApplicationStatus(eventId: Long, userId: Long, status: String, reason: String?): GeneralResponse<UserEventResponse>
+
+    suspend fun getCoordinatorRating(period: String = "monthly", retried: Boolean = false): GeneralResponse<CoordinatorRatingResponse>
+
 }

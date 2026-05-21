@@ -9,11 +9,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.TextSelectionColors
@@ -101,6 +103,7 @@ fun CoordinatorScreen(
         onApprove = { eventId, userId -> viewModel.approve(eventId, userId) },
         onReject = { eventId, userId -> viewModel.reject(eventId, userId) },
         onLoadApplications = { eventId -> viewModel.loadApplications(eventId) },
+        onToggleRating = { viewModel.toggleRatingType(uiState.ratingType)}
     )
 }
 
@@ -121,6 +124,7 @@ fun CoordinatorScreenContent(
     onApprove: (Long, Long) -> Unit = { _, _ -> },
     onReject: (Long, Long) -> Unit = { _, _ -> },
     onLoadApplications: (Long) -> Unit = {},
+    onToggleRating: (String) -> Unit = {},
     animationOverride: Boolean = false
 ) {
     val context = LocalContext.current
@@ -277,6 +281,50 @@ fun CoordinatorScreenContent(
                 charDelay = if (animationOverride) 0L else 40L,
                 animationOverride = animationOverride
             )
+
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(VolunteersCaseTheme.colors.secondaryBackground)
+                    .padding(horizontal = 10.dp, vertical = 20.dp),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    "Общий рейтинг",
+                    style = VolunteersCaseTheme.typography.titleLarge.copy(textAlign = TextAlign.Center),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Text(
+                    if (uiState.ratingType == "monthly") "за месяц" else "за все время",
+                    style = VolunteersCaseTheme.typography.titleLarge.copy(textAlign = TextAlign.Center),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onToggleRating(if (uiState.ratingType == "monthly") "overall" else "monthly")
+                        }
+                )
+
+                if (uiState.ratingList.isNotEmpty()) {
+                    uiState.ratingList.forEach { item ->
+                        Row {
+                            Text(item.ratingPosition.toString())
+                            Spacer(Modifier.width(20.dp))
+                            Column {
+                                Text(item.firstname)
+                                Text(item.lastname)
+                            }
+                        }
+                    }
+                } else {
+                    Text(
+                        "Пока пусто...",
+                        style = VolunteersCaseTheme.typography.titleMedium.copy(Graphite)
+                    )
+                }
+            }
 
             Column(
                 Modifier

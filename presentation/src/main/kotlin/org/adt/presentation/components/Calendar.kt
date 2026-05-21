@@ -206,6 +206,7 @@ private fun CustomCalendarPreview() {
             UserEvents(
                 name = "Посадка деревьев",
                 status = "CONFIRMED",
+                maxCapacity = 120,
                 dateTimestamp = "2026-04-26T10:00:00"
             )
         ),
@@ -213,11 +214,13 @@ private fun CustomCalendarPreview() {
             UserEvents(
                 name = "Сбор мусора",
                 status = "PENDING",
+                maxCapacity = 120,
                 dateTimestamp = "2026-04-28T10:00:00"
             ),
             UserEvents(
                 name = "Помощь приюту",
                 status = "PENDING",
+                maxCapacity = 120,
                 dateTimestamp = "2026-04-28T14:00:00"
             )
         )
