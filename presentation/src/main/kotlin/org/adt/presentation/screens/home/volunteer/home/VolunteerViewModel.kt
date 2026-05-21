@@ -94,14 +94,13 @@ class VolunteerViewModel @Inject constructor(
             _isRefreshing.update { true }
             val userResponse = _dataRepository.userInfo()
             val eventsResponse = _dataRepository.getEvents()
-            val recommendedEventsResponse = _dataRepository.getRecommendedEvents()
 
             if (
-                !recommendedEventsResponse.isSuccessful ||
                 !eventsResponse.isSuccessful ||
                 !userResponse.isSuccessful
             ) {
                 _uiState.update { it.copy(eventsListLoading = false) }
+                _isRefreshing.update { false }
 
                 Log.e("VolunteerViewModel::Events", "Failure: Invalid data")
                 return@launch
@@ -109,21 +108,12 @@ class VolunteerViewModel @Inject constructor(
 
             val userEventsIds = userResponse.data().events.map { it.eventId }.toSet()
             val allEvents = eventsResponse.data().content
-            val recommendedEvents = recommendedEventsResponse.data().content
 
             val sortedEvents =
                 allEvents.sortedWith(
                     compareByDescending<Event> { userEventsIds.contains(it.eventId) }
                         .thenBy { it.status }
                 )
-
-            val eventsByDate = userResponse.data().events.groupBy {
-                try {
-                    OffsetDateTime.parse(it.dateTimestamp).toLocalDate()
-                } catch (e: Exception) {
-                    LocalDateTime.parse(it.dateTimestamp).toLocalDate()
-                }
-            }
 
             _uiState.update {
                 it.copy(
