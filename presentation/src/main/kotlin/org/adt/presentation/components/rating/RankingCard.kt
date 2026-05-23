@@ -48,8 +48,9 @@ fun RankingCard(
     rank: Int,
     index: Int,
     modifier: Modifier = Modifier,
+    animationOverride: Boolean = false,
 ) {
-    var visible by remember { mutableStateOf(false) }
+    var visible by remember { mutableStateOf(animationOverride) }
     LaunchedEffect(Unit) { visible = true }
 
     Box(modifier) {
@@ -155,6 +156,7 @@ private fun RankingCardPreview() {
             ),
             rank = 5,
             index = 0,
+            animationOverride = true,
         )
     }
 }

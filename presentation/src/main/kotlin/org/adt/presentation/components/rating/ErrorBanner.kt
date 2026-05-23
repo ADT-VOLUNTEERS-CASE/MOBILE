@@ -42,8 +42,9 @@ fun ErrorBanner(
     message: String,
     onDismiss: () -> Unit = {},
     modifier: Modifier = Modifier,
+    animationOverride: Boolean = false,
 ) {
-    var visible by remember { mutableStateOf(false) }
+    var visible by remember { mutableStateOf(animationOverride) }
     LaunchedEffect(Unit) { visible = true }
 
     AnimatedVisibility(
@@ -102,6 +103,7 @@ private fun ErrorBannerPreview() {
     VolunteersCaseTheme {
         ErrorBanner(
             message = "Не удалось загрузить рейтинг. Проверьте подключение к интернету.",
+            animationOverride = true,
         )
     }
 }
