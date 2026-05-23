@@ -1,8 +1,8 @@
 package org.adt.core.entities.response
 
 import kotlinx.serialization.Serializable
-import org.adt.core.entities.user.UserEvents
 import org.adt.core.entities.Tag
+import org.adt.core.entities.user.UserEvents
 
 @Serializable
 data class UserResponse(

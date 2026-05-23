@@ -55,7 +55,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import coil.compose.AsyncImage
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.adt.core.entities.EventStatus
 import org.adt.core.entities.event.EventLocation

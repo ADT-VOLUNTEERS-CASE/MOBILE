@@ -1,4 +1,4 @@
-package org.adt.core.entities.user
+package org.adt.core.entities.user.statistics
 
 import kotlinx.serialization.Serializable
 
@@ -10,4 +10,5 @@ data class UserStatistics(
     val totalWorkedMinutes: Int = -1,
     val currentParticipationStreakMonths: Int = -1,
     val maxParticipationStreakMonths: Int = -1,
+    val lastFiveMonthsParticipation: List<MonthlyActivity> = listOf()
 )

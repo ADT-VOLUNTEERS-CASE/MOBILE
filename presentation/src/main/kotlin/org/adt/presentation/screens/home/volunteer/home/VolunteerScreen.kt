@@ -1,20 +1,42 @@
 package org.adt.presentation.screens.home.volunteer.home
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.runtime.*
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,11 +49,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.adt.core.entities.AllDescriptionEvent
 import org.adt.core.entities.event.Event
-import org.adt.presentation.components.CustomCalendar
 import org.adt.presentation.components.CustomSearchTextField
 import org.adt.presentation.components.bars.SyncedTopNavigationBar
 import org.adt.presentation.components.cards.CharityEventCard
@@ -39,8 +59,6 @@ import org.adt.presentation.components.misc.NotImplementedSheet
 import org.adt.presentation.components.misc.rememberSyncedScrollState
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.screens.home.volunteer.search.SearchOverlay
-import org.adt.presentation.theme.Abyss
-import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
 
@@ -76,18 +94,10 @@ fun VolunteerScreen(
         eventPickerChangeAction = {
             viewModel.onEventPickerChange(false)
         },
-        eventPickerButtonAction = { viewModel.createUserEvent(it) },
         onToastShown = { viewModel.clearEventError() },
-        onCalendarToggleAction = { viewModel.onCalendarToggle(it) },
         searchFieldOnFocusAction = { it: FocusState -> viewModel.setSearchModeValue(it.isFocused) },
         onResetFilterAction = { viewModel.resetLocationFilter(returnToSearch = true) },
         onSettingsNavigateAction = { navController.navigate(Destinations.VolunteerProfile) },
-        onRecommendedNavigateAction = { eventId ->
-            navController.navigate(
-                Destinations.EventDetails(eventId)
-            )
-        },
-        isParticipatingEvaluateAction = viewModel::isParticipatingEvaluate,
         isParticipatingRecommendationEvaluateAction = viewModel::isParticipatingRecommendationEvaluate
     )
 }
@@ -103,19 +113,14 @@ fun VolunteerScreenContent(
     searchFieldOnConfirmAction: (_: String) -> Unit = {},
     eventPickerAction: (event: Event) -> Unit = {},
     eventPickerChangeAction: () -> Unit = {},
-    eventPickerButtonAction: (Long) -> Unit = {},
     onToastShown: () -> Unit = {},
-    onCalendarToggleAction: (show: Boolean) -> Unit = {},
     onResetFilterAction: () -> Unit = {},
     searchFieldOnFocusAction: (FocusState) -> Unit = {},
     onSettingsNavigateAction: () -> Unit = {},
-    onRecommendedNavigateAction: (eventId: Long) -> Unit = {},
-    isParticipatingEvaluateAction: (AllDescriptionEvent) -> Boolean = { true },
     isParticipatingRecommendationEvaluateAction: (Event) -> Boolean = { true },
 ) {
     var showWIPSheet by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val sheetState = rememberModalBottomSheetState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val syncedScrollState = rememberSyncedScrollState()
     var isFilterChipSelected by remember { mutableStateOf(false) }
@@ -216,7 +221,7 @@ fun VolunteerScreenContent(
                             }
                         }
 
-                        if (uiState.eventsListLoading) {
+                        if (isRefreshing) {
                             item(span = { GridItemSpan(maxLineSpan) }) {
                                 Box(
                                     Modifier
@@ -262,49 +267,15 @@ fun VolunteerScreenContent(
             SearchOverlay(uiState, {}, { data -> })
         }
     }
-
-    if (uiState.showCalendar) {
-        ModalBottomSheet(
-            onDismissRequest = { onCalendarToggleAction(false) },
-            sheetState = sheetState,
-            containerColor = Arctic,
-            scrimColor = Abyss.copy(alpha = 0.5f),
-            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-            dragHandle = null
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-                    .padding(bottom = 40.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text(
-                    text = "Календарь",
-                    style = VolunteersCaseTheme.typography.titleLarge,
-                    modifier = Modifier.padding(top = 10.dp)
-                )
-
-                CustomCalendar(
-                    eventsByDate = uiState.userEventsByDate,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(Modifier.height(100.dp))
-            }
-        }
-    }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun VolunteerScreenPreview() {
     VolunteersCaseTheme {
         VolunteerScreenContent(
             uiState = VolunteerState(
-                eventsList = listOf(Event(), Event()),
-                recommendedEventsList = listOf(Event(), Event())
+                eventsList = listOf(Event(), Event())
             ),
             searchModeChangedAction = {}
         )

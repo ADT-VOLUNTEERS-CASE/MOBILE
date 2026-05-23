@@ -1,5 +1,7 @@
 package org.adt.presentation.screens.home.volunteer.statistics
 
+import org.adt.core.entities.user.statistics.MonthlyActivity
+
 data class StatisticsUiState(
     val isLoading: Boolean = true,
     val totalEvents: Int = 0,

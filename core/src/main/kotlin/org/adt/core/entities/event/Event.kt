@@ -3,7 +3,6 @@ package org.adt.core.entities.event
 import kotlinx.serialization.Serializable
 import org.adt.core.entities.EventStatus
 import org.adt.core.entities.Tag
-import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 

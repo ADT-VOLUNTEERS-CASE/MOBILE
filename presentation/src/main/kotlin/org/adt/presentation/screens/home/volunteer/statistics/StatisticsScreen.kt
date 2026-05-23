@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.adt.core.entities.user.statistics.MonthlyActivity
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Aqua
 import org.adt.presentation.theme.Arctic
@@ -216,7 +217,7 @@ private fun ActivityChart(history: List<MonthlyActivity>) {
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.Bottom
             ) {
-                val maxEvents = (history.maxOfOrNull { it.count } ?: 0).coerceAtLeast(1).toFloat()
+                val maxEvents = (history.maxOfOrNull { it.participatedEvents } ?: 0).coerceAtLeast(1).toFloat()
 
                 history.forEach { activity ->
                     Column(
@@ -226,7 +227,7 @@ private fun ActivityChart(history: List<MonthlyActivity>) {
                     ) {
                         var expanded by remember { mutableStateOf(false) }
                         val barHeightFactor by animateFloatAsState(
-                            targetValue = if (expanded) (activity.count / maxEvents) else 0f,
+                            targetValue = if (expanded) (activity.participatedEvents / maxEvents) else 0f,
                             animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow)
                         )
 
@@ -250,7 +251,7 @@ private fun ActivityChart(history: List<MonthlyActivity>) {
                         Spacer(Modifier.height(8.dp))
 
                         Text(
-                            text = activity.month,
+                            text = activity.monthName,
                             style = VolunteersCaseTheme.typography.labelSmall,
                             color = Graphite,
                             modifier = Modifier.padding(bottom = 4.dp)

@@ -26,16 +26,17 @@ import org.adt.core.entities.response.ErrorResponse
 import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
-import org.adt.core.entities.user.UserStatistics
+import org.adt.core.entities.rating.RatingResponse
+import org.adt.core.entities.user.statistics.UserStatistics
 import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.abstraction.DataRepository
 import java.io.File
 import javax.inject.Inject
 
-@RepositoryImpl
+@RepositoryImpl(suppressed = true)
 class DataRepositoryImpl @Inject constructor(
     private val networkRepository: RetrofitRepository,
-    private val persistenceRepository: PersistenceRepository
+    private val persistenceRepository: PersistenceRepository,
 ) : DataRepository {
     companion object {
         // Method names for reflection in ArchUnit
@@ -318,6 +319,17 @@ class DataRepositoryImpl @Inject constructor(
         val response = networkRepository.userStatistics(token)
 
         if (!response.isSuccessful){
+            return GeneralResponse.failure(response.code())
+        }
+
+        return GeneralResponse.success(response.body()!!)
+    }
+
+    override suspend fun getUserRating(period: String, page: Int, size: Int): GeneralResponse<RatingResponse> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val response = networkRepository.getUserRating(token, period, page, size)
+
+        if (!response.isSuccessful) {
             return GeneralResponse.failure(response.code())
         }
 

@@ -10,7 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.compose.ui.graphics.Color.Companion.Transparent
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -18,7 +19,6 @@ import org.adt.presentation.components.bars.FancyBottomNavigationBar
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.navigation.NavigationGraph
 import org.adt.presentation.theme.VolunteersCaseTheme
-import androidx.navigation.NavDestination.Companion.hasRoute
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -32,6 +32,7 @@ class MainActivity : ComponentActivity() {
                 Destinations.VolunteerHome,
                 Destinations.VolunteerCalendar,
                 Destinations.VolunteerStatistics,
+                Destinations.VolunteerRating,
                 Destinations.VolunteerProfile
             )
 
@@ -44,6 +45,7 @@ class MainActivity : ComponentActivity() {
             VolunteersCaseTheme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
+                    containerColor = Transparent,
                     bottomBar = {
                         AnimatedVisibility(
                             visible = shouldShowBottomBar,

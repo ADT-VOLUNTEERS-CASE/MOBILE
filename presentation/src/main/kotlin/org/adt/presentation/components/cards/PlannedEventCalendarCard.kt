@@ -27,7 +27,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.adt.core.entities.EventStatus
-import org.adt.core.entities.event.Event
 import org.adt.core.entities.user.UserEvents
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Graphite
