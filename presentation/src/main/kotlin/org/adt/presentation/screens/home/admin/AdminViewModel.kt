@@ -1,5 +1,9 @@
 package org.adt.presentation.screens.home.admin
 
+import android.content.ContentValues
+import android.content.Context
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
+import okhttp3.ResponseBody
 import org.adt.domain.abstraction.DataRepository
 import javax.inject.Inject
 
@@ -37,6 +42,32 @@ class AdminViewModel @Inject constructor(
 
     private fun sendToast(message: String) {
         _uiState.update { it.copy(toastMessage = message) }
+    }
+
+    fun toggleReportType(currentType: String) {
+        _uiState.update { it.copy(reportType = if (currentType == "monthly") "overall" else "monthly") }
+    }
+
+    fun downloadReport(reportRole: String) {
+        val userId = _uiState.value.userInput.toLongOrNull() ?: return
+        val coordinatorId = _uiState.value.coordinatorInput.toLongOrNull() ?: return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val response =
+                    if (reportRole == "user") _dataRepository.assembleUserReportFileByAdmin(userId,_uiState.value.reportType)
+                    else _dataRepository.assembleCoordinatorReportFileByAdmin(coordinatorId,_uiState.value.reportType)
+                if (response.isSuccessful) {
+                    _uiState.update { it.copy(downloadedFile = response.data()) }
+                }
+            } catch (e: Exception) {
+                Log.e("Download", "Error: ${e.message}")
+            }
+        }
+    }
+
+    fun onFileSaved() {
+        _uiState.update { it.copy(downloadedFile = null) }
     }
 
     fun createTag() {
@@ -163,5 +194,29 @@ class AdminViewModel @Inject constructor(
 
     init {
         getEvents()
+    }
+
+    fun saveFileToDownloads(context: Context, responseBody: ResponseBody, fileName: String): Boolean {
+        return try {
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+            }
+
+            val resolver = context.contentResolver
+            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+
+            uri?.let {
+                resolver.openOutputStream(it).use { outputStream ->
+                    responseBody.byteStream().use { inputStream ->
+                        inputStream.copyTo(outputStream!!)
+                    }
+                }
+                true
+            } ?: false
+        } catch (e: Exception) {
+            false
+        }
     }
 }

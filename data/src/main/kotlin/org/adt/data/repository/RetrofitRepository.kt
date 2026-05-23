@@ -1,6 +1,7 @@
 package org.adt.data.repository
 
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import org.adt.core.entities.Location
 import org.adt.core.entities.Tag
 import org.adt.core.entities.event.CoordinatorEventsResponse
@@ -32,6 +33,7 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Streaming
 
 interface RetrofitRepository {
     //---------------------
@@ -142,11 +144,46 @@ interface RetrofitRepository {
      *
      *           504 | Gateway Time-out
      */
+    @Streaming
     @GET("v2/user/coordinator/assemble_report_file")
     suspend fun assembleCoordinatorReportFile(
         @Header("Authorization") auth: String,
         @Query("period") period: String? = "monthly", // monthly or overall
-    ): Response<CoordinatorRatingResponse> // change
+    ): Response<ResponseBody>
+
+    /**
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           504 | Gateway Time-out
+     */
+    @Streaming
+    @GET("v2/user/admin/assemble_user_report_file")
+    suspend fun assembleUserReportFileByAdmin(
+        @Header("Authorization") auth: String,
+        @Query("id") id: Long? = null,
+        @Query("period") period: String? = "monthly",
+    ): Response<ResponseBody>
+
+    /**
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           504 | Gateway Time-out
+     */
+    @Streaming
+    @GET("v2/user/admin/assemble_coordinator_report_file")
+    suspend fun assembleCoordinatorReportFileByAdmin(
+        @Header("Authorization") auth: String,
+        @Query("id") id: Long? = null,
+        @Query("period") period: String? = "monthly",
+    ): Response<ResponseBody>
     //endregion
 
     //-----------------------

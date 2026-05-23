@@ -1,5 +1,6 @@
 package org.adt.presentation.screens.home.coordinator
 
+import okhttp3.ResponseBody
 import org.adt.core.entities.Location
 import org.adt.core.entities.event.CoordinatorEventSummary
 import org.adt.core.entities.event.Cover
@@ -28,5 +29,8 @@ data class CoordinatorState(
     //rating
     val ratingList: List<CoordinatorRatingItem> = listOf(),
     val ratingListLoading: Boolean = false,
-    val ratingType: String = "monthly"
+    val ratingType: String = "monthly",
+    //report
+    val reportType: String = "monthly",
+    val downloadedFile: ResponseBody? = null
 )

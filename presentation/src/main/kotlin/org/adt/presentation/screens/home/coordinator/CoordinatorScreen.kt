@@ -26,6 +26,7 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -50,10 +51,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.adt.core.entities.Location
 import org.adt.core.entities.UserRole
-import org.adt.presentation.components.bars.CustomBottomBar
 import org.adt.presentation.components.CustomSearchTextField
 import org.adt.presentation.components.CustomTextField
 import org.adt.presentation.components.TypingText
+import org.adt.presentation.components.bars.CustomBottomBar
 import org.adt.presentation.components.buttons.ButtonStyle
 import org.adt.presentation.components.buttons.ButtonVariant
 import org.adt.presentation.components.buttons.CustomButton
@@ -81,6 +82,21 @@ fun CoordinatorScreen(
 ) {
     val uiState = viewModel.uiState.collectAsState().value
     val fields = viewModel.fieldsState.collectAsState().value
+    val context = LocalContext.current
+
+    LaunchedEffect(uiState.downloadedFile) {
+        uiState.downloadedFile?.let { body ->
+            val success = viewModel.saveFileToDownloads(
+                context = context,
+                responseBody = body,
+                fileName = "report-${System.currentTimeMillis()}.pdf"
+            )
+            if (success) {
+                Toast.makeText(context, "Отчет сохранен в Загрузки", Toast.LENGTH_SHORT).show()
+            }
+            viewModel.onFileSaved()
+        }
+    }
 
     CoordinatorScreenContent(
         uiState = uiState,
@@ -103,7 +119,9 @@ fun CoordinatorScreen(
         onApprove = { eventId, userId -> viewModel.approve(eventId, userId) },
         onReject = { eventId, userId -> viewModel.reject(eventId, userId) },
         onLoadApplications = { eventId -> viewModel.loadApplications(eventId) },
-        onToggleRating = { viewModel.toggleRatingType(uiState.ratingType)}
+        onToggleRating = { viewModel.toggleRatingType(uiState.ratingType) },
+        onDownloadAction = { viewModel.downloadReport() },
+        onToggleReport = { viewModel.toggleReportType(uiState.reportType) },
     )
 }
 
@@ -125,6 +143,8 @@ fun CoordinatorScreenContent(
     onReject: (Long, Long) -> Unit = { _, _ -> },
     onLoadApplications: (Long) -> Unit = {},
     onToggleRating: (String) -> Unit = {},
+    onDownloadAction: () -> Unit = {},
+    onToggleReport: (String) -> Unit = {},
     animationOverride: Boolean = false
 ) {
     val context = LocalContext.current
@@ -292,23 +312,18 @@ fun CoordinatorScreenContent(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
-                    "Общий рейтинг",
-                    style = VolunteersCaseTheme.typography.titleLarge.copy(textAlign = TextAlign.Center),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Text(
-                    if (uiState.ratingType == "monthly") "за месяц" else "за все время",
+                    if (uiState.ratingType == "monthly") "Общий рейтинг за месяц" else "Общий рейтинг за все время",
                     style = VolunteersCaseTheme.typography.titleLarge.copy(textAlign = TextAlign.Center),
                     modifier = Modifier
                         .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
                         .clickable {
                             onToggleRating(if (uiState.ratingType == "monthly") "overall" else "monthly")
                         }
                 )
 
                 if (uiState.ratingList.isNotEmpty()) {
-                    uiState.ratingList.forEach { item ->
+                    uiState.ratingList.take(3).forEach { item ->
                         Row {
                             Text(item.ratingPosition.toString())
                             Spacer(Modifier.width(20.dp))
@@ -320,10 +335,33 @@ fun CoordinatorScreenContent(
                     }
                 } else {
                     Text(
-                        "Пока пусто...",
-                        style = VolunteersCaseTheme.typography.titleMedium.copy(Graphite)
+                        "Пока пусто...", modifier = Modifier
+                            .fillMaxWidth(),
+                        style = VolunteersCaseTheme.typography.titleMedium.copy(
+                            Graphite,
+                            textAlign = TextAlign.Center
+                        )
                     )
                 }
+
+                HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp))
+
+                Text(
+                    if (uiState.reportType == "monthly") "Отчет за месяц" else "Отчет за все время",
+                    style = VolunteersCaseTheme.typography.titleLarge.copy(textAlign = TextAlign.Center),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .clickable {
+                            onToggleReport(if (uiState.reportType == "monthly") "overall" else "monthly")
+                        }
+                )
+
+                CustomButton(
+                    text = "Скачать",
+                    onClick = { onDownloadAction() },
+                    style = ButtonStyle.Outlined
+                )
             }
 
             Column(
@@ -482,14 +520,6 @@ fun CoordinatorScreenContent(
             }
 
             Spacer(Modifier.height(100.dp))
-        }
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-            CustomBottomBar(
-                Modifier
-                    .padding(horizontal = 30.dp)
-                    .padding(bottom = 15.dp),
-                UserRole.COORDINATOR, Destinations.CoordinatorHome
-            ) { }
         }
     }
 }

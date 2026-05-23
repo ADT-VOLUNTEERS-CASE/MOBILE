@@ -1,5 +1,9 @@
 package org.adt.presentation.screens.home.coordinator
 
+import android.content.ContentValues
+import android.content.Context
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
+import okhttp3.ResponseBody
 import org.adt.core.entities.Location
 import org.adt.domain.abstraction.DataRepository
 import org.adt.presentation.utils.LocalizationManager.message
@@ -53,6 +58,27 @@ class CoordinatorViewModel @Inject constructor(
 
     fun toggleRatingType(currentType: String) {
         _uiState.update { it.copy(ratingType = if (currentType == "monthly") "overall" else "monthly") }
+    }
+
+    fun toggleReportType(currentType: String) {
+        _uiState.update { it.copy(reportType = if (currentType == "monthly") "overall" else "monthly") }
+    }
+
+    fun downloadReport() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val response = _dataRepository.assembleCoordinatorReportFile(_uiState.value.reportType)
+                if (response.isSuccessful) {
+                    _uiState.update { it.copy(downloadedFile = response.data()) }
+                }
+            } catch (e: Exception) {
+                Log.e("Download", "Error: ${e.message}")
+            }
+        }
+    }
+
+    fun onFileSaved() {
+        _uiState.update { it.copy(downloadedFile = null) }
     }
 
     fun updateInputs(newState: CoordinatorFieldsState) {
@@ -207,4 +233,29 @@ class CoordinatorViewModel @Inject constructor(
             navigateAction.invoke()
         }
     }
+
+    fun saveFileToDownloads(context: Context, responseBody: ResponseBody, fileName: String): Boolean {
+        return try {
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+            }
+
+            val resolver = context.contentResolver
+            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+
+            uri?.let {
+                resolver.openOutputStream(it).use { outputStream ->
+                    responseBody.byteStream().use { inputStream ->
+                        inputStream.copyTo(outputStream!!)
+                    }
+                }
+                true
+            } ?: false
+        } catch (e: Exception) {
+            false
+        }
+    }
+
 }

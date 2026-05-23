@@ -663,4 +663,69 @@ class DataRepositoryImpl @Inject constructor(
 
         return GeneralResponse.failure(response.code())
     }
+
+    override suspend fun assembleCoordinatorReportFile(
+        period: String,
+        retried: Boolean
+    ): GeneralResponse<ResponseBody> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
+        val response = networkRepository.assembleCoordinatorReportFile(token, period)
+
+        if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
+
+        if (response.code() == 403) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return assembleCoordinatorReportFile(period, true)
+            }
+            persistenceRepository.removeToken()
+            return GeneralResponse.failure(403, "Session expired")
+        }
+
+        return GeneralResponse.failure(response.code())
+    }
+
+    override suspend fun assembleUserReportFileByAdmin(
+        id: Long,
+        period: String,
+        retried: Boolean
+    ): GeneralResponse<ResponseBody> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
+        val response = networkRepository.assembleCoordinatorReportFile(token, period)
+
+        if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
+
+        if (response.code() == 403) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return assembleUserReportFileByAdmin(id, period, true)
+            }
+            persistenceRepository.removeToken()
+            return GeneralResponse.failure(403, "Session expired")
+        }
+
+        return GeneralResponse.failure(response.code())
+    }
+
+    override suspend fun assembleCoordinatorReportFileByAdmin(
+        id: Long,
+        period: String,
+        retried: Boolean
+    ): GeneralResponse<ResponseBody> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
+        val response = networkRepository.assembleCoordinatorReportFile(token, period)
+
+        if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
+
+        if (response.code() == 403) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return assembleCoordinatorReportFileByAdmin(id, period, true)
+            }
+            persistenceRepository.removeToken()
+            return GeneralResponse.failure(403, "Session expired")
+        }
+
+        return GeneralResponse.failure(response.code())
+    }
 }

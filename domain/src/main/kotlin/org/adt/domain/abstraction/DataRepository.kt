@@ -1,5 +1,6 @@
 package org.adt.domain.abstraction
 
+import okhttp3.ResponseBody
 import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.Location
 import org.adt.core.entities.Tag
@@ -82,5 +83,9 @@ interface DataRepository {
     suspend fun updateApplicationStatus(eventId: Long, userId: Long, status: String, reason: String?): GeneralResponse<UserEventResponse>
 
     suspend fun getCoordinatorRating(period: String = "monthly", retried: Boolean = false): GeneralResponse<CoordinatorRatingResponse>
+
+    suspend fun assembleCoordinatorReportFile(period: String = "monthly", retried: Boolean = false): GeneralResponse<ResponseBody>
+    suspend fun assembleUserReportFileByAdmin(id: Long, period: String = "monthly", retried: Boolean = false): GeneralResponse<ResponseBody>
+    suspend fun assembleCoordinatorReportFileByAdmin(id: Long, period: String = "monthly", retried: Boolean = false): GeneralResponse<ResponseBody>
 
 }
