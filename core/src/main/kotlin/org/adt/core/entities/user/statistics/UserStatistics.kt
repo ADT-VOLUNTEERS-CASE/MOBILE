@@ -10,5 +10,5 @@ data class UserStatistics(
     val totalWorkedMinutes: Int = -1,
     val currentParticipationStreakMonths: Int = -1,
     val maxParticipationStreakMonths: Int = -1,
-    val lastFiveMonthsParticipation: List<MonthlyActivity>
+    val lastFiveMonthsParticipation: List<MonthlyActivity> = listOf()
 )
