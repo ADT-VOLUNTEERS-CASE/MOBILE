@@ -82,7 +82,7 @@ fun PeriodSwitch(
                                 .height(52.dp)
                                 .onSizeChanged { size -> overallWidth = size.width }
                                 .clickable(interactionSource = null, indication = null) {
-                                    scope.launch(Dispatchers.IO) {
+                                    scope.launch {
                                         selectedOffset.animateTo(index * (overallWidth / (options.size + 1).toFloat()))
                                         onSelect(key)
                                     }
