@@ -21,6 +21,7 @@ import org.adt.core.entities.response.AuthResponse
 import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.FindLocationResponse
 import org.adt.core.entities.response.UserEventResponse
+import org.adt.core.entities.rating.RatingResponse
 import org.adt.core.entities.response.UserResponse
 import org.adt.core.entities.user.statistics.UserStatistics
 import retrofit2.Response
@@ -532,6 +533,14 @@ interface RetrofitRepository {
     suspend fun userStatistics(
         @Header("Authorization") auth: String
     ): Response<UserStatistics>
+
+    @GET("v2/user/rating")
+    suspend fun getUserRating(
+        @Header("Authorization") auth: String,
+        @Query("period") period: String = "monthly",
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20
+    ): Response<RatingResponse>
     //endregion
 
     //---------------------

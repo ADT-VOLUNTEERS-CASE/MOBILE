@@ -40,6 +40,9 @@ sealed class Destinations {
     data object VolunteerStatistics : Destinations()
 
     @Serializable
+    data object VolunteerRating : Destinations()
+
+    @Serializable
     data class EventDetails(val id: Long) : Destinations()
 
     @Serializable

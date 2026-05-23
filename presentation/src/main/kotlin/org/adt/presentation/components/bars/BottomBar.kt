@@ -28,6 +28,8 @@ import androidx.compose.material.icons.filled.DonutLarge
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.DonutLarge
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
@@ -64,6 +66,7 @@ sealed class BottomNavItem(
     object Home : BottomNavItem(Destinations.VolunteerHome::class.qualifiedName ?: "", "Главная", Icons.Filled.Home, Icons.Outlined.Home)
     object Calendar : BottomNavItem(Destinations.VolunteerCalendar::class.qualifiedName?:"", "Календарь", Icons.Filled.CalendarMonth, Icons.Outlined.CalendarMonth)
     object Statistics : BottomNavItem(Destinations.VolunteerStatistics::class.qualifiedName?:"", "Статистика", Icons.Filled.DonutLarge, Icons.Outlined.DonutLarge)
+    object Rating : BottomNavItem(Destinations.VolunteerRating::class.qualifiedName ?: "", "Рейтинг", Icons.Filled.EmojiEvents, Icons.Outlined.EmojiEvents)
     object Profile : BottomNavItem(Destinations.VolunteerProfile::class.qualifiedName ?: "", "Профиль", Icons.Filled.Person, Icons.Outlined.Person)
 }
 
@@ -76,6 +79,7 @@ fun FancyBottomNavigationBar(
         BottomNavItem.Home,
         BottomNavItem.Calendar,
         BottomNavItem.Statistics,
+        BottomNavItem.Rating,
         BottomNavItem.Profile
     )
 

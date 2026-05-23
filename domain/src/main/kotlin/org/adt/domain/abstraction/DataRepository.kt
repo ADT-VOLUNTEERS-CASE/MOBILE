@@ -11,6 +11,7 @@ import org.adt.core.entities.event.EventApplication
 import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
+import org.adt.core.entities.rating.RatingResponse
 import org.adt.core.entities.user.statistics.UserStatistics
 import java.io.File
 
@@ -44,6 +45,8 @@ interface DataRepository {
     suspend fun userInfo(): GeneralResponse<UserResponse>
 
     suspend fun getUserStatistics(): GeneralResponse<UserStatistics>
+
+    suspend fun getUserRating(period: String = "monthly", page: Int = 0, size: Int = 20): GeneralResponse<RatingResponse>
 
     suspend fun uploadCover(file: File, retried: Boolean = false): GeneralResponse<Cover>
 
