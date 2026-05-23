@@ -22,7 +22,7 @@ import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.FindLocationResponse
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
-import org.adt.core.entities.user.UserStatistics
+import org.adt.core.entities.user.statistics.UserStatistics
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE

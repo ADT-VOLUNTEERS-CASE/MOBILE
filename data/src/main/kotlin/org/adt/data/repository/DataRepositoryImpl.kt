@@ -26,7 +26,7 @@ import org.adt.core.entities.response.ErrorResponse
 import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
-import org.adt.core.entities.user.UserStatistics
+import org.adt.core.entities.user.statistics.UserStatistics
 import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.abstraction.DataRepository
 import java.io.File

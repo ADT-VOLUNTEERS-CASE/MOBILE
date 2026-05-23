@@ -76,6 +76,11 @@ internal object NetworkModule {
             .build()
     }
 
+    private val jsonConfig = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+    }
+
     @Provides
     @Singleton
     @ImplicitUsage
@@ -90,7 +95,7 @@ internal object NetworkModule {
             .client(okHttpClient)
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(
-                Json.asConverterFactory(
+                jsonConfig.asConverterFactory(
                     "application/json; charset=utf-8".toMediaType())
             ).build()
     }
