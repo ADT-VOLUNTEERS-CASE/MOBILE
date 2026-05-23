@@ -33,10 +33,10 @@ import org.adt.domain.abstraction.DataRepository
 import java.io.File
 import javax.inject.Inject
 
-@RepositoryImpl
+@RepositoryImpl(suppressed = true)
 class DataRepositoryImpl @Inject constructor(
     private val networkRepository: RetrofitRepository,
-    private val persistenceRepository: PersistenceRepository
+    private val persistenceRepository: PersistenceRepository,
 ) : DataRepository {
     companion object {
         // Method names for reflection in ArchUnit
