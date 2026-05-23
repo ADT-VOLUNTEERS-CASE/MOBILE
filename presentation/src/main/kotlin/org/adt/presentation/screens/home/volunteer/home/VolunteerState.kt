@@ -14,7 +14,6 @@ data class VolunteerState(
     val searchModeLoading: Boolean = false,
     val eventsList: List<Event> = listOf(),
     val filteredEventsByUserList: List<Event> = listOf(),
-    val eventsListLoading: Boolean = false,
     val eventPicker: Boolean = false,
     val eventError: String? = null,
     val registeredEventIds: Set<Long> = emptySet(),

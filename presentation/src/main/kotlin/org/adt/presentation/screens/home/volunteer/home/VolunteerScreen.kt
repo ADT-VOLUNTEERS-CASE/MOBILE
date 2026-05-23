@@ -221,7 +221,7 @@ fun VolunteerScreenContent(
                             }
                         }
 
-                        if (uiState.eventsListLoading) {
+                        if (isRefreshing) {
                             item(span = { GridItemSpan(maxLineSpan) }) {
                                 Box(
                                     Modifier

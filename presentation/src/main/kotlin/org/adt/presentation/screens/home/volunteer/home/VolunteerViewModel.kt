@@ -89,7 +89,6 @@ class VolunteerViewModel @Inject constructor(
     }
 
     fun getEvents() {
-        _uiState.update { it.copy(eventsListLoading = true) }
         viewModelScope.launch(Dispatchers.IO) {
             _isRefreshing.update { true }
             val userResponse = _dataRepository.userInfo()
@@ -99,7 +98,6 @@ class VolunteerViewModel @Inject constructor(
                 !eventsResponse.isSuccessful ||
                 !userResponse.isSuccessful
             ) {
-                _uiState.update { it.copy(eventsListLoading = false) }
                 _isRefreshing.update { false }
 
                 Log.e("VolunteerViewModel::Events", "Failure: Invalid data")
@@ -120,12 +118,11 @@ class VolunteerViewModel @Inject constructor(
                     eventsList = sortedEvents,
                     filteredEventsByUserList = sortedEvents.filter { userEventsIds.contains(it.eventId) },
                     registeredEventIds = userEventsIds,
-                    eventsListLoading = false,
                     firstName = userResponse.data().firstname.toString()
                 )
             }
+            _isRefreshing.update { false }
         }
-        _isRefreshing.update { false }
     }
 
     fun setSearchModeValue(isActive: Boolean) {
