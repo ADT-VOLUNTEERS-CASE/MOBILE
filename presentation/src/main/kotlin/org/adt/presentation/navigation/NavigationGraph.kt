@@ -9,6 +9,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import org.adt.presentation.screens.authenticate.AuthenticateScreen
 import org.adt.presentation.screens.authenticate.AuthenticateViewModel
 import org.adt.presentation.screens.exception.NoConnectionScreen
@@ -17,10 +18,18 @@ import org.adt.presentation.screens.home.admin.AdminScreen
 import org.adt.presentation.screens.home.admin.AdminViewModel
 import org.adt.presentation.screens.home.coordinator.CoordinatorScreen
 import org.adt.presentation.screens.home.coordinator.CoordinatorViewModel
+import org.adt.presentation.screens.home.volunteer.calendar.CalendarViewModel
+import org.adt.presentation.screens.home.volunteer.calendar.VolunteerCalendarScreen
+import org.adt.presentation.screens.home.volunteer.eventDetails.EventDetailsScreen
+import org.adt.presentation.screens.home.volunteer.eventDetails.EventDetailsViewModel
 import org.adt.presentation.screens.home.volunteer.home.VolunteerScreen
 import org.adt.presentation.screens.home.volunteer.home.VolunteerViewModel
 import org.adt.presentation.screens.home.volunteer.profile.ProfileScreen
 import org.adt.presentation.screens.home.volunteer.profile.ProfileViewModel
+import org.adt.presentation.screens.home.volunteer.rating.RatingScreen
+import org.adt.presentation.screens.home.volunteer.rating.RatingViewModel
+import org.adt.presentation.screens.home.volunteer.statistics.StatisticsScreen
+import org.adt.presentation.screens.home.volunteer.statistics.StatisticsViewModel
 import org.adt.presentation.screens.register.RegisterScreen
 import org.adt.presentation.screens.register.RegisterViewModel
 import org.adt.presentation.screens.register.admin.AdminRegisterScreen
@@ -92,6 +101,31 @@ fun NavigationGraph(navController: NavHostController, innerPadding: PaddingValue
         composable<Destinations.VolunteerProfile> {
             val viewModel: ProfileViewModel = hiltViewModel()
             ProfileScreen(navController, viewModel)
+        }
+        composable<Destinations.VolunteerCalendar> {
+            val viewModel: CalendarViewModel = hiltViewModel()
+            VolunteerCalendarScreen(navController, viewModel)
+        }
+        composable<Destinations.VolunteerRating> {
+            val viewModel: RatingViewModel = hiltViewModel()
+            RatingScreen(viewModel)
+        }
+        composable<Destinations.VolunteerStatistics> {
+            val viewModel: StatisticsViewModel = hiltViewModel()
+            StatisticsScreen(viewModel)
+        }
+        composable<Destinations.EventDetails> { backStackEntry ->
+            val event = backStackEntry.toRoute<Destinations.EventDetails>()
+            val viewModel: EventDetailsViewModel =
+                hiltViewModel { factory: EventDetailsViewModel.Factory ->
+                    factory.create(event.id)
+                }
+
+            EventDetailsScreen(
+                viewModel = viewModel,
+                onBackNavigationAction = {
+                    navController.popBackStack()
+                })
         }
         composable<Destinations.NoConnectionScreen> {
             val viewModel: NoConnectionScreenViewModel = hiltViewModel()

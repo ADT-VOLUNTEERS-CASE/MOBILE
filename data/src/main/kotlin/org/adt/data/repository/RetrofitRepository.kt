@@ -6,7 +6,6 @@ import org.adt.core.entities.Location
 import org.adt.core.entities.Tag
 import org.adt.core.entities.event.CoordinatorEventsResponse
 import org.adt.core.entities.event.Cover
-import org.adt.core.entities.rating.CoordinatorRatingResponse
 import org.adt.core.entities.request.ApplicationStatusRequest
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.EventRequest
@@ -16,12 +15,15 @@ import org.adt.core.entities.request.LocationRequest
 import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.request.TagRequest
+import org.adt.core.entities.response.ApplicationStatusResponse
 import org.adt.core.entities.response.ApplicationsResponse
 import org.adt.core.entities.response.AuthResponse
 import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.FindLocationResponse
 import org.adt.core.entities.response.UserEventResponse
+import org.adt.core.entities.rating.RatingResponse
 import org.adt.core.entities.response.UserResponse
+import org.adt.core.entities.user.statistics.UserStatistics
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -247,6 +249,13 @@ interface RetrofitRepository {
     ): Response<ApplicationsResponse>
 
     @PATCH("v1/user-event/coordinator/events/{eventId}/applications/{userId}/status")
+    @GET("v1/user-event/status/{eventId}")
+    suspend fun getApplicationStatus(
+        @Header("Authorization") auth: String,
+        @Path("eventId") eventId: Long,
+    ): Response<ApplicationStatusResponse?>
+
+    @PATCH("v1/user-event/coordinator/events/{eventId}/applications/{userId}/status")
     suspend fun updateApplicationStatus(
         @Header("Authorization") auth: String,
         @Path("eventId") eventId: Long,
@@ -461,6 +470,22 @@ interface RetrofitRepository {
     /**
      * SUCCESS:
      *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           403 | Forbidden (Expired Token)
+     */
+    @GET("v1/event/recommended")
+    suspend fun getRecommendedEvents(
+        @Header("Authorization") auth: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+    ): Response<EventResponse>
+
+    /**
+     * SUCCESS:
+     *
      *           204 | OK
      *
      * ERRORS:
@@ -478,6 +503,24 @@ interface RetrofitRepository {
         @Header("Authorization") auth: String,
         @Body request: EventRequest
     ): Response<Void>
+
+    /**
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           401 | Unauthorized
+     *
+     *           404 | Event can't be founded by current id
+     */
+
+    @GET("v1/event/{eventId}")
+    suspend fun getEventById(
+        @Header("Authorization") auth: String,
+        @Path("eventId") eventId: Long,
+    ): Response<Event>
 
     /**
      * SUCCESS:
@@ -568,6 +611,19 @@ interface RetrofitRepository {
     suspend fun userInfo(
         @Header("Authorization") auth: String
     ): Response<UserResponse>
+
+    @GET("v2/user/statistics")
+    suspend fun userStatistics(
+        @Header("Authorization") auth: String
+    ): Response<UserStatistics>
+
+    @GET("v2/user/rating")
+    suspend fun getUserRating(
+        @Header("Authorization") auth: String,
+        @Query("period") period: String = "monthly",
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20
+    ): Response<RatingResponse>
     //endregion
 
     //---------------------

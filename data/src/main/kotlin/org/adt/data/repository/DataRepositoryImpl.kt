@@ -18,27 +18,29 @@ import org.adt.core.entities.rating.CoordinatorRatingResponse
 import org.adt.core.entities.request.ApplicationStatusRequest
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.EventRequest
+import org.adt.core.entities.request.FindEventRequest
 import org.adt.core.entities.request.FindLocationRequest
 import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
+import org.adt.core.entities.request.TagRequest
 import org.adt.core.entities.response.ErrorResponse
 import org.adt.core.entities.response.EventResponse
-import org.adt.core.entities.request.FindEventRequest
-import org.adt.core.entities.request.TagRequest
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
+import org.adt.core.entities.rating.RatingResponse
+import org.adt.core.entities.user.statistics.UserStatistics
 import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.abstraction.DataRepository
 import java.io.File
 import javax.inject.Inject
 
-@RepositoryImpl
+@RepositoryImpl(suppressed = true)
 class DataRepositoryImpl @Inject constructor(
     private val networkRepository: RetrofitRepository,
-    private val persistenceRepository: PersistenceRepository
+    private val persistenceRepository: PersistenceRepository,
 ) : DataRepository {
     companion object {
-        // Methods names for reflection in ArchUnit
+        // Method names for reflection in ArchUnit
         const val PING = "ping"
         const val AUTHORIZED = "authorized"
         const val REGISTER = "register"
@@ -313,6 +315,28 @@ class DataRepositoryImpl @Inject constructor(
         return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
     }
 
+    override suspend fun getUserStatistics(): GeneralResponse<UserStatistics> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val response = networkRepository.userStatistics(token)
+
+        if (!response.isSuccessful){
+            return GeneralResponse.failure(response.code())
+        }
+
+        return GeneralResponse.success(response.body()!!)
+    }
+
+    override suspend fun getUserRating(period: String, page: Int, size: Int): GeneralResponse<RatingResponse> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val response = networkRepository.getUserRating(token, period, page, size)
+
+        if (!response.isSuccessful) {
+            return GeneralResponse.failure(response.code())
+        }
+
+        return GeneralResponse.success(response.body()!!)
+    }
+
     override suspend fun uploadCover(file: File, retried: Boolean): GeneralResponse<Cover> {
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
 
@@ -385,6 +409,31 @@ class DataRepositoryImpl @Inject constructor(
 
             return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
         }
+
+        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+    }
+
+    override suspend fun getRecommendedEvents(): GeneralResponse<EventResponse> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val response = networkRepository.getRecommendedEvents(token, 0, 10)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.body()!!)
+        }
+
+        /*
+        if (response.code() == 403) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return getRecommendedEvents(retried = true)
+            }
+
+            val error = parseError(response.errorBody())
+            persistenceRepository.removeToken()
+
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+        }
+         */
 
         return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
     }
@@ -465,6 +514,20 @@ class DataRepositoryImpl @Inject constructor(
         }
 
         return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+    }
+
+    override suspend fun getEventById(eventId: Long): GeneralResponse<Event> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(
+            401,
+            "Not authorized"
+        )
+        val response = networkRepository.getEventById(token, eventId)
+
+        if (response.isSuccessful) {
+            return GeneralResponse.success(response.body()!!)
+        }
+        //TODO: handle session expiration!
+        return GeneralResponse.failure(response.code())
     }
 
     override suspend fun deleteEvent(
@@ -619,6 +682,17 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, "Session expired")
         }
 
+        return GeneralResponse.failure(response.code())
+    }
+
+    override suspend fun getApplicationStatus(eventId: Long): GeneralResponse<String> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
+        val response = networkRepository.getApplicationStatus(token, eventId)
+
+        if (response.isSuccessful)
+            return GeneralResponse.success(response.body()?.status ?: "")
+
+        //TODO: handle session expire
         return GeneralResponse.failure(response.code())
     }
 

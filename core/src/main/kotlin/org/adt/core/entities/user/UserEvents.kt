@@ -9,4 +9,5 @@ data class UserEvents(
     val status: String,
     val maxCapacity: Int,
     val dateTimestamp: String,
+    val maxCapacity: Int = -1,
 )

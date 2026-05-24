@@ -133,6 +133,8 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons)
 
+    implementation(libs.dotsindicator)
+
     implementation(libs.shadowglow)
 
     androidTestImplementation(libs.androidx.junit)
@@ -149,5 +151,5 @@ dependencies {
 
     implementation(libs.androidx.datastore.preferences)
 
-    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation(libs.coil.compose)
 }

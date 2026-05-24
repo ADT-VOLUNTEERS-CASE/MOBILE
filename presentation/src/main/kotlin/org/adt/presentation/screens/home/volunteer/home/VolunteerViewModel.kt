@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
+import org.adt.core.entities.AllDescriptionEvent
 import org.adt.core.entities.event.Event
 import org.adt.core.utils.ApiStatus
 import org.adt.domain.abstraction.DataRepository
@@ -25,6 +25,9 @@ class VolunteerViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(VolunteerState())
     val uiState: StateFlow<VolunteerState> = _uiState.asStateFlow()
+
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
     fun onSearchValueChange(value: String) {
         _uiState.update { it.copy(searchValue = value) }
@@ -52,6 +55,7 @@ class VolunteerViewModel @Inject constructor(
             return
 
         viewModelScope.launch(Dispatchers.IO) {
+            _isRefreshing.update { true }
             _uiState.update { it.copy(searchMode = true, searchModeLoading = true) }
 
             val responseLocation = async { _dataRepository.findLocation(uiState.searchValue) }
@@ -81,47 +85,43 @@ class VolunteerViewModel @Inject constructor(
                 )
             }
         }
+        _isRefreshing.update { false }
     }
 
     fun getEvents() {
-        _uiState.update { it.copy(eventsListLoading = true) }
         viewModelScope.launch(Dispatchers.IO) {
+            _isRefreshing.update { true }
             val userResponse = _dataRepository.userInfo()
             val eventsResponse = _dataRepository.getEvents()
 
-            if (eventsResponse.isSuccessful && userResponse.isSuccessful) {
-                val userEventsIds = userResponse.data().events.map { it.eventId }.toSet()
-                val allEvents = eventsResponse.data().content
+            if (
+                !eventsResponse.isSuccessful ||
+                !userResponse.isSuccessful
+            ) {
+                _isRefreshing.update { false }
 
-                val sortedEvents =
-                    allEvents.sortedWith(
-                        compareByDescending<Event> { userEventsIds.contains(it.eventId) }
-                            .thenBy { it.status }
-                    )
-
-                val eventsByDate = userResponse.data().events.groupBy {
-                    try {
-                        OffsetDateTime.parse(it.dateTimestamp).toLocalDate()
-                    } catch (e: Exception) {
-                        LocalDateTime.parse(it.dateTimestamp).toLocalDate()
-                    }
-                }
-
-                _uiState.update {
-                    it.copy(
-                        eventsList = sortedEvents,
-                        registeredEventIds = userEventsIds,
-                        userEventsByDate = eventsByDate,
-                        eventsListLoading = false,
-                        firstName = userResponse.data().firstname.toString()
-                    )
-                }
+                Log.e("VolunteerViewModel::Events", "Failure: Invalid data")
                 return@launch
             }
 
-            _uiState.update { it.copy(eventsListLoading = false) }
+            val userEventsIds = userResponse.data().events.map { it.eventId }.toSet()
+            val allEvents = eventsResponse.data().content
 
-            Log.e("VolunteerViewModel::Events", "Failure: Invalid data")
+            val sortedEvents =
+                allEvents.sortedWith(
+                    compareByDescending<Event> { userEventsIds.contains(it.eventId) }
+                        .thenBy { it.status }
+                )
+
+            _uiState.update {
+                it.copy(
+                    eventsList = sortedEvents,
+                    filteredEventsByUserList = sortedEvents.filter { userEventsIds.contains(it.eventId) },
+                    registeredEventIds = userEventsIds,
+                    firstName = userResponse.data().firstname.toString()
+                )
+            }
+            _isRefreshing.update { false }
         }
     }
 
@@ -129,25 +129,10 @@ class VolunteerViewModel @Inject constructor(
         _uiState.update { it.copy(searchMode = isActive) }
     }
 
-    fun selectLocationAndFilterEvents(locationAddress: String) {
-        val allEvents = _uiState.value.eventsList
-        val filtered = allEvents.filter { it.location.address == locationAddress }
-
-        _uiState.update {
-            it.copy(
-                filteredEventsByLocation = filtered,
-                isLocationFiltering = true,
-                selectedLocationAddress = locationAddress,
-                searchMode = false
-            )
-        }
-    }
-
     fun resetLocationFilter(returnToSearch: Boolean = false) {
         _uiState.update {
             it.copy(
                 isLocationFiltering = false,
-                filteredEventsByLocation = emptyList(),
                 selectedLocationAddress = "",
                 searchMode = returnToSearch,
                 searchValue = if (returnToSearch) it.searchValue else ""
@@ -155,46 +140,12 @@ class VolunteerViewModel @Inject constructor(
         }
     }
 
-    fun createUserEvent(eventId: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val response = _dataRepository.createEventApplication(eventId)
-            if (response.isSuccessful) {
-                getEvents()
-                _uiState.update { it.copy(eventPicker = false) }
-                return@launch
-            }
-
-            if (response.status == ApiStatus.ALREADY_EXISTS) {
-                _uiState.update {
-                    it.copy(
-                        eventError = "Заявка уже существует, мероприятие не принимает заявки или достигнут лимит мест",
-                        eventPicker = false
-                    )
-                }
-                return@launch
-            }
-
-            _uiState.update { it.copy(eventError = "Ошибка", eventPicker = false) }
-        }
-    }
-
     fun clearEventError() {
         _uiState.update { it.copy(eventError = null) }
     }
 
-    fun selectEvent(event: Event) {
-        _uiState.update { it.copy(selectedEvent = event, eventPicker = true) }
-    }
-
-    fun deauthenticate(navigateAction: () -> Unit) {
-        viewModelScope.launch {
-            Dispatchers.IO { _dataRepository.deauthenticate() }
-            navigateAction.invoke()
-        }
-    }
-
-    fun onCalendarToggle(show: Boolean) {
-        _uiState.update { it.copy(showCalendar = show) }
+    fun isParticipatingRecommendationEvaluate(event: Event): Boolean {
+        return uiState.value.registeredEventIds.contains(event.eventId)
     }
 
     private fun populateFailure(

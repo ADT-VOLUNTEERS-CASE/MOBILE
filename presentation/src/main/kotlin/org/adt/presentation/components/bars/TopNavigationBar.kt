@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -32,7 +31,6 @@ fun SyncedTopNavigationBar(
     scale: Float,
     onSettingsNavigateAction: () -> Unit = {},
     onNotificationsNavigateAction: () -> Unit = {},
-    onCalendarNavigateAction: (Boolean) -> Unit= {},
 ) {
     TopAppBar(
         modifier = modifier,
@@ -59,22 +57,7 @@ fun SyncedTopNavigationBar(
                     Icon(
                         imageVector = Icons.Filled.Notifications,
                         contentDescription = "Notifications navigation",
-                        tint = Color.White
-                    )
-                }
-            }
-        },
-        navigationIcon = {
-            AnimatedVisibility(
-                visible = scale < 0.2f,
-                enter = fadeIn() + expandHorizontally(),
-                exit = fadeOut() + shrinkHorizontally()
-            ) {
-                IconButton(onClick = { onCalendarNavigateAction.invoke(true) }) {
-                    Icon(
-                        imageVector = Icons.Filled.CalendarMonth,
-                        contentDescription = "Calendar navigation",
-                        tint = Color.White
+                        tint = Color.Black
                     )
                 }
             }

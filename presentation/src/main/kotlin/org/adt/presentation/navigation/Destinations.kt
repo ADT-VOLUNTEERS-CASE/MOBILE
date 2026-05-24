@@ -31,7 +31,19 @@ sealed class Destinations {
     data object VolunteerHome : Destinations()
 
     @Serializable
-    data object VolunteerProfile : Destinations()
+    data object VolunteerProfile: Destinations()
+
+    @Serializable
+    data object VolunteerCalendar : Destinations()
+
+    @Serializable
+    data object VolunteerStatistics : Destinations()
+
+    @Serializable
+    data object VolunteerRating : Destinations()
+
+    @Serializable
+    data class EventDetails(val id: Long) : Destinations()
 
     @Serializable
     data object NoConnectionScreen: Destinations()

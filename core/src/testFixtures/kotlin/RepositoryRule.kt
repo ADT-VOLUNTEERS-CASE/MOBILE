@@ -15,6 +15,9 @@ import com.tngtech.archunit.lang.syntax.ArchRuleDefinition
 import org.adt.core.annotations.AssociatedWith
 import org.adt.core.annotations.ImplicitUsage
 import org.adt.core.annotations.RepositoryImpl
+import org.adt.core.testFixtures.ArchRulesHelper.allClasses
+import org.adt.core.testFixtures.ArchRulesHelper.allMethods
+import org.adt.core.testFixtures.ArchRulesHelper.getRepositoryTestCoverageRule
 import org.junit.jupiter.api.Test
 import java.nio.file.Paths
 

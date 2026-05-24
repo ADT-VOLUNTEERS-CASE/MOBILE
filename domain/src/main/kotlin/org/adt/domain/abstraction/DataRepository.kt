@@ -13,6 +13,8 @@ import org.adt.core.entities.rating.CoordinatorRatingResponse
 import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
+import org.adt.core.entities.rating.RatingResponse
+import org.adt.core.entities.user.statistics.UserStatistics
 import java.io.File
 
 interface DataRepository {
@@ -44,6 +46,10 @@ interface DataRepository {
 
     suspend fun userInfo(): GeneralResponse<UserResponse>
 
+    suspend fun getUserStatistics(): GeneralResponse<UserStatistics>
+
+    suspend fun getUserRating(period: String = "monthly", page: Int = 0, size: Int = 20): GeneralResponse<RatingResponse>
+
     suspend fun uploadCover(file: File, retried: Boolean = false): GeneralResponse<Cover>
 
     suspend fun createEventApplication(
@@ -52,6 +58,8 @@ interface DataRepository {
     ): GeneralResponse<UserEventResponse>
 
     suspend fun getEvents(retried: Boolean = false): GeneralResponse<EventResponse>
+
+    suspend fun getRecommendedEvents(): GeneralResponse<EventResponse>
 
     suspend fun getCoordinatorEvents(retried: Boolean = false): GeneralResponse<CoordinatorEventsResponse>
 
@@ -68,6 +76,8 @@ interface DataRepository {
         retried: Boolean = false
     ): GeneralResponse<Int>
 
+    suspend fun getEventById(eventId: Long): GeneralResponse<Event>
+
     suspend fun deleteEvent(eventId: Long, retried: Boolean = false): GeneralResponse<Int>
 
     suspend fun deleteCover(coverId: Long, retried: Boolean = false): GeneralResponse<Int>
@@ -79,6 +89,8 @@ interface DataRepository {
     suspend fun deleteTagByName(tagName: String, retried: Boolean = false): GeneralResponse<Int>
 
     suspend fun getEventApplications(eventId: Long, status: String?): GeneralResponse<List<EventApplication>>
+
+    suspend fun getApplicationStatus(eventId: Long): GeneralResponse<String>
 
     suspend fun updateApplicationStatus(eventId: Long, userId: Long, status: String, reason: String?): GeneralResponse<UserEventResponse>
 
