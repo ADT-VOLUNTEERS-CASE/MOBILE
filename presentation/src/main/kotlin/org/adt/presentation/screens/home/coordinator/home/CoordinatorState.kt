@@ -1,10 +1,9 @@
-package org.adt.presentation.screens.home.coordinator
+package org.adt.presentation.screens.home.coordinator.home
 
 import okhttp3.ResponseBody
 import org.adt.core.entities.Location
 import org.adt.core.entities.event.CoordinatorEventSummary
 import org.adt.core.entities.event.Cover
-import org.adt.core.entities.event.Event
 import org.adt.core.entities.event.EventApplication
 import org.adt.core.entities.rating.CoordinatorRatingItem
 

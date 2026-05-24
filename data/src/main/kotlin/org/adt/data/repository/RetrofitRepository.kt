@@ -6,6 +6,9 @@ import org.adt.core.entities.Location
 import org.adt.core.entities.Tag
 import org.adt.core.entities.event.CoordinatorEventsResponse
 import org.adt.core.entities.event.Cover
+import org.adt.core.entities.event.Event
+import org.adt.core.entities.rating.CoordinatorRatingResponse
+import org.adt.core.entities.rating.RatingResponse
 import org.adt.core.entities.request.ApplicationStatusRequest
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.EventRequest
@@ -21,7 +24,6 @@ import org.adt.core.entities.response.AuthResponse
 import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.FindLocationResponse
 import org.adt.core.entities.response.UserEventResponse
-import org.adt.core.entities.rating.RatingResponse
 import org.adt.core.entities.response.UserResponse
 import org.adt.core.entities.user.statistics.UserStatistics
 import retrofit2.Response
@@ -249,7 +251,6 @@ interface RetrofitRepository {
     ): Response<ApplicationsResponse>
 
     @PATCH("v1/user-event/coordinator/events/{eventId}/applications/{userId}/status")
-    @GET("v1/user-event/status/{eventId}")
     suspend fun getApplicationStatus(
         @Header("Authorization") auth: String,
         @Path("eventId") eventId: Long,

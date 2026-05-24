@@ -83,6 +83,17 @@ class DataRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun getCurrentUserRole(): UserRole {
+        if (!authorized()) return UserRole.NONE
+
+        val result = userInfo()
+
+        if (!result.isSuccessful)
+            return UserRole.NONE
+
+        return result.data().toRole()
+    }
+
     override suspend fun ping(): GeneralResponse<String> {
         val response = networkRepository.ping()
 
@@ -225,6 +236,8 @@ class DataRepositoryImpl @Inject constructor(
 
     override suspend fun deauthenticate() {
         persistenceRepository.removeToken()
+        persistenceRepository.removeRefreshToken()
+        persistenceRepository.removeRole()
     }
 
     override suspend fun findEvent(
@@ -326,16 +339,7 @@ class DataRepositoryImpl @Inject constructor(
         return GeneralResponse.success(response.body()!!)
     }
 
-    override suspend fun getUserRating(period: String, page: Int, size: Int): GeneralResponse<RatingResponse> {
-        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
-        val response = networkRepository.getUserRating(token, period, page, size)
 
-        if (!response.isSuccessful) {
-            return GeneralResponse.failure(response.code())
-        }
-
-        return GeneralResponse.success(response.body()!!)
-    }
 
     override suspend fun uploadCover(file: File, retried: Boolean): GeneralResponse<Cover> {
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
@@ -720,16 +724,27 @@ class DataRepositoryImpl @Inject constructor(
         return GeneralResponse.failure(response.code())
     }
 
-    override suspend fun getCoordinatorRating(period: String, retried: Boolean): GeneralResponse<CoordinatorRatingResponse> {
+    override suspend fun getUserRating(period: String, page: Int, size: Int): GeneralResponse<RatingResponse> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val response = networkRepository.getUserRating(token, period, page, size)
+
+        if (!response.isSuccessful) {
+            return GeneralResponse.failure(response.code())
+        }
+
+        return GeneralResponse.success(response.body()!!)
+    }
+
+    override suspend fun getCoordinatorRating(period: String, page: Int, size: Int, retried: Boolean): GeneralResponse<CoordinatorRatingResponse> {
         val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
-        val response = networkRepository.getCoordinatorRating(token, period)
+        val response = networkRepository.getCoordinatorRating(token, period, page, size)
 
         if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
 
         if (response.code() == 403) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
-                return getCoordinatorRating(period, true)
+                return getCoordinatorRating(period, page, size, true)
             }
             persistenceRepository.removeToken()
             return GeneralResponse.failure(403, "Session expired")

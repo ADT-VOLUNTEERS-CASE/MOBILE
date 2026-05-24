@@ -18,6 +18,16 @@ import org.adt.core.entities.user.statistics.UserStatistics
 import java.io.File
 
 interface DataRepository {
+    fun UserResponse.toRole(): UserRole {
+        return when {
+            admin -> UserRole.ADMIN
+            coordinator -> UserRole.COORDINATOR
+            else -> UserRole.VOLUNTEER
+        }
+    }
+
+    suspend fun getCurrentUserRole(): UserRole
+
     suspend fun ping(): GeneralResponse<String>
 
     suspend fun authorized(): Boolean
@@ -94,7 +104,7 @@ interface DataRepository {
 
     suspend fun updateApplicationStatus(eventId: Long, userId: Long, status: String, reason: String?): GeneralResponse<UserEventResponse>
 
-    suspend fun getCoordinatorRating(period: String = "monthly", retried: Boolean = false): GeneralResponse<CoordinatorRatingResponse>
+    suspend fun getCoordinatorRating(period: String = "monthly", page: Int = 0, size: Int = 20, retried: Boolean = false): GeneralResponse<CoordinatorRatingResponse>
 
     suspend fun assembleCoordinatorReportFile(period: String = "monthly", retried: Boolean = false): GeneralResponse<ResponseBody>
     suspend fun assembleUserReportFileByAdmin(id: Long, period: String = "monthly", retried: Boolean = false): GeneralResponse<ResponseBody>

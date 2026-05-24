@@ -1,5 +1,10 @@
 package org.adt.presentation.screens.home.volunteer.rating
 
+import android.content.ContentValues
+import android.content.Context
+import android.os.Environment
+import android.provider.MediaStore
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -8,15 +13,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.ResponseBody
 import org.adt.domain.abstraction.DataRepository
 import org.adt.presentation.screens.home.coordinator.report.ReportState
 import javax.inject.Inject
 
 @HiltViewModel
-class RatingViewModel @Inject constructor(
-    private val dataRepository: DataRepository
+class ReportViewModel @Inject constructor(
+    private val _dataRepository: DataRepository
 ) : ViewModel() {
-    private val _state = MutableStateFlow(RatingState())
+    private val _state = MutableStateFlow(ReportState())
     val state = _state.asStateFlow()
 
     init {
@@ -34,9 +40,9 @@ class RatingViewModel @Inject constructor(
                 else it.copy(isPaginating = true)
             }
 
-            val response = dataRepository.getUserRating(
+            val response = _dataRepository.getCoordinatorRating(
                 period = current.period,
-                page = page,
+                page = page.toInt(),
                 size = 20
             )
 
@@ -87,5 +93,46 @@ class RatingViewModel @Inject constructor(
 
     fun dismissError() {
         _state.update { it.copy(error = null) }
+    }
+
+    fun downloadReport() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val response = _dataRepository.assembleCoordinatorReportFile(_state.value.period)
+                if (response.isSuccessful) {
+                    _state.update { it.copy(downloadedFile = response.data()) }
+                }
+            } catch (e: Exception) {
+                Log.e("Download", "Error: ${e.message}")
+            }
+        }
+    }
+
+    fun saveFileToDownloads(context: Context, responseBody: ResponseBody, fileName: String): Boolean {
+        return try {
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+            }
+
+            val resolver = context.contentResolver
+            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+
+            uri?.let {
+                resolver.openOutputStream(it).use { outputStream ->
+                    responseBody.byteStream().use { inputStream ->
+                        inputStream.copyTo(outputStream!!)
+                    }
+                }
+                true
+            } ?: false
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun onFileSaved() {
+        _state.update { it.copy(downloadedFile = null) }
     }
 }

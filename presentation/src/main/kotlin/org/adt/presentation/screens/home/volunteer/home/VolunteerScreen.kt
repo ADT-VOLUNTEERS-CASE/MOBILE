@@ -1,4 +1,5 @@
 package org.adt.presentation.screens.home.volunteer.home
+
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -21,13 +22,14 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,7 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
-import org.adt.core.entities.AllDescriptionEvent
 import org.adt.core.entities.event.Event
 import org.adt.presentation.components.CustomSearchTextField
 import org.adt.presentation.components.bars.SyncedTopNavigationBar
@@ -59,6 +60,7 @@ import org.adt.presentation.components.misc.NotImplementedSheet
 import org.adt.presentation.components.misc.rememberSyncedScrollState
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.screens.home.volunteer.search.SearchOverlay
+import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
 
@@ -167,13 +169,24 @@ fun VolunteerScreenContent(
                     )
                 }
             ) { paddingValues ->
+                val pullToRefreshBoxState = rememberPullToRefreshState()
                 PullToRefreshBox(
                     isRefreshing = isRefreshing,
                     onRefresh = onRefreshAction,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues),
-                    state = rememberPullToRefreshState()
+                    state = pullToRefreshBoxState,
+                    indicator = {
+                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            PullToRefreshDefaults.Indicator(
+                                state = pullToRefreshBoxState,
+                                isRefreshing = isRefreshing,
+                                containerColor = Mint,
+                                color = Arctic
+                            )
+                        }
+                    }
                 ) {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
@@ -216,7 +229,8 @@ fun VolunteerScreenContent(
                                                 contentDescription = null
                                             )
                                         }
-                                    }
+                                    },
+                                    colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Mint.copy(0.36f))
                                 )
                             }
                         }
@@ -243,7 +257,9 @@ fun VolunteerScreenContent(
                                     event = event,
                                     onClick = { eventPickerAction(event) },
                                     onFavoriteClick = { },
-                                    isParticipating = isParticipatingRecommendationEvaluateAction.invoke(event)
+                                    isParticipating = isParticipatingRecommendationEvaluateAction.invoke(
+                                        event
+                                    )
                                 )
                             }
                         }

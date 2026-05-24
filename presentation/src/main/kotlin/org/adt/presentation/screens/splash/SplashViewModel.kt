@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.adt.core.entities.UserRole
@@ -42,21 +43,9 @@ class SplashViewModel @Inject constructor(
 
         _authorized.update { isAuthorized }
 
-        if (!isAuthorized)
-            return Destinations.mapRole(userRole)
+        if (!isAuthorized) return Destinations.mapRole(userRole)
 
-        val result = _dataRepository.userInfo()
-
-        if (!result.isSuccessful)
-            return Destinations.mapRole(userRole)
-
-        val value = result.data()
-
-        userRole = when {
-            value.admin -> UserRole.ADMIN
-            value.coordinator -> UserRole.COORDINATOR
-            else -> UserRole.VOLUNTEER
-        }
+        userRole = _dataRepository.getCurrentUserRole()
 
         Log.d("SplashViewModel::Role", userRole.toString())
 

@@ -1,5 +1,7 @@
-package org.adt.presentation.screens.home.coordinator
+package org.adt.presentation.screens.home.coordinator.home
 
+import android.content.Context
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -9,13 +11,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.TextSelectionColors
@@ -26,7 +26,6 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -50,11 +49,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.adt.core.entities.Location
-import org.adt.core.entities.UserRole
 import org.adt.presentation.components.CustomSearchTextField
 import org.adt.presentation.components.CustomTextField
 import org.adt.presentation.components.TypingText
-import org.adt.presentation.components.bars.CustomBottomBar
 import org.adt.presentation.components.buttons.ButtonStyle
 import org.adt.presentation.components.buttons.ButtonVariant
 import org.adt.presentation.components.buttons.CustomButton
@@ -82,21 +79,6 @@ fun CoordinatorScreen(
 ) {
     val uiState = viewModel.uiState.collectAsState().value
     val fields = viewModel.fieldsState.collectAsState().value
-    val context = LocalContext.current
-
-    LaunchedEffect(uiState.downloadedFile) {
-        uiState.downloadedFile?.let { body ->
-            val success = viewModel.saveFileToDownloads(
-                context = context,
-                responseBody = body,
-                fileName = "report-${System.currentTimeMillis()}.pdf"
-            )
-            if (success) {
-                Toast.makeText(context, "Отчет сохранен в Загрузки", Toast.LENGTH_SHORT).show()
-            }
-            viewModel.onFileSaved()
-        }
-    }
 
     CoordinatorScreenContent(
         uiState = uiState,
@@ -107,21 +89,11 @@ fun CoordinatorScreen(
         updateFields = { viewModel.updateInputs(it) },
         createAction = { viewModel.onCreateEventClick() },
         clearMessage = { viewModel.clearMessage() },
-        logoutAction = {
-            viewModel.deauthenticate {
-                navController.navigate(Destinations.Splash) {
-                    popUpTo(navController.graph.id) { inclusive = true }
-                }
-            }
-        },
         setShowDatePicker = { viewModel.setShowDatePicker(it) },
         setShowTimePicker = { viewModel.setShowTimePicker(it) },
         onApprove = { eventId, userId -> viewModel.approve(eventId, userId) },
         onReject = { eventId, userId -> viewModel.reject(eventId, userId) },
         onLoadApplications = { eventId -> viewModel.loadApplications(eventId) },
-        onToggleRating = { viewModel.toggleRatingType(uiState.ratingType) },
-        onDownloadAction = { viewModel.downloadReport() },
-        onToggleReport = { viewModel.toggleReportType(uiState.reportType) },
     )
 }
 
@@ -136,15 +108,11 @@ fun CoordinatorScreenContent(
     updateFields: (CoordinatorFieldsState) -> Unit = {},
     createAction: () -> Unit = {},
     clearMessage: () -> Unit = {},
-    logoutAction: () -> Unit = {},
     setShowDatePicker: (Boolean) -> Unit = {},
     setShowTimePicker: (Boolean) -> Unit = {},
     onApprove: (Long, Long) -> Unit = { _, _ -> },
     onReject: (Long, Long) -> Unit = { _, _ -> },
     onLoadApplications: (Long) -> Unit = {},
-    onToggleRating: (String) -> Unit = {},
-    onDownloadAction: () -> Unit = {},
-    onToggleReport: (String) -> Unit = {},
     animationOverride: Boolean = false
 ) {
     val context = LocalContext.current
@@ -312,70 +280,6 @@ fun CoordinatorScreenContent(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
-                    if (uiState.ratingType == "monthly") "Общий рейтинг за месяц" else "Общий рейтинг за все время",
-                    style = VolunteersCaseTheme.typography.titleLarge.copy(textAlign = TextAlign.Center),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .clickable {
-                            onToggleRating(if (uiState.ratingType == "monthly") "overall" else "monthly")
-                        }
-                )
-
-                if (uiState.ratingList.isNotEmpty()) {
-                    uiState.ratingList.take(3).forEach { item ->
-                        Row {
-                            Text(item.ratingPosition.toString())
-                            Spacer(Modifier.width(20.dp))
-                            Column {
-                                Text(item.firstname)
-                                Text(item.lastname)
-                            }
-                        }
-                    }
-                } else {
-                    Text(
-                        "Пока пусто...", modifier = Modifier
-                            .fillMaxWidth(),
-                        style = VolunteersCaseTheme.typography.titleMedium.copy(
-                            Graphite,
-                            textAlign = TextAlign.Center
-                        )
-                    )
-                }
-
-                HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp))
-
-                Text(
-                    if (uiState.reportType == "monthly") "Отчет за месяц" else "Отчет за все время",
-                    style = VolunteersCaseTheme.typography.titleLarge.copy(textAlign = TextAlign.Center),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .clickable {
-                            onToggleReport(if (uiState.reportType == "monthly") "overall" else "monthly")
-                        }
-                )
-
-                CustomButton(
-                    text = "Скачать",
-                    onClick = { onDownloadAction() },
-                    style = ButtonStyle.Outlined
-                )
-            }
-
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(VolunteersCaseTheme.colors.secondaryBackground)
-                    .padding(horizontal = 10.dp, vertical = 20.dp),
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-
-
-                Text(
                     "Создание\nмероприятия",
                     style = VolunteersCaseTheme.typography.titleLarge.copy(textAlign = TextAlign.Center),
                     modifier = Modifier.fillMaxWidth()
@@ -509,23 +413,13 @@ fun CoordinatorScreenContent(
                 }
             }
 
-            TextButton(logoutAction, contentPadding = PaddingValues(2.dp)) {
-                Text(
-                    "Выйти",
-                    style = VolunteersCaseTheme.typography.titleMedium.copy(
-                        Arctic,
-                        fontWeight = FontWeight.Normal
-                    )
-                )
-            }
-
             Spacer(Modifier.height(100.dp))
         }
     }
 }
 
 object CoordinatorFileUtils {
-    fun getFileFromUri(context: android.content.Context, uri: android.net.Uri): File? {
+    fun getFileFromUri(context: Context, uri: Uri): File? {
         return try {
             val file = File(context.cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
             context.contentResolver.openInputStream(uri)?.use { input ->

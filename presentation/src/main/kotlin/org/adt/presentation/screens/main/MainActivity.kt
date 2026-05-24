@@ -1,4 +1,4 @@
-package org.adt.presentation.screens
+package org.adt.presentation.screens.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,15 +8,17 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Transparent
-import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import org.adt.presentation.components.bars.BottomBarConfigs
 import org.adt.presentation.components.bars.FancyBottomNavigationBar
-import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.navigation.NavigationGraph
 import org.adt.presentation.theme.VolunteersCaseTheme
 
@@ -28,18 +30,15 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
 
-            val allowedRoutes = setOfNotNull(
-                Destinations.VolunteerHome,
-                Destinations.VolunteerCalendar,
-                Destinations.VolunteerStatistics,
-                Destinations.VolunteerRating,
-                Destinations.VolunteerProfile
-            )
+            val viewModel: MainViewModel = hiltViewModel()
+            val uiState by viewModel.uiState.collectAsState()
+            val role by viewModel.role.collectAsState()
 
-            val shouldShowBottomBar = navBackStackEntry?.destination?.let { destination ->
-                allowedRoutes.any {route ->
-                    destination.hasRoute(route::class)
-                }
+            val bottomBarItems = BottomBarConfigs.getItems(role)
+            val allowedRoutes = bottomBarItems.map { it.route }.toSet()
+
+            val shouldShowBottomBar = navBackStackEntry?.destination?.hierarchy?.any {
+                it.route in allowedRoutes
             } == true
 
             VolunteersCaseTheme {
@@ -47,12 +46,17 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     containerColor = Transparent,
                     bottomBar = {
-                        AnimatedVisibility(
-                            visible = shouldShowBottomBar,
-                            enter = slideInVertically(initialOffsetY = { it }),
-                            exit = slideOutVertically(targetOffsetY = { it })
-                        ) {
-                            FancyBottomNavigationBar(navController = navController)
+                        if (!uiState.loading) {
+                            AnimatedVisibility(
+                                visible = shouldShowBottomBar,
+                                enter = slideInVertically(initialOffsetY = { it }),
+                                exit = slideOutVertically(targetOffsetY = { it })
+                            ) {
+                                FancyBottomNavigationBar(
+                                    navController = navController,
+                                    items = bottomBarItems
+                                )
+                            }
                         }
                     }
                 ) { innerPadding ->

@@ -1,4 +1,4 @@
-package org.adt.presentation.screens.home.volunteer.profile
+package org.adt.presentation.screens.home.coordinator.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,10 +13,10 @@ import org.adt.domain.abstraction.DataRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class ProfileViewModel @Inject constructor(
+class CoordinatorProfileViewModel @Inject constructor(
     private val _dataRepository: DataRepository, // TODO: Rewrite to domain repository when ready
 ) : ViewModel() {
-    private val _state = MutableStateFlow(ProfileState())
+    private val _state = MutableStateFlow(CoordinatorProfileState())
 
     val state = _state.asStateFlow()
 

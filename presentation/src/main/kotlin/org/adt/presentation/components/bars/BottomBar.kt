@@ -53,9 +53,41 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import org.adt.core.entities.UserRole
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
+
+object BottomBarConfigs {
+
+    val volunteerItems = listOf(
+        BottomNavItem.VolunteerHome,
+        BottomNavItem.VolunteerCalendar,
+        BottomNavItem.VolunteerStatistics,
+        BottomNavItem.VolunteerRating,
+        BottomNavItem.VolunteerProfile
+    )
+
+    val coordinatorItems = listOf(
+        BottomNavItem.CoordinatorHome,
+        BottomNavItem.CoordinatorRating,
+        BottomNavItem.CoordinatorProfile
+    )
+
+    val adminItems = listOf(
+        BottomNavItem.AdminHome,
+        BottomNavItem.AdminProfile
+    )
+
+    fun getItems(role: UserRole): List<BottomNavItem> {
+        return when (role) {
+            UserRole.VOLUNTEER -> volunteerItems
+            UserRole.COORDINATOR -> coordinatorItems
+            UserRole.ADMIN -> adminItems
+            UserRole.NONE -> volunteerItems
+        }
+    }
+}
 
 sealed class BottomNavItem(
     val route: String,
@@ -63,26 +95,78 @@ sealed class BottomNavItem(
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector
 ) {
-    object Home : BottomNavItem(Destinations.VolunteerHome::class.qualifiedName ?: "", "Главная", Icons.Filled.Home, Icons.Outlined.Home)
-    object Calendar : BottomNavItem(Destinations.VolunteerCalendar::class.qualifiedName?:"", "Календарь", Icons.Filled.CalendarMonth, Icons.Outlined.CalendarMonth)
-    object Statistics : BottomNavItem(Destinations.VolunteerStatistics::class.qualifiedName?:"", "Статистика", Icons.Filled.DonutLarge, Icons.Outlined.DonutLarge)
-    object Rating : BottomNavItem(Destinations.VolunteerRating::class.qualifiedName ?: "", "Рейтинг", Icons.Filled.EmojiEvents, Icons.Outlined.EmojiEvents)
-    object Profile : BottomNavItem(Destinations.VolunteerProfile::class.qualifiedName ?: "", "Профиль", Icons.Filled.Person, Icons.Outlined.Person)
+    object VolunteerHome : BottomNavItem(
+        Destinations.VolunteerHome::class.qualifiedName ?: "",
+        "Главная",
+        Icons.Filled.Home,
+        Icons.Outlined.Home
+    )
+    object VolunteerCalendar : BottomNavItem(
+        Destinations.VolunteerCalendar::class.qualifiedName ?: "",
+        "Календарь",
+        Icons.Filled.CalendarMonth,
+        Icons.Outlined.CalendarMonth
+    )
+    object VolunteerStatistics : BottomNavItem(
+        Destinations.VolunteerStatistics::class.qualifiedName ?: "",
+        "Статистика",
+        Icons.Filled.DonutLarge,
+        Icons.Outlined.DonutLarge
+    )
+    object VolunteerRating : BottomNavItem(
+        Destinations.VolunteerRating::class.qualifiedName ?: "",
+        "Рейтинг",
+        Icons.Filled.EmojiEvents,
+        Icons.Outlined.EmojiEvents
+    )
+    object VolunteerProfile : BottomNavItem(
+        Destinations.VolunteerProfile::class.qualifiedName ?: "",
+        "Профиль",
+        Icons.Filled.Person,
+        Icons.Outlined.Person
+    )
+
+
+    object CoordinatorHome : BottomNavItem(
+        Destinations.CoordinatorHome::class.qualifiedName ?: "",
+        "Главная",
+        Icons.Filled.Home,
+        Icons.Outlined.Home
+    )
+    object CoordinatorRating : BottomNavItem(
+        Destinations.CoordinatorReport::class.qualifiedName ?: "",
+        "Рейтинг",
+        Icons.Filled.EmojiEvents,
+        Icons.Outlined.EmojiEvents
+    )
+    object CoordinatorProfile : BottomNavItem(
+        Destinations.CoordinatorProfile::class.qualifiedName ?: "",
+        "Профиль",
+        Icons.Filled.Person,
+        Icons.Outlined.Person
+    )
+
+
+    object AdminHome : BottomNavItem(
+        Destinations.AdminHome::class.qualifiedName ?: "",
+        "Главная",
+        Icons.Filled.Home,
+        Icons.Outlined.Home
+    )
+    object AdminProfile : BottomNavItem(
+        Destinations.AdminProfile::class.qualifiedName ?: "",
+        "Профиль",
+        Icons.Filled.Person,
+        Icons.Outlined.Person
+    )
 }
 
 @Composable
 fun FancyBottomNavigationBar(
     navController: NavHostController,
+    items: List<BottomNavItem>,
     modifier: Modifier = Modifier
 ) {
-    val items = listOf(
-        BottomNavItem.Home,
-        BottomNavItem.Calendar,
-        BottomNavItem.Statistics,
-        BottomNavItem.Rating,
-        BottomNavItem.Profile
-    )
-
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
@@ -141,7 +225,9 @@ fun FancyBottomNavigationBar(
                             ) {
                                 if (!isSelected) {
                                     navController.navigate(item.route) {
-                                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            saveState = true
+                                        }
                                         launchSingleTop = true
                                         restoreState = true
                                     }
@@ -177,9 +263,11 @@ fun FancyBottomNavigationBar(
 @Composable
 private fun FancyBottomNavigationBarPreview() {
     val navController = rememberNavController()
+    val currentRole = UserRole.VOLUNTEER
+    val bottomBarItems = BottomBarConfigs.getItems(currentRole)
     VolunteersCaseTheme {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-            FancyBottomNavigationBar(navController = navController)
+            FancyBottomNavigationBar(navController = navController, bottomBarItems)
         }
     }
 }

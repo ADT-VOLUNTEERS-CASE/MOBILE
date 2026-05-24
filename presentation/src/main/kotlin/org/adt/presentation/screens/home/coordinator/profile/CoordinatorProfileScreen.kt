@@ -1,6 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
-package org.adt.presentation.screens.home.volunteer.profile
+package org.adt.presentation.screens.home.coordinator.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,17 +14,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.PermIdentity
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -41,8 +41,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.asAndroidPath
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,15 +62,17 @@ import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
+import kotlin.io.path.Path
+import kotlin.io.path.moveTo
 
 @Composable
-fun ProfileScreen(
+fun CoordinatorProfileScreen(
     navController: NavHostController,
-    viewModel: ProfileViewModel,
+    viewModel: CoordinatorProfileViewModel,
 ) {
     val profileState by viewModel.state.collectAsState()
 
-    ProfileScreenContent(
+    CoordinatorProfileScreenContent(
         profileState = profileState,
         onLogoutAction = {
             viewModel.logout {
@@ -78,8 +85,8 @@ fun ProfileScreen(
 }
 
 @Composable
-fun ProfileScreenContent(
-    profileState: ProfileState = ProfileState(),
+fun CoordinatorProfileScreenContent(
+    profileState: CoordinatorProfileState = CoordinatorProfileState(),
     onLogoutAction: () -> Unit = {},
 ) {
     var showWIPSheet by remember { mutableStateOf(false) }
@@ -96,15 +103,39 @@ fun ProfileScreenContent(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp))
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(Abyss, Abyss.copy(alpha = 0.9f))
-                        )
-                    )
+                    .drawWithCache {
+                        val path = Path().apply {
+                            val inset = size.width * 0.15f
+                            val extra = 50f
+                            moveTo(-extra, -extra)
+                            lineTo(size.width + extra, -10f)
+                            lineTo(size.width, size.height - inset)
+                            lineTo(size.width - inset, size.height)
+                            lineTo(inset, size.height)
+                            lineTo(0f, size.height - inset)
+                            close()
+                        }
+
+                        onDrawBehind {
+                            drawContext.canvas.nativeCanvas.apply {
+                                val paint = android.graphics.Paint().apply {
+                                    isAntiAlias = true
+                                    shader = android.graphics.LinearGradient(
+                                        0f, 0f, 0f, size.height,
+                                        Abyss.toArgb(),
+                                        Abyss.copy(alpha = 0.9f).toArgb(),
+                                        android.graphics.Shader.TileMode.CLAMP
+                                    )
+                                    pathEffect = android.graphics.CornerPathEffect(45f)
+                                }
+
+                                drawPath(path.asAndroidPath(), paint)
+                            }
+                        }
+                    }
                     .padding(top = 40.dp, bottom = 40.dp),
                 contentAlignment = Alignment.Center
-            ) {
+            ){
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Surface(
                         modifier = Modifier.size(110.dp),
@@ -113,7 +144,7 @@ fun ProfileScreenContent(
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                Icons.Default.Person,
+                                Icons.Default.PermIdentity,
                                 contentDescription = null,
                                 modifier = Modifier.size(60.dp),
                                 tint = Mint
@@ -124,7 +155,7 @@ fun ProfileScreenContent(
                     Spacer(Modifier.height(16.dp))
 
                     Text(
-                        text = profileState.firstName.ifEmpty { "Волонтёр" },
+                        text = profileState.firstName.ifEmpty { "Координатор" },
                         style = MaterialTheme.typography.headlineMedium,
                         color = Color.White,
                         fontWeight = FontWeight.Bold
@@ -142,7 +173,7 @@ fun ProfileScreenContent(
                             Icon(Icons.Default.Star, null, Modifier.size(14.dp), Color.White)
                             Spacer(Modifier.width(4.dp))
                             Text(
-                                "Опытный волонтер",
+                                "Опытный координатор",
                                 style = VolunteersCaseTheme.typography.labelMedium,
                                 color = Color.White
                             )
@@ -238,6 +269,6 @@ fun ProfileScreenContent(
 @Composable
 private fun ProfileScreenPreview() {
     VolunteersCaseTheme {
-        ProfileScreenContent()
+        CoordinatorProfileScreenContent()
     }
 }

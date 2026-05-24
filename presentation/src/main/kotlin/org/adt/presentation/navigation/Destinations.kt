@@ -25,7 +25,20 @@ sealed class Destinations {
     data object AdminHome : Destinations()
 
     @Serializable
+    data object AdminUsers : Destinations()
+
+    @Serializable
+    data object AdminProfile : Destinations()
+
+
+    @Serializable
     data object CoordinatorHome : Destinations()
+
+    @Serializable
+    data object CoordinatorReport : Destinations()
+
+    @Serializable
+    data object CoordinatorProfile : Destinations()
 
     @Serializable
     data object VolunteerHome : Destinations()
