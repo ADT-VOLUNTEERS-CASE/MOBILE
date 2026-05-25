@@ -1,6 +1,5 @@
 package org.adt.presentation.screens.home.coordinator.profile
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,15 +13,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CutCornerShape
-import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PermIdentity
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
@@ -40,9 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asAndroidPath
@@ -62,8 +56,6 @@ import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
-import kotlin.io.path.Path
-import kotlin.io.path.moveTo
 
 @Composable
 fun CoordinatorProfileScreen(
@@ -118,7 +110,18 @@ fun CoordinatorProfileScreenContent(
 
                         onDrawBehind {
                             drawContext.canvas.nativeCanvas.apply {
-                                val paint = android.graphics.Paint().apply {
+                                val shadowPaint = android.graphics.Paint().apply {
+                                    color = android.graphics.Color.TRANSPARENT
+                                    setShadowLayer(
+                                        25f,
+                                        0f,
+                                        15f,
+                                        android.graphics.Color.GRAY
+                                    )
+                                    pathEffect = android.graphics.CornerPathEffect(45f)
+                                }
+
+                                val mainPaint = android.graphics.Paint().apply {
                                     isAntiAlias = true
                                     shader = android.graphics.LinearGradient(
                                         0f, 0f, 0f, size.height,
@@ -129,7 +132,8 @@ fun CoordinatorProfileScreenContent(
                                     pathEffect = android.graphics.CornerPathEffect(45f)
                                 }
 
-                                drawPath(path.asAndroidPath(), paint)
+                                drawPath(path.asAndroidPath(), shadowPaint)
+                                drawPath(path.asAndroidPath(), mainPaint)
                             }
                         }
                     }

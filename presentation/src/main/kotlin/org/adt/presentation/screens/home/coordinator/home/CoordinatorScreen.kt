@@ -16,48 +16,72 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.launch
 import org.adt.core.entities.Location
 import org.adt.presentation.components.CustomSearchTextField
 import org.adt.presentation.components.CustomTextField
 import org.adt.presentation.components.TypingText
+import org.adt.presentation.components.bars.SyncedTopNavigationBar
 import org.adt.presentation.components.buttons.ButtonStyle
 import org.adt.presentation.components.buttons.ButtonVariant
 import org.adt.presentation.components.buttons.CustomButton
 import org.adt.presentation.components.cards.ApplicationCard
+import org.adt.presentation.components.cards.CharityEventCard
 import org.adt.presentation.components.cards.EventSummaryCard
-import org.adt.presentation.navigation.Destinations
+import org.adt.presentation.components.misc.rememberSyncedScrollState
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
@@ -71,6 +95,9 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import org.adt.presentation.components.bars.SyncedTopNavigationBarCoordinator
 
 @Composable
 fun CoordinatorScreen(
@@ -78,7 +105,10 @@ fun CoordinatorScreen(
     viewModel: CoordinatorViewModel,
 ) {
     val uiState = viewModel.uiState.collectAsState().value
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
     val fields = viewModel.fieldsState.collectAsState().value
+    val scope = rememberCoroutineScope()
+
 
     CoordinatorScreenContent(
         uiState = uiState,
@@ -94,6 +124,12 @@ fun CoordinatorScreen(
         onApprove = { eventId, userId -> viewModel.approve(eventId, userId) },
         onReject = { eventId, userId -> viewModel.reject(eventId, userId) },
         onLoadApplications = { eventId -> viewModel.loadApplications(eventId) },
+        onSettingsNavigateAction = { },
+        onRefreshAction = {
+            scope.launch {
+                viewModel.loadMyEvents()
+            }
+        }
     )
 }
 
@@ -101,6 +137,7 @@ fun CoordinatorScreen(
 @Composable
 fun CoordinatorScreenContent(
     uiState: CoordinatorState = CoordinatorState(),
+    isRefreshing: Boolean = false,
     fields: CoordinatorFieldsState = CoordinatorFieldsState(),
     onUploadFile: (File) -> Unit = {},
     onSearchLocation: (String) -> Unit = {},
@@ -113,11 +150,22 @@ fun CoordinatorScreenContent(
     onApprove: (Long, Long) -> Unit = { _, _ -> },
     onReject: (Long, Long) -> Unit = { _, _ -> },
     onLoadApplications: (Long) -> Unit = {},
+    onSettingsNavigateAction: () -> Unit = {},
+    onRefreshAction: () -> Unit = {},
     animationOverride: Boolean = false
 ) {
     val context = LocalContext.current
     val visualFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm") }
+    var showWIPSheet by remember { mutableStateOf(false) }
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+    val syncedScrollState = rememberSyncedScrollState()
+    var isFilterChipSelected by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        pageCount = { 2 }
+    )
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -250,171 +298,249 @@ fun CoordinatorScreenContent(
         )
     }
 
-    Box(
-        Modifier
+    Scaffold(
+        modifier = Modifier
             .fillMaxSize()
-            .background(Abyss)
-    ) {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(horizontal = 40.dp)
-                .verticalScroll(rememberScrollState()),
-            Arrangement.spacedBy(20.dp),
-            Alignment.CenterHorizontally
-        ) {
-            TypingText(
-                Modifier.padding(top = 100.dp),
-                text = "Твоё следующее доброе дело ждёт своего момента",
-                charDelay = if (animationOverride) 0L else 40L,
-                animationOverride = animationOverride
-            )
+            .nestedScroll(syncedScrollState.connection),
+        containerColor = Color.Transparent,
+        topBar = {
+            SyncedTopNavigationBarCoordinator(
+                scale = syncedScrollState.scaleFactor,
+                title = if (pagerState.currentPage == 0)
+                    "Мои мероприятия"
+                else
+                    "Создание мероприятия",
 
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(VolunteersCaseTheme.colors.secondaryBackground)
-                    .padding(horizontal = 10.dp, vertical = 20.dp),
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text(
-                    "Создание\nмероприятия",
-                    style = VolunteersCaseTheme.typography.titleLarge.copy(textAlign = TextAlign.Center),
-                    modifier = Modifier.fillMaxWidth()
-                )
+                scrollBehavior = scrollBehavior,
 
-                CustomTextField(Modifier, "Название") { updateFields(fields.copy(name = it)) }
-
-                CustomTextField(
-                    Modifier,
-                    "Описание"
-                ) { updateFields(fields.copy(description = it)) }
-                CustomTextField(
-                    Modifier,
-                    "Макс. участников"
-                ) { updateFields(fields.copy(maxCapacity = it.toLongOrNull() ?: 0)) }
-
-                CustomTextField(Modifier, "ID Тегов (через запятую)") {
-                    val ids = it.split(",").mapNotNull { id -> id.trim().toLongOrNull() }
-                    updateFields(fields.copy(tagIds = ids))
-                }
-
-                CustomButton(
-                    text = if (fields.selectedDateTime != null)
-                        "Дата: ${fields.selectedDateTime.format(visualFormatter)}"
-                    else "Выбрать дату и время",
-                    onClick = { setShowDatePicker(true) },
-                    style = ButtonStyle.Filled
-                )
-
-                CustomButton(
-                    text = if (uiState.selectedCover != null) "Обложка загружена" else "Выбрать обложку",
-                    isLoading = uiState.isUploadingCover,
-                    onClick = { launcher.launch("image/*") },
-                    style = ButtonStyle.Filled
-                )
-
-                Text("Локация", style = VolunteersCaseTheme.typography.titleLarge)
-
-                CustomSearchTextField(
-                    label = "Введите адрес для поиска",
-                    value = "",
-                    onConfirm = { onSearchLocation(it) },
-                    onValueChange = {}
-                )
-
-                if (uiState.isSearchMode) {
-                    if (uiState.searchLoading) {
-                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.padding(top = 32.dp),
-                                color = Mint
-                            )
+                onSettingsNavigateAction = {
+                    if (pagerState.currentPage == 0) {
+                        scope.launch {
+                            pagerState.animateScrollToPage(1)
                         }
                     } else {
-                        Column(Modifier.fillMaxWidth(), Arrangement.spacedBy(6.dp)) {
-                            uiState.searchResults.forEach { location ->
-                                Text(
-                                    location.address,
-                                    style = VolunteersCaseTheme.typography.titleMedium.copy(Graphite),
-                                    modifier = Modifier.clickable { onSelectLocation(location) }
+                        scope.launch {
+                            pagerState.animateScrollToPage(0)
+                        }
+                    }
+                },
+
+                onNotificationsNavigateAction = { showWIPSheet = true },
+                index = pagerState.currentPage
+            )
+        }
+    ) { paddingValues ->
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            userScrollEnabled = false
+        ) { page ->
+
+            when (page) {
+
+                0 -> {
+                    val pullToRefreshBoxState = rememberPullToRefreshState()
+                    PullToRefreshBox(
+                        isRefreshing = isRefreshing,
+                        onRefresh = onRefreshAction,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        state = pullToRefreshBoxState,
+                        indicator = {
+                            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                                PullToRefreshDefaults.Indicator(
+                                    state = pullToRefreshBoxState,
+                                    isRefreshing = isRefreshing,
+                                    containerColor = Mint,
+                                    color = Arctic
                                 )
+                            }
+                        }
+                    ) {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            item(span = { GridItemSpan(maxLineSpan) }) {
+                                if (uiState.eventsLoading) {
+                                    Box(
+                                        Modifier.fillMaxWidth(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(30.dp),
+                                            color = Mint
+                                        )
+                                    }
+                                } else if (uiState.myEvents.isNotEmpty()) {
+                                    uiState.myEvents.take(3).forEach { event ->
+                                        EventSummaryCard(event = event) {
+                                            onLoadApplications(event.eventId)
+                                        }
+                                    }
+                                } else {
+                                    Text(
+                                        "Пока пусто...",
+                                        style = VolunteersCaseTheme.typography.titleMedium.copy(
+                                            Graphite
+                                        )
+                                    )
+                                }
+
+                                if (uiState.applications.isNotEmpty()) {
+                                    Spacer(Modifier.height(10.dp))
+                                    Text(
+                                        "Заявки на участие",
+                                        style = VolunteersCaseTheme.typography.titleLarge,
+                                        color = Graphite
+                                    )
+                                    uiState.applications.forEach { app ->
+                                        ApplicationCard(
+                                            app = app,
+                                            onApprove = {
+                                                onApprove(
+                                                    app.eventId.toLong(),
+                                                    app.userId.toLong()
+                                                )
+                                            },
+                                            onReject = {
+                                                onReject(
+                                                    app.eventId.toLong(),
+                                                    app.userId.toLong()
+                                                )
+                                            }
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                 }
 
-                uiState.selectedLocation?.let {
-                    Text(
-                        "Выбрано: ${it.address}",
-                        color = Abyss,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                }
+                1 -> {
+                    Column(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 40.dp)
+                            .verticalScroll(rememberScrollState()),
+                        Arrangement.spacedBy(20.dp),
+                        Alignment.CenterHorizontally
+                    ) {
+                        Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp))
+                                .padding(horizontal = 10.dp, vertical = 20.dp),
+                            horizontalAlignment = Alignment.Start,
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            CustomTextField(
+                                Modifier,
+                                "Название"
+                            ) { updateFields(fields.copy(name = it)) }
 
-                Spacer(Modifier.height(10.dp))
+                            CustomTextField(
+                                Modifier,
+                                "Описание"
+                            ) { updateFields(fields.copy(description = it)) }
+                            CustomTextField(
+                                Modifier,
+                                "Макс. участников"
+                            ) { updateFields(fields.copy(maxCapacity = it.toLongOrNull() ?: 0)) }
 
-                CustomButton(
-                    text = "Опубликовать",
-                    enabled = fields.name.isNotBlank() &&
-                            uiState.selectedLocation != null &&
-                            uiState.selectedCover != null &&
-                            fields.selectedDateTime != null,
-                    isLoading = uiState.isLoading,
-                    onClick = createAction,
-                    variant = ButtonVariant.Wide
-                )
-            }
+                            CustomTextField(Modifier, "ID Тегов (через запятую)") {
+                                val ids =
+                                    it.split(",").mapNotNull { id -> id.trim().toLongOrNull() }
+                                updateFields(fields.copy(tagIds = ids))
+                            }
 
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(VolunteersCaseTheme.colors.secondaryBackground)
-                    .padding(horizontal = 10.dp, vertical = 20.dp),
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text(
-                    "Мои мероприятия",
-                    style = VolunteersCaseTheme.typography.titleLarge,
-                    color = Graphite
-                )
+                            CustomButton(
+                                text = if (fields.selectedDateTime != null)
+                                    "Дата: ${fields.selectedDateTime.format(visualFormatter)}"
+                                else "Выбрать дату и время",
+                                onClick = { setShowDatePicker(true) },
+                                style = ButtonStyle.Filled
+                            )
 
-                if (uiState.myEvents.isNotEmpty()) {
-                    uiState.myEvents.forEach { event ->
-                        EventSummaryCard(event = event) {
-                            onLoadApplications(event.eventId)
+                            CustomButton(
+                                text = if (uiState.selectedCover != null) "Обложка загружена" else "Выбрать обложку",
+                                isLoading = uiState.isUploadingCover,
+                                onClick = { launcher.launch("image/*") },
+                                style = ButtonStyle.Filled
+                            )
+
+                            Text("Локация", style = VolunteersCaseTheme.typography.titleLarge)
+
+                            CustomSearchTextField(
+                                label = "Введите адрес для поиска",
+                                value = "",
+                                onConfirm = { onSearchLocation(it) },
+                                onValueChange = {}
+                            )
+
+                            if (uiState.isSearchMode) {
+                                if (uiState.searchLoading) {
+                                    Box(
+                                        Modifier.fillMaxWidth(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.padding(top = 32.dp),
+                                            color = Mint
+                                        )
+                                    }
+                                } else {
+                                    Column(Modifier.fillMaxWidth(), Arrangement.spacedBy(6.dp)) {
+                                        uiState.searchResults.forEach { location ->
+                                            Text(
+                                                location.address,
+                                                style = VolunteersCaseTheme.typography.titleMedium.copy(
+                                                    Graphite
+                                                ),
+                                                modifier = Modifier.clickable {
+                                                    onSelectLocation(
+                                                        location
+                                                    )
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            uiState.selectedLocation?.let {
+                                Text(
+                                    "Выбрано: ${it.address}",
+                                    color = Abyss,
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                            }
+
+                            Spacer(Modifier.height(10.dp))
+
+                            CustomButton(
+                                text = "Опубликовать",
+                                enabled = fields.name.isNotBlank() &&
+                                        uiState.selectedLocation != null &&
+                                        uiState.selectedCover != null &&
+                                        fields.selectedDateTime != null,
+                                isLoading = uiState.isLoading,
+                                onClick = createAction,
+                                variant = ButtonVariant.Wide
+                            )
                         }
                     }
-                } else {
-                    Text(
-                        "Пока пусто...",
-                        style = VolunteersCaseTheme.typography.titleMedium.copy(Graphite)
-                    )
-                }
-
-                if (uiState.applications.isNotEmpty()) {
-                    Spacer(Modifier.height(10.dp))
-                    Text(
-                        "Заявки на участие",
-                        style = VolunteersCaseTheme.typography.titleLarge,
-                        color = Graphite
-                    )
-                    uiState.applications.forEach { app ->
-                        ApplicationCard(
-                            app = app,
-                            onApprove = { onApprove(app.eventId.toLong(), app.userId.toLong()) },
-                            onReject = { onReject(app.eventId.toLong(), app.userId.toLong()) }
-                        )
-                    }
                 }
             }
-
-            Spacer(Modifier.height(100.dp))
         }
+
+
     }
 }
 

@@ -17,8 +17,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Help
-import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -48,11 +46,8 @@ import androidx.compose.ui.unit.dp
 import org.adt.core.entities.rating.UserRating
 import org.adt.presentation.components.rating.ErrorBanner
 import org.adt.presentation.components.rating.PeriodSwitch
-import org.adt.presentation.components.rating.RankingCard
 import org.adt.presentation.screens.home.volunteer.rating.ReportViewModel
-import org.adt.presentation.screens.home.volunteer.rating.RatingScreenContent
 import org.adt.presentation.theme.Abyss
-import org.adt.presentation.theme.Aqua
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Mint

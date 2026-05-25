@@ -36,7 +36,6 @@ import org.adt.presentation.components.rating.ErrorBanner
 import org.adt.presentation.components.rating.PeriodSwitch
 import org.adt.presentation.components.rating.PodiumRow
 import org.adt.presentation.components.rating.RankingCard
-import org.adt.presentation.screens.home.coordinator.report.ReportState
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Mint

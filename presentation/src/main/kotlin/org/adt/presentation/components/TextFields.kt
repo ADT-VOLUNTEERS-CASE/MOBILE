@@ -39,10 +39,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.adt.presentation.R
 import org.adt.presentation.theme.Arctic
-import org.adt.presentation.theme.Black
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Milk
-import org.adt.presentation.theme.Silver
 import org.adt.presentation.theme.Void
 import org.adt.presentation.theme.VolunteersCaseTheme
 
@@ -67,6 +65,7 @@ fun CustomTextField(
         modifier
             .fillMaxWidth()
             .height(55.dp)
+            .shadow(4.dp, RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp)),
         singleLine = true,
         textStyle = VolunteersCaseTheme.typography.titleMedium.copy(color = Void),
@@ -159,7 +158,11 @@ fun CustomSearchTextField(
                     if (textFieldValue.isEmpty()) {
                         Text(
                             label,
-                            style = VolunteersCaseTheme.typography.titleMedium.copy(Graphite.copy(0.5f))
+                            style = VolunteersCaseTheme.typography.titleMedium.copy(
+                                Graphite.copy(
+                                    0.5f
+                                )
+                            )
                         )
                     }
                     innerTextField()
@@ -172,7 +175,16 @@ fun CustomSearchTextField(
 @Preview
 @Composable
 private fun CustomTextFieldPreview() {
-    CustomTextField(Modifier, "CustomTextField") { }
+    Box(
+        Modifier
+            .height(700.dp)
+            .width(500.dp)
+            .background(Arctic)
+            .padding(horizontal = 20.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        CustomTextField(Modifier, "CustomTextField") { }
+    }
 }
 
 @Preview

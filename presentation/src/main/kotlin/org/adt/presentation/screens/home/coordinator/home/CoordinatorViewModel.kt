@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
 import org.adt.core.entities.Location
 import org.adt.domain.abstraction.DataRepository
@@ -25,35 +24,11 @@ class CoordinatorViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CoordinatorState())
     private val _fieldsState = MutableStateFlow(CoordinatorFieldsState())
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
     val uiState: StateFlow<CoordinatorState> = _uiState.asStateFlow()
     val fieldsState: StateFlow<CoordinatorFieldsState> = _fieldsState.asStateFlow()
-
-    fun getRating() {
-        _uiState.update { it.copy(ratingListLoading = true) }
-        viewModelScope.launch(Dispatchers.IO) {
-            val ratingResponse = _dataRepository.getCoordinatorRating(_uiState.value.ratingType)
-
-            if (ratingResponse.isSuccessful) {
-                val ratingList = ratingResponse.data().content
-
-                _uiState.update {
-                    it.copy(
-                        ratingList = ratingList,
-                        ratingListLoading = false,
-                    )
-                }
-                return@launch
-            }
-
-            _uiState.update { it.copy(ratingListLoading = false) }
-
-            Log.e("VolunteerViewModel::Rating", "Failure: Invalid data")
-        }
-    }
-
-    fun toggleRatingType(currentType: String) {
-        _uiState.update { it.copy(ratingType = if (currentType == "monthly") "overall" else "monthly") }
-    }
 
     fun updateInputs(newState: CoordinatorFieldsState) {
         _fieldsState.update { newState }
@@ -168,7 +143,6 @@ class CoordinatorViewModel @Inject constructor(
     }
 
     init {
-        getRating()
         loadMyEvents()
     }
 

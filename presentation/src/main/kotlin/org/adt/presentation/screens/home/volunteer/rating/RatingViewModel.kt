@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.adt.domain.abstraction.DataRepository
-import org.adt.presentation.screens.home.coordinator.report.ReportState
 import javax.inject.Inject
 
 @HiltViewModel
