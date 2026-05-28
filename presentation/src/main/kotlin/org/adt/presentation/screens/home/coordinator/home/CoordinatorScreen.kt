@@ -5,7 +5,6 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,22 +19,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
@@ -64,22 +59,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import org.adt.core.entities.Location
+import org.adt.core.entities.event.EventApplication
 import org.adt.presentation.components.CustomSearchTextField
 import org.adt.presentation.components.CustomTextField
-import org.adt.presentation.components.TypingText
-import org.adt.presentation.components.bars.SyncedTopNavigationBar
+import org.adt.presentation.components.bars.SyncedTopNavigationBarCoordinator
 import org.adt.presentation.components.buttons.ButtonStyle
 import org.adt.presentation.components.buttons.ButtonVariant
 import org.adt.presentation.components.buttons.CustomButton
 import org.adt.presentation.components.cards.ApplicationCard
-import org.adt.presentation.components.cards.CharityEventCard
 import org.adt.presentation.components.cards.EventSummaryCard
 import org.adt.presentation.components.misc.rememberSyncedScrollState
 import org.adt.presentation.theme.Abyss
@@ -95,9 +87,6 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import org.adt.presentation.components.bars.SyncedTopNavigationBarCoordinator
 
 @Composable
 fun CoordinatorScreen(
@@ -368,6 +357,7 @@ fun CoordinatorScreenContent(
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             item(span = { GridItemSpan(maxLineSpan) }) {
+                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 if (uiState.eventsLoading) {
                                     Box(
                                         Modifier.fillMaxWidth(),
@@ -417,6 +407,7 @@ fun CoordinatorScreenContent(
                                             }
                                         )
                                     }
+                                }
                                 }
                             }
                         }
@@ -563,6 +554,12 @@ object CoordinatorFileUtils {
 @Composable
 private fun CoordinatorScreenPreview() {
     VolunteersCaseTheme {
-        CoordinatorScreenContent(animationOverride = true)
+        CoordinatorScreenContent(
+            animationOverride = true, uiState = CoordinatorState(
+                isLoading = false, applications = listOf(
+                    EventApplication()
+                )
+            )
+        )
     }
 }
