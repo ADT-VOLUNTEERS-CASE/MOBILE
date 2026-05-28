@@ -39,11 +39,7 @@ class AdminSystemToolsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val response = _dataRepository.createTag(tagName)
-                if (response.data() != null) {
-                    _toolsState.update { it.copy(toastMessage = "Тег «$tagName» успешно создан", tagInput = "") }
-                } else {
-                    _toolsState.update { it.copy(toastMessage = "Не удалось создать тег") }
-                }
+                _toolsState.update { it.copy(toastMessage = "Тег «$tagName» успешно создан", tagInput = "") }
             } catch (e: Exception) {
                 Log.e("AdminToolsVM", "Ошибка создания тега", e)
                 _toolsState.update { it.copy(toastMessage = "Ошибка: ${e.localizedMessage}") }
@@ -94,11 +90,7 @@ class AdminSystemToolsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val response = _dataRepository.deleteEvent(eventId)
-                if (response.data() != null) {
-                    _toolsState.update { it.copy(toastMessage = "Мероприятие с ID $eventId удалено", deleteEventId = "") }
-                } else {
-                    _toolsState.update { it.copy(toastMessage = "Не удалось найти или удалить мероприятие") }
-                }
+                _toolsState.update { it.copy(toastMessage = "Мероприятие с ID $eventId удалено", deleteEventId = "") }
             } catch (e: Exception) {
                 Log.e("AdminToolsVM", "Ошибка удаления мероприятия", e)
                 _toolsState.update { it.copy(toastMessage = "Ошибка: ${e.localizedMessage}") }
@@ -118,11 +110,7 @@ class AdminSystemToolsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val response = _dataRepository.deleteCover(coverId)
-                if (response.data() != null) {
-                    _toolsState.update { it.copy(toastMessage = "Обложка с ID $coverId удалена", deleteCoverId = "") }
-                } else {
-                    _toolsState.update { it.copy(toastMessage = "Не удалось найти или удалить обложку") }
-                }
+                _toolsState.update { it.copy(toastMessage = "Обложка с ID $coverId удалена", deleteCoverId = "") }
             } catch (e: Exception) {
                 Log.e("AdminToolsVM", "Ошибка удаления обложки", e)
                 _toolsState.update { it.copy(toastMessage = "Ошибка: ${e.localizedMessage}") }

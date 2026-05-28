@@ -1,5 +1,6 @@
 package org.adt.presentation.components.bars
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -26,13 +27,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.DonutLarge
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.outlined.Build
-import androidx.compose.material.icons.outlined.EmojiEvents
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.DonutLarge
+import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
@@ -61,7 +62,6 @@ import org.adt.core.entities.UserRole
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Lagoon
-import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
 
 object BottomBarConfigs {
@@ -175,6 +175,7 @@ sealed class BottomNavItem(
     )
 }
 
+@SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun FancyBottomNavigationBar(
     navController: NavHostController,

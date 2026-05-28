@@ -46,7 +46,7 @@ class AdminDashboardViewModel @Inject constructor(
             _dashboardState.update { it.copy(searchModeLoading = true, searchMode = true) }
             try {
                 val response = _dataRepository.findLocation(query)
-                val locations = response.data() ?: emptyList()
+                val locations = response.data()
 
                 _dashboardState.update {
                     it.copy(
@@ -100,11 +100,7 @@ class AdminDashboardViewModel @Inject constructor(
                     _dataRepository.assembleCoordinatorReportFileByAdmin(id = id, period = type)
                 }
 
-                if (response.data() != null) {
-                    _dashboardState.update { it.copy(downloadedFile = response.data()) }
-                } else {
-                    _dashboardState.update { it.copy(toastMessage = "Сервер вернул пустой отчет") }
-                }
+                _dashboardState.update { it.copy(downloadedFile = response.data()) }
             } catch (e: Exception) {
                 Log.e("AdminDashboardVM", "Ошибка скачивания отчета", e)
                 _dashboardState.update { it.copy(toastMessage = "Не удалось скачать отчет: ${e.localizedMessage}") }

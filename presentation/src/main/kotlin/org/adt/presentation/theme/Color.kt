@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
 
 val Arctic = Color(0xFFFFFFFF)
 val Graphite = Color(0xFF353535)
-val BaseColor = Color(0xFF009ADA)
+//val BaseColor = Color(0xFF009ADA)
 
 val Abyss = Color(0xFF003047)
 val Mint = Color(0xFFBCE3F2)

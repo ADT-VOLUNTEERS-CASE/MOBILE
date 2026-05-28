@@ -10,9 +10,6 @@ sealed class Destinations {
     data object Splash : Destinations()
 
     @Serializable
-    data object Home : Destinations()
-
-    @Serializable
     data object Authenticate : Destinations()
 
     @Serializable
