@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.abstraction.DataRepository
 import org.adt.domain.abstraction.DomainRepository
 import org.adt.presentation.navigation.Destinations
@@ -23,6 +24,7 @@ import javax.inject.Inject
 class AuthenticateViewModel @Inject constructor(
     private val _domainRepository: DomainRepository,
     private val _dataRepository: DataRepository,
+    private val _persistenceRepository: PersistenceRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AuthenticateState())
@@ -60,25 +62,9 @@ class AuthenticateViewModel @Inject constructor(
                 return@launch
             }
 
-            val result = _dataRepository.userInfo()
-
-            if (!result.isSuccessful) {
-                populateFailure(
-                    displayError = "Не удалось получить данные пользователя",
-                    logMessage = "Role check failed",
-                    tagSuffix = "Role"
-                )
-
-                return@launch
-            }
-
-            val value = result.data()
-
-            val destination = when {
-                value.admin -> Destinations.AdminHome
-                value.coordinator -> Destinations.CoordinatorHome
-                else -> Destinations.VolunteerHome
-            }
+            val role = _dataRepository.getCurrentUserRole()
+            _persistenceRepository.saveRole(role)
+            val destination = Destinations.mapRole(role)
 
             withContext(Dispatchers.Main) {
                 navController.navigate(destination) {

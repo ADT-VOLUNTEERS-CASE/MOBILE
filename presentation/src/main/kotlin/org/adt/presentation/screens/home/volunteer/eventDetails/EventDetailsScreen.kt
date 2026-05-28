@@ -31,6 +31,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -93,12 +94,23 @@ fun EventDetailsScreen(
     }
 
     val uiState = viewModel.uiState.collectAsState().value
+    val pullToRefreshBoxState = rememberPullToRefreshState()
 
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = { refresh() },
         modifier = Modifier.fillMaxSize(),
-        state = rememberPullToRefreshState()
+        state = pullToRefreshBoxState,
+        indicator = {
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Indicator(
+                    state = pullToRefreshBoxState,
+                    isRefreshing = isRefreshing,
+                    containerColor = Mint,
+                    color = Arctic
+                )
+            }
+        }
     ) {
         EventDetailsScreenContent(
             uiState = uiState,

@@ -14,6 +14,7 @@ import org.adt.core.entities.event.CoordinatorEventsResponse
 import org.adt.core.entities.event.Cover
 import org.adt.core.entities.event.Event
 import org.adt.core.entities.event.EventApplication
+import org.adt.core.entities.rating.CoordinatorRatingResponse
 import org.adt.core.entities.request.ApplicationStatusRequest
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.EventRequest
@@ -80,6 +81,17 @@ class DataRepositoryImpl @Inject constructor(
             filename = file.name,
             body = requestFile
         )
+    }
+
+    override suspend fun getCurrentUserRole(): UserRole {
+        if (!authorized()) return UserRole.NONE
+
+        val result = userInfo()
+
+        if (!result.isSuccessful)
+            return UserRole.NONE
+
+        return result.data().toRole()
     }
 
     override suspend fun ping(): GeneralResponse<String> {
@@ -224,6 +236,8 @@ class DataRepositoryImpl @Inject constructor(
 
     override suspend fun deauthenticate() {
         persistenceRepository.removeToken()
+        persistenceRepository.removeRefreshToken()
+        persistenceRepository.removeRole()
     }
 
     override suspend fun findEvent(
@@ -325,16 +339,7 @@ class DataRepositoryImpl @Inject constructor(
         return GeneralResponse.success(response.body()!!)
     }
 
-    override suspend fun getUserRating(period: String, page: Int, size: Int): GeneralResponse<RatingResponse> {
-        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
-        val response = networkRepository.getUserRating(token, period, page, size)
 
-        if (!response.isSuccessful) {
-            return GeneralResponse.failure(response.code())
-        }
-
-        return GeneralResponse.success(response.body()!!)
-    }
 
     override suspend fun uploadCover(file: File, retried: Boolean): GeneralResponse<Cover> {
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
@@ -711,6 +716,100 @@ class DataRepositoryImpl @Inject constructor(
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return updateApplicationStatus(eventId, userId, status, reason)
+            }
+            persistenceRepository.removeToken()
+            return GeneralResponse.failure(403, "Session expired")
+        }
+
+        return GeneralResponse.failure(response.code())
+    }
+
+    override suspend fun getUserRating(period: String, page: Int, size: Int): GeneralResponse<RatingResponse> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val response = networkRepository.getUserRating(token, period, page, size)
+
+        if (!response.isSuccessful) {
+            return GeneralResponse.failure(response.code())
+        }
+
+        return GeneralResponse.success(response.body()!!)
+    }
+
+    override suspend fun getCoordinatorRating(period: String, page: Int, size: Int, retried: Boolean): GeneralResponse<CoordinatorRatingResponse> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
+        val response = networkRepository.getCoordinatorRating(token, period, page, size)
+
+        if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
+
+        if (response.code() == 403) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return getCoordinatorRating(period, page, size, true)
+            }
+            persistenceRepository.removeToken()
+            return GeneralResponse.failure(403, "Session expired")
+        }
+
+        return GeneralResponse.failure(response.code())
+    }
+
+    override suspend fun assembleCoordinatorReportFile(
+        period: String,
+        retried: Boolean
+    ): GeneralResponse<ResponseBody> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
+        val response = networkRepository.assembleCoordinatorReportFile(token, period)
+
+        if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
+
+        if (response.code() == 403) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return assembleCoordinatorReportFile(period, true)
+            }
+            persistenceRepository.removeToken()
+            return GeneralResponse.failure(403, "Session expired")
+        }
+
+        return GeneralResponse.failure(response.code())
+    }
+
+    override suspend fun assembleUserReportFileByAdmin(
+        id: Long,
+        period: String,
+        retried: Boolean
+    ): GeneralResponse<ResponseBody> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
+        val response = networkRepository.assembleCoordinatorReportFile(token, period)
+
+        if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
+
+        if (response.code() == 403) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return assembleUserReportFileByAdmin(id, period, true)
+            }
+            persistenceRepository.removeToken()
+            return GeneralResponse.failure(403, "Session expired")
+        }
+
+        return GeneralResponse.failure(response.code())
+    }
+
+    override suspend fun assembleCoordinatorReportFileByAdmin(
+        id: Long,
+        period: String,
+        retried: Boolean
+    ): GeneralResponse<ResponseBody> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
+        val response = networkRepository.assembleCoordinatorReportFile(token, period)
+
+        if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
+
+        if (response.code() == 403) {
+            val refresh = requestFreshAccessToken()
+            if (refresh.isSuccessful) {
+                return assembleCoordinatorReportFileByAdmin(id, period, true)
             }
             persistenceRepository.removeToken()
             return GeneralResponse.failure(403, "Session expired")

@@ -1,11 +1,14 @@
 package org.adt.data.repository
 
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import org.adt.core.entities.Location
 import org.adt.core.entities.Tag
 import org.adt.core.entities.event.CoordinatorEventsResponse
 import org.adt.core.entities.event.Cover
 import org.adt.core.entities.event.Event
+import org.adt.core.entities.rating.CoordinatorRatingResponse
+import org.adt.core.entities.rating.RatingResponse
 import org.adt.core.entities.request.ApplicationStatusRequest
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.EventRequest
@@ -21,7 +24,6 @@ import org.adt.core.entities.response.AuthResponse
 import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.FindLocationResponse
 import org.adt.core.entities.response.UserEventResponse
-import org.adt.core.entities.rating.RatingResponse
 import org.adt.core.entities.response.UserResponse
 import org.adt.core.entities.user.statistics.UserStatistics
 import retrofit2.Response
@@ -35,6 +37,7 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Streaming
 
 interface RetrofitRepository {
     //---------------------
@@ -132,6 +135,87 @@ interface RetrofitRepository {
     ): Response<AuthResponse>
     //endregion
 
+    //-----------------------
+    //   report-controller
+    //-----------------------
+    //region report controller content
+    /**
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           504 | Gateway Time-out
+     */
+    @Streaming
+    @GET("v2/user/coordinator/assemble_report_file")
+    suspend fun assembleCoordinatorReportFile(
+        @Header("Authorization") auth: String,
+        @Query("period") period: String? = "monthly", // monthly or overall
+    ): Response<ResponseBody>
+
+    /**
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           504 | Gateway Time-out
+     */
+    @Streaming
+    @GET("v2/user/admin/assemble_user_report_file")
+    suspend fun assembleUserReportFileByAdmin(
+        @Header("Authorization") auth: String,
+        @Query("id") id: Long? = null,
+        @Query("period") period: String? = "monthly",
+    ): Response<ResponseBody>
+
+    /**
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           504 | Gateway Time-out
+     */
+    @Streaming
+    @GET("v2/user/admin/assemble_coordinator_report_file")
+    suspend fun assembleCoordinatorReportFileByAdmin(
+        @Header("Authorization") auth: String,
+        @Query("id") id: Long? = null,
+        @Query("period") period: String? = "monthly",
+    ): Response<ResponseBody>
+    //endregion
+
+    //-----------------------
+    //   rating-controller
+    //-----------------------
+    //region rating controller content
+    /**
+     * SUCCESS:
+     *
+     *           200 | OK
+     *
+     * ERRORS:
+     *
+     *           400 | Invalid data
+     *
+     *           401 | Coordinator isn't authorized
+     *
+     *           403 | Forbidden (Expired Token)
+     */
+    @GET("v2/user/coordinator/rating")
+    suspend fun getCoordinatorRating(
+        @Header("Authorization") auth: String,
+        @Query("period") period: String? = "monthly", // monthly or overall
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20
+    ): Response<CoordinatorRatingResponse>
+    //endregion
+
     //---------------------------
     //   user-event-controller
     //---------------------------
@@ -166,7 +250,7 @@ interface RetrofitRepository {
         @Query("size") size: Int = 20
     ): Response<ApplicationsResponse>
 
-    @GET("v1/user-event/status/{eventId}")
+    @PATCH("v1/user-event/coordinator/events/{eventId}/applications/{userId}/status")
     suspend fun getApplicationStatus(
         @Header("Authorization") auth: String,
         @Path("eventId") eventId: Long,

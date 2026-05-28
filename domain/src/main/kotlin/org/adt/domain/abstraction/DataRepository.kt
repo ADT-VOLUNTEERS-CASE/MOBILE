@@ -1,5 +1,6 @@
 package org.adt.domain.abstraction
 
+import okhttp3.ResponseBody
 import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.Location
 import org.adt.core.entities.Tag
@@ -8,6 +9,7 @@ import org.adt.core.entities.event.CoordinatorEventsResponse
 import org.adt.core.entities.event.Cover
 import org.adt.core.entities.event.Event
 import org.adt.core.entities.event.EventApplication
+import org.adt.core.entities.rating.CoordinatorRatingResponse
 import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
@@ -16,6 +18,16 @@ import org.adt.core.entities.user.statistics.UserStatistics
 import java.io.File
 
 interface DataRepository {
+    fun UserResponse.toRole(): UserRole {
+        return when {
+            admin -> UserRole.ADMIN
+            coordinator -> UserRole.COORDINATOR
+            else -> UserRole.VOLUNTEER
+        }
+    }
+
+    suspend fun getCurrentUserRole(): UserRole
+
     suspend fun ping(): GeneralResponse<String>
 
     suspend fun authorized(): Boolean
@@ -91,4 +103,11 @@ interface DataRepository {
     suspend fun getApplicationStatus(eventId: Long): GeneralResponse<String>
 
     suspend fun updateApplicationStatus(eventId: Long, userId: Long, status: String, reason: String?): GeneralResponse<UserEventResponse>
+
+    suspend fun getCoordinatorRating(period: String = "monthly", page: Int = 0, size: Int = 20, retried: Boolean = false): GeneralResponse<CoordinatorRatingResponse>
+
+    suspend fun assembleCoordinatorReportFile(period: String = "monthly", retried: Boolean = false): GeneralResponse<ResponseBody>
+    suspend fun assembleUserReportFileByAdmin(id: Long, period: String = "monthly", retried: Boolean = false): GeneralResponse<ResponseBody>
+    suspend fun assembleCoordinatorReportFileByAdmin(id: Long, period: String = "monthly", retried: Boolean = false): GeneralResponse<ResponseBody>
+
 }

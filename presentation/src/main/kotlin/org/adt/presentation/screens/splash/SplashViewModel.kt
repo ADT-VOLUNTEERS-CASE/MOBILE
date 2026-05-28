@@ -42,21 +42,9 @@ class SplashViewModel @Inject constructor(
 
         _authorized.update { isAuthorized }
 
-        if (!isAuthorized)
-            return Destinations.mapRole(userRole)
+        if (!isAuthorized) return Destinations.mapRole(userRole)
 
-        val result = _dataRepository.userInfo()
-
-        if (!result.isSuccessful)
-            return Destinations.mapRole(userRole)
-
-        val value = result.data()
-
-        userRole = when {
-            value.admin -> UserRole.ADMIN
-            value.coordinator -> UserRole.COORDINATOR
-            else -> UserRole.VOLUNTEER
-        }
+        userRole = _dataRepository.getCurrentUserRole()
 
         Log.d("SplashViewModel::Role", userRole.toString())
 

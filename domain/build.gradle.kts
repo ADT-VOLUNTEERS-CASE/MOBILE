@@ -65,4 +65,8 @@ dependencies {
     testImplementation(libs.junit)
 
     testImplementation(libs.mockk)
+
+    implementation(libs.retrofit)
+    implementation(libs.converter.scalars)
+    implementation(libs.converter.serialization)
 }

@@ -16,8 +16,11 @@ import org.adt.presentation.screens.exception.NoConnectionScreen
 import org.adt.presentation.screens.exception.NoConnectionScreenViewModel
 import org.adt.presentation.screens.home.admin.AdminScreen
 import org.adt.presentation.screens.home.admin.AdminViewModel
-import org.adt.presentation.screens.home.coordinator.CoordinatorScreen
-import org.adt.presentation.screens.home.coordinator.CoordinatorViewModel
+import org.adt.presentation.screens.home.coordinator.home.CoordinatorScreen
+import org.adt.presentation.screens.home.coordinator.home.CoordinatorViewModel
+import org.adt.presentation.screens.home.coordinator.profile.CoordinatorProfileScreen
+import org.adt.presentation.screens.home.coordinator.profile.CoordinatorProfileViewModel
+import org.adt.presentation.screens.home.coordinator.report.ReportScreen
 import org.adt.presentation.screens.home.volunteer.calendar.CalendarViewModel
 import org.adt.presentation.screens.home.volunteer.calendar.VolunteerCalendarScreen
 import org.adt.presentation.screens.home.volunteer.eventDetails.EventDetailsScreen
@@ -28,6 +31,7 @@ import org.adt.presentation.screens.home.volunteer.profile.ProfileScreen
 import org.adt.presentation.screens.home.volunteer.profile.ProfileViewModel
 import org.adt.presentation.screens.home.volunteer.rating.RatingScreen
 import org.adt.presentation.screens.home.volunteer.rating.RatingViewModel
+import org.adt.presentation.screens.home.volunteer.rating.ReportViewModel
 import org.adt.presentation.screens.home.volunteer.statistics.StatisticsScreen
 import org.adt.presentation.screens.home.volunteer.statistics.StatisticsViewModel
 import org.adt.presentation.screens.register.RegisterScreen
@@ -81,19 +85,35 @@ fun NavigationGraph(navController: NavHostController, innerPadding: PaddingValue
             RegisterScreen(navController, viewModel)
         }
 
+
         composable<Destinations.AdminRegister> {
             val viewModel: AdminRegisterViewModel = hiltViewModel()
             AdminRegisterScreen(navController, viewModel)
         }
-
-        composable<Destinations.AdminHome> {
+        composable<Destinations.AdminUsers> {
             val viewModel: AdminViewModel = hiltViewModel()
             AdminScreen(navController, viewModel)
         }
+        composable<Destinations.AdminProfile> {
+            val viewModel: AdminViewModel = hiltViewModel()
+            AdminScreen(navController, viewModel)
+        }
+
+
         composable<Destinations.CoordinatorHome> {
             val viewModel: CoordinatorViewModel = hiltViewModel()
             CoordinatorScreen(navController, viewModel)
         }
+        composable<Destinations.CoordinatorReport> {
+            val viewModel: ReportViewModel = hiltViewModel()
+            ReportScreen(viewModel)
+        }
+        composable<Destinations.CoordinatorProfile> {
+            val viewModel: CoordinatorProfileViewModel = hiltViewModel()
+            CoordinatorProfileScreen(navController, viewModel)
+        }
+
+
         composable<Destinations.VolunteerHome> {
             val viewModel: VolunteerViewModel = hiltViewModel()
             VolunteerScreen(navController, viewModel)
@@ -127,6 +147,8 @@ fun NavigationGraph(navController: NavHostController, innerPadding: PaddingValue
                     navController.popBackStack()
                 })
         }
+
+
         composable<Destinations.NoConnectionScreen> {
             val viewModel: NoConnectionScreenViewModel = hiltViewModel()
             NoConnectionScreen(Modifier, navController, viewModel)

@@ -3,6 +3,7 @@ package org.adt.presentation.screens.home.admin
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -28,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -35,6 +38,7 @@ import org.adt.presentation.components.CustomSearchTextField
 import org.adt.presentation.components.CustomTextField
 import org.adt.presentation.components.TypingText
 import org.adt.presentation.components.buttons.ButtonColorScheme
+import org.adt.presentation.components.buttons.ButtonStyle
 import org.adt.presentation.components.buttons.CustomButton
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
@@ -50,6 +54,21 @@ fun AdminScreen(
     viewModel: AdminViewModel,
 ) {
     val uiState = viewModel.uiState.collectAsState().value
+    val context = LocalContext.current
+
+    LaunchedEffect(uiState.downloadedFile) {
+        uiState.downloadedFile?.let { body ->
+            val success = viewModel.saveFileToDownloads(
+                context = context,
+                responseBody = body,
+                fileName = "report-${System.currentTimeMillis()}.pdf"
+            )
+            if (success) {
+                Toast.makeText(context, "Отчет сохранен в Загрузки", Toast.LENGTH_SHORT).show()
+            }
+            viewModel.onFileSaved()
+        }
+    }
 
     AdminScreenContent(
         uiState = uiState,
@@ -66,7 +85,6 @@ fun AdminScreen(
                 }
             }
         },
-        bottomBarNavigateAction = { navController.navigate(it) },
         onTagAction = { action ->
             when (action) {
                 "create" -> viewModel.createTag()
@@ -79,7 +97,9 @@ fun AdminScreen(
         onTagInputChange = { viewModel.onTagInputChange(it) },
         onEventIdChange = { viewModel.onDeleteEventIdChange(it) },
         onCoverIdChange = { viewModel.onDeleteCoverIdChange(it) },
-        onClearToast = { viewModel.clearToast() }
+        onClearToast = { viewModel.clearToast() },
+        onDownloadAction = { viewModel.downloadReport(it) },
+        onToggleReport = { viewModel.toggleReportType(uiState.reportType) },
     )
 }
 
@@ -99,6 +119,8 @@ fun AdminScreenContent(
     onEventIdChange: (String) -> Unit = {},
     onCoverIdChange: (String) -> Unit = {},
     onClearToast: () -> Unit = {},
+    onDownloadAction: (String) -> Unit = {},
+    onToggleReport: (String) -> Unit = {},
     animationOverride: Boolean = false,
 ) {
     val context = LocalContext.current
@@ -281,6 +303,54 @@ fun AdminScreenContent(
                         colors = ButtonColorScheme(Color.Red.copy(0.5f), Graphite)
                     )
                 }
+
+                HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp))
+
+                Text(
+                    if (uiState.reportType == "monthly") "Отчет за месяц" else "Отчет за все время",
+                    style = VolunteersCaseTheme.typography.titleLarge.copy(textAlign = TextAlign.Center),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .clickable {
+                            onToggleReport(if (uiState.reportType == "monthly") "overall" else "monthly")
+                        }
+                )
+
+                Column {
+                    CustomTextField(
+                        Modifier,
+                        "ID Волонтера",
+                        uiState.deleteEventId,
+                        onValueChange = onEventIdChange
+                    )
+
+                    CustomButton(
+                        text = "Скачать",
+                        Modifier,
+                        onClick = { onDownloadAction("user") },
+                        style = ButtonStyle.Outlined
+                    )
+                }
+
+                HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp, vertical = 10.dp))
+
+                Column {
+                    CustomTextField(
+                        Modifier,
+                        "ID Координатора",
+                        uiState.deleteEventId,
+                        onValueChange = onEventIdChange
+                    )
+
+                    CustomButton(
+                        text = "Скачать",
+                        Modifier,
+                        onClick = { onDownloadAction("coordinator") },
+                        style = ButtonStyle.Outlined
+                    )
+                }
+
             }
 
             TextButton(logoutAction, contentPadding = PaddingValues(2.dp)) {

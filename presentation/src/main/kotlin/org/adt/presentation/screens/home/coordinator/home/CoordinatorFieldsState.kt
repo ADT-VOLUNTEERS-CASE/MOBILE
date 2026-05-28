@@ -1,4 +1,4 @@
-package org.adt.presentation.screens.home.coordinator
+package org.adt.presentation.screens.home.coordinator.home
 
 import java.time.LocalDateTime
 

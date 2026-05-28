@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import org.adt.core.annotations.RepositoryImpl
+import org.adt.core.entities.UserRole
 import org.adt.data.abstraction.PersistenceRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -24,11 +25,24 @@ class PersistenceRepositoryImpl @Inject constructor(
     companion object {
         private val KEY_TOKEN = stringPreferencesKey("accessToken")
         private val KEY_REFRESH_TOKEN = stringPreferencesKey("requestFreshAccessToken")
+        private val KEY_ROLE = stringPreferencesKey("userRole")
     }
 
     val tokenFlow: Flow<String?> = context.dataStore.data.map { prefs ->
         prefs[KEY_TOKEN]?.let { "Bearer $it" }
     }
+
+    override val roleFlow: Flow<UserRole> =
+        context.dataStore.data.map { prefs ->
+
+            try {
+                UserRole.valueOf(
+                    prefs[KEY_ROLE] ?: UserRole.NONE.name
+                )
+            } catch (_: Exception) {
+                UserRole.NONE
+            }
+        }
 
     override suspend fun authorized(): Boolean {
         val token = context.dataStore.data
@@ -74,6 +88,36 @@ class PersistenceRepositoryImpl @Inject constructor(
     override suspend fun removeRefreshToken() {
         context.dataStore.edit { prefs ->
             prefs.remove(KEY_REFRESH_TOKEN)
+        }
+    }
+
+    override suspend fun saveRole(role: UserRole) {
+        Log.d("RoleStorage", "Saving role: ${role.name}")
+
+        context.dataStore.edit { prefs ->
+            prefs[KEY_ROLE] = role.name
+        }
+    }
+
+    override suspend fun getRole(): UserRole {
+        val role = context.dataStore.data
+            .map { prefs -> prefs[KEY_ROLE] }
+            .firstOrNull()
+
+        Log.d("RoleStorage", "Getting role: $role")
+
+        return try {
+            UserRole.valueOf(role ?: UserRole.NONE.name)
+        } catch (_: Exception) {
+            UserRole.NONE
+        }
+    }
+
+    override suspend fun removeRole() {
+        Log.d("RoleStorage", "Removing role")
+
+        context.dataStore.edit { prefs ->
+            prefs.remove(KEY_ROLE)
         }
     }
 }

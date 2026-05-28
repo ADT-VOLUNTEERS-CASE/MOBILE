@@ -1,5 +1,6 @@
-package org.adt.presentation.screens.home.coordinator
+package org.adt.presentation.screens.home.coordinator.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -8,7 +9,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
 import org.adt.core.entities.Location
 import org.adt.domain.abstraction.DataRepository
@@ -23,6 +23,9 @@ class CoordinatorViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(CoordinatorState())
     private val _fieldsState = MutableStateFlow(CoordinatorFieldsState())
+
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
     val uiState: StateFlow<CoordinatorState> = _uiState.asStateFlow()
     val fieldsState: StateFlow<CoordinatorFieldsState> = _fieldsState.asStateFlow()
@@ -64,9 +67,19 @@ class CoordinatorViewModel @Inject constructor(
             val response = _dataRepository.uploadCover(file)
 
             if (response.isSuccessful) {
-                _uiState.update { it.copy(selectedCover = response.data(), isUploadingCover = false) }
+                _uiState.update {
+                    it.copy(
+                        selectedCover = response.data(),
+                        isUploadingCover = false
+                    )
+                }
             } else {
-                _uiState.update { it.copy(createError = "Ошибка загрузки фото", isUploadingCover = false) }
+                _uiState.update {
+                    it.copy(
+                        createError = "Ошибка загрузки фото",
+                        isUploadingCover = false
+                    )
+                }
             }
         }
     }
@@ -138,10 +151,12 @@ class CoordinatorViewModel @Inject constructor(
             _uiState.update { it.copy(eventsLoading = true) }
             val response = _dataRepository.getCoordinatorEvents()
             if (response.isSuccessful) {
-                _uiState.update { it.copy(
-                    myEvents = response.data().content,
-                    eventsLoading = false
-                ) }
+                _uiState.update {
+                    it.copy(
+                        myEvents = response.data().content,
+                        eventsLoading = false
+                    )
+                }
             } else {
                 _uiState.update { it.copy(eventsLoading = false) }
             }
@@ -158,12 +173,5 @@ class CoordinatorViewModel @Inject constructor(
 
     fun clearMessage() {
         _uiState.update { it.copy(createError = null) }
-    }
-
-    fun deauthenticate(navigateAction: () -> Unit) {
-        viewModelScope.launch {
-            Dispatchers.IO { _dataRepository.deauthenticate() }
-            navigateAction.invoke()
-        }
     }
 }

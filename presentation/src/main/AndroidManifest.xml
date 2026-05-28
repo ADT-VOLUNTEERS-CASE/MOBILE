@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VolunteersCase">
         <activity
-            android:name=".screens.MainActivity"
+            android:name=".screens.main.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.VolunteersCase">
             <intent-filter>

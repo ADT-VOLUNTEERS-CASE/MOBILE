@@ -1,20 +1,29 @@
-package org.adt.presentation.screens.home.volunteer.rating
+package org.adt.presentation.screens.home.coordinator.report
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -29,39 +38,62 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.adt.core.entities.rating.UserRating
 import org.adt.presentation.components.rating.ErrorBanner
 import org.adt.presentation.components.rating.PeriodSwitch
-import org.adt.presentation.components.rating.PodiumRow
-import org.adt.presentation.components.rating.RankingCard
+import org.adt.presentation.screens.home.volunteer.rating.ReportViewModel
+import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable
-fun RatingScreen(viewModel: RatingViewModel) {
+fun ReportScreen(viewModel: ReportViewModel) {
     val state by viewModel.state.collectAsState()
 
-    RatingScreenContent(
+    val uiState = viewModel.state.collectAsState().value
+    val context = LocalContext.current
+
+    LaunchedEffect(uiState.downloadedFile) {
+        uiState.downloadedFile?.let { body ->
+            val success = viewModel.saveFileToDownloads(
+                context = context,
+                responseBody = body,
+                fileName = "report-${System.currentTimeMillis()}.pdf"
+            )
+            if (success) {
+                Toast.makeText(context, "Отчет сохранен в Загрузки", Toast.LENGTH_SHORT).show()
+            }
+            viewModel.onFileSaved()
+        }
+    }
+
+    ReportScreenContent(
         state = state,
         onRequestNextPage = viewModel::requestNextPage,
         onRefreshAction = viewModel::refresh,
         onSetPeriodAction = viewModel::setPeriod,
-        onDismissErrorAction = viewModel::dismissError
+        onDismissErrorAction = viewModel::dismissError,
+        onDownloadAction = viewModel::downloadReport
+
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RatingScreenContent(
-    state: RatingState,
+fun ReportScreenContent(
+    state: ReportState,
     onRequestNextPage: () -> Unit = {},
     onRefreshAction: () -> Unit = {},
     onSetPeriodAction: (newPeriod: String) -> Unit = {},
     onDismissErrorAction: () -> Unit = {},
+    onDownloadAction: () -> Unit = {},
 ) {
 
     val listState = rememberLazyListState()
@@ -121,11 +153,6 @@ fun RatingScreenContent(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 state = listState,
             ) {
-
-                item {
-                    PeriodSwitch(state.period, onSetPeriodAction)
-                }
-
                 if (state.error != null) {
                     item {
                         ErrorBanner(
@@ -137,11 +164,62 @@ fun RatingScreenContent(
 
                 item { Spacer(Modifier.height(4.dp)) }
 
-                if (state.entries.isNotEmpty()) {
-                    item { PodiumRow(state.entries) }
+                item {
+                    Text(
+                        "Моя активность",
+                        style = VolunteersCaseTheme.typography.titleLarge,
+                    )
+                }
+
+                item { Spacer(Modifier.height(4.dp)) }
+
+                item {
+                    Button(
+                        onClick = onDownloadAction,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.White,
+                            contentColor = Abyss
+                        )
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                "Скачать отчет",
+                                style = VolunteersCaseTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Graphite.copy(0.8f)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Icon(
+                                Icons.Default.Download,
+                            null,
+                            tint = Graphite.copy(0.6f)
+                            )
+                        }
+                    }
                 }
 
                 item { Spacer(Modifier.height(8.dp)) }
+
+                item {
+                    Text(
+                        "Общий рейтинг",
+                        style = VolunteersCaseTheme.typography.titleLarge,
+                    )
+                }
+
+//                if (state.entries.isNotEmpty()) {
+//                    item { PodiumRow(state.entries) }
+//                }
+
+
+                item { Spacer(Modifier.height(4.dp)) }
 
                 val startFrom = if (state.entries.size >= 3) 3 else 0
                 if (state.isLoading) {
@@ -167,13 +245,19 @@ fun RatingScreenContent(
 
                     itemsIndexed(
                         state.entries.drop(startFrom),
-                        key = { _, entry -> entry.userId },
+                        key = { _, entry -> entry.coordinatorId },
                     ) { idx, entry ->
-                        RankingCard(
-                            entry = entry,
-                            rank = startFrom + idx + 1,
-                            index = idx,
-                        )
+//                        RankingCard(
+//                            entry = entry,
+//                            rank = startFrom + idx + 1,
+//                            index = idx,
+//                        )
+
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                            Text((idx+1).toString())
+                            Text(entry.firstname)
+
+                        }
                     }
                 }
 
@@ -199,6 +283,13 @@ fun RatingScreenContent(
             }
         }
     }
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .padding(horizontal = 30.dp, vertical = 100.dp),
+        contentAlignment = Alignment.BottomCenter
+    ) { PeriodSwitch(state.period, onSetPeriodAction) }
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
@@ -217,10 +308,9 @@ private fun RatingScreenPreview() {
         UserRating(userId = 4, firstname = "Михаил", lastname = "Козлов", workedMinutes = 600),
     )
     VolunteersCaseTheme {
-        RatingScreenContent(
-            state = RatingState(
-                isLoading = false,
-                entries = previewEntries
+        ReportScreenContent(
+            state = ReportState(
+                isLoading = false
             )
         )
     }

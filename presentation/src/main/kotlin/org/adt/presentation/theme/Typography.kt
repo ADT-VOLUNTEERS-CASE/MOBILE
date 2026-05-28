@@ -109,7 +109,9 @@ val extendedTypography = AppTypography(
         color = Color.White
     ),
 
-    labelLarge = TextStyle.Default,
+    labelLarge = TextStyle(
+        fontFamily = InterDisplayFontFamily
+    ),
 
     labelMedium = TextStyle.Default,
 

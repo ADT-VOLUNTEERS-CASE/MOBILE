@@ -1,5 +1,6 @@
 package org.adt.presentation.screens.home.admin
 
+import okhttp3.ResponseBody
 import org.adt.core.entities.Location
 import org.adt.core.entities.event.Event
 
@@ -14,7 +15,12 @@ data class AdminState(
     val tagInput: String = "",
     val deleteEventId: String = "",
     val deleteCoverId: String = "",
-    val toastMessage: String? = null
+    val toastMessage: String? = null,
+    //report
+    val reportType: String = "monthly",
+    val downloadedFile: ResponseBody? = null,
+    val userInput: String = "",
+    val coordinatorInput: String = "",
 ) {
     val isFormValid: Boolean get() = searchValue.isNotBlank()
 }
