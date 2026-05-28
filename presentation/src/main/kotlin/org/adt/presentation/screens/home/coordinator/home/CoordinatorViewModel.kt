@@ -147,6 +147,7 @@ class CoordinatorViewModel @Inject constructor(
     }
 
     fun loadMyEvents() {
+        _isRefreshing.update { true }
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { it.copy(eventsLoading = true) }
             val response = _dataRepository.getCoordinatorEvents()
@@ -161,6 +162,7 @@ class CoordinatorViewModel @Inject constructor(
                 _uiState.update { it.copy(eventsLoading = false) }
             }
         }
+        _isRefreshing.update { false }
     }
 
     fun setShowDatePicker(show: Boolean) {

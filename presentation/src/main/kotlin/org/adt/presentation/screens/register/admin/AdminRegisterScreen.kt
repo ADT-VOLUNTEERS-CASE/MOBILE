@@ -2,10 +2,9 @@ package org.adt.presentation.screens.register.admin
 
 import android.widget.Toast
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,15 +14,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,34 +30,29 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import org.adt.core.entities.UserRole
 import org.adt.presentation.R
 import org.adt.presentation.components.CustomTextField
-import org.adt.presentation.components.TypingText
-import org.adt.presentation.components.buttons.CustomLiteRoundedButton
-import org.adt.presentation.components.buttons.CustomTranslucentButton
+import org.adt.presentation.components.buttons.CustomButton
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Lagoon
-import org.adt.presentation.theme.Silver
+import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.theme.VolunteersCaseTheme.typography
-import org.adt.presentation.theme.extendedColor
 
 @Composable
 fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegisterViewModel) {
@@ -66,13 +60,12 @@ fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegist
     val fieldsState = viewModel.fieldsState.collectAsState().value
 
     AdminRegisterScreenContent(
-        uiState,
-        fieldsState,
-        { newState -> viewModel.updateInputs(newState) },
-        { viewModel.onStartClick() },
-        { viewModel.onRoleDialogToggle() },
-        { navController.navigateUp() },
-        { role -> viewModel.onRoleSelected(role) }
+        uiState = uiState,
+        fieldsState = fieldsState,
+        updateFieldsAction = { newState -> viewModel.updateInputs(newState) },
+        onStartButtonClickAction = { viewModel.onStartClick() },
+        roleDialogToggleAction = { viewModel.onRoleDialogToggle() },
+        roleSelectedAction = { role -> viewModel.onRoleSelected(role) }
     )
 }
 
@@ -83,52 +76,10 @@ fun AdminRegisterScreenContent(
     updateFieldsAction: (newState: AdminRegisterFieldsState) -> Unit = {},
     onStartButtonClickAction: () -> Unit = {},
     roleDialogToggleAction: () -> Unit = {},
-    navigateUpAction: () -> Unit = {},
     roleSelectedAction: (role: UserRole) -> Unit = {},
     animationOverride: Boolean = false,
 ) {
     val context = LocalContext.current
-    val offsetYText = remember {
-        Animatable(
-            if (!animationOverride) -2000f
-            else -700f
-        )
-    }
-
-    val offsetYContent = remember {
-        Animatable(
-            if (!animationOverride) 2600f
-            else 0f
-        )
-    }
-
-    val rotationIcon = remember { Animatable(0f) }
-    val alphaDialog = remember { Animatable(0f) }
-
-    LaunchedEffect(Unit) {
-        coroutineScope {
-            launch {
-                offsetYText.animateTo(-700f, tween(1200))
-            }
-            launch {
-                offsetYContent.animateTo(0f, tween(900))
-            }
-        }
-    }
-
-    LaunchedEffect(uiState.isRoleDialogVisible) {
-        if (uiState.isRoleDialogVisible) {
-            coroutineScope {
-                launch { alphaDialog.animateTo(1f, tween(400, easing = FastOutSlowInEasing)) }
-                launch { rotationIcon.animateTo(-90f, tween(400)) }
-            }
-        } else {
-            coroutineScope {
-                launch { alphaDialog.animateTo(0f, tween(400, easing = FastOutSlowInEasing)) }
-                launch { rotationIcon.animateTo(0f, tween(400)) }
-            }
-        }
-    }
 
     LaunchedEffect(uiState.registerResult) {
         uiState.registerResult?.let { result ->
@@ -139,173 +90,175 @@ fun AdminRegisterScreenContent(
     Box(
         Modifier
             .fillMaxSize()
-            .background(extendedColor.secondaryBackground),
-        contentAlignment = Alignment.Center
+            .background(Milk)
     ) {
-        Text(
-            "VOLUNTEERS",
-            Modifier.offset { IntOffset(0, offsetYText.value.toInt()) },
-            style = typography.displayLarge.copy(Abyss, 40.sp)
-        )
-
         Column(
             Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .offset { IntOffset(0, offsetYContent.value.toInt()) },
-            Arrangement.Bottom,
-            Alignment.CenterHorizontally
+                .padding(horizontal = 20.dp)
         ) {
+            Spacer(Modifier.height(80.dp))
+
             Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-                    .clip(RoundedCornerShape(topStart = 35.dp, topEnd = 35.dp))
-                    .background(extendedColor.background)
-                    .padding(horizontal = 22.dp),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(Modifier.height(58.dp))
-
-                TypingText(Modifier, "Познакомите?", TextAlign.Center, 40L, 900)
-
-                Spacer(Modifier.height(4.dp))
-
-                Row(
-                    Modifier.fillMaxWidth(),
-                    Arrangement.Center,
-                    Alignment.CenterVertically
-                ) {
-                    Row(
-                        Modifier.clickable { roleDialogToggleAction.invoke() },
-                        Arrangement.Center,
-                        Alignment.CenterVertically
-                    ) {
-                        Text(
-                            when (uiState.chosenRole) {
-                                UserRole.ADMIN -> "Админ"
-                                UserRole.COORDINATOR -> "Координатор"
-                                UserRole.VOLUNTEER -> "Волонтер"
-                                UserRole.NONE -> "Роль не выбрана"
-                            }, style = typography.titleMedium.copy(Lagoon)
-                        )
-
-                        Spacer(Modifier.width(4.dp))
-
-                        Icon(
-                            painterResource(R.drawable.ic_down),
-                            "Open role choice",
-                            Modifier
-                                .size(12.dp)
-                                .rotate(rotationIcon.value),
-                            Lagoon
-                        )
-                    }
-                }
+                Text(
+                    text = "VOLUNTEERS",
+                    style = typography.displayLarge.copy(
+                        color = Abyss.copy(alpha = 0.15f),
+                        fontSize = 32.sp,
+                        letterSpacing = 4.sp
+                    ),
+                    textAlign = TextAlign.Center
+                )
 
                 Spacer(Modifier.height(24.dp))
 
-                CustomTextField(
-                    Modifier,
-                    "Имя"
-                ) { updateFieldsAction.invoke(fieldsState.copy(firstName = it)) }
-
-                Spacer(Modifier.height(15.dp))
-
-                CustomTextField(
-                    Modifier,
-                    "Фамилия",
-                ) { updateFieldsAction.invoke(fieldsState.copy(lastName = it)) }
-
-                Spacer(Modifier.height(15.dp))
-
-                CustomTextField(
-                    Modifier,
-                    "Отчество",
-                ) { updateFieldsAction.invoke(fieldsState.copy(patronymic = it)) }
-
-                Spacer(Modifier.height(15.dp))
-
-                CustomTextField(
-                    Modifier,
-                    "Телефон",
-                ) { updateFieldsAction.invoke(fieldsState.copy(phoneNumber = it)) }
-
-                Spacer(Modifier.height(15.dp))
-
-                CustomTextField(
-                    Modifier,
-                    "Почта",
-                ) { updateFieldsAction.invoke(fieldsState.copy(email = it)) }
-
-                Spacer(Modifier.height(15.dp))
-
-                CustomTextField(
-                    Modifier,
-                    "Пароль",
-                    type = "password"
-                ) { updateFieldsAction.invoke(fieldsState.copy(password = it)) }
-
-                Spacer(Modifier.height(15.dp))
-
-                CustomTranslucentButton(
-                    "Зарегистрировать",
-                    fieldsState.isFormValid,
-                    uiState.isLoading
-                ) { onStartButtonClickAction.invoke() }
-
-                Spacer(Modifier.height(60.dp))
+                Surface(
+                    shape = CircleShape,
+                    color = Arctic,
+                    border = BorderStroke(1.dp, Graphite.copy(alpha = 0.06f)),
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .clickable { roleDialogToggleAction.invoke() }
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = when (uiState.chosenRole) {
+                                UserRole.ADMIN -> "Администратор"
+                                UserRole.COORDINATOR -> "Координатор"
+                                UserRole.VOLUNTEER -> "Волонтер"
+                                UserRole.NONE -> "Выбрать роль"
+                            },
+                            style = typography.labelMedium.copy(color = Lagoon, fontWeight = FontWeight.Bold)
+                        )
+                    }
+                }
             }
-        }
 
-        Box(
-            Modifier
-                .fillMaxSize()
-                .padding(start = 12.dp, top = 24.dp)
-        ) {
-            IconButton({ navigateUpAction.invoke() }, Modifier.size(32.dp)) {
-                Icon(
-                    painterResource(R.drawable.ic_expand_left),
-                    "Return",
-                    Modifier.fillMaxSize(),
-                    Graphite
-                )
+            Spacer(Modifier.height(32.dp))
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(28.dp),
+                color = Arctic,
+                border = BorderStroke(1.dp, Graphite.copy(alpha = 0.04f))
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    CustomTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = "Имя",
+                        value = fieldsState.firstName,
+                        onValueChange = { updateFieldsAction.invoke(fieldsState.copy(firstName = it)) }
+                    )
+
+                    CustomTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = "Фамилия",
+                        value = fieldsState.lastName,
+                        onValueChange = { updateFieldsAction.invoke(fieldsState.copy(lastName = it)) }
+                    )
+
+                    CustomTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = "Отчество",
+                        value = fieldsState.patronymic,
+                        onValueChange = { updateFieldsAction.invoke(fieldsState.copy(patronymic = it)) }
+                    )
+
+                    CustomTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = "Телефон",
+                        value = fieldsState.phoneNumber,
+                        onValueChange = { updateFieldsAction.invoke(fieldsState.copy(phoneNumber = it)) }
+                    )
+
+                    CustomTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = "Почта",
+                        value = fieldsState.email,
+                        onValueChange = { updateFieldsAction.invoke(fieldsState.copy(email = it)) }
+                    )
+
+                    CustomTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = "Пароль",
+                        value = fieldsState.password,
+                        type = "password",
+                        onValueChange = { updateFieldsAction.invoke(fieldsState.copy(password = it)) }
+                    )
+
+                    Spacer(Modifier.height(8.dp))
+
+                    CustomButton(
+                        text = "Зарегистрировать",
+                        onClick = { onStartButtonClickAction.invoke() },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
+
+            Spacer(Modifier.height(40.dp))
         }
 
         if (uiState.isRoleDialogVisible) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .clickable(
-                        interactionSource = null, indication = null
-                    ) { roleDialogToggleAction.invoke() })
-
-            Box(
-                Modifier
-                    .fillMaxWidth(0.6f)
-                    .alpha(alphaDialog.value)
-                    .background(Graphite.copy(0.9f), RoundedCornerShape(15.dp))
-                    .border(2.dp, Silver, RoundedCornerShape(15.dp))
-                    .padding(20.dp)
-            ) {
-                Column(Modifier.fillMaxWidth(), Arrangement.spacedBy(8.dp)) {
-                    UserRole.entries.take(3).forEach { userRole ->
-                        val chosen = userRole == uiState.chosenRole
+            Dialog(onDismissRequest = { roleDialogToggleAction.invoke() }) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(0.85f),
+                    shape = RoundedCornerShape(24.dp),
+                    color = Arctic,
+                    border = BorderStroke(1.dp, Graphite.copy(alpha = 0.08f))
+                ) {
+                    Column(
+                        modifier = Modifier.padding(24.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
                         Text(
-                            when (userRole) {
-                                UserRole.ADMIN -> "Админ"
-                                UserRole.COORDINATOR -> "Координатор"
-                                else -> "Волонтер"
-                            }, Modifier.clickable { roleSelectedAction.invoke(userRole) },
-                            style = typography.titleMedium.copy(
-                                if (chosen) Lagoon else Arctic,
-                                fontWeight = if (chosen) FontWeight.Bold else FontWeight.Medium
-                            )
+                            text = "Выберите роль",
+                            style = typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Abyss,
+                            modifier = Modifier.padding(bottom = 8.dp)
                         )
-                    }
 
-                    CustomLiteRoundedButton("Отмена") { roleDialogToggleAction.invoke() }
+                        UserRole.entries.take(3).forEach { userRole ->
+                            val isChosen = userRole == uiState.chosenRole
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(if (isChosen) Lagoon.copy(alpha = 0.08f) else Color.Transparent)
+                                    .clickable {
+                                        roleSelectedAction.invoke(userRole)
+                                        roleDialogToggleAction.invoke()
+                                    }
+                                    .padding(vertical = 12.dp, horizontal = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = when (userRole) {
+                                        UserRole.ADMIN -> "Администратор"
+                                        UserRole.COORDINATOR -> "Координатор"
+                                        else -> "Волонтер"
+                                    },
+                                    style = typography.titleMedium.copy(
+                                        color = if (isChosen) Lagoon else Abyss,
+                                        fontWeight = if (isChosen) FontWeight.Bold else FontWeight.Medium
+                                    )
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -14,8 +14,10 @@ import org.adt.presentation.screens.authenticate.AuthenticateScreen
 import org.adt.presentation.screens.authenticate.AuthenticateViewModel
 import org.adt.presentation.screens.exception.NoConnectionScreen
 import org.adt.presentation.screens.exception.NoConnectionScreenViewModel
-import org.adt.presentation.screens.home.admin.AdminScreen
-import org.adt.presentation.screens.home.admin.AdminViewModel
+import org.adt.presentation.screens.home.admin.dashboard.AdminDashboardScreen
+import org.adt.presentation.screens.home.admin.dashboard.AdminDashboardViewModel
+import org.adt.presentation.screens.home.admin.tools.AdminSystemToolsScreen
+import org.adt.presentation.screens.home.admin.tools.AdminSystemToolsViewModel
 import org.adt.presentation.screens.home.coordinator.home.CoordinatorScreen
 import org.adt.presentation.screens.home.coordinator.home.CoordinatorViewModel
 import org.adt.presentation.screens.home.coordinator.profile.CoordinatorProfileScreen
@@ -31,7 +33,7 @@ import org.adt.presentation.screens.home.volunteer.profile.ProfileScreen
 import org.adt.presentation.screens.home.volunteer.profile.ProfileViewModel
 import org.adt.presentation.screens.home.volunteer.rating.RatingScreen
 import org.adt.presentation.screens.home.volunteer.rating.RatingViewModel
-import org.adt.presentation.screens.home.volunteer.rating.ReportViewModel
+import org.adt.presentation.screens.home.coordinator.report.ReportViewModel
 import org.adt.presentation.screens.home.volunteer.statistics.StatisticsScreen
 import org.adt.presentation.screens.home.volunteer.statistics.StatisticsViewModel
 import org.adt.presentation.screens.register.RegisterScreen
@@ -86,17 +88,17 @@ fun NavigationGraph(navController: NavHostController, innerPadding: PaddingValue
         }
 
 
+        composable<Destinations.AdminDashboard> {
+            val viewModel: AdminDashboardViewModel = hiltViewModel()
+            AdminDashboardScreen(navController, viewModel)
+        }
         composable<Destinations.AdminRegister> {
             val viewModel: AdminRegisterViewModel = hiltViewModel()
             AdminRegisterScreen(navController, viewModel)
         }
-        composable<Destinations.AdminUsers> {
-            val viewModel: AdminViewModel = hiltViewModel()
-            AdminScreen(navController, viewModel)
-        }
-        composable<Destinations.AdminProfile> {
-            val viewModel: AdminViewModel = hiltViewModel()
-            AdminScreen(navController, viewModel)
+        composable<Destinations.AdminSystemTools> {
+            val viewModel: AdminSystemToolsViewModel = hiltViewModel()
+            AdminSystemToolsScreen(navController, viewModel)
         }
 
 

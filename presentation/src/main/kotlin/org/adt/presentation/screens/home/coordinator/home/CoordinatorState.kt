@@ -25,11 +25,4 @@ data class CoordinatorState(
     val applications: List<EventApplication> = listOf(),
     val myEvents: List<CoordinatorEventSummary> = listOf(),
     val eventsLoading: Boolean = false,
-    //rating
-    val ratingList: List<CoordinatorRatingItem> = listOf(),
-    val ratingListLoading: Boolean = false,
-    val ratingType: String = "monthly",
-    //report
-    val reportType: String = "monthly",
-    val downloadedFile: ResponseBody? = null
 )

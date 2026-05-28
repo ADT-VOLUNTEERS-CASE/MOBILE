@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.adt.domain.abstraction.DataRepository
 import javax.inject.Inject
 
@@ -26,7 +27,7 @@ class ProfileViewModel @Inject constructor(
 
     fun logout(navigateAction: () -> Unit) {
         viewModelScope.launch {
-            Dispatchers.IO { _dataRepository.deauthenticate() }
+            withContext(Dispatchers.IO) { _dataRepository.deauthenticate() }
             navigateAction.invoke()
         }
     }

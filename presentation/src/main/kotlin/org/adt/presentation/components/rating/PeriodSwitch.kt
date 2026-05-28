@@ -16,6 +16,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -42,6 +43,8 @@ fun PeriodSwitch(
 
     val selectedIndex = options.indexOfFirst { it.first == current }.coerceAtLeast(0)
     val animProgress = remember { Animatable(if (selectedIndex == 0) 0f else 1f) }
+
+    LaunchedEffect(selectedIndex) { animProgress.animateTo(selectedIndex.toFloat()) }
 
     Box(
         modifier = modifier
