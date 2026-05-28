@@ -1,5 +1,6 @@
 package org.adt.presentation.components.bars
 
+import androidx.annotation.Keep
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -58,8 +59,8 @@ import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
 
+@Keep
 object BottomBarConfigs {
-
     val volunteerItems = listOf(
         BottomNavItem.VolunteerHome,
         BottomNavItem.VolunteerCalendar,
@@ -89,70 +90,77 @@ object BottomBarConfigs {
     }
 }
 
+@Keep
 sealed class BottomNavItem(
     val route: String,
     val label: String,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector
 ) {
+    @Keep
     object VolunteerHome : BottomNavItem(
         Destinations.VolunteerHome::class.qualifiedName ?: "",
         "Главная",
         Icons.Filled.Home,
         Icons.Outlined.Home
     )
+    @Keep
     object VolunteerCalendar : BottomNavItem(
         Destinations.VolunteerCalendar::class.qualifiedName ?: "",
         "Календарь",
         Icons.Filled.CalendarMonth,
         Icons.Outlined.CalendarMonth
     )
+    @Keep
     object VolunteerStatistics : BottomNavItem(
         Destinations.VolunteerStatistics::class.qualifiedName ?: "",
         "Статистика",
         Icons.Filled.DonutLarge,
         Icons.Outlined.DonutLarge
     )
+    @Keep
     object VolunteerRating : BottomNavItem(
         Destinations.VolunteerRating::class.qualifiedName ?: "",
         "Рейтинг",
         Icons.Filled.EmojiEvents,
         Icons.Outlined.EmojiEvents
     )
+    @Keep
     object VolunteerProfile : BottomNavItem(
         Destinations.VolunteerProfile::class.qualifiedName ?: "",
         "Профиль",
         Icons.Filled.Person,
         Icons.Outlined.Person
     )
-
-
+    @Keep
     object CoordinatorHome : BottomNavItem(
         Destinations.CoordinatorHome::class.qualifiedName ?: "",
         "Главная",
         Icons.Filled.Home,
         Icons.Outlined.Home
     )
+    @Keep
     object CoordinatorRating : BottomNavItem(
         Destinations.CoordinatorReport::class.qualifiedName ?: "",
         "Рейтинг",
         Icons.Filled.EmojiEvents,
         Icons.Outlined.EmojiEvents
     )
+    @Keep
     object CoordinatorProfile : BottomNavItem(
         Destinations.CoordinatorProfile::class.qualifiedName ?: "",
         "Профиль",
         Icons.Filled.Person,
         Icons.Outlined.Person
     )
-
-
+    @Keep
     object AdminHome : BottomNavItem(
-        Destinations.AdminHome::class.qualifiedName ?: "",
+        Destinations.AdminUsers::class.qualifiedName ?: "",
         "Главная",
         Icons.Filled.Home,
         Icons.Outlined.Home
     )
+    @Keep
     object AdminProfile : BottomNavItem(
         Destinations.AdminProfile::class.qualifiedName ?: "",
         "Профиль",
