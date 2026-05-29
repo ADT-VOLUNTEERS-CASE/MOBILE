@@ -47,6 +47,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import org.adt.presentation.BuildConfig
 import org.adt.presentation.components.cards.ProfileMenuCard
 import org.adt.presentation.components.misc.NotImplementedSheet
 import org.adt.presentation.navigation.Destinations
@@ -250,7 +251,7 @@ fun CoordinatorProfileScreenContent(
             Spacer(Modifier.height(32.dp))
 
             Text(
-                text = "Версия 0.1.1",
+                text = "Версия ${BuildConfig.VERSION_NAME}",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 24.dp),

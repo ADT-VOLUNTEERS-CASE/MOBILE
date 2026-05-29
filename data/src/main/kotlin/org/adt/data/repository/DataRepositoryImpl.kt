@@ -15,6 +15,7 @@ import org.adt.core.entities.event.Cover
 import org.adt.core.entities.event.Event
 import org.adt.core.entities.event.EventApplication
 import org.adt.core.entities.rating.CoordinatorRatingResponse
+import org.adt.core.entities.rating.RatingResponse
 import org.adt.core.entities.request.ApplicationStatusRequest
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.EventRequest
@@ -27,7 +28,6 @@ import org.adt.core.entities.response.ErrorResponse
 import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
-import org.adt.core.entities.rating.RatingResponse
 import org.adt.core.entities.user.statistics.UserStatistics
 import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.abstraction.DataRepository
@@ -332,13 +332,12 @@ class DataRepositoryImpl @Inject constructor(
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
         val response = networkRepository.userStatistics(token)
 
-        if (!response.isSuccessful){
+        if (!response.isSuccessful) {
             return GeneralResponse.failure(response.code())
         }
 
         return GeneralResponse.success(response.body()!!)
     }
-
 
 
     override suspend fun uploadCover(file: File, retried: Boolean): GeneralResponse<Cover> {
@@ -724,8 +723,15 @@ class DataRepositoryImpl @Inject constructor(
         return GeneralResponse.failure(response.code())
     }
 
-    override suspend fun getUserRating(period: String, page: Int, size: Int): GeneralResponse<RatingResponse> {
-        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+    override suspend fun getUserRating(
+        period: String,
+        page: Int,
+        size: Int
+    ): GeneralResponse<RatingResponse> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(
+            401,
+            "Not authorized"
+        )
         val response = networkRepository.getUserRating(token, period, page, size)
 
         if (!response.isSuccessful) {
@@ -735,13 +741,18 @@ class DataRepositoryImpl @Inject constructor(
         return GeneralResponse.success(response.body()!!)
     }
 
-    override suspend fun getCoordinatorRating(period: String, page: Int, size: Int, retried: Boolean): GeneralResponse<CoordinatorRatingResponse> {
+    override suspend fun getCoordinatorRating(
+        period: String,
+        page: Int,
+        size: Int,
+        retried: Boolean
+    ): GeneralResponse<CoordinatorRatingResponse> {
         val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
         val response = networkRepository.getCoordinatorRating(token, period, page, size)
 
         if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
 
-        if (response.code() == 403) {
+        if (response.code() == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return getCoordinatorRating(period, page, size, true)
@@ -762,7 +773,7 @@ class DataRepositoryImpl @Inject constructor(
 
         if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
 
-        if (response.code() == 403) {
+        if (response.code() == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return assembleCoordinatorReportFile(period, true)
@@ -780,11 +791,11 @@ class DataRepositoryImpl @Inject constructor(
         retried: Boolean
     ): GeneralResponse<ResponseBody> {
         val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
-        val response = networkRepository.assembleCoordinatorReportFile(token, period)
+        val response = networkRepository.assembleUserReportFileByAdmin(token, id, period)
 
         if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
 
-        if (response.code() == 403) {
+        if (response.code() == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return assembleUserReportFileByAdmin(id, period, true)
@@ -802,11 +813,11 @@ class DataRepositoryImpl @Inject constructor(
         retried: Boolean
     ): GeneralResponse<ResponseBody> {
         val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
-        val response = networkRepository.assembleCoordinatorReportFile(token, period)
+        val response = networkRepository.assembleCoordinatorReportFileByAdmin(token, id, period)
 
         if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
 
-        if (response.code() == 403) {
+        if (response.code() == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return assembleCoordinatorReportFileByAdmin(id, period, true)

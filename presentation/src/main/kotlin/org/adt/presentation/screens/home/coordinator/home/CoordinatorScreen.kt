@@ -5,17 +5,20 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -23,44 +26,45 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import org.adt.core.entities.Location
@@ -68,18 +72,17 @@ import org.adt.core.entities.event.EventApplication
 import org.adt.presentation.components.CustomSearchTextField
 import org.adt.presentation.components.CustomTextField
 import org.adt.presentation.components.bars.SyncedTopNavigationBarCoordinator
-import org.adt.presentation.components.buttons.ButtonStyle
 import org.adt.presentation.components.buttons.ButtonVariant
 import org.adt.presentation.components.buttons.CustomButton
 import org.adt.presentation.components.cards.ApplicationCard
 import org.adt.presentation.components.cards.EventSummaryCard
-import org.adt.presentation.components.misc.rememberSyncedScrollState
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
-import org.adt.presentation.theme.Grey
 import org.adt.presentation.theme.Lagoon
+import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.Mint
+import org.adt.presentation.theme.Silver
 import org.adt.presentation.theme.Void
 import org.adt.presentation.theme.VolunteersCaseTheme
 import java.io.File
@@ -98,10 +101,10 @@ fun CoordinatorScreen(
     val fields = viewModel.fieldsState.collectAsState().value
     val scope = rememberCoroutineScope()
 
-
     CoordinatorScreenContent(
         uiState = uiState,
         fields = fields,
+        isRefreshing = isRefreshing,
         onUploadFile = { file -> viewModel.uploadCover(file) },
         onSearchLocation = { viewModel.findLocation(it) },
         onSelectLocation = { viewModel.selectLocation(it) },
@@ -113,7 +116,6 @@ fun CoordinatorScreen(
         onApprove = { eventId, userId -> viewModel.approve(eventId, userId) },
         onReject = { eventId, userId -> viewModel.reject(eventId, userId) },
         onLoadApplications = { eventId -> viewModel.loadApplications(eventId) },
-        onSettingsNavigateAction = { },
         onRefreshAction = {
             scope.launch {
                 viewModel.loadMyEvents()
@@ -121,6 +123,7 @@ fun CoordinatorScreen(
         }
     )
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -139,22 +142,12 @@ fun CoordinatorScreenContent(
     onApprove: (Long, Long) -> Unit = { _, _ -> },
     onReject: (Long, Long) -> Unit = { _, _ -> },
     onLoadApplications: (Long) -> Unit = {},
-    onSettingsNavigateAction: () -> Unit = {},
     onRefreshAction: () -> Unit = {},
     animationOverride: Boolean = false
 ) {
     val context = LocalContext.current
     val visualFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm") }
-    var showWIPSheet by remember { mutableStateOf(false) }
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-    val syncedScrollState = rememberSyncedScrollState()
-    var isFilterChipSelected by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
 
-    val pagerState = rememberPagerState(
-        initialPage = 0,
-        pageCount = { 2 }
-    )
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -192,41 +185,40 @@ fun CoordinatorScreenContent(
                         setShowDatePicker(false)
                         setShowTimePicker(true)
                     }
-                }) { Text("ОК", color = Mint) }
+                }) {
+                    Text(
+                        "Далее",
+                        color = Lagoon,
+                        style = VolunteersCaseTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
             },
             dismissButton = {
                 TextButton(onClick = { setShowDatePicker(false) }) {
                     Text(
                         "Отмена",
-                        color = Arctic
+                        color = Graphite.copy(0.4f),
+                        style = VolunteersCaseTheme.typography.labelLarge
                     )
                 }
             },
-            colors = DatePickerDefaults.colors(containerColor = Abyss.copy(0.6f))
+            shape = RoundedCornerShape(24.dp),
+            colors = DatePickerDefaults.colors(containerColor = Milk)
         ) {
             DatePicker(
                 state = datePickerState,
                 colors = DatePickerDefaults.colors(
-                    containerColor = Arctic,
-                    titleContentColor = Graphite,
-                    headlineContentColor = Graphite,
-                    dividerColor = Graphite.copy(0.4f),
-                    weekdayContentColor = Graphite,
-                    dayContentColor = Graphite,
+                    containerColor = Milk,
+                    titleContentColor = Graphite.copy(alpha = 0.6f),
+                    headlineContentColor = Abyss,
                     selectedDayContainerColor = Lagoon,
-                    selectedDayContentColor = Void,
+                    selectedDayContentColor = Color.White,
                     todayContentColor = Lagoon,
-                    todayDateBorderColor = Color.Transparent,
-                    dateTextFieldColors = TextFieldDefaults.colors(
-                        focusedContainerColor = Arctic,
-                        unfocusedContainerColor = Arctic,
-                        focusedTextColor = Void,
-                        unfocusedTextColor = Grey,
-                        cursorColor = Graphite,
-                        unfocusedIndicatorColor = Graphite,
-                        focusedIndicatorColor = Graphite,
-                        selectionColors = TextSelectionColors(Graphite, Graphite.copy(0.2f))
-                    )
+                    todayDateBorderColor = Lagoon.copy(alpha = 0.3f),
+                    dayContentColor = Void,
+                    weekdayContentColor = Graphite.copy(alpha = 0.5f),
+                    navigationContentColor = Graphite
                 )
             )
         }
@@ -253,159 +245,171 @@ fun CoordinatorScreenContent(
                         )
                         setShowTimePicker(false)
                     }
-                }) { Text("ОК", color = Lagoon) }
+                }) {
+                    Text(
+                        "Готово",
+                        color = Lagoon,
+                        style = VolunteersCaseTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
             },
             dismissButton = {
                 TextButton(onClick = { setShowTimePicker(false) }) {
                     Text(
-                        "Отмена",
-                        color = Arctic
+                        "Назад",
+                        color = Graphite.copy(0.4f),
+                        style = VolunteersCaseTheme.typography.labelLarge
                     )
                 }
             },
-            text = {
-                TimePicker(
-                    state = timePickerState,
-                    colors = TimePickerDefaults.colors(
-                        clockDialColor = Graphite.copy(0.9f),
-                        clockDialSelectedContentColor = Abyss,
-                        clockDialUnselectedContentColor = Arctic,
-                        selectorColor = Mint,
-                        periodSelectorSelectedContainerColor = Mint,
-                        periodSelectorBorderColor = Graphite.copy(0.8f),
-                        periodSelectorSelectedContentColor = Lagoon,
-                        periodSelectorUnselectedContentColor = Void,
-                        periodSelectorUnselectedContainerColor = Arctic,
-                        timeSelectorSelectedContainerColor = Mint,
-                        timeSelectorSelectedContentColor = Abyss,
-                        timeSelectorUnselectedContentColor = Void,
-                        timeSelectorUnselectedContainerColor = Graphite.copy(0.1f)
-                    )
+            title = {
+                Text(
+                    text = "Выберите время",
+                    style = VolunteersCaseTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Abyss,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
                 )
             },
-            containerColor = Arctic
+            text = {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    TimePicker(
+                        state = timePickerState,
+                        colors = TimePickerDefaults.colors(
+                            clockDialColor = Graphite.copy(alpha = 0.03f),
+                            clockDialSelectedContentColor = Color.White,
+                            clockDialUnselectedContentColor = Void,
+                            selectorColor = Lagoon,
+                            timeSelectorSelectedContainerColor = Lagoon.copy(alpha = 0.08f),
+                            timeSelectorSelectedContentColor = Lagoon,
+                            timeSelectorUnselectedContainerColor = Graphite.copy(alpha = 0.04f),
+                            timeSelectorUnselectedContentColor = Graphite,
+                            periodSelectorSelectedContainerColor = Mint.copy(alpha = 0.2f),
+                            periodSelectorSelectedContentColor = Abyss,
+                            periodSelectorUnselectedContainerColor = Color.Transparent,
+                            periodSelectorUnselectedContentColor = Graphite
+                        )
+                    )
+                }
+            },
+            containerColor = Milk,
+            shape = RoundedCornerShape(24.dp)
         )
     }
 
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
+
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(syncedScrollState.connection),
-        containerColor = Color.Transparent,
+        modifier = Modifier.fillMaxSize(),
+        containerColor = Milk,
+        contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0.dp),
         topBar = {
             SyncedTopNavigationBarCoordinator(
-                scale = syncedScrollState.scaleFactor,
-                title = if (pagerState.currentPage == 0)
-                    "Мои мероприятия"
-                else
-                    "Создание мероприятия",
-
-                scrollBehavior = scrollBehavior,
-
-                onSettingsNavigateAction = {
-                    if (pagerState.currentPage == 0) {
-                        scope.launch {
-                            pagerState.animateScrollToPage(1)
-                        }
-                    } else {
-                        scope.launch {
-                            pagerState.animateScrollToPage(0)
-                        }
-                    }
-                },
-
-                onNotificationsNavigateAction = { showWIPSheet = true },
-                index = pagerState.currentPage
+                pagerState = pagerState,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     ) { paddingValues ->
+        val _unusedPadding = paddingValues
+
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
-            userScrollEnabled = false
+                .clipToBounds(),
+            userScrollEnabled = true
         ) { page ->
-
             when (page) {
-
                 0 -> {
-                    val pullToRefreshBoxState = rememberPullToRefreshState()
                     PullToRefreshBox(
                         isRefreshing = isRefreshing,
                         onRefresh = onRefreshAction,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
-                        state = pullToRefreshBoxState,
+                        modifier = Modifier.fillMaxSize(),
                         indicator = {
-                            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                PullToRefreshDefaults.Indicator(
-                                    state = pullToRefreshBoxState,
-                                    isRefreshing = isRefreshing,
-                                    containerColor = Mint,
-                                    color = Arctic
-                                )
-                            }
+                            PullToRefreshDefaults.Indicator(
+                                state = rememberPullToRefreshState(),
+                                isRefreshing = isRefreshing,
+                                containerColor = Arctic,
+                                color = Lagoon,
+                                modifier = Modifier
+                                    .align(Alignment.TopCenter)
+                                    .padding(top = 80.dp) // Чуть опустили индикатор ниже топбара
+                            )
                         }
                     ) {
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(2),
+                            // КРИТИЧЕСКИ ВАЖНО: Разрешаем сетке рисовать элементы за пределами своих границ (под топ-баром)
                             modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(16.dp),
+                            contentPadding = PaddingValues(
+                                start = 16.dp,
+                                end = 16.dp,
+                                top = 90.dp, // Делаем базовый отступ чуть больше, чтобы в покое всё стояло идеально под топ-баром
+                                bottom = 24.dp
+                            ),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             item(span = { GridItemSpan(maxLineSpan) }) {
                                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 if (uiState.eventsLoading) {
-                                    Box(
-                                        Modifier.fillMaxWidth(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(30.dp),
-                                            color = Mint
-                                        )
+                                    Box(Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
+                                        CircularProgressIndicator(modifier = Modifier.size(32.dp), color = Lagoon)
                                     }
                                 } else if (uiState.myEvents.isNotEmpty()) {
-                                    uiState.myEvents.take(3).forEach { event ->
-                                        EventSummaryCard(event = event) {
-                                            onLoadApplications(event.eventId)
+                                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                        uiState.myEvents.take(3).forEach { event ->
+                                            Surface(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                shape = RoundedCornerShape(16.dp),
+                                                tonalElevation = 1.dp,
+                                                color = Arctic
+                                            ) {
+                                                EventSummaryCard(event = event) {
+                                                    onLoadApplications(event.eventId)
+                                                }
+                                            }
                                         }
                                     }
                                 } else {
                                     Text(
                                         "Пока пусто...",
-                                        style = VolunteersCaseTheme.typography.titleMedium.copy(
-                                            Graphite
-                                        )
+                                        style = VolunteersCaseTheme.typography.titleMedium,
+                                        color = Silver,
+                                        modifier = Modifier.fillMaxWidth().padding(vertical = 48.dp),
+                                        textAlign = TextAlign.Center
                                     )
                                 }
 
                                 if (uiState.applications.isNotEmpty()) {
-                                    Spacer(Modifier.height(10.dp))
+                                    Spacer(Modifier.height(28.dp))
                                     Text(
                                         "Заявки на участие",
-                                        style = VolunteersCaseTheme.typography.titleLarge,
-                                        color = Graphite
+                                        style = VolunteersCaseTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Abyss,
+                                        modifier = Modifier.padding(bottom = 12.dp)
                                     )
-                                    uiState.applications.forEach { app ->
-                                        ApplicationCard(
-                                            app = app,
-                                            onApprove = {
-                                                onApprove(
-                                                    app.eventId.toLong(),
-                                                    app.userId.toLong()
-                                                )
-                                            },
-                                            onReject = {
-                                                onReject(
-                                                    app.eventId.toLong(),
-                                                    app.userId.toLong()
+                                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                        uiState.applications.forEach { app ->
+                                            Surface(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                shape = RoundedCornerShape(16.dp),
+                                                tonalElevation = 1.dp,
+                                                color = Arctic
+                                            ) {
+                                                ApplicationCard(
+                                                    app = app,
+                                                    onApprove = { onApprove(app.eventId.toLong(), app.userId.toLong()) },
+                                                    onReject = { onReject(app.eventId.toLong(), app.userId.toLong()) }
                                                 )
                                             }
-                                        )
+                                        }
                                     }
                                 }
                                 }
@@ -418,120 +422,220 @@ fun CoordinatorScreenContent(
                     Column(
                         Modifier
                             .fillMaxSize()
-                            .padding(horizontal = 40.dp)
-                            .verticalScroll(rememberScrollState()),
-                        Arrangement.spacedBy(20.dp),
-                        Alignment.CenterHorizontally
+                            .verticalScroll(rememberScrollState())
+                            // Сдвигаем форму на 90.dp сверху, чтобы она не залезала под статичный бар в начале
+                            .padding(start = 20.dp, end = 20.dp, top = 90.dp, bottom = 24.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalAlignment = Alignment.Start
                     ) {
-                        Column(
-                            Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(16.dp))
-                                .padding(horizontal = 10.dp, vertical = 20.dp),
-                            horizontalAlignment = Alignment.Start,
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(24.dp),
+                            tonalElevation = 1.dp,
+                            color = Arctic
                         ) {
-                            CustomTextField(
-                                Modifier,
-                                "Название"
-                            ) { updateFields(fields.copy(name = it)) }
+                            Column(
+                                Modifier.padding(20.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Text(
+                                    "Основная информация",
+                                    style = VolunteersCaseTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Abyss
+                                )
 
-                            CustomTextField(
-                                Modifier,
-                                "Описание"
-                            ) { updateFields(fields.copy(description = it)) }
-                            CustomTextField(
-                                Modifier,
-                                "Макс. участников"
-                            ) { updateFields(fields.copy(maxCapacity = it.toLongOrNull() ?: 0)) }
+                                CustomTextField(Modifier.fillMaxWidth(), "Название") { updateFields(fields.copy(name = it)) }
+                                CustomTextField(Modifier.fillMaxWidth(), "Описание") { updateFields(fields.copy(description = it)) }
+                                CustomTextField(Modifier.fillMaxWidth(), "Макс. участников") { updateFields(fields.copy(maxCapacity = it.toLongOrNull() ?: 0)) }
+                                CustomTextField(Modifier.fillMaxWidth(), "ID Тегов (через запятую)") {
+                                    val ids = it.split(",").mapNotNull { id -> id.trim().toLongOrNull() }
+                                    updateFields(fields.copy(tagIds = ids))
+                                }
 
-                            CustomTextField(Modifier, "ID Тегов (через запятую)") {
-                                val ids =
-                                    it.split(",").mapNotNull { id -> id.trim().toLongOrNull() }
-                                updateFields(fields.copy(tagIds = ids))
-                            }
+                                HorizontalDivider(color = Milk, thickness = 1.dp)
 
-                            CustomButton(
-                                text = if (fields.selectedDateTime != null)
-                                    "Дата: ${fields.selectedDateTime.format(visualFormatter)}"
-                                else "Выбрать дату и время",
-                                onClick = { setShowDatePicker(true) },
-                                style = ButtonStyle.Filled
-                            )
+                                Text(
+                                    "Дата и медиа",
+                                    style = VolunteersCaseTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Abyss
+                                )
 
-                            CustomButton(
-                                text = if (uiState.selectedCover != null) "Обложка загружена" else "Выбрать обложку",
-                                isLoading = uiState.isUploadingCover,
-                                onClick = { launcher.launch("image/*") },
-                                style = ButtonStyle.Filled
-                            )
-
-                            Text("Локация", style = VolunteersCaseTheme.typography.titleLarge)
-
-                            CustomSearchTextField(
-                                label = "Введите адрес для поиска",
-                                value = "",
-                                onConfirm = { onSearchLocation(it) },
-                                onValueChange = {}
-                            )
-
-                            if (uiState.isSearchMode) {
-                                if (uiState.searchLoading) {
-                                    Box(
-                                        Modifier.fillMaxWidth(),
-                                        contentAlignment = Alignment.Center
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(14.dp),
+                                    color = Milk,
+                                    border = BorderStroke(1.dp, Graphite.copy(alpha = 0.08f)),
+                                    onClick = { setShowDatePicker(true) }
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.padding(top = 32.dp),
-                                            color = Mint
-                                        )
-                                    }
-                                } else {
-                                    Column(Modifier.fillMaxWidth(), Arrangement.spacedBy(6.dp)) {
-                                        uiState.searchResults.forEach { location ->
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            androidx.compose.material3.Icon(
+                                                imageVector = androidx.compose.material.icons.Icons.Outlined.CalendarMonth,
+                                                contentDescription = null,
+                                                tint = Graphite.copy(alpha = 0.6f),
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                            Spacer(Modifier.width(12.dp))
                                             Text(
-                                                location.address,
-                                                style = VolunteersCaseTheme.typography.titleMedium.copy(
-                                                    Graphite
-                                                ),
-                                                modifier = Modifier.clickable {
-                                                    onSelectLocation(
-                                                        location
-                                                    )
-                                                }
+                                                text = if (fields.selectedDateTime != null) "Дата проведения" else "Укажите дату и время",
+                                                style = VolunteersCaseTheme.typography.titleMedium,
+                                                color = if (fields.selectedDateTime != null) Void else Graphite.copy(alpha = 0.5f),
+                                                fontSize = 15.sp
+                                            )
+                                        }
+
+                                        fields.selectedDateTime?.let { dt ->
+                                            Surface(
+                                                shape = RoundedCornerShape(8.dp),
+                                                color = Lagoon.copy(alpha = 0.08f),
+                                                modifier = Modifier.padding(start = 8.dp)
+                                            ) {
+                                                Text(
+                                                    text = dt.format(visualFormatter),
+                                                    color = Lagoon,
+                                                    style = VolunteersCaseTheme.typography.labelMedium,
+                                                    fontWeight = FontWeight.Bold,
+                                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+
+                                val hasCover = uiState.selectedCover != null
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(14.dp),
+                                    color = if (hasCover) Mint.copy(alpha = 0.06f) else Graphite.copy(alpha = 0.02f),
+                                    border = BorderStroke(
+                                        width = 1.dp,
+                                        color = if (hasCover) Mint.copy(alpha = 0.4f) else Graphite.copy(alpha = 0.1f)
+                                    ),
+                                    onClick = { if (!uiState.isUploadingCover) launcher.launch("image/*") }
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            androidx.compose.material3.Icon(
+                                                imageVector = if (hasCover) androidx.compose.material.icons.Icons.Outlined.CheckCircle else androidx.compose.material.icons.Icons.Outlined.Image,
+                                                contentDescription = null,
+                                                tint = if (hasCover) Mint else Graphite.copy(alpha = 0.6f),
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                            Spacer(Modifier.width(12.dp))
+                                            Text(
+                                                text = if (hasCover) "Обложка успешно добавлена" else "Загрузить фоновое изображение",
+                                                style = VolunteersCaseTheme.typography.titleMedium,
+                                                color = if (hasCover) Abyss else Graphite.copy(alpha = 0.5f),
+                                                fontSize = 15.sp
+                                            )
+                                        }
+
+                                        if (uiState.isUploadingCover) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(18.dp),
+                                                color = Lagoon,
+                                                strokeWidth = 2.dp
+                                            )
+                                        } else if (hasCover) {
+                                            Text(
+                                                text = "Изменить",
+                                                color = Graphite.copy(alpha = 0.6f),
+                                                style = VolunteersCaseTheme.typography.labelMedium,
+                                                fontWeight = FontWeight.SemiBold,
+                                                modifier = Modifier.clickable { launcher.launch("image/*") }
                                             )
                                         }
                                     }
                                 }
-                            }
 
-                            uiState.selectedLocation?.let {
+                                HorizontalDivider(color = Milk, thickness = 1.dp)
+
                                 Text(
-                                    "Выбрано: ${it.address}",
-                                    color = Abyss,
-                                    modifier = Modifier.padding(vertical = 8.dp)
+                                    "Локация проведения",
+                                    style = VolunteersCaseTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Abyss
+                                )
+
+                                CustomSearchTextField(
+                                    label = "Введите адрес для поиска",
+                                    value = "",
+                                    onConfirm = { onSearchLocation(it) },
+                                    onValueChange = {},
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+
+                                if (uiState.isSearchMode) {
+                                    if (uiState.searchLoading) {
+                                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                                            CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Lagoon)
+                                        }
+                                    } else {
+                                        Column(Modifier.fillMaxWidth(), Arrangement.spacedBy(8.dp)) {
+                                            uiState.searchResults.forEach { location ->
+                                                Text(
+                                                    location.address,
+                                                    style = VolunteersCaseTheme.typography.labelSmall,
+                                                    color = Graphite,
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .clickable { onSelectLocation(location) }
+                                                        .padding(vertical = 6.dp)
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+
+                                uiState.selectedLocation?.let {
+                                    Surface(
+                                        color = Mint.copy(alpha = 0.4f),
+                                        shape = RoundedCornerShape(12.dp),
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Text(
+                                            "Выбрано: ${it.address}",
+                                            color = Abyss,
+                                            style = VolunteersCaseTheme.typography.labelMedium,
+                                            modifier = Modifier.padding(12.dp)
+                                        )
+                                    }
+                                }
+
+                                Spacer(Modifier.height(12.dp))
+
+                                CustomButton(
+                                    text = "Опубликовать",
+                                    enabled = fields.name.isNotBlank() &&
+                                            uiState.selectedLocation != null &&
+                                            uiState.selectedCover != null &&
+                                            fields.selectedDateTime != null,
+                                    isLoading = uiState.isLoading,
+                                    onClick = createAction,
+                                    variant = ButtonVariant.Wide,
+                                    modifier = Modifier.fillMaxWidth()
                                 )
                             }
-
-                            Spacer(Modifier.height(10.dp))
-
-                            CustomButton(
-                                text = "Опубликовать",
-                                enabled = fields.name.isNotBlank() &&
-                                        uiState.selectedLocation != null &&
-                                        uiState.selectedCover != null &&
-                                        fields.selectedDateTime != null,
-                                isLoading = uiState.isLoading,
-                                onClick = createAction,
-                                variant = ButtonVariant.Wide
-                            )
                         }
+                        Spacer(Modifier.height(100.dp))
                     }
                 }
             }
         }
-
-
     }
 }
 
@@ -543,8 +647,11 @@ object CoordinatorFileUtils {
                 file.outputStream().use { output -> input.copyTo(output) }
             } ?: return null
             file
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } catch (e: java.io.IOException) {
+            android.util.Log.e("CoordinatorFileUtils", "I/O error while reading uri=$uri", e)
+            null
+        } catch (e: SecurityException) {
+            android.util.Log.e("CoordinatorFileUtils", "Permission denied for uri=$uri", e)
             null
         }
     }

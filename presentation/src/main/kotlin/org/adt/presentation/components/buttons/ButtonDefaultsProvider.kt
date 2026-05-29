@@ -7,7 +7,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import org.adt.presentation.theme.Abyss
-import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Mint
@@ -23,15 +22,17 @@ object ButtonDefaultsProvider {
         return when (style) {
             ButtonStyle.Translucent -> ButtonConfig(
                 shape = CircleShape,
-                height = 55.dp,
-                textStyle = VolunteersCaseTheme.typography.displayLarge,
-                uppercase = true,
-                loaderSize = 35.dp
+                height = 50.dp,
+                textStyle = VolunteersCaseTheme.typography.titleMedium,
+                uppercase = false,
+                loaderSize = 22.dp
             )
 
             else -> ButtonConfig(
                 shape = shape(variant),
-                textStyle = VolunteersCaseTheme.typography.titleMedium
+                height = 50.dp,
+                textStyle = VolunteersCaseTheme.typography.titleMedium,
+                loaderSize = 22.dp
             )
         }
     }
@@ -42,19 +43,27 @@ object ButtonDefaultsProvider {
         style: ButtonStyle,
         enabled: Boolean
     ): ButtonColorScheme {
+        if (!enabled) {
+            return ButtonColorScheme(
+                containerColor = Graphite.copy(alpha = 0.04f),
+                contentColor = Graphite.copy(alpha = 0.3f),
+                borderColor = if (style == ButtonStyle.Outlined) Graphite.copy(alpha = 0.1f) else null
+            )
+        }
+
         return when (style) {
             ButtonStyle.Translucent -> ButtonColorScheme(
-                containerColor = Lagoon.copy(alpha = 0.5f),
-                contentColor = if (enabled) Arctic else Arctic.copy(0.5f),
-                borderColor = if (enabled) Lagoon else Lagoon.copy(0.5f)
+                containerColor = Lagoon.copy(alpha = 0.12f),
+                contentColor = Lagoon,
+                borderColor = null
             )
 
             else -> {
                 val base = when (variant) {
-                    ButtonVariant.LiteRounded -> Mint to Graphite
-                    ButtonVariant.Rounded -> Lagoon to Arctic
-                    ButtonVariant.Wide -> Abyss to Arctic
-                    ButtonVariant.RoughRounded -> Lagoon to Arctic
+                    ButtonVariant.LiteRounded -> Mint to Abyss
+                    ButtonVariant.Rounded -> Lagoon to Color.White
+                    ButtonVariant.Wide -> Abyss to Color.White
+                    ButtonVariant.RoughRounded -> Lagoon to Color.White
                 }
 
                 val (container, content) = base
@@ -68,7 +77,7 @@ object ButtonDefaultsProvider {
                     ButtonStyle.Outlined -> ButtonColorScheme(
                         containerColor = Color.Transparent,
                         contentColor = container,
-                        borderColor = container
+                        borderColor = container.copy(alpha = 0.4f)
                     )
 
                     else -> error("Unhandled style")
@@ -78,9 +87,9 @@ object ButtonDefaultsProvider {
     }
 
     fun shape(variant: ButtonVariant): Shape = when (variant) {
-        ButtonVariant.LiteRounded -> RoundedCornerShape(17.dp)
-        ButtonVariant.Rounded -> RoundedCornerShape(48.dp)
-        ButtonVariant.Wide -> RoundedCornerShape(7.dp)
-        ButtonVariant.RoughRounded -> RoundedCornerShape(14.dp)
+        ButtonVariant.LiteRounded -> RoundedCornerShape(14.dp)
+        ButtonVariant.RoughRounded -> RoundedCornerShape(12.dp)
+        ButtonVariant.Rounded -> CircleShape
+        ButtonVariant.Wide -> RoundedCornerShape(10.dp)
     }
 }

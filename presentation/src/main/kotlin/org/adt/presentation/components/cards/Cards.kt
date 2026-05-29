@@ -23,8 +23,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,6 +53,7 @@ import org.adt.core.entities.event.EventLocation
 import org.adt.presentation.R
 import org.adt.presentation.components.buttons.ButtonColorScheme
 import org.adt.presentation.components.buttons.ButtonStyle
+import org.adt.presentation.components.buttons.ButtonVariant
 import org.adt.presentation.components.buttons.CustomButton
 import org.adt.presentation.components.buttons.SquaredIconButton
 import org.adt.presentation.theme.Abyss
@@ -59,6 +62,8 @@ import org.adt.presentation.theme.Black
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Grey
 import org.adt.presentation.theme.Lagoon
+import org.adt.presentation.theme.Milk
+import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.Silver
 import org.adt.presentation.theme.Void
 import org.adt.presentation.theme.VolunteersCaseTheme
@@ -858,10 +863,8 @@ fun ApplicationCard(
     Column(
         Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(Graphite.copy(0.3f))
-            .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Column (
             Modifier.fillMaxWidth(),
@@ -870,30 +873,58 @@ fun ApplicationCard(
         ) {
             Text(
                 text = "${app.firstname} ${app.lastname}",
-                style = VolunteersCaseTheme.typography.titleMedium,
-                color = Arctic
+                style = VolunteersCaseTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = Void
             )
-            Text(
-                text = app.createdAt?.substringBefore("T") ?: "",
-                style = VolunteersCaseTheme.typography.labelSmall,
-                color = Graphite
-            )
+
+
+            val dateText = app.createdAt?.substringBefore("T") ?: ""
+            if (dateText.isNotBlank()) {
+                Text(
+                    text = dateText,
+                    style = VolunteersCaseTheme.typography.labelSmall,
+                    color = Graphite.copy(alpha = 0.4f)
+                )
+            }
         }
 
-        Text(text = app.email, color = Lagoon, style = VolunteersCaseTheme.typography.titleMedium)
 
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            CustomButton(
-                modifier = Modifier.weight(1f),
-                text = "Принять",
-                onClick = onApprove,
-                colors = ButtonColorScheme(Lagoon.copy(0.8f), Arctic)
-            )
+        Text(
+            text = app.email,
+            color = Lagoon,
+            style = VolunteersCaseTheme.typography.titleMedium,
+            fontWeight = FontWeight.Medium
+        )
+
+
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+
             CustomButton(
                 modifier = Modifier.weight(1f),
                 text = "Отклонить",
-                onClick = onReject,
-                colors = ButtonColorScheme(Color.Red.copy(0.5f), Graphite)
+                style = ButtonStyle.Outlined,
+                variant = ButtonVariant.LiteRounded,
+                colors = ButtonColorScheme(
+                    containerColor = Color.Transparent,
+                    contentColor = Color(0xFFD32F2F).copy(alpha = 0.7f),
+                    borderColor = Color(0xFFD32F2F).copy(alpha = 0.2f)
+                ),
+                onClick = onReject
+            )
+
+            CustomButton(
+                modifier = Modifier.weight(1.5f),
+                text = "Принять",
+                style = ButtonStyle.Filled,
+                variant = ButtonVariant.LiteRounded,
+                colors = ButtonColorScheme(
+                    containerColor = Lagoon,
+                    contentColor = Color.White
+                ),
+                onClick = onApprove
             )
         }
     }
@@ -907,65 +938,99 @@ fun EventSummaryCard(
     val remainingPlaces = (event.maxCapacity - event.acceptedCount).coerceAtLeast(0)
 
     Column(
-        Modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Graphite.copy(0.3f))
-            .clickable { onClick() }
+            .clickable(
+                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                indication = androidx.compose.material3.ripple(color = Lagoon.copy(alpha = 0.1f)),
+                enabled = true
+            ) {
+                onClick()
+            }
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Row(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Text(
                 text = event.eventName,
-                style = VolunteersCaseTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = Arctic
+                style = VolunteersCaseTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = Void,
+                modifier = Modifier.weight(1f)
             )
 
             if (event.pendingCount > 0) {
                 Box(
                     Modifier
+                        .padding(start = 8.getClipDpIfNeeded())
                         .clip(RoundedCornerShape(8.dp))
-                        .background(Lagoon)
+                        .background(Mint.copy(alpha = 0.2f))
                         .padding(horizontal = 8.dp, vertical = 4.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "+${event.pendingCount}",
-                        color = Void,
-                        style = VolunteersCaseTheme.typography.labelSmall
+                        color = Abyss,
+                        style = VolunteersCaseTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
         }
 
+
         Row(
             Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            StatusChip("Принято: ${event.acceptedCount}", Lagoon)
-            StatusChip("Отклонено: ${event.rejectedCount}", Color.Red.copy(0.6f))
 
-            StatusChip(
-                text = "Осталось: $remainingPlaces",
-                color = if (remainingPlaces > 0) Arctic.copy(0.9f) else Graphite
+            MiniStatusChip(text = "${event.acceptedCount} одобрено", containerColor = Lagoon.copy(alpha = 0.08f), contentColor = Lagoon)
+
+            if (event.rejectedCount > 0) {
+                MiniStatusChip(text = "${event.rejectedCount} отказ", containerColor = Color(0xFFD32F2F).copy(alpha = 0.06f), contentColor = Color(0xFFD32F2F).copy(alpha = 0.7f))
+            }
+
+            val placesColor = if (remainingPlaces > 0) Mint else Graphite.copy(alpha = 0.4f)
+            val placesBg = if (remainingPlaces > 0) Mint.copy(alpha = 0.1f) else Graphite.copy(alpha = 0.04f)
+
+            MiniStatusChip(
+                text = if (remainingPlaces > 0) "$remainingPlaces мест" else "Мест нет",
+                containerColor = placesBg,
+                contentColor = placesColor
             )
         }
     }
 }
 
 @Composable
-fun StatusChip(text: String, color: Color) {
-    Text(
-        text = text,
-        color = color,
-        style = VolunteersCaseTheme.typography.labelSmall
-    )
+private fun MiniStatusChip(
+    text: String,
+    containerColor: Color,
+    contentColor: Color
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(containerColor)
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            color = contentColor,
+            style = VolunteersCaseTheme.typography.labelSmall.copy(
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        )
+    }
 }
+
+private fun Int.getClipDpIfNeeded() = this.dp
 
 @Preview
 @Composable
@@ -1096,4 +1161,125 @@ private fun EventSearchCardPreview() {
         image = "",
         name = "Example"
     ) {}
+}
+
+@Preview(showBackground = true, name = "Application Card - Active")
+@Composable
+private fun ApplicationCardPreview() {
+    val mockApp = remember {
+        EventApplication(
+            eventId = 42,
+            eventName = "Экологический форум",
+            userId = 107,
+            firstname = "Александр",
+            lastname = "Верховный",
+            patronymic = "Сергеевич",
+            phoneNumber = "+79991234567",
+            email = "alex.volunteer@adt.org",
+            status = "PENDING",
+            rejectReason = null,
+            createdAt = "2026-05-28T12:00:00",
+            rejectedAt = null,
+            revokedAt = null
+        )
+    }
+
+    VolunteersCaseTheme {
+        Box(
+            modifier = Modifier
+                .background(Milk) // Цвет подложки экрана
+                .padding(16.dp)
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                tonalElevation = 1.dp,
+                color = Arctic // Фон самой карточки
+            ) {
+                ApplicationCard(
+                    app = mockApp,
+                    onApprove = {},
+                    onReject = {}
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "Event Summary - With Invites")
+@Composable
+private fun EventSummaryCardWithPendingPreview() {
+    val mockEvent = remember {
+        CoordinatorEventSummary(
+            eventId = 1L,
+            eventName = "Экологический форум «Чистый город»",
+            eventStatus = "ACTIVE",
+            dateTimestamp = "2026-06-01T10:00:00",
+            maxCapacity = 50L,
+            applicationsTotal = 42,
+            pendingCount = 3,
+            acceptedCount = 34,
+            rejectedCount = 5,
+            revokedCount = 0
+        )
+    }
+
+    VolunteersCaseTheme {
+        Box(
+            modifier = Modifier
+                .background(Milk)
+                .padding(16.dp)
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                tonalElevation = 1.dp,
+                color = Arctic
+            ) {
+                EventSummaryCard(
+                    event = mockEvent,
+                    onClick = {}
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "Event Summary - Full Capacity")
+@Composable
+private fun EventSummaryCardFullPreview() {
+    val mockEvent = remember {
+        CoordinatorEventSummary(
+            eventId = 2L,
+            eventName = "Помощь в приюте для животных «Верный друг»",
+            eventStatus = "ACTIVE",
+            dateTimestamp = "2026-06-05T14:00:00",
+            maxCapacity = 15L,
+            applicationsTotal = 27,
+            pendingCount = 0,
+            acceptedCount = 15,
+            rejectedCount = 12,
+            revokedCount = 0
+        )
+    }
+
+    VolunteersCaseTheme {
+        Box(
+            modifier = Modifier
+                .background(Milk)
+                .padding(16.dp)
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                tonalElevation = 1.dp,
+                color = Arctic
+            ) {
+                EventSummaryCard(
+                    event = mockEvent,
+                    onClick = {}
+                )
+            }
+        }
+    }
 }

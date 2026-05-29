@@ -29,6 +29,10 @@ sealed class Destinations {
 
     @Keep
     @Serializable
+    data object AdminDashboard : Destinations()
+
+    @Keep
+    @Serializable
     data object AdminHome : Destinations()
 
     @Keep
@@ -37,7 +41,7 @@ sealed class Destinations {
 
     @Keep
     @Serializable
-    data object AdminProfile : Destinations()
+    data object AdminSystemTools : Destinations()
 
     @Keep
     @Serializable
@@ -83,7 +87,7 @@ sealed class Destinations {
     companion object {
         fun mapRole(userRole: UserRole): Destinations {
             return when (userRole) {
-                UserRole.ADMIN -> AdminUsers
+                UserRole.ADMIN -> AdminDashboard
                 UserRole.COORDINATOR -> CoordinatorHome
                 UserRole.VOLUNTEER -> VolunteerHome
                 else -> Authenticate

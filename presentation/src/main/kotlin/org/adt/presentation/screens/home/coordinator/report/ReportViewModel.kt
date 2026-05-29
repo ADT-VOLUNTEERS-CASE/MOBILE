@@ -1,4 +1,4 @@
-package org.adt.presentation.screens.home.volunteer.rating
+package org.adt.presentation.screens.home.coordinator.report
 
 import android.content.ContentValues
 import android.content.Context
@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
 import org.adt.domain.abstraction.DataRepository
-import org.adt.presentation.screens.home.coordinator.report.ReportState
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,7 +35,7 @@ class ReportViewModel @Inject constructor(
             val page = if (resetPagination) 0 else current.currentPage + 1
 
             _state.update {
-                if (resetPagination) it.copy(isLoading = true, isRefreshing = false)
+                if (resetPagination) it.copy(isLoading = true)
                 else it.copy(isPaginating = true)
             }
 
@@ -101,6 +100,8 @@ class ReportViewModel @Inject constructor(
                 val response = _dataRepository.assembleCoordinatorReportFile(_state.value.period)
                 if (response.isSuccessful) {
                     _state.update { it.copy(downloadedFile = response.data()) }
+                } else {
+                    _state.update { it.copy(error = "Не удалось скачать отчёт") }
                 }
             } catch (e: Exception) {
                 Log.e("Download", "Error: ${e.message}")
@@ -120,14 +121,15 @@ class ReportViewModel @Inject constructor(
             val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
 
             uri?.let {
-                resolver.openOutputStream(it).use { outputStream ->
+                resolver.openOutputStream(it)?.use { outputStream ->
                     responseBody.byteStream().use { inputStream ->
-                        inputStream.copyTo(outputStream!!)
+                        inputStream.copyTo(outputStream)
                     }
-                }
+                } ?: return false
                 true
             } ?: false
         } catch (e: Exception) {
+            Log.e("ReportSave", "Failed to save file", e)
             false
         }
     }

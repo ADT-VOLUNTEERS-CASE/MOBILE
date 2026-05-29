@@ -1,5 +1,6 @@
 package org.adt.presentation.components.bars
 
+import android.annotation.SuppressLint
 import androidx.annotation.Keep
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
@@ -24,16 +25,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.DonutLarge
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonAddAlt1
+import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.DonutLarge
+import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.PersonAddAlt1
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,7 +48,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
@@ -56,7 +63,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import org.adt.core.entities.UserRole
 import org.adt.presentation.navigation.Destinations
-import org.adt.presentation.theme.Mint
+import org.adt.presentation.theme.Graphite
+import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Keep
@@ -76,8 +84,9 @@ object BottomBarConfigs {
     )
 
     val adminItems = listOf(
-        BottomNavItem.AdminHome,
-        BottomNavItem.AdminProfile
+        BottomNavItem.AdminDashboard,
+        BottomNavItem.AdminSystemTools,
+        BottomNavItem.AdminRegister
     )
 
     fun getItems(role: UserRole): List<BottomNavItem> {
@@ -104,6 +113,7 @@ sealed class BottomNavItem(
         Icons.Filled.Home,
         Icons.Outlined.Home
     )
+    
     @Keep
     object VolunteerCalendar : BottomNavItem(
         Destinations.VolunteerCalendar::class.qualifiedName ?: "",
@@ -111,6 +121,7 @@ sealed class BottomNavItem(
         Icons.Filled.CalendarMonth,
         Icons.Outlined.CalendarMonth
     )
+    
     @Keep
     object VolunteerStatistics : BottomNavItem(
         Destinations.VolunteerStatistics::class.qualifiedName ?: "",
@@ -118,6 +129,7 @@ sealed class BottomNavItem(
         Icons.Filled.DonutLarge,
         Icons.Outlined.DonutLarge
     )
+    
     @Keep
     object VolunteerRating : BottomNavItem(
         Destinations.VolunteerRating::class.qualifiedName ?: "",
@@ -125,6 +137,7 @@ sealed class BottomNavItem(
         Icons.Filled.EmojiEvents,
         Icons.Outlined.EmojiEvents
     )
+    
     @Keep
     object VolunteerProfile : BottomNavItem(
         Destinations.VolunteerProfile::class.qualifiedName ?: "",
@@ -132,6 +145,7 @@ sealed class BottomNavItem(
         Icons.Filled.Person,
         Icons.Outlined.Person
     )
+    
     @Keep
     object CoordinatorHome : BottomNavItem(
         Destinations.CoordinatorHome::class.qualifiedName ?: "",
@@ -139,6 +153,7 @@ sealed class BottomNavItem(
         Icons.Filled.Home,
         Icons.Outlined.Home
     )
+    
     @Keep
     object CoordinatorRating : BottomNavItem(
         Destinations.CoordinatorReport::class.qualifiedName ?: "",
@@ -146,6 +161,7 @@ sealed class BottomNavItem(
         Icons.Filled.EmojiEvents,
         Icons.Outlined.EmojiEvents
     )
+    
     @Keep
     object CoordinatorProfile : BottomNavItem(
         Destinations.CoordinatorProfile::class.qualifiedName ?: "",
@@ -153,22 +169,33 @@ sealed class BottomNavItem(
         Icons.Filled.Person,
         Icons.Outlined.Person
     )
+
     @Keep
-    object AdminHome : BottomNavItem(
-        Destinations.AdminUsers::class.qualifiedName ?: "",
-        "Главная",
-        Icons.Filled.Home,
-        Icons.Outlined.Home
+    object AdminDashboard : BottomNavItem(
+        route = Destinations.AdminDashboard::class.qualifiedName ?: "",
+        label = "Главная",
+        selectedIcon = Icons.Filled.Home,
+        unselectedIcon = Icons.Outlined.Home
     )
+    
     @Keep
-    object AdminProfile : BottomNavItem(
-        Destinations.AdminProfile::class.qualifiedName ?: "",
-        "Профиль",
-        Icons.Filled.Person,
-        Icons.Outlined.Person
+    object AdminSystemTools : BottomNavItem(
+        route = Destinations.AdminSystemTools::class.qualifiedName ?: "",
+        label = "Утилиты",
+        selectedIcon = Icons.Filled.Build,
+        unselectedIcon = Icons.Outlined.Build
+    )
+    
+    @Keep
+    object AdminRegister : BottomNavItem(
+        Destinations.AdminRegister::class.qualifiedName ?: "",
+        "Регистрация",
+        Icons.Filled.PersonAddAlt1,
+        Icons.Outlined.PersonAddAlt1
     )
 }
 
+@SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun FancyBottomNavigationBar(
     navController: NavHostController,
@@ -177,7 +204,6 @@ fun FancyBottomNavigationBar(
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-
 
     val selectedIndex = items.indexOfFirst { item ->
         currentDestination?.hierarchy?.any { it.route?.contains(item.route) == true } == true
@@ -195,9 +221,34 @@ fun FancyBottomNavigationBar(
     Surface(
         modifier = modifier
             .fillMaxWidth()
+            .drawBehind {
+                val shadowColor = Graphite.copy(alpha = 0.06f)
+                val shadowRadius = 16.dp.toPx()
+                val offsetY = (-4).dp.toPx()
+
+                drawContext.canvas.save()
+                val paint = androidx.compose.ui.graphics.Paint().apply {
+                    val nativePaint = asFrameworkPaint()
+                    nativePaint.color = shadowColor.toArgb()
+
+                    nativePaint.setShadowLayer(shadowRadius, 0f, offsetY, shadowColor.toArgb())
+                }
+
+                val cornerRadius = 24.dp.toPx()
+                drawContext.canvas.drawRoundRect(
+                    left = 0f,
+                    top = 0f,
+                    right = size.width,
+                    bottom = size.height,
+                    radiusX = cornerRadius,
+                    radiusY = cornerRadius,
+                    paint = paint
+                )
+                drawContext.canvas.restore()
+            }
             .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)),
         color = Color.White,
-        shadowElevation = 16.dp
+        shadowElevation = 0.dp
     ) {
         Box(
             modifier = Modifier
@@ -211,7 +262,7 @@ fun FancyBottomNavigationBar(
                     .width(indicatorWidth)
                     .fillMaxHeight()
                     .padding(vertical = 12.dp, horizontal = 8.dp)
-                    .background(Mint.copy(alpha = 0.12f), RoundedCornerShape(16.dp))
+                    .background(Lagoon.copy(alpha = 0.12f), RoundedCornerShape(16.dp))
             )
 
             Row(modifier = Modifier.fillMaxSize()) {
@@ -219,7 +270,7 @@ fun FancyBottomNavigationBar(
                     val isSelected = selectedIndex == index
 
                     val contentColor by animateColorAsState(
-                        targetValue = if (isSelected) Mint else Color.Gray,
+                        targetValue = if (isSelected) Lagoon.copy(alpha = 0.62f) else Color.Gray,
                         label = "color"
                     )
 

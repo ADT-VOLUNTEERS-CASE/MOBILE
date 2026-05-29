@@ -13,6 +13,7 @@ import org.adt.core.entities.UserRole
 import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.abstraction.DataRepository
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -38,14 +39,15 @@ class MainViewModel @Inject constructor(
     private fun loadRole() {
         _uiState.update { it.copy(loading = true) }
         viewModelScope.launch {
-
-            val role = _dataRepository.getCurrentUserRole()
-
-            _uiState.update {
-                it.copy(
-                    role = role,
-                    loading = false
-                )
+            try {
+                val role = _dataRepository.getCurrentUserRole()
+                _uiState.update { it.copy(role = role) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                _uiState.update { it.copy(role = UserRole.NONE) }
+            } finally {
+                _uiState.update { it.copy(loading = false) }
             }
         }
     }

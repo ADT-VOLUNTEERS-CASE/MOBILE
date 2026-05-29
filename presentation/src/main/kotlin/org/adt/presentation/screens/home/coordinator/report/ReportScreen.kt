@@ -46,7 +46,6 @@ import androidx.compose.ui.unit.dp
 import org.adt.core.entities.rating.UserRating
 import org.adt.presentation.components.rating.ErrorBanner
 import org.adt.presentation.components.rating.PeriodSwitch
-import org.adt.presentation.screens.home.volunteer.rating.ReportViewModel
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
@@ -55,8 +54,6 @@ import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable
 fun ReportScreen(viewModel: ReportViewModel) {
-    val state by viewModel.state.collectAsState()
-
     val uiState = viewModel.state.collectAsState().value
     val context = LocalContext.current
 
@@ -75,7 +72,7 @@ fun ReportScreen(viewModel: ReportViewModel) {
     }
 
     ReportScreenContent(
-        state = state,
+        state = uiState,
         onRequestNextPage = viewModel::requestNextPage,
         onRefreshAction = viewModel::refresh,
         onSetPeriodAction = viewModel::setPeriod,
@@ -218,10 +215,8 @@ fun ReportScreenContent(
 //                    item { PodiumRow(state.entries) }
 //                }
 
-
                 item { Spacer(Modifier.height(4.dp)) }
 
-                val startFrom = if (state.entries.size >= 3) 3 else 0
                 if (state.isLoading) {
                     item {
                         Box(
@@ -233,7 +228,7 @@ fun ReportScreenContent(
                             CircularProgressIndicator(color = Mint)
                         }
                     }
-                } else if (startFrom < state.entries.size) {
+                } else {
                     item {
                         Text(
                             "Все участники",
@@ -244,7 +239,7 @@ fun ReportScreenContent(
                     }
 
                     itemsIndexed(
-                        state.entries.drop(startFrom),
+                        state.entries,
                         key = { _, entry -> entry.coordinatorId },
                     ) { idx, entry ->
 //                        RankingCard(

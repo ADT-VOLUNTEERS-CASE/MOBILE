@@ -99,7 +99,7 @@ fun AuthenticateScreenContent(
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painterResource(R.drawable.ic_main_heart_light),
+            painterResource(R.drawable.ic_main_blue),
             null,
             Modifier
                 .fillMaxSize(0.6f)
