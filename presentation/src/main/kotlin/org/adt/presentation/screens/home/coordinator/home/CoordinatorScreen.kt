@@ -64,13 +64,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import org.adt.core.entities.Location
+import org.adt.core.entities.event.EventApplication
 import org.adt.presentation.components.CustomSearchTextField
 import org.adt.presentation.components.CustomTextField
 import org.adt.presentation.components.bars.SyncedTopNavigationBarCoordinator
+import org.adt.presentation.components.buttons.ButtonStyle
 import org.adt.presentation.components.buttons.ButtonVariant
 import org.adt.presentation.components.buttons.CustomButton
 import org.adt.presentation.components.cards.ApplicationCard
@@ -355,6 +356,7 @@ fun CoordinatorScreenContent(
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             item(span = { GridItemSpan(maxLineSpan) }) {
+                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 if (uiState.eventsLoading) {
                                     Box(Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
                                         CircularProgressIndicator(modifier = Modifier.size(32.dp), color = Lagoon)
@@ -409,6 +411,7 @@ fun CoordinatorScreenContent(
                                             }
                                         }
                                     }
+                                }
                                 }
                             }
                         }
@@ -658,6 +661,12 @@ object CoordinatorFileUtils {
 @Composable
 private fun CoordinatorScreenPreview() {
     VolunteersCaseTheme {
-        CoordinatorScreenContent(animationOverride = true)
+        CoordinatorScreenContent(
+            animationOverride = true, uiState = CoordinatorState(
+                isLoading = false, applications = listOf(
+                    EventApplication()
+                )
+            )
+        )
     }
 }

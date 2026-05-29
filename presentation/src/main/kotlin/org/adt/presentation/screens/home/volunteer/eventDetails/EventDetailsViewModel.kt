@@ -52,7 +52,7 @@ class EventDetailsViewModel @AssistedInject constructor(
     }
 
     fun sendEventApplication() {
-        //_uiState.update { it.copy(applicationStatus = "PENDING") }
+        //_uiState.update { it.copy(ap`plicationStatus = "PENDING") }
         viewModelScope.launch(Dispatchers.IO) {
             val response = _dataRepository.createEventApplication(eventId)
 
