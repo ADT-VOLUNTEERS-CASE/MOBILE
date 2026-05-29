@@ -31,12 +31,14 @@ import androidx.compose.material.icons.filled.DonutLarge
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonAddAlt1
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.DonutLarge
 import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.PersonAddAlt1
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -188,22 +190,8 @@ sealed class BottomNavItem(
     object AdminRegister : BottomNavItem(
         Destinations.AdminRegister::class.qualifiedName ?: "",
         "Регистрация",
-    )
-    
-    @Keep
-    object AdminHome : BottomNavItem(
-        Destinations.AdminUsers::class.qualifiedName ?: "",
-        "Главная",
-        Icons.Filled.Home,
-        Icons.Outlined.Home
-    )
-    
-    @Keep
-    object AdminProfile : BottomNavItem(
-        Destinations.AdminProfile::class.qualifiedName ?: "",
-        "Профиль",
-        Icons.Filled.Person,
-        Icons.Outlined.Person
+        Icons.Filled.PersonAddAlt1,
+        Icons.Outlined.PersonAddAlt1
     )
 }
 

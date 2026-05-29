@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import org.adt.domain.abstraction.DataRepository
+import org.adt.presentation.utils.LocalizationManager.message
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
@@ -99,11 +100,20 @@ class AdminDashboardViewModel @Inject constructor(
                 } else {
                     _dataRepository.assembleCoordinatorReportFileByAdmin(id = id, period = type)
                 }
-
-                _dashboardState.update { it.copy(downloadedFile = response.data()) }
+                if (response.isSuccessful) {
+                    _dashboardState.update { it.copy(downloadedFile = response.data()) }
+                }
+                else {
+                    Log.e("AdminDashboardVM", "Ошибка скачивания отчета")
+                    _dashboardState.update { it.copy(toastMessage = "Не удалось скачать отчет: ${response.message}") }
+                }
+                //TODO: This try catch looks very suspicious, huh..
             } catch (e: Exception) {
                 Log.e("AdminDashboardVM", "Ошибка скачивания отчета", e)
                 _dashboardState.update { it.copy(toastMessage = "Не удалось скачать отчет: ${e.localizedMessage}") }
+            } catch (t: Throwable){
+                Log.e("AdminDashboardVM", "Ошибка скачивания отчета", t)
+                _dashboardState.update { it.copy(toastMessage = "Не удалось скачать отчет: ${t.localizedMessage}") }
             }
         }
     }

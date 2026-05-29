@@ -15,6 +15,7 @@ import org.adt.core.entities.event.Cover
 import org.adt.core.entities.event.Event
 import org.adt.core.entities.event.EventApplication
 import org.adt.core.entities.rating.CoordinatorRatingResponse
+import org.adt.core.entities.rating.RatingResponse
 import org.adt.core.entities.request.ApplicationStatusRequest
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.EventRequest
@@ -27,7 +28,6 @@ import org.adt.core.entities.response.ErrorResponse
 import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
-import org.adt.core.entities.rating.RatingResponse
 import org.adt.core.entities.user.statistics.UserStatistics
 import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.abstraction.DataRepository
@@ -813,7 +813,7 @@ class DataRepositoryImpl @Inject constructor(
         retried: Boolean
     ): GeneralResponse<ResponseBody> {
         val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
-        val response = networkRepository.assembleCoordinatorReportFile(token, period)
+        val response = networkRepository.assembleCoordinatorReportFileByAdmin(token, id, period)
 
         if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
 
