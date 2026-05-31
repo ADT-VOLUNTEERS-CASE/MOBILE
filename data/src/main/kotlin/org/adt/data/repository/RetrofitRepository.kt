@@ -250,7 +250,8 @@ interface RetrofitRepository {
         @Query("size") size: Int = 20
     ): Response<ApplicationsResponse>
 
-    @PATCH("v1/user-event/coordinator/events/{eventId}/applications/{userId}/status")
+
+    @GET("/api/v1/user-event/status/{eventId}")
     suspend fun getApplicationStatus(
         @Header("Authorization") auth: String,
         @Path("eventId") eventId: Long,
