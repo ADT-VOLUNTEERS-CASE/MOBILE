@@ -36,6 +36,8 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 
+    failOnNoDiscoveredTests = false
+
     testClassesDirs += sourceSets["testFixtures"].output.classesDirs
     classpath += sourceSets["testFixtures"].runtimeClasspath
 
