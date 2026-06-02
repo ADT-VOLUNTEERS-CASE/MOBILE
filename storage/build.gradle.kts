@@ -1,15 +1,14 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
 
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     id("kotlinx-serialization")
 }
 
 android {
     namespace = "org.adt.storage"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 29
@@ -43,7 +42,7 @@ dependencies {
     implementation(project(":core"))
 
     implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
+    ksp(libs.hilt.android.compiler)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.datastore.preferences)

@@ -2,7 +2,6 @@ import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 
     id("com.google.devtools.ksp")
@@ -15,7 +14,7 @@ plugins {
 }
 android {
     namespace = "org.adt.presentation"
-    compileSdk = 36
+    compileSdk = 37
 
     buildFeatures {
         buildConfig = true
@@ -23,8 +22,8 @@ android {
 
     defaultConfig {
         applicationId = "org.adt.presentation"
-        minSdk = 33
-        targetSdk = 36
+        minSdk = 30
+        targetSdk = 37
         versionCode = 1
         versionName = "0.1.0"
 
@@ -54,12 +53,15 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
+
+            signingConfig = signingConfigs.getByName("release")
+            buildConfigField("String", "API_BASE_URL", "\"https://adt.rss14.ru/api/\"")
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
-            buildConfigField("String", "API_BASE_URL", "\"https://adt.rss14.ru/api/\"")
         }
     }
 
