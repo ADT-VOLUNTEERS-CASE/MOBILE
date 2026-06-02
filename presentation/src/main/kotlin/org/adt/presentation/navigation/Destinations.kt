@@ -84,6 +84,10 @@ sealed class Destinations {
     data object NoConnectionScreen: Destinations()
 
     @Keep
+    @Serializable
+    data object LoginDebugScreen: Destinations()
+
+    @Keep
     companion object {
         fun mapRole(userRole: UserRole): Destinations {
             return when (userRole) {

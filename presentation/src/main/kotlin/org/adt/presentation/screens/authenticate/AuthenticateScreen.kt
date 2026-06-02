@@ -66,7 +66,8 @@ fun AuthenticateScreen(navController: NavHostController, viewModel: Authenticate
         fieldsState = fieldsState,
         navigateToRegisterAction = { navController.navigate(Destinations.Register) },
         updateFieldsAction = { newState -> viewModel.updateInputFields(newState) },
-        continueAction = { viewModel.onContinueClick(navController) }
+        continueAction = { viewModel.onContinueClick(navController) },
+        onDebugNavigateAction = { navController.navigate(Destinations.LoginDebugScreen) }
     )
 }
 
@@ -77,6 +78,7 @@ fun AuthenticateScreenContent(
     navigateToRegisterAction: () -> Unit = {},
     updateFieldsAction: (newState: AuthenticateFieldsState) -> Unit = {},
     continueAction: () -> Unit = {},
+    onDebugNavigateAction: () -> Unit = {},
     animationOverride: Boolean = false,
 ) {
     val context = LocalContext.current
@@ -141,11 +143,12 @@ fun AuthenticateScreenContent(
                         horizontalArrangement = Arrangement.End
                     ) {
                         IconButton(
-                            modifier = Modifier.size(24.dp).clip(CircleShape)
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clip(CircleShape)
                                 .background(Color.DarkGray),
-                            onClick = {
-                                //TODO
-                            }) {
+                            onClick = onDebugNavigateAction
+                        ) {
                             Icon(
                                 modifier = Modifier.size(24.dp),
                                 imageVector = Icons.Default.BugReport,
