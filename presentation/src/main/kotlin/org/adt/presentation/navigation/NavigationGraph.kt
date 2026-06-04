@@ -12,7 +12,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import org.adt.presentation.screens.authenticate.AuthenticateScreen
 import org.adt.presentation.screens.authenticate.AuthenticateViewModel
-import org.adt.presentation.screens.debug.credentialsConfigurator.LoginDebugScreen
 import org.adt.presentation.screens.exception.NoConnectionScreen
 import org.adt.presentation.screens.exception.NoConnectionScreenViewModel
 import org.adt.presentation.screens.home.admin.dashboard.AdminDashboardScreen
@@ -45,7 +44,10 @@ import org.adt.presentation.screens.splash.SplashScreen
 import org.adt.presentation.screens.splash.SplashViewModel
 
 @Composable
-fun NavigationGraph(navController: NavHostController, innerPadding: PaddingValues = PaddingValues()) {
+fun NavigationGraph(
+    navController: NavHostController,
+    innerPadding: PaddingValues = PaddingValues()
+) {
     NavHost(
         navController, startDestination = Destinations.Splash,
         enterTransition = {
@@ -154,13 +156,13 @@ fun NavigationGraph(navController: NavHostController, innerPadding: PaddingValue
                 })
         }
 
-        composable<Destinations.LoginDebugScreen> {
-            LoginDebugScreen(navController)
-        }
-
         composable<Destinations.NoConnectionScreen> {
             val viewModel: NoConnectionScreenViewModel = hiltViewModel()
             NoConnectionScreen(Modifier, navController, viewModel)
+        }
+
+        with(navController) {
+            debugGraph()
         }
     }
 }

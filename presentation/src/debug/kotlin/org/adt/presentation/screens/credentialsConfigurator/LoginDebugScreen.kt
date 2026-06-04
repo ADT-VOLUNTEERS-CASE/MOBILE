@@ -1,4 +1,4 @@
-package org.adt.presentation.screens.debug.credentialsConfigurator
+package org.adt.presentation.screens.credentialsConfigurator
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

@@ -97,6 +97,12 @@ java {
     targetCompatibility = JavaVersion.VERSION_21
 }
 
+kotlin{
+    compilerOptions {
+        freeCompilerArgs = listOf("-XXLanguage:+ContextParameters")
+    }
+}
+
 dependencies {
     implementation(project("::domain"))
     implementation(project("::data"))
