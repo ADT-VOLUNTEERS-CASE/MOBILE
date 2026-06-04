@@ -19,3 +19,25 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# ==================
+# Keep retrofit DTOs
+# ==================
+
+# Keep @Serializable properties
+-keepattributes *Annotation*,Signature,InnerClasses
+
+-keepclassmembers class * {
+    @kotlinx.serialization.Serializable *;
+}
+
+# Keep @Serializable generated companion methods
+-keepclassmembers class * {
+    *** Companion;
+}
+
+# Restrict renaming or removing fields inside @Serializable
+-keep @kotlinx.serialization.Serializable class * {
+    <fields>;
+    <init>(...);
+}
