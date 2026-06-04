@@ -63,6 +63,14 @@ android {
                 "proguard-rules.pro"
             )
         }
+
+        create("releaseNoSign") {
+            initWith(getByName("release"))
+
+            signingConfig = signingConfigs.getByName("debug")
+
+            matchingFallbacks.add("release")
+        }
     }
 
     buildFeatures {
@@ -78,6 +86,13 @@ android {
         }
     }
 
+    sourceSets {
+        named("releaseNoSign"){
+            java.directories.add("src/release/java")
+            kotlin.directories.add("src/release/kotlin")
+            res.directories.add("src/release/res")
+        }
+    }
 }
 
 roborazzi {
