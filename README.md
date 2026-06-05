@@ -129,8 +129,9 @@
 ---
 
 ### Демо (Запись)
+[Посмотреть запись!](https://cloud.rss14.ru/s/ADT-DEMO-NEW)
 
-[Посмотреть запись!](assets/demo/demo.mp4)
+[Скачать запись! (репозиторий)](assets/demo/demo.mp4)
 
 ---
 
@@ -228,7 +229,7 @@ graph TD
 ---
 
 ## Котик!
-![assets/cat.png](assets/cat.png)
+<img src = "assets/cat.png" width="250"/>
 
 ---
 
