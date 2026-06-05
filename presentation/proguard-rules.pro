@@ -32,8 +32,8 @@
 }
 
 # Keep @Serializable generated companion methods
--keepclassmembers class * {
-    *** Companion;
+-keepclassmembers class **$Companion {
+    public *;
 }
 
 # Restrict renaming or removing fields inside @Serializable
