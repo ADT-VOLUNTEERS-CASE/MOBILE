@@ -68,6 +68,8 @@
 
 ## Скриншоты / Демо
 
+<details>
+<summary>Развернуть!</summary>
 <br>
 
 ### Общее
@@ -125,6 +127,8 @@
         <td><img src="assets/screenshots/screenshot_a_register.png" width="250"/></td>
     </tr>
 </table>
+
+</details>
 
 ---
 
