@@ -67,6 +67,9 @@ android {
         create("releaseNoSign") {
             initWith(getByName("release"))
 
+            applicationIdSuffix = ".nosign"
+            versionNameSuffix = "-nosign"
+
             signingConfig = signingConfigs.getByName("debug")
 
             matchingFallbacks.add("release")
