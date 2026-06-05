@@ -16,9 +16,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -28,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -39,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import org.adt.presentation.BuildConfig
 import org.adt.presentation.R
 import org.adt.presentation.components.CustomTextField
 import org.adt.presentation.components.TypingText
@@ -58,7 +66,8 @@ fun AuthenticateScreen(navController: NavHostController, viewModel: Authenticate
         fieldsState = fieldsState,
         navigateToRegisterAction = { navController.navigate(Destinations.Register) },
         updateFieldsAction = { newState -> viewModel.updateInputFields(newState) },
-        continueAction = { viewModel.onContinueClick(navController) }
+        continueAction = { viewModel.onContinueClick(navController) },
+        onDebugNavigateAction = { navController.navigate(Destinations.LoginDebugScreen) }
     )
 }
 
@@ -69,6 +78,7 @@ fun AuthenticateScreenContent(
     navigateToRegisterAction: () -> Unit = {},
     updateFieldsAction: (newState: AuthenticateFieldsState) -> Unit = {},
     continueAction: () -> Unit = {},
+    onDebugNavigateAction: () -> Unit = {},
     animationOverride: Boolean = false,
 ) {
     val context = LocalContext.current
@@ -125,7 +135,31 @@ fun AuthenticateScreenContent(
                     .padding(horizontal = 22.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(Modifier.height(58.dp))
+                Spacer(modifier = Modifier.height(20.dp))
+                if (BuildConfig.DEBUG) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        IconButton(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clip(CircleShape)
+                                .background(Color.DarkGray),
+                            onClick = onDebugNavigateAction
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(24.dp),
+                                imageVector = Icons.Default.BugReport,
+                                tint = Color.White,
+                                contentDescription = "OpenDebugPanel"
+                            )
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(38.dp))
 
                 TypingText(Modifier, "Добро пожаловать!", TextAlign.Center, 40L, 900)
 

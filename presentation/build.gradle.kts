@@ -63,6 +63,40 @@ android {
                 "proguard-rules.pro"
             )
         }
+
+        create("releaseNoSign") {
+            initWith(getByName("release"))
+
+            applicationIdSuffix = ".nosign"
+            versionNameSuffix = "-nosign"
+
+            signingConfig = signingConfigs.getByName("debug")
+
+            matchingFallbacks.add("release")
+        }
+
+        create("debugMinify") {
+            initWith(getByName("debug"))
+
+            // Disable debugging for obfuscated code
+            isDebuggable = false
+
+            applicationIdSuffix = ".debugMinify"
+            versionNameSuffix = "-debugMinify"
+
+            isMinifyEnabled = true
+            isShrinkResources = true
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+
+            matchingFallbacks.add("debug")
+
+            // Enable debug tools
+            buildConfigField("Boolean", "DEBUG", "true")
+        }
     }
 
     buildFeatures {
@@ -78,6 +112,19 @@ android {
         }
     }
 
+    sourceSets {
+        named("releaseNoSign") {
+            java.directories.add("src/release/java")
+            kotlin.directories.add("src/release/kotlin")
+            res.directories.add("src/release/res")
+        }
+
+        named("debugMinify") {
+            java.directories.add("src/debug/java")
+            kotlin.directories.add("src/debug/kotlin")
+            res.directories.add("src/debug/res")
+        }
+    }
 }
 
 roborazzi {
@@ -95,6 +142,12 @@ java {
 
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
+}
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs = listOf("-XXLanguage:+ContextParameters")
+    }
 }
 
 dependencies {
