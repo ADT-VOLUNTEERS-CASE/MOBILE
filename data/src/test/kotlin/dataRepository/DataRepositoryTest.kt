@@ -95,7 +95,7 @@ class DataRepositoryTest : BaseDataRepositoryTest() {
             coordinator = false
         )
 
-        assert(response.isSuccessful) { "UserInfo call threw error: ${response.status}" }
+        assert(response.status.isSuccess()) { "UserInfo call threw error: ${response.status}" }
 
         assert(response.data() == expected) { "UserInfo response payload doesn't match expected output." }
     }
@@ -124,7 +124,7 @@ class DataRepositoryTest : BaseDataRepositoryTest() {
             coordinator = true
         )
 
-        assert(response.isSuccessful) { "UserInfo call threw error: ${response.status}" }
+        assert(response.status.isSuccess()) { "UserInfo call threw error: ${response.status}" }
 
         assert(response.data() == expected) { "UserInfo response payload doesn't match expected output." }
     }
@@ -142,7 +142,7 @@ class DataRepositoryTest : BaseDataRepositoryTest() {
             coordinator = false
         )
 
-        assert(response.isSuccessful) { "UserInfo call threw error: ${response.status}" }
+        assert(response.status.isSuccess()) { "UserInfo call threw error: ${response.status}" }
 
         assert(response.data() == expected) { "UserInfo response payload doesn't match expected output." }
     }
@@ -157,7 +157,7 @@ class DataRepositoryTest : BaseDataRepositoryTest() {
 
         val response = dataRepository.userInfo()
 
-        assert(!response.isSuccessful) { "UserInfo call should fail for deauthenticated user." }
+        assert(!response.status.isSuccess()) { "UserInfo call should fail for deauthenticated user." }
     }
 
     @Test

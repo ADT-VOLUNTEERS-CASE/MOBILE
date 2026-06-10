@@ -12,3 +12,14 @@ plugins {
     alias(libs.plugins.stability.analyzer) apply false
     alias(libs.plugins.android.library) apply false
 }
+
+subprojects {
+    configurations.all {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "org.jetbrains.kotlin" && requested.name == "kotlin-metadata-jvm") {
+                useVersion("2.4.0")
+                because("Aligns Hilt 2.59.2 with kotlin-metadata-jvm 2.4.0 requirement")
+            }
+        }
+    }
+}

@@ -19,7 +19,7 @@ import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.response.AuthResponse
 import org.adt.core.entities.response.FindLocationResponse
 import org.adt.core.entities.response.UserResponse
-import org.adt.data.repository.RetrofitRepository
+import org.adt.data.repository.KtorRepository
 import retrofit2.Response
 import java.util.UUID
 
@@ -33,7 +33,7 @@ object RetrofitMockProvider {
 
     val locations = arrayOf("Moscow", "Saint-Petersburg", "TestLocation")
 
-    fun createMock(): RetrofitRepository {
+    fun createMock(): KtorRepository {
         return mockk(relaxed = true) {
 
             coEvery { ping() } returns Response.success(EXCEPTED_PING_RESPONSE)

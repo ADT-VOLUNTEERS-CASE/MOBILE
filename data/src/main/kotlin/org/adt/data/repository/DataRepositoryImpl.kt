@@ -1,5 +1,8 @@
 package org.adt.data.repository
 
+import io.ktor.client.call.body
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.isSuccess
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -24,8 +27,12 @@ import org.adt.core.entities.request.FindLocationRequest
 import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.request.TagRequest
+import org.adt.core.entities.response.ApplicationStatusResponse
+import org.adt.core.entities.response.ApplicationsResponse
+import org.adt.core.entities.response.AuthResponse
 import org.adt.core.entities.response.ErrorResponse
 import org.adt.core.entities.response.EventResponse
+import org.adt.core.entities.response.FindLocationResponse
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
 import org.adt.core.entities.user.statistics.UserStatistics
@@ -36,7 +43,7 @@ import javax.inject.Inject
 
 @RepositoryImpl(suppressed = true)
 class DataRepositoryImpl @Inject constructor(
-    private val networkRepository: RetrofitRepository,
+    private val networkRepository: KtorRepository,
     private val persistenceRepository: PersistenceRepository,
 ) : DataRepository {
     companion object {
@@ -66,9 +73,9 @@ class DataRepositoryImpl @Inject constructor(
 
     private val json = Json { ignoreUnknownKeys = true }
 
-    private fun parseError(errorBody: ResponseBody?): ErrorResponse? {
+    private fun parseError(bodyAsText: String?): ErrorResponse? {
         return try {
-            errorBody?.string()?.let { json.decodeFromString<ErrorResponse>(it) }
+            bodyAsText?.let { json.decodeFromString<ErrorResponse>(it) }
         } catch (_: Exception) {
             null
         }
@@ -97,8 +104,8 @@ class DataRepositoryImpl @Inject constructor(
     override suspend fun ping(): GeneralResponse<String> {
         val response = networkRepository.ping()
 
-        if (response.isSuccessful) {
-            return GeneralResponse.success(response.body().orEmpty())
+        if (response.status.isSuccess()) {
+            return GeneralResponse.success(response.body<String>())
         }
 
         return GeneralResponse.failure(-1)
@@ -144,17 +151,17 @@ class DataRepositoryImpl @Inject constructor(
             else -> networkRepository.registerVolunteer(request)
         }
 
-        if (response.isSuccessful) {
-            response.body()?.let {
+        if (response.status.isSuccess()) {
+            response.body<AuthResponse>().let {
                 if (autologin) {
                     persistenceRepository.saveTokens(it.accessToken, it.refreshToken)
                 }
-            } ?: return GeneralResponse.failure(response.code(), "Empty body")
+            }
 
             return GeneralResponse.success("Successful Registration")
         }
 
-        if (response.code() == 403 && !retried) {
+        if (response.status.value == 403 && !retried) {
             val refreshResult = requestFreshAccessToken()
 
             if (refreshResult.isSuccessful) {
@@ -176,11 +183,11 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(0, "Unable to refresh")
         }
 
-        val error = parseError(response.errorBody())
+        val error = parseError(response.bodyAsText())
 
         return GeneralResponse.failure(
-            response.code(),
-            error?.message ?: "HTTP ${response.code()}"
+            response.status.value,
+            error?.message ?: "HTTP ${response.status.value}"
         )
     }
 
@@ -191,19 +198,19 @@ class DataRepositoryImpl @Inject constructor(
         val request = AuthRequest(email, password)
         val response = networkRepository.authenticate(request)
 
-        if (response.isSuccessful) {
+        if (response.status.isSuccess()) {
             persistenceRepository.saveTokens(
-                response.body()!!.accessToken,
-                response.body()!!.refreshToken
+                response.body<AuthResponse>().accessToken,
+                response.body<AuthResponse>().refreshToken
             )
             return GeneralResponse.success("Success Auth")
         }
 
-        val error = parseError(response.errorBody())
+        val error = parseError(response.bodyAsText())
 
         return GeneralResponse.failure(
-            response.code(),
-            error?.message ?: "HTTP ${response.code()}"
+            response.status.value,
+            error?.message ?: "HTTP ${response.status.value}"
         )
     }
 
@@ -217,20 +224,20 @@ class DataRepositoryImpl @Inject constructor(
         val request = RefreshRequest(refreshToken)
         val response = networkRepository.refreshToken(request)
 
-        if (response.isSuccessful) {
+        if (response.status.isSuccess()) {
             persistenceRepository.saveTokens(
-                response.body()!!.accessToken,
-                response.body()!!.refreshToken
+                response.body<AuthResponse>().accessToken,
+                response.body<AuthResponse>().refreshToken
             )
 
             return GeneralResponse.success("Successful refresh")
         }
 
-        val error = parseError(response.errorBody())
+        val error = parseError(response.bodyAsText())
 
         return GeneralResponse.failure(
-            response.code(),
-            error?.message ?: "HTTP ${response.code()}"
+            response.status.value,
+            error?.message ?: "HTTP ${response.status.value}"
         )
     }
 
@@ -250,26 +257,26 @@ class DataRepositoryImpl @Inject constructor(
         val request = FindEventRequest(name)
         val response = networkRepository.findEvent(token, 0, 10, request)
 
-        if (response.isSuccessful) {
-            return GeneralResponse.success(response.body()!!.content)
+        if (response.status.isSuccess()) {
+            return GeneralResponse.success(response.body<EventResponse>().content)
         }
 
-        if (response.code() == 403 && !retried) {
+        if (response.status.value == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return findEvent(name, retried = true)
             }
 
-            val error = parseError(response.errorBody())
+            val error = parseError(response.bodyAsText())
             persistenceRepository.removeToken()
 
             return GeneralResponse.failure(
-                response.code(),
-                error?.message ?: "HTTP ${response.code()}"
+                response.status.value,
+                error?.message ?: "HTTP ${response.status.value}"
             )
         }
 
-        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+        return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
     }
 
 
@@ -281,59 +288,59 @@ class DataRepositoryImpl @Inject constructor(
         val request = FindLocationRequest(address)
         val response = networkRepository.findLocation(token, 0, 10, request)
 
-        if (response.isSuccessful) {
-            return GeneralResponse.success(response.body()!!.content)
+        if (response.status.isSuccess()) {
+            return GeneralResponse.success(response.body<FindLocationResponse>().content)
         }
 
-        if (response.code() == 403) {
+        if (response.status.value == 403) {
             val request = requestFreshAccessToken()
 
             if (request.isSuccessful) {
                 return findLocation(address)
             }
 
-            val error = parseError(response.errorBody())
+            val error = parseError(response.bodyAsText())
             persistenceRepository.removeToken()
 
             return GeneralResponse.failure(
-                response.code(),
-                error?.message ?: "HTTP ${response.code()}"
+                response.status.value,
+                error?.message ?: "HTTP ${response.status.value}"
             )
         }
 
-        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+        return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
     }
 
     override suspend fun userInfo(): GeneralResponse<UserResponse> {
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
         val response = networkRepository.userInfo(token)
 
-        if (response.isSuccessful) {
+        if (response.status.isSuccess()) {
             return GeneralResponse.success(response.body()!!)
         }
 
-        if (response.code() == 403) {
+        if (response.status.value == 403) {
             val request = requestFreshAccessToken()
 
             if (request.isSuccessful) {
                 return userInfo()
             }
 
-            val error = parseError(response.errorBody())
+            val error = parseError(response.bodyAsText())
             persistenceRepository.removeToken()
 
-            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.status.value}")
         }
 
-        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+        return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
     }
 
     override suspend fun getUserStatistics(): GeneralResponse<UserStatistics> {
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
         val response = networkRepository.userStatistics(token)
 
-        if (!response.isSuccessful) {
-            return GeneralResponse.failure(response.code())
+        if (!response.status.isSuccess()) {
+            return GeneralResponse.failure(response.status.value)
         }
 
         return GeneralResponse.success(response.body()!!)
@@ -347,23 +354,23 @@ class DataRepositoryImpl @Inject constructor(
 
         val response = networkRepository.uploadCover(token, filePart)
 
-        if (response.isSuccessful) {
+        if (response.status.isSuccess()) {
             return GeneralResponse.success(response.body()!!)
         }
 
-        if (response.code() == 403 && !retried) {
+        if (response.status.value == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return uploadCover(file, retried = true)
             }
 
-            val error = parseError(response.errorBody())
+            val error = parseError(response.bodyAsText())
             persistenceRepository.removeToken()
 
-            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.status.value}")
         }
 
-        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+        return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
     }
 
     override suspend fun createEventApplication(
@@ -373,23 +380,23 @@ class DataRepositoryImpl @Inject constructor(
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
         val response = networkRepository.createEventApplication(token, eventId)
 
-        if (response.isSuccessful) {
+        if (response.status.isSuccess()) {
             return GeneralResponse.success(response.body()!!)
         }
 
-        if (response.code() == 403 && !retried) {
+        if (response.status.value == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return createEventApplication(eventId, retried = true)
             }
 
-            val error = parseError(response.errorBody())
+            val error = parseError(response.bodyAsText())
             persistenceRepository.removeToken()
 
-            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.status.value}")
         }
 
-        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+        return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
     }
 
 
@@ -397,71 +404,71 @@ class DataRepositoryImpl @Inject constructor(
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
         val response = networkRepository.getEvents(token, 0, 10)
 
-        if (response.isSuccessful) {
+        if (response.status.isSuccess()) {
             return GeneralResponse.success(response.body()!!)
         }
 
-        if (response.code() == 403 && !retried) {
+        if (response.status.value == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return getEvents(retried = true)
             }
 
-            val error = parseError(response.errorBody())
+            val error = parseError(response.bodyAsText())
             persistenceRepository.removeToken()
 
-            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.status.value}")
         }
 
-        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+        return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
     }
 
     override suspend fun getRecommendedEvents(): GeneralResponse<EventResponse> {
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
         val response = networkRepository.getRecommendedEvents(token, 0, 10)
 
-        if (response.isSuccessful) {
+        if (response.status.isSuccess()) {
             return GeneralResponse.success(response.body()!!)
         }
 
         /*
-        if (response.code() == 403) {
+        if (response.status.value == 403) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return getRecommendedEvents(retried = true)
             }
 
-            val error = parseError(response.errorBody())
+            val error = parseError(response.bodyAsText())
             persistenceRepository.removeToken()
 
-            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.status.value}")
         }
          */
 
-        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+        return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
     }
 
     override suspend fun getCoordinatorEvents(retried: Boolean): GeneralResponse<CoordinatorEventsResponse> {
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
         val response = networkRepository.getCoordinatorEvents(token, 0, 10)
 
-        if (response.isSuccessful) {
+        if (response.status.isSuccess()) {
             return GeneralResponse.success(response.body()!!)
         }
 
-        if (response.code() == 403 && !retried) {
+        if (response.status.value == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return getCoordinatorEvents(retried = true)
             }
 
-            val error = parseError(response.errorBody())
+            val error = parseError(response.bodyAsText())
             persistenceRepository.removeToken()
 
-            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.status.value}")
         }
 
-        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+        return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
     }
 
     override suspend fun createEvent(
@@ -489,11 +496,11 @@ class DataRepositoryImpl @Inject constructor(
         )
         val response = networkRepository.createEvent(token, request)
 
-        if (response.isSuccessful) {
-            return GeneralResponse.success(response.code())
+        if (response.status.isSuccess()) {
+            return GeneralResponse.success(response.status.value)
         }
 
-        if (response.code() == 403 && !retried) {
+        if (response.status.value == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return createEvent(
@@ -510,13 +517,13 @@ class DataRepositoryImpl @Inject constructor(
                 )
             }
 
-            val error = parseError(response.errorBody())
+            val error = parseError(response.bodyAsText())
             persistenceRepository.removeToken()
 
-            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.code()}")
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.status.value}")
         }
 
-        return GeneralResponse.failure(response.code(), "HTTP ${response.code()}")
+        return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
     }
 
     override suspend fun getEventById(eventId: Long): GeneralResponse<Event> {
@@ -526,11 +533,11 @@ class DataRepositoryImpl @Inject constructor(
         )
         val response = networkRepository.getEventById(token, eventId)
 
-        if (response.isSuccessful) {
+        if (response.status.isSuccess()) {
             return GeneralResponse.success(response.body()!!)
         }
         //TODO: handle session expiration!
-        return GeneralResponse.failure(response.code())
+        return GeneralResponse.failure(response.status.value)
     }
 
     override suspend fun deleteEvent(
@@ -543,11 +550,11 @@ class DataRepositoryImpl @Inject constructor(
         )
         val response = networkRepository.deleteEvent(token, eventId)
 
-        if (response.isSuccessful) {
-            return GeneralResponse.success(response.code())
+        if (response.status.isSuccess()) {
+            return GeneralResponse.success(response.status.value)
         }
 
-        if (response.code() == 403 && !retried) {
+        if (response.status.value == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return deleteEvent(eventId, retried = true)
@@ -556,8 +563,8 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, "Session expired")
         }
 
-        val error = parseError(response.errorBody())
-        return GeneralResponse.failure(response.code(), error?.message ?: "HTTP ${response.code()}")
+        val error = parseError(response.bodyAsText())
+        return GeneralResponse.failure(response.status.value, error?.message ?: "HTTP ${response.status.value}")
     }
 
     override suspend fun deleteCover(
@@ -570,11 +577,11 @@ class DataRepositoryImpl @Inject constructor(
         )
         val response = networkRepository.deleteCover(token, coverId)
 
-        if (response.isSuccessful) {
-            return GeneralResponse.success(response.code())
+        if (response.status.isSuccess()) {
+            return GeneralResponse.success(response.status.value)
         }
 
-        if (response.code() == 403 && !retried) {
+        if (response.status.value == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return deleteCover(coverId, retried = true)
@@ -582,8 +589,8 @@ class DataRepositoryImpl @Inject constructor(
             persistenceRepository.removeToken()
         }
 
-        val error = parseError(response.errorBody())
-        return GeneralResponse.failure(response.code(), error?.message ?: "HTTP ${response.code()}")
+        val error = parseError(response.bodyAsText())
+        return GeneralResponse.failure(response.status.value, error?.message ?: "HTTP ${response.status.value}")
     }
 
     override suspend fun createTag(
@@ -596,11 +603,11 @@ class DataRepositoryImpl @Inject constructor(
         )
         val response = networkRepository.createTag(token, TagRequest(tagName))
 
-        if (response.isSuccessful) {
-            return GeneralResponse.success(response.code())
+        if (response.status.isSuccess()) {
+            return GeneralResponse.success(response.status.value)
         }
 
-        if (response.code() == 403 && !retried) {
+        if (response.status.value == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return createTag(tagName, retried = true)
@@ -609,8 +616,8 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, "Session expired")
         }
 
-        val error = parseError(response.errorBody())
-        return GeneralResponse.failure(response.code(), error?.message ?: "HTTP ${response.code()}")
+        val error = parseError(response.bodyAsText())
+        return GeneralResponse.failure(response.status.value, error?.message ?: "HTTP ${response.status.value}")
     }
 
     override suspend fun getTagByName(
@@ -623,11 +630,11 @@ class DataRepositoryImpl @Inject constructor(
         )
         val response = networkRepository.getTagByName(token, tagName)
 
-        if (response.isSuccessful) {
+        if (response.status.isSuccess()) {
             return GeneralResponse.success(response.body()!!)
         }
 
-        if (response.code() == 403 && !retried) {
+        if (response.status.value == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return getTagByName(tagName, retried = true)
@@ -636,8 +643,8 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, "Session expired")
         }
 
-        val error = parseError(response.errorBody())
-        return GeneralResponse.failure(response.code(), error?.message ?: "HTTP ${response.code()}")
+        val error = parseError(response.bodyAsText())
+        return GeneralResponse.failure(response.status.value, error?.message ?: "HTTP ${response.status.value}")
     }
 
     override suspend fun deleteTagByName(
@@ -650,11 +657,11 @@ class DataRepositoryImpl @Inject constructor(
         )
         val response = networkRepository.deleteTagByName(token, tagName)
 
-        if (response.isSuccessful) {
-            return GeneralResponse.success(response.code())
+        if (response.status.isSuccess()) {
+            return GeneralResponse.success(response.status.value)
         }
 
-        if (response.code() == 403 && !retried) {
+        if (response.status.value == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return deleteTagByName(tagName, retried = true)
@@ -663,8 +670,8 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, "Session expired")
         }
 
-        val error = parseError(response.errorBody())
-        return GeneralResponse.failure(response.code(), error?.message ?: "HTTP ${response.code()}")
+        val error = parseError(response.bodyAsText())
+        return GeneralResponse.failure(response.status.value, error?.message ?: "HTTP ${response.status.value}")
     }
 
     override suspend fun getEventApplications(
@@ -674,9 +681,9 @@ class DataRepositoryImpl @Inject constructor(
         val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
         val response = networkRepository.getEventApplications(token, eventId, status)
 
-        if (response.isSuccessful) return GeneralResponse.success(response.body()!!.content)
+        if (response.status.isSuccess()) return GeneralResponse.success(response.body<ApplicationsResponse>().content)
 
-        if (response.code() == 403) {
+        if (response.status.value == 403) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return getEventApplications(eventId, status)
@@ -685,18 +692,18 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, "Session expired")
         }
 
-        return GeneralResponse.failure(response.code())
+        return GeneralResponse.failure(response.status.value)
     }
 
     override suspend fun getApplicationStatus(eventId: Long): GeneralResponse<String> {
         val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
         val response = networkRepository.getApplicationStatus(token, eventId)
 
-        if (response.isSuccessful)
-            return GeneralResponse.success(response.body()?.status ?: "")
+        if (response.status.isSuccess())
+            return GeneralResponse.success(response.body<ApplicationStatusResponse>().status ?: "")
 
         //TODO: handle session expire
-        return GeneralResponse.failure(response.code())
+        return GeneralResponse.failure(response.status.value)
     }
 
     override suspend fun updateApplicationStatus(
@@ -709,9 +716,9 @@ class DataRepositoryImpl @Inject constructor(
         val request = ApplicationStatusRequest(status, reason)
         val response = networkRepository.updateApplicationStatus(token, eventId, userId, request)
 
-        if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
+        if (response.status.isSuccess()) return GeneralResponse.success(response.body()!!)
 
-        if (response.code() == 403) {
+        if (response.status.value == 403) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return updateApplicationStatus(eventId, userId, status, reason)
@@ -720,7 +727,7 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, "Session expired")
         }
 
-        return GeneralResponse.failure(response.code())
+        return GeneralResponse.failure(response.status.value)
     }
 
     override suspend fun getUserRating(
@@ -734,8 +741,8 @@ class DataRepositoryImpl @Inject constructor(
         )
         val response = networkRepository.getUserRating(token, period, page, size)
 
-        if (!response.isSuccessful) {
-            return GeneralResponse.failure(response.code())
+        if (!response.status.isSuccess()) {
+            return GeneralResponse.failure(response.status.value)
         }
 
         return GeneralResponse.success(response.body()!!)
@@ -750,9 +757,9 @@ class DataRepositoryImpl @Inject constructor(
         val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
         val response = networkRepository.getCoordinatorRating(token, period, page, size)
 
-        if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
+        if (response.status.isSuccess()) return GeneralResponse.success(response.body()!!)
 
-        if (response.code() == 403 && !retried) {
+        if (response.status.value == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return getCoordinatorRating(period, page, size, true)
@@ -761,7 +768,7 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, "Session expired")
         }
 
-        return GeneralResponse.failure(response.code())
+        return GeneralResponse.failure(response.status.value)
     }
 
     override suspend fun assembleCoordinatorReportFile(
@@ -769,11 +776,11 @@ class DataRepositoryImpl @Inject constructor(
         retried: Boolean
     ): GeneralResponse<ResponseBody> {
         val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
-        val response = networkRepository.assembleCoordinatorReportFile(token, period)
+        val response = networkRepository.assembleCoordinatorReportFile(token, period).execute()
 
-        if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
+        if (response.status.isSuccess()) return GeneralResponse.success(response.body()!!)
 
-        if (response.code() == 403 && !retried) {
+        if (response.status.value == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return assembleCoordinatorReportFile(period, true)
@@ -782,7 +789,7 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, "Session expired")
         }
 
-        return GeneralResponse.failure(response.code())
+        return GeneralResponse.failure(response.status.value)
     }
 
     override suspend fun assembleUserReportFileByAdmin(
@@ -791,11 +798,11 @@ class DataRepositoryImpl @Inject constructor(
         retried: Boolean
     ): GeneralResponse<ResponseBody> {
         val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
-        val response = networkRepository.assembleUserReportFileByAdmin(token, id, period)
+        val response = networkRepository.assembleUserReportFileByAdmin(token, id, period).execute()
 
-        if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
+        if (response.status.isSuccess()) return GeneralResponse.success(response.body()!!)
 
-        if (response.code() == 403 && !retried) {
+        if (response.status.value == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return assembleUserReportFileByAdmin(id, period, true)
@@ -804,7 +811,7 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, "Session expired")
         }
 
-        return GeneralResponse.failure(response.code())
+        return GeneralResponse.failure(response.status.value)
     }
 
     override suspend fun assembleCoordinatorReportFileByAdmin(
@@ -813,11 +820,11 @@ class DataRepositoryImpl @Inject constructor(
         retried: Boolean
     ): GeneralResponse<ResponseBody> {
         val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
-        val response = networkRepository.assembleCoordinatorReportFileByAdmin(token, id, period)
+        val response = networkRepository.assembleCoordinatorReportFileByAdmin(token, id, period).execute()
 
-        if (response.isSuccessful) return GeneralResponse.success(response.body()!!)
+        if (response.status.isSuccess()) return GeneralResponse.success(response.body()!!)
 
-        if (response.code() == 403 && !retried) {
+        if (response.status.value == 403 && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return assembleCoordinatorReportFileByAdmin(id, period, true)
@@ -826,6 +833,6 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, "Session expired")
         }
 
-        return GeneralResponse.failure(response.code())
+        return GeneralResponse.failure(response.status.value)
     }
 }

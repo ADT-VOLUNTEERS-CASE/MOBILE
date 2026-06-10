@@ -1,14 +1,19 @@
 package org.adt.data.repository
 
+import de.jensklingenberg.ktorfit.http.Body
+import de.jensklingenberg.ktorfit.http.DELETE
+import de.jensklingenberg.ktorfit.http.GET
+import de.jensklingenberg.ktorfit.http.Header
+import de.jensklingenberg.ktorfit.http.Multipart
+import de.jensklingenberg.ktorfit.http.PATCH
+import de.jensklingenberg.ktorfit.http.POST
+import de.jensklingenberg.ktorfit.http.Part
+import de.jensklingenberg.ktorfit.http.Path
+import de.jensklingenberg.ktorfit.http.Query
+import de.jensklingenberg.ktorfit.http.Streaming
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.HttpStatement
 import okhttp3.MultipartBody
-import okhttp3.ResponseBody
-import org.adt.core.entities.Location
-import org.adt.core.entities.Tag
-import org.adt.core.entities.event.CoordinatorEventsResponse
-import org.adt.core.entities.event.Cover
-import org.adt.core.entities.event.Event
-import org.adt.core.entities.rating.CoordinatorRatingResponse
-import org.adt.core.entities.rating.RatingResponse
 import org.adt.core.entities.request.ApplicationStatusRequest
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.EventRequest
@@ -18,28 +23,8 @@ import org.adt.core.entities.request.LocationRequest
 import org.adt.core.entities.request.RefreshRequest
 import org.adt.core.entities.request.RegisterRequest
 import org.adt.core.entities.request.TagRequest
-import org.adt.core.entities.response.ApplicationStatusResponse
-import org.adt.core.entities.response.ApplicationsResponse
-import org.adt.core.entities.response.AuthResponse
-import org.adt.core.entities.response.EventResponse
-import org.adt.core.entities.response.FindLocationResponse
-import org.adt.core.entities.response.UserEventResponse
-import org.adt.core.entities.response.UserResponse
-import org.adt.core.entities.user.statistics.UserStatistics
-import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.Multipart
-import retrofit2.http.PATCH
-import retrofit2.http.POST
-import retrofit2.http.Part
-import retrofit2.http.Path
-import retrofit2.http.Query
-import retrofit2.http.Streaming
 
-interface RetrofitRepository {
+interface KtorRepository {
     //---------------------
     //   auth-controller
     //---------------------
@@ -60,7 +45,7 @@ interface RetrofitRepository {
     @POST("v1/auth/authenticate")
     suspend fun authenticate(
         @Body request: AuthRequest
-    ): Response<AuthResponse>
+    ): HttpResponse
 
     /**
      * SUCCESS:
@@ -78,7 +63,7 @@ interface RetrofitRepository {
     @POST("v1/auth/register")
     suspend fun registerVolunteer(
         @Body request: RegisterRequest
-    ): Response<AuthResponse>
+    ): HttpResponse
 
     /**
      * SUCCESS:
@@ -97,7 +82,7 @@ interface RetrofitRepository {
     suspend fun registerCoordinator(
         @Header("Authorization") auth: String,
         @Body request: RegisterRequest
-    ): Response<AuthResponse>
+    ): HttpResponse
 
     /**
      * SUCCESS:
@@ -116,7 +101,7 @@ interface RetrofitRepository {
     suspend fun registerAdmin(
         @Header("Authorization") auth: String,
         @Body request: RegisterRequest
-    ): Response<AuthResponse>
+    ): HttpResponse
 
     /**
      * SUCCESS:
@@ -132,7 +117,7 @@ interface RetrofitRepository {
     @POST("v1/auth/refreshtoken")
     suspend fun refreshToken(
         @Body request: RefreshRequest
-    ): Response<AuthResponse>
+    ): HttpResponse
     //endregion
 
     //-----------------------
@@ -153,7 +138,7 @@ interface RetrofitRepository {
     suspend fun assembleCoordinatorReportFile(
         @Header("Authorization") auth: String,
         @Query("period") period: String? = "monthly", // monthly or overall
-    ): Response<ResponseBody>
+    ): HttpStatement
 
     /**
      * SUCCESS:
@@ -170,7 +155,7 @@ interface RetrofitRepository {
         @Header("Authorization") auth: String,
         @Query("id") id: Long? = null,
         @Query("period") period: String? = "monthly",
-    ): Response<ResponseBody>
+    ): HttpStatement
 
     /**
      * SUCCESS:
@@ -187,7 +172,7 @@ interface RetrofitRepository {
         @Header("Authorization") auth: String,
         @Query("id") id: Long? = null,
         @Query("period") period: String? = "monthly",
-    ): Response<ResponseBody>
+    ): HttpStatement
     //endregion
 
     //-----------------------
@@ -213,7 +198,7 @@ interface RetrofitRepository {
         @Query("period") period: String? = "monthly", // monthly or overall
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20
-    ): Response<CoordinatorRatingResponse>
+    ): HttpResponse
     //endregion
 
     //---------------------------
@@ -239,7 +224,7 @@ interface RetrofitRepository {
     suspend fun createEventApplication(
         @Header("Authorization") auth: String,
         @Path("eventId") eventId: Long,
-    ): Response<UserEventResponse>
+    ): HttpResponse
 
     @GET("v1/user-event/coordinator/events/{eventId}/applications")
     suspend fun getEventApplications(
@@ -248,14 +233,14 @@ interface RetrofitRepository {
         @Query("status") status: String?,
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20
-    ): Response<ApplicationsResponse>
+    ): HttpResponse
 
 
     @GET("/api/v1/user-event/status/{eventId}")
     suspend fun getApplicationStatus(
         @Header("Authorization") auth: String,
         @Path("eventId") eventId: Long,
-    ): Response<ApplicationStatusResponse?>
+    ): HttpResponse
 
     @PATCH("v1/user-event/coordinator/events/{eventId}/applications/{userId}/status")
     suspend fun updateApplicationStatus(
@@ -263,14 +248,14 @@ interface RetrofitRepository {
         @Path("eventId") eventId: Long,
         @Path("userId") userId: Long,
         @Body request: ApplicationStatusRequest
-    ): Response<UserEventResponse>
+    ): HttpResponse
 
     @GET("v1/user-event/coordinator/events")
     suspend fun getCoordinatorEvents(
         @Header("Authorization") auth: String,
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 10
-    ): Response<CoordinatorEventsResponse>
+    ): HttpResponse
 
     //endregion
 
@@ -294,7 +279,7 @@ interface RetrofitRepository {
     suspend fun createTag(
         @Header("Authorization") auth: String,
         @Body request: TagRequest
-    ): Response<Void>
+    ): HttpResponse
 
     /**
      * SUCCESS:
@@ -311,7 +296,7 @@ interface RetrofitRepository {
     suspend fun getTagByName(
         @Header("Authorization") auth: String,
         @Path("tagName") tagName: String,
-    ): Response<Tag>
+    ): HttpResponse
 
     /**
      * SUCCESS:
@@ -328,7 +313,7 @@ interface RetrofitRepository {
     suspend fun deleteTagByName(
         @Header("Authorization") auth: String,
         @Path("tagName") tagName: String,
-    ): Response<Void>
+    ): HttpResponse
 
     /**
      * SUCCESS:
@@ -345,7 +330,7 @@ interface RetrofitRepository {
     suspend fun getTagById(
         @Header("Authorization") auth: String,
         @Path("tagId") tagId: Int,
-    ): Response<Tag>
+    ): HttpResponse
 
     /**
      * SUCCESS:
@@ -362,7 +347,7 @@ interface RetrofitRepository {
     suspend fun deleteTagById(
         @Header("Authorization") auth: String,
         @Path("tagId") tagId: Int,
-    ): Response<Void>
+    ): HttpResponse
 
     //endregion
 
@@ -385,7 +370,7 @@ interface RetrofitRepository {
     suspend fun createLocation(
         @Header("Authorization") auth: String,
         @Body request: LocationRequest
-    ): Response<Int>
+    ): HttpResponse
 
     /**
      * SUCCESS:
@@ -404,7 +389,7 @@ interface RetrofitRepository {
         @Query("page") page: Int,
         @Query("size") size: Int,
         @Body request: FindLocationRequest
-    ): Response<FindLocationResponse>
+    ): HttpResponse
 
     /**
      * SUCCESS:
@@ -424,7 +409,7 @@ interface RetrofitRepository {
         @Header("Authorization") auth: String,
         @Path("locationId") locationId: Int,
         @Body request: LocationRequest
-    ): Response<Location>
+    ): HttpResponse
     //endregion
 
     //----------------------
@@ -449,7 +434,7 @@ interface RetrofitRepository {
         @Query("page") page: Int,
         @Query("size") size: Int,
         @Body request: FindEventRequest
-    ): Response<EventResponse>
+    ): HttpResponse
 
     /**
      * SUCCESS:
@@ -467,7 +452,7 @@ interface RetrofitRepository {
         @Header("Authorization") auth: String,
         @Query("page") page: Int,
         @Query("size") size: Int,
-    ): Response<EventResponse>
+    ): HttpResponse
 
     /**
      * SUCCESS:
@@ -483,7 +468,7 @@ interface RetrofitRepository {
         @Header("Authorization") auth: String,
         @Query("page") page: Int,
         @Query("size") size: Int,
-    ): Response<EventResponse>
+    ): HttpResponse
 
     /**
      * SUCCESS:
@@ -504,7 +489,7 @@ interface RetrofitRepository {
     suspend fun createEvent(
         @Header("Authorization") auth: String,
         @Body request: EventRequest
-    ): Response<Void>
+    ): HttpResponse
 
     /**
      * SUCCESS:
@@ -522,7 +507,7 @@ interface RetrofitRepository {
     suspend fun getEventById(
         @Header("Authorization") auth: String,
         @Path("eventId") eventId: Long,
-    ): Response<Event>
+    ): HttpResponse
 
     /**
      * SUCCESS:
@@ -541,7 +526,7 @@ interface RetrofitRepository {
     suspend fun deleteEvent(
         @Header("Authorization") auth: String,
         @Path("eventId") eventId: Long
-    ): Response<Void>
+    ): HttpResponse
 
     //endregion
 
@@ -570,7 +555,7 @@ interface RetrofitRepository {
     suspend fun uploadCover(
         @Header("Authorization") auth: String,
         @Part file: MultipartBody.Part
-    ): Response<Cover>
+    ): HttpResponse
 
     /**
      * SUCCESS:
@@ -591,7 +576,7 @@ interface RetrofitRepository {
     suspend fun deleteCover(
         @Header("Authorization") auth: String,
         @Path("coverId") coverId: Long
-    ): Response<Void>
+    ): HttpResponse
 
     //endregion
 
@@ -612,12 +597,12 @@ interface RetrofitRepository {
     @GET("v1/user/me")
     suspend fun userInfo(
         @Header("Authorization") auth: String
-    ): Response<UserResponse>
+    ): HttpResponse
 
     @GET("v2/user/statistics")
     suspend fun userStatistics(
         @Header("Authorization") auth: String
-    ): Response<UserStatistics>
+    ): HttpResponse
 
     @GET("v2/user/rating")
     suspend fun getUserRating(
@@ -625,7 +610,7 @@ interface RetrofitRepository {
         @Query("period") period: String = "monthly",
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20
-    ): Response<RatingResponse>
+    ): HttpResponse
     //endregion
 
     //---------------------
@@ -634,7 +619,7 @@ interface RetrofitRepository {
     //region demo controller content
 
     @GET("v1/ping")
-    suspend fun ping(): Response<String>
+    suspend fun ping(): HttpResponse
 
     //endregion
 }
