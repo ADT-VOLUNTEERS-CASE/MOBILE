@@ -236,7 +236,7 @@ interface KtorRepository {
     ): HttpResponse
 
 
-    @GET("/api/v1/user-event/status/{eventId}")
+    @GET("v1/user-event/status/{eventId}")
     suspend fun getApplicationStatus(
         @Header("Authorization") auth: String,
         @Path("eventId") eventId: Long,

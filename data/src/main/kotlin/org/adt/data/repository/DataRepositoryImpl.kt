@@ -696,11 +696,13 @@ class DataRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getApplicationStatus(eventId: Long): GeneralResponse<String> {
-        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
+        val token = persistenceRepository.getToken()
+        if (token == null)
+            return GeneralResponse.failure(401)
         val response = networkRepository.getApplicationStatus(token, eventId)
 
         if (response.status.isSuccess())
-            return GeneralResponse.success(response.body<ApplicationStatusResponse>().status ?: "")
+            return GeneralResponse.success(response.body<ApplicationStatusResponse>().status)
 
         //TODO: handle session expire
         return GeneralResponse.failure(response.status.value)
