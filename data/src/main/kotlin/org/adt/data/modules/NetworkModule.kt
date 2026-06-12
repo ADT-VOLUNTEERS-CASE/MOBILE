@@ -20,6 +20,7 @@ import org.adt.data.abstraction.NetworkStatusProvider
 import org.adt.data.repository.KtorRepository
 import org.adt.data.repository.createKtorRepository
 import javax.inject.Singleton
+import kotlin.coroutines.cancellation.CancellationException
 
 
 @Module
@@ -37,7 +38,7 @@ internal object NetworkModule {
     ) = createClientPlugin("OfflineAndExceptionPlugin") {
         onRequest { request, _ ->
             if (!networkStatusProvider.isInternetAvailable()) {
-                throw NetworkUnavailableException("No internet connection")
+                throw CancellationException("No internet connection")
             }
         }
 
@@ -102,5 +103,3 @@ internal object NetworkModule {
         return ktorfit.createKtorRepository()
     }
 }
-
-class NetworkUnavailableException(message: String) : Exception(message)
