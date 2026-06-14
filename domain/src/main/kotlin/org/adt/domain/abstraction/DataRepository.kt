@@ -1,6 +1,5 @@
 package org.adt.domain.abstraction
 
-import okhttp3.ResponseBody
 import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.Location
 import org.adt.core.entities.Tag
@@ -10,10 +9,10 @@ import org.adt.core.entities.event.Cover
 import org.adt.core.entities.event.Event
 import org.adt.core.entities.event.EventApplication
 import org.adt.core.entities.rating.CoordinatorRatingResponse
+import org.adt.core.entities.rating.RatingResponse
 import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
-import org.adt.core.entities.rating.RatingResponse
 import org.adt.core.entities.user.statistics.UserStatistics
 import java.io.File
 
@@ -106,8 +105,8 @@ interface DataRepository {
 
     suspend fun getCoordinatorRating(period: String = "monthly", page: Int = 0, size: Int = 20, retried: Boolean = false): GeneralResponse<CoordinatorRatingResponse>
 
-    suspend fun assembleCoordinatorReportFile(period: String = "monthly", retried: Boolean = false): GeneralResponse<ResponseBody>
-    suspend fun assembleUserReportFileByAdmin(id: Long, period: String = "monthly", retried: Boolean = false): GeneralResponse<ResponseBody>
-    suspend fun assembleCoordinatorReportFileByAdmin(id: Long, period: String = "monthly", retried: Boolean = false): GeneralResponse<ResponseBody>
+    suspend fun assembleCoordinatorReportFile(period: String = "monthly", retried: Boolean = false): GeneralResponse<ByteArray>
+    suspend fun assembleUserReportFileByAdmin(id: Long, period: String = "monthly", retried: Boolean = false): GeneralResponse<ByteArray>
+    suspend fun assembleCoordinatorReportFileByAdmin(id: Long, period: String = "monthly", retried: Boolean = false): GeneralResponse<ByteArray>
 
 }

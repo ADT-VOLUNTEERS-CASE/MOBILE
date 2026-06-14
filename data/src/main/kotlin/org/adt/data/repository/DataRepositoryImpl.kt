@@ -2,12 +2,12 @@ package org.adt.data.repository
 
 import io.ktor.client.call.body
 import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.readRawBytes
 import io.ktor.http.isSuccess
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.ResponseBody
 import org.adt.core.annotations.RepositoryImpl
 import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.Location
@@ -774,11 +774,11 @@ class DataRepositoryImpl @Inject constructor(
     override suspend fun assembleCoordinatorReportFile(
         period: String,
         retried: Boolean
-    ): GeneralResponse<ResponseBody> {
+    ): GeneralResponse<ByteArray> {
         val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
         val response = networkRepository.assembleCoordinatorReportFile(token, period).execute()
 
-        if (response.status.isSuccess()) return GeneralResponse.success(response.body()!!)
+        if (response.status.isSuccess()) return GeneralResponse.success(response.readRawBytes())
 
         if (response.status.value == 403 && !retried) {
             val refresh = requestFreshAccessToken()
@@ -796,11 +796,11 @@ class DataRepositoryImpl @Inject constructor(
         id: Long,
         period: String,
         retried: Boolean
-    ): GeneralResponse<ResponseBody> {
+    ): GeneralResponse<ByteArray> {
         val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
         val response = networkRepository.assembleUserReportFileByAdmin(token, id, period).execute()
 
-        if (response.status.isSuccess()) return GeneralResponse.success(response.body()!!)
+        if (response.status.isSuccess()) return GeneralResponse.success(response.readRawBytes())
 
         if (response.status.value == 403 && !retried) {
             val refresh = requestFreshAccessToken()
@@ -818,11 +818,11 @@ class DataRepositoryImpl @Inject constructor(
         id: Long,
         period: String,
         retried: Boolean
-    ): GeneralResponse<ResponseBody> {
+    ): GeneralResponse<ByteArray> {
         val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
         val response = networkRepository.assembleCoordinatorReportFileByAdmin(token, id, period).execute()
 
-        if (response.status.isSuccess()) return GeneralResponse.success(response.body()!!)
+        if (response.status.isSuccess()) return GeneralResponse.success(response.readRawBytes())
 
         if (response.status.value == 403 && !retried) {
             val refresh = requestFreshAccessToken()

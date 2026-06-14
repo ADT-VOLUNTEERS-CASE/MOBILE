@@ -58,10 +58,10 @@ fun ReportScreen(viewModel: ReportViewModel) {
     val context = LocalContext.current
 
     LaunchedEffect(uiState.downloadedFile) {
-        uiState.downloadedFile?.let { body ->
+        uiState.downloadedFile?.let { bytes ->
             val success = viewModel.saveFileToDownloads(
                 context = context,
-                responseBody = body,
+                bytes = bytes,
                 fileName = "report-${System.currentTimeMillis()}.pdf"
             )
             if (success) {

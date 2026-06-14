@@ -66,10 +66,6 @@ dependencies{
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
 
-    implementation(libs.retrofit)
-    implementation(libs.converter.scalars)
-    implementation(libs.converter.serialization)
-
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)
 
