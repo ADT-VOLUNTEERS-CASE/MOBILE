@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.adt.data.abstraction.PersistenceRepository
-import org.adt.domain.abstraction.DataRepository
 import javax.inject.Inject
 
 @HiltViewModel
