@@ -32,6 +32,7 @@ import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.NobleSapphireGradient
 import org.adt.presentation.theme.VolunteersCaseTheme
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun SplashScreen(
@@ -72,7 +73,7 @@ fun SplashContent(
             }
         }
 
-        delay(1800)
+        delay(1800.milliseconds)
 
         coroutineScope {
             launch {
@@ -83,7 +84,7 @@ fun SplashContent(
             }
         }
 
-        delay(200)
+        delay(200.milliseconds)
 
         pingAction.invoke()
 

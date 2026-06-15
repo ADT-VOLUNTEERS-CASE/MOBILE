@@ -48,7 +48,7 @@ import org.adt.presentation.screens.splash.SplashViewModel
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
-    innerPadding: PaddingValues = PaddingValues()
+    @Suppress("UNUSED_PARAMETER") innerPadding: PaddingValues = PaddingValues()
 ) {
     NavHost(
         navController, startDestination = Destinations.Splash,

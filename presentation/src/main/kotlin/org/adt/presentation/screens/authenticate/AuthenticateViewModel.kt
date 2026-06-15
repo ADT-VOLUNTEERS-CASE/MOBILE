@@ -24,7 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 //TODO: Use `Logger` for.. Logging!
 class AuthenticateViewModel @Inject constructor(
-    private val _domainRepository: DomainRepository,
+    @Suppress("UNUSED_PARAMETER") private val _domainRepository: DomainRepository,
     private val _dataRepository: DataRepository,
     private val _persistenceRepository: PersistenceRepository
 ) : ViewModel() {
@@ -83,14 +83,14 @@ class AuthenticateViewModel @Inject constructor(
         }
     }
 
-    private fun clearErrorMessage(){
+    private fun clearErrorMessage() {
         _uiState.update { it.copy(authError = null) }
     }
 
     private fun populateFailure(
         displayError: String? = null,
         logMessage: String = "",
-        tagSuffix: String = "Main"
+        @Suppress("SameParameterValue") tagSuffix: String = "Main"
     ) {
         _uiState.update {
             it.copy(

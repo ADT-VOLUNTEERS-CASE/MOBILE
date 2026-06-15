@@ -10,7 +10,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
-    private val _dataRepository: DataRepository,
     private val _persistenceRepository: PersistenceRepository,
 ) : ViewModel() {
 
