@@ -2,6 +2,7 @@ package org.adt.storage.repository
 
 import android.content.Context
 import android.util.Log
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -26,10 +27,22 @@ class PersistenceRepositoryImpl @Inject constructor(
         private val KEY_TOKEN = stringPreferencesKey("accessToken")
         private val KEY_REFRESH_TOKEN = stringPreferencesKey("requestFreshAccessToken")
         private val KEY_ROLE = stringPreferencesKey("userRole")
+        private val KEY_ONBOARDING_COMPLETED = booleanPreferencesKey("onboardingCompleted")
     }
 
     val tokenFlow: Flow<String?> = context.dataStore.data.map { prefs ->
         prefs[KEY_TOKEN]?.let { "Bearer $it" }
+    }
+
+    override val onboardingCompletedFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[KEY_ONBOARDING_COMPLETED] ?: false
+    }
+
+    override suspend fun saveOnboardingCompleted() {
+        Log.d("OnboardingStorage", "Saving onboarding completed: true")
+        context.dataStore.edit { prefs ->
+            prefs[KEY_ONBOARDING_COMPLETED] = true
+        }
     }
 
     override val roleFlow: Flow<UserRole> =

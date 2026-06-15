@@ -36,6 +36,8 @@ import org.adt.presentation.screens.home.volunteer.rating.RatingScreen
 import org.adt.presentation.screens.home.volunteer.rating.RatingViewModel
 import org.adt.presentation.screens.home.volunteer.statistics.StatisticsScreen
 import org.adt.presentation.screens.home.volunteer.statistics.StatisticsViewModel
+import org.adt.presentation.screens.onboarding.OnboardingScreen
+import org.adt.presentation.screens.onboarding.OnboardingViewModel
 import org.adt.presentation.screens.register.RegisterScreen
 import org.adt.presentation.screens.register.RegisterViewModel
 import org.adt.presentation.screens.register.admin.AdminRegisterScreen
@@ -78,6 +80,11 @@ fun NavigationGraph(
         composable<Destinations.Splash> {
             val viewModel: SplashViewModel = hiltViewModel()
             SplashScreen(navController, viewModel)
+        }
+
+        composable<Destinations.Onboarding> {
+            val viewModel: OnboardingViewModel = hiltViewModel()
+            OnboardingScreen(navController, viewModel)
         }
 
         composable<Destinations.Authenticate> {

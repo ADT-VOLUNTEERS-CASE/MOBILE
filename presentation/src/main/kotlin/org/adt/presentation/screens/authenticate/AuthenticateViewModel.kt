@@ -9,9 +9,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.adt.core.entities.UserRole
 import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.abstraction.DataRepository
 import org.adt.domain.abstraction.DomainRepository
@@ -39,12 +41,10 @@ class AuthenticateViewModel @Inject constructor(
 
     //TODO: __GOD_FORGIVE_ME__(REWRITE THIS.. PLEASE..)
     fun onContinueClick(navController: NavHostController) {
-        if (!_fieldsState.value.isFormValid)
-            return
+        if (!_fieldsState.value.isFormValid) return
 
         viewModelScope.launch(Dispatchers.IO) {
             clearErrorMessage()
-
             _uiState.update { it.copy(isLoading = true) }
 
             val response = _dataRepository.authenticate(
@@ -58,13 +58,19 @@ class AuthenticateViewModel @Inject constructor(
                     logMessage = response.message,
                     tagSuffix = "Auth"
                 )
-
+                _uiState.update { it.copy(isLoading = false) }
                 return@launch
             }
 
             val role = _dataRepository.getCurrentUserRole()
             _persistenceRepository.saveRole(role)
-            val destination = Destinations.mapRole(role)
+
+            val destination = if (role == UserRole.VOLUNTEER) {
+                val isOnboardingCompleted = _persistenceRepository.onboardingCompletedFlow.first()
+                if (isOnboardingCompleted) Destinations.VolunteerHome else Destinations.Onboarding
+            } else {
+                Destinations.mapRole(role)
+            }
 
             withContext(Dispatchers.Main) {
                 navController.navigate(destination) {

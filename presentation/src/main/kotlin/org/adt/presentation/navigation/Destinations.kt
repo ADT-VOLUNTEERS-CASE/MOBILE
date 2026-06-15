@@ -9,6 +9,9 @@ sealed class Destinations {
     data object Splash : Destinations()
 
     @Serializable
+    data object Onboarding : Destinations()
+
+    @Serializable
     data object Home : Destinations()
 
     @Serializable
@@ -22,12 +25,6 @@ sealed class Destinations {
 
     @Serializable
     data object AdminDashboard : Destinations()
-
-    @Serializable
-    data object AdminHome : Destinations()
-
-    @Serializable
-    data object AdminUsers : Destinations()
 
     @Serializable
     data object AdminSystemTools : Destinations()

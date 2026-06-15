@@ -30,8 +30,8 @@ import org.adt.presentation.R
 import org.adt.presentation.components.TypingText
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Arctic
+import org.adt.presentation.theme.NobleSapphireGradient
 import org.adt.presentation.theme.VolunteersCaseTheme
-import org.adt.presentation.theme.extendedColor
 
 @Composable
 fun SplashScreen(
@@ -93,7 +93,7 @@ fun SplashContent(
     Box(
         Modifier
             .fillMaxSize()
-            .background(extendedColor.primaryBackground),
+            .background(NobleSapphireGradient),
         contentAlignment = Alignment.Center
     ) {
         Box(
