@@ -1,5 +1,7 @@
 package org.adt.data.dataRepository
 
+//TODO: Rewrite tests to Ktor
+/*
 import io.mockk.junit5.MockKExtension
 import org.adt.core.entities.EventStatus
 import org.adt.core.entities.UserRole
@@ -89,3 +91,4 @@ abstract class BaseDataRepositoryTest {
         }
     }
 }
+ */

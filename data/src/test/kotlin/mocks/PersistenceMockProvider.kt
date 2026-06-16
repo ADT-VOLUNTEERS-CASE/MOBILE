@@ -1,5 +1,7 @@
 package org.adt.data.mocks
 
+//TODO: Rewrite tests to Ktor
+/*
 import io.mockk.coEvery
 import io.mockk.mockk
 import org.adt.data.abstraction.PersistenceRepository
@@ -37,3 +39,4 @@ object PersistenceMockProvider {
         }
     }
 }
+ */

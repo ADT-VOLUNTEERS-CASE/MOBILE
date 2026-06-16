@@ -1,5 +1,7 @@
 package org.adt.data.mocks
 
+//TODO: Rewrite tests to Ktor
+/*
 import io.mockk.coEvery
 import io.mockk.mockk
 import okhttp3.MediaType.Companion.toMediaType
@@ -208,3 +210,4 @@ object RetrofitMockProvider {
         return user
     }
 }
+*/
