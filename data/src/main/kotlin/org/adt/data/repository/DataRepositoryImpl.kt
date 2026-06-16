@@ -280,7 +280,10 @@ class DataRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun findLocation(address: String): GeneralResponse<List<Location>> {
+    override suspend fun findLocation(
+        address: String,
+        retried: Boolean,
+    ): GeneralResponse<List<Location>> {
         val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(
             401,
             "Not authorized"
@@ -292,11 +295,11 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.success(response.body<FindLocationResponse>().content)
         }
 
-        if (response.status.value == 403) {
+        if (response.status.value == 403 && !retried) {
             val request = requestFreshAccessToken()
 
             if (request.isSuccessful) {
-                return findLocation(address)
+                return findLocation(address, retried = true)
             }
 
             val error = parseError(response.bodyAsText())

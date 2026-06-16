@@ -51,7 +51,7 @@ interface DataRepository {
 
     suspend fun findEvent(name: String, retried: Boolean = false): GeneralResponse<List<Event>>
 
-    suspend fun findLocation(address: String): GeneralResponse<List<Location>>
+    suspend fun findLocation(address: String, retried: Boolean = false): GeneralResponse<List<Location>>
 
     suspend fun userInfo(): GeneralResponse<UserResponse>
 
