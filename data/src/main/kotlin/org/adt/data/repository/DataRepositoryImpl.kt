@@ -792,7 +792,7 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, "Session expired")
         }
 
-        return GeneralResponse.failure(response.status.value)
+        return GeneralResponse.failure(response.status.value, response.bodyAsText())
     }
 
     override suspend fun assembleUserReportFileByAdmin(
@@ -814,7 +814,7 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, "Session expired")
         }
 
-        return GeneralResponse.failure(response.status.value)
+        return GeneralResponse.failure(response.status.value, response.bodyAsText())
     }
 
     override suspend fun assembleCoordinatorReportFileByAdmin(
@@ -836,6 +836,6 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, "Session expired")
         }
 
-        return GeneralResponse.failure(response.status.value)
+        return GeneralResponse.failure(response.status.value, response.bodyAsText())
     }
 }
