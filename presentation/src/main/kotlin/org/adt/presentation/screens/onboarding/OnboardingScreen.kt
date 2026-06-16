@@ -53,6 +53,7 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -99,26 +100,26 @@ fun OnboardingContent(
 ) {
     val pages = listOf(
         OnboardingPage(
-            title = "Каталог и мероприятия",
-            description = "Просматривай список ярких событий\nи записывайся на них в один клик",
+            title = stringResource(R.string.onboarding_page_1_title),
+            description = stringResource(R.string.onboarding_page_1_label),
             imageRes = R.drawable.newspaper,
             fadeMode = EdgeFadeMode.BOTTOM
         ),
         OnboardingPage(
-            title = "Глобальный рейтинг",
-            description = "Участвуй в активностях, делай добро\nи соревнуйся с ребятами со всего мира",
+            title = stringResource(R.string.onboarding_page_2_title),
+            description = stringResource(R.string.onboarding_page_2_label),
             imageRes = R.drawable.love_note,
             fadeMode = EdgeFadeMode.BOTTOM
         ),
         OnboardingPage(
-            title = "Личная статистика",
-            description = "Отслеживай свой прогресс, развивай\nполезные навыки и оценивай результаты",
+            title = stringResource(R.string.onboarding_page_3_title),
+            description = stringResource(R.string.onboarding_page_3_label),
             imageRes = R.drawable.statistics,
             fadeMode = EdgeFadeMode.HORIZONTAL
         ),
         OnboardingPage(
-            title = "Удобный календарь",
-            description = "Управляй своим временем эффективно.\nВсе важные события всегда под рукой",
+            title = stringResource(R.string.onboarding_page_4_title),
+            description = stringResource(R.string.onboarding_page_4_label),
             imageRes = R.drawable.calendar,
             fadeMode = EdgeFadeMode.BOTTOM
         )
@@ -189,7 +190,7 @@ fun OnboardingContent(
                         )
                 ) {
                     Text(
-                        text = if (enabled) "Пропустить" else "",
+                        text = if (enabled) stringResource(R.string.button_skip) else "",
                         style = extendedTypography.titleMedium.copy(
                             color = if (enabled) Graphite.copy(alpha = 0.85f) else Color.Transparent
                         )
@@ -332,7 +333,8 @@ fun OnboardingContent(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = if (isLastPage) "Начать" else "Далее",
+                                text = if (isLastPage) stringResource(R.string.button_start)
+                                else stringResource(R.string.button_next),
                                 style = extendedTypography.displayMedium.copy(
                                     color = Lagoon.copy(alpha = 0.85f)
                                 )
@@ -444,7 +446,6 @@ private fun OnboardingPageItem(
     }
 }
 
-
 private data class OnboardingPage(
     val title: String,
     val description: String,
@@ -457,7 +458,6 @@ private enum class EdgeFadeMode {
     BOTTOM,
     HORIZONTAL
 }
-
 
 @Preview
 @Composable

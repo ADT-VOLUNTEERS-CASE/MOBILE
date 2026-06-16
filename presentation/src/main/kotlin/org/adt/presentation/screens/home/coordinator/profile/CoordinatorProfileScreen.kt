@@ -42,12 +42,14 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.adt.presentation.BuildConfig
+import org.adt.presentation.R
 import org.adt.presentation.components.cards.ProfileMenuCard
 import org.adt.presentation.components.misc.NotImplementedSheet
 import org.adt.presentation.navigation.Destinations
@@ -140,7 +142,7 @@ fun CoordinatorProfileScreenContent(
                     }
                     .padding(top = 40.dp, bottom = 40.dp),
                 contentAlignment = Alignment.Center
-            ){
+            ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Surface(
                         modifier = Modifier.size(110.dp),
@@ -160,7 +162,7 @@ fun CoordinatorProfileScreenContent(
                     Spacer(Modifier.height(16.dp))
 
                     Text(
-                        text = profileState.firstName.ifEmpty { "Координатор" },
+                        text = profileState.firstName.ifEmpty { stringResource(R.string.role_coordinator) },
                         style = MaterialTheme.typography.headlineMedium,
                         color = Color.White,
                         fontWeight = FontWeight.Bold
@@ -178,7 +180,7 @@ fun CoordinatorProfileScreenContent(
                             Icon(Icons.Default.Star, null, Modifier.size(14.dp), Color.White)
                             Spacer(Modifier.width(4.dp))
                             Text(
-                                "Опытный координатор",
+                                stringResource(R.string.role_coordinator_rank),
                                 style = VolunteersCaseTheme.typography.labelMedium,
                                 color = Color.White
                             )
@@ -201,16 +203,16 @@ fun CoordinatorProfileScreenContent(
                 )
 
                 ProfileMenuCard(
-                    title = "Безопасность",
-                    subtitle = "Пароль, вход по биометрии",
+                    title = stringResource(R.string.subtitle_safety),
+                    subtitle = stringResource(R.string.body_biometrical),
                     icon = Icons.Default.Security,
                     iconColor = Aqua,
                     onClick = { showWIPSheet = true }
                 )
 
                 ProfileMenuCard(
-                    title = "История активности",
-                    subtitle = "Ваш вклад и посещенные события",
+                    title = stringResource(R.string.subtitle_activity_history),
+                    subtitle = stringResource(R.string.body_contribution),
                     icon = Icons.Default.History,
                     iconColor = Mint,
                     onClick = { showWIPSheet = true }
@@ -240,7 +242,7 @@ fun CoordinatorProfileScreenContent(
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            "Выйти из аккаунта",
+                            stringResource(R.string.button_logout),
                             style = VolunteersCaseTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -251,7 +253,7 @@ fun CoordinatorProfileScreenContent(
             Spacer(Modifier.height(32.dp))
 
             Text(
-                text = "Версия ${BuildConfig.VERSION_NAME}",
+                text = stringResource(R.string.app_version, { BuildConfig.VERSION_NAME }),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 24.dp),
@@ -267,8 +269,6 @@ fun CoordinatorProfileScreenContent(
         NotImplementedSheet { showWIPSheet = false }
     }
 }
-
-
 
 @Preview
 @Composable

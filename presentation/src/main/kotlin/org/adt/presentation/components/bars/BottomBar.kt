@@ -195,7 +195,7 @@ sealed class BottomNavItem(
     )
 }
 
-@SuppressLint("ConfigurationScreenWidthHeight")
+@SuppressLint("ConfigurationScreenWidthHeight", "UseOfNonLambdaOffsetOverload")
 @Composable
 fun FancyBottomNavigationBar(
     navController: NavHostController,
@@ -227,7 +227,7 @@ fun FancyBottomNavigationBar(
                 val offsetY = (-4).dp.toPx()
 
                 drawContext.canvas.save()
-                val paint = androidx.compose.ui.graphics.Paint().apply {
+                @Suppress("DEPRECATION") val paint = androidx.compose.ui.graphics.Paint().apply {
                     val nativePaint = asFrameworkPaint()
                     nativePaint.color = shadowColor.toArgb()
 

@@ -1,5 +1,6 @@
 package org.adt.presentation.components.rating
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -41,7 +42,7 @@ import org.adt.presentation.theme.VolunteersCaseTheme
 fun ErrorBanner(
     message: String,
     onDismiss: () -> Unit = {},
-    modifier: Modifier = Modifier,
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
     animationOverride: Boolean = false,
 ) {
     var visible by remember { mutableStateOf(animationOverride) }
@@ -87,7 +88,7 @@ fun ErrorBanner(
                 IconButton(onClick = onDismiss) {
                     Icon(
                         imageVector = Icons.Filled.Close,
-                        contentDescription = "Закрыть",
+                        contentDescription = "Close",
                         tint = Abyss.copy(alpha = 0.5f),
                         modifier = Modifier.size(18.dp),
                     )

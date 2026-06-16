@@ -40,7 +40,7 @@ import coil.compose.AsyncImage
 import org.adt.core.entities.event.Event
 import org.adt.core.entities.event.EventLocation
 import org.adt.presentation.R
-import org.adt.presentation.components.TrailingIconRow
+import org.adt.presentation.components.icons.TrailingIconRow
 import org.adt.presentation.components.icons.IconSource
 import org.adt.presentation.theme.VolunteersCaseTheme
 

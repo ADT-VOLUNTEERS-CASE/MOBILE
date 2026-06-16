@@ -29,9 +29,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.adt.core.entities.rating.UserRating
+import org.adt.presentation.R
 import org.adt.presentation.components.rating.ErrorBanner
 import org.adt.presentation.components.rating.PeriodSwitch
 import org.adt.presentation.components.rating.PodiumRow
@@ -85,7 +87,7 @@ fun RatingScreenContent(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        "Рейтинг",
+                        stringResource(R.string.title_rating),
                         style = VolunteersCaseTheme.typography.titleLarge,
                     )
                 },
@@ -158,7 +160,7 @@ fun RatingScreenContent(
                 } else if (startFrom < state.entries.size) {
                     item {
                         Text(
-                            "Все участники",
+                            stringResource(R.string.subtitle_all_participants),
                             style = VolunteersCaseTheme.typography.titleMedium,
                             color = Graphite,
                             modifier = Modifier.padding(vertical = 4.dp),
@@ -205,13 +207,7 @@ fun RatingScreenContent(
 @Composable
 private fun RatingScreenPreview() {
     val previewEntries = listOf(
-        UserRating(
-            userId = 1,
-            firstname = "Анна",
-            lastname = "Иванова",
-            patronymic = "Сергеевна",
-            workedMinutes = 1200
-        ),
+        UserRating(userId = 1, firstname = "Анна", lastname = "Иванова", workedMinutes = 1200),
         UserRating(userId = 2, firstname = "Иван", lastname = "Петров", workedMinutes = 900),
         UserRating(userId = 3, firstname = "Ольга", lastname = "Сидорова", workedMinutes = 750),
         UserRating(userId = 4, firstname = "Михаил", lastname = "Козлов", workedMinutes = 600),

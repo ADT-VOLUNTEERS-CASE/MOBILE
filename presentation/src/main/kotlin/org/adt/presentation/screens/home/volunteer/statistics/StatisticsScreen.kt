@@ -54,9 +54,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.adt.core.entities.user.statistics.MonthlyActivity
+import org.adt.presentation.R
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Aqua
 import org.adt.presentation.theme.Arctic
@@ -74,7 +76,7 @@ fun StatisticsScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Личная статистика", style = VolunteersCaseTheme.typography.titleLarge) },
+                title = { Text(stringResource(R.string.title_personal_statistics), style = VolunteersCaseTheme.typography.titleLarge) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Arctic,
                     scrolledContainerColor = Color.Unspecified,
@@ -108,14 +110,14 @@ fun StatisticsScreen(
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     MiniStatCard(
                         modifier = Modifier.weight(1f),
-                        title = "Событий",
+                        title = stringResource(R.string.body_number_event_all),
                         value = uiState.totalEvents.toString(),
                         icon = Icons.Default.History,
                         color = Aqua
                     )
                     MiniStatCard(
                         modifier = Modifier.weight(1f),
-                        title = "За месяц",
+                        title = stringResource(R.string.body_number_event_month),
                         value = uiState.monthlyEvents.toString(),
                         icon = Icons.Default.AutoGraph,
                         color = Mint
@@ -143,9 +145,9 @@ private fun MainSummarySection(uiState: StatisticsUiState) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Text("Всего отработано", color = Arctic.copy(0.6f), style = VolunteersCaseTheme.typography.labelMedium)
+                Text(stringResource(R.string.body_work_hours), color = Arctic.copy(0.6f), style = VolunteersCaseTheme.typography.labelMedium)
                 Text(
-                    "${uiState.totalMinutes} мин",
+                    stringResource(R.string.body_minutes_all, uiState.totalMinutes),
                     color = Color.White,
                     style = VolunteersCaseTheme.typography.displaySmall,
                     fontWeight = FontWeight.Bold
@@ -154,7 +156,7 @@ private fun MainSummarySection(uiState: StatisticsUiState) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Timer, null, tint = Mint, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text("${uiState.monthlyMinutes} мин в этом месяце", color = Mint, style = VolunteersCaseTheme.typography.labelLarge)
+                    Text(stringResource(R.string.body_minutes_month, uiState.monthlyMinutes), color = Mint, style = VolunteersCaseTheme.typography.labelLarge)
                 }
             }
 
@@ -188,13 +190,13 @@ private fun StreakCard(current: Int, max: Int) {
             }
             Spacer(Modifier.width(16.dp))
             Column {
-                Text("Ударный режим", style = VolunteersCaseTheme.typography.titleMedium, color = Abyss)
-                Text("$current месяца подряд", style = MaterialTheme.typography.bodyMedium, color = Graphite)
+                Text(stringResource(R.string.body_shock_mode), style = VolunteersCaseTheme.typography.titleMedium, color = Abyss)
+                Text(stringResource(R.string.body_month_in_row, current), style = MaterialTheme.typography.bodyMedium, color = Graphite)
             }
             Spacer(Modifier.weight(1f))
             Column(horizontalAlignment = Alignment.End) {
-                Text("Рекорд", style = VolunteersCaseTheme.typography.labelSmall, color = Graphite.copy(0.5f))
-                Text("$max мес.", style = VolunteersCaseTheme.typography.titleMedium, color = Abyss, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.body_record), style = VolunteersCaseTheme.typography.labelSmall, color = Graphite.copy(0.5f))
+                Text(stringResource(R.string.body_months, max), style = VolunteersCaseTheme.typography.titleMedium, color = Abyss, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -208,7 +210,7 @@ private fun ActivityChart(history: List<MonthlyActivity>) {
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(Modifier.padding(20.dp)) {
-            Text("Активность", style = VolunteersCaseTheme.typography.titleMedium, color = Abyss)
+            Text(stringResource(R.string.subtitle_activity), style = VolunteersCaseTheme.typography.titleMedium, color = Abyss)
             Spacer(Modifier.height(24.dp))
             Row(
                 Modifier

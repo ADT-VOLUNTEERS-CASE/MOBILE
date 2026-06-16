@@ -103,17 +103,17 @@ fun NavigationGraph(
 
         composable<Destinations.AdminRegister> {
             val viewModel: AdminRegisterViewModel = hiltViewModel()
-            AdminRegisterScreen(navController, viewModel)
+            AdminRegisterScreen(viewModel)
         }
 
         composable<Destinations.AdminSystemTools> {
             val viewModel: AdminSystemToolsViewModel = hiltViewModel()
-            AdminSystemToolsScreen(navController, viewModel)
+            AdminSystemToolsScreen(viewModel)
         }
 
         composable<Destinations.CoordinatorHome> {
             val viewModel: CoordinatorViewModel = hiltViewModel()
-            CoordinatorScreen(navController, viewModel)
+            CoordinatorScreen(viewModel)
         }
         composable<Destinations.CoordinatorReport> {
             val viewModel: ReportViewModel = hiltViewModel()

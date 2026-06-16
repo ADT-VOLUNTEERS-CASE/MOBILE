@@ -23,11 +23,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.adt.core.entities.EventStatus
 import org.adt.core.entities.user.UserEvents
+import org.adt.presentation.R
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Mint
@@ -71,11 +73,11 @@ fun PlannedEventCalendarCard(
                 )
                 Text(
                     text = when(userEvent.status.uppercase()){
-                        EventStatus.ONGOING.name.uppercase() -> "Предстоит!"
-                        EventStatus.IN_PROGRESS.name.uppercase() -> "Уже идёт!"
-                        EventStatus.COMPLETED.name.uppercase() -> "Завершено!"
-                        EventStatus.UNKNOWN.name.uppercase() -> "Неизвестно"
-                        else -> "Неизвестно"
+                        EventStatus.ONGOING.name.uppercase() -> stringResource(R.string.label_event_status_ongoing)
+                        EventStatus.IN_PROGRESS.name.uppercase() -> stringResource(R.string.label_event_status_in_progress)
+                        EventStatus.COMPLETED.name.uppercase() -> stringResource(R.string.label_event_status_completed)
+                        EventStatus.UNKNOWN.name.uppercase() -> stringResource(R.string.label_event_status_unknown)
+                        else -> stringResource(R.string.label_unknown)
                     },
                     style = VolunteersCaseTheme.typography.labelMedium,
                     color = when (userEvent.status.uppercase()) {

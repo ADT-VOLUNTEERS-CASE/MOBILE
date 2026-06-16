@@ -36,12 +36,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.adt.core.entities.rating.UserRating
+import org.adt.presentation.R
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Aqua
 import org.adt.presentation.theme.Graphite
@@ -115,7 +117,7 @@ fun PodiumCard(
         )
 
         Text(
-            text = "${entry.workedMinutes}м",
+            text = stringResource(R.string.body_minutes_all,entry.workedMinutes),
             style = VolunteersCaseTheme.typography.labelSmall.copy(
                 fontSize = 11.sp,
                 color = Graphite.copy(alpha = 0.7f),

@@ -1,4 +1,4 @@
-package org.adt.presentation.components
+package org.adt.presentation.components.misc
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -42,6 +43,7 @@ import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import kotlinx.coroutines.launch
 import org.adt.core.entities.user.UserEvents
+import org.adt.presentation.R
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Mint
@@ -204,7 +206,7 @@ fun EmptyDayState() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            "На этот день пока нет событий",
+            stringResource(R.string.body_empty_day),
             style = MaterialTheme.typography.bodyMedium,
             color = Graphite.copy(alpha = 0.6f)
         )

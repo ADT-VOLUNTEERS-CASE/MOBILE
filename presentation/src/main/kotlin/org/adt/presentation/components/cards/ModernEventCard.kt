@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,6 +45,7 @@ import org.adt.core.entities.EventStatus
 import org.adt.core.entities.event.Cover
 import org.adt.core.entities.event.Event
 import org.adt.core.entities.event.EventLocation
+import org.adt.presentation.R
 
 
 @Composable
@@ -61,10 +63,10 @@ fun CharityEventCard(
         EventStatus.UNKNOWN -> Color(0xFFBDBDBD)
     }
     val statusText = when (event.status) {
-        EventStatus.ONGOING -> "Предстоит!"
-        EventStatus.IN_PROGRESS -> "Уже идёт!"
-        EventStatus.COMPLETED -> "Завершено!"
-        EventStatus.UNKNOWN -> "Неизвестно"
+        EventStatus.ONGOING -> stringResource(R.string.label_event_status_ongoing)
+        EventStatus.IN_PROGRESS -> stringResource(R.string.label_event_status_in_progress)
+        EventStatus.COMPLETED -> stringResource(R.string.label_event_status_completed)
+        EventStatus.UNKNOWN -> stringResource(R.string.label_event_status_unknown)
     }
 
     Card(
@@ -109,7 +111,7 @@ fun CharityEventCard(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "Вы участвуете!",
+                                text = stringResource(R.string.body_participating),
                                 color = Color.White,
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold

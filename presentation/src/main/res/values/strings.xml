@@ -1,5 +1,137 @@
 <resources>
     <string name="app_name">Volunteers</string>
+    <string name="app_version">Версия %1$s</string>
+
+    <string name="slogan">Твоё следующее доброе дело ждёт своего момента</string>
     <string name="base_title">Мероприятие</string>
     <string name="base_description">Описание</string>
+
+    <string name="title_welcome">Добро пожаловать!</string>
+    <string name="title_discover">Познакомимся?</string>
+    <string name="title_calendar">Мой календарь</string>
+    <string name="title_events">Мероприятия</string>
+    <string name="title_locations">Локации</string>
+    <string name="title_personal_statistics">Личная статистика</string>
+    <string name="title_connection_error">Ошибка подключения</string>
+    <string name="title_event_catalog">Каталог мероприятий</string>
+    <string name="title_rating">Рейтинг</string>
+    <string name="title_control_panel">Панель управления</string>
+    <string name="title_system_utils">Системные утилиты</string>
+
+    <string name="subtitle_description">Описание</string>
+    <string name="subtitle_coordinator">Координатор</string>
+    <string name="subtitle_activity">Моя активность</string>
+    <string name="subtitle_all_participants">Все участники</string>
+    <string name="subtitle_profile_settings">Настройки профиля</string>
+    <string name="subtitle_safety">Безопасность</string>
+    <string name="subtitle_activity_history">История активности</string>
+    <string name="subtitle_participation_applications">Заявки на участие</string>
+    <string name="subtitle_main_information">Основная информация</string>
+    <string name="subtitle_date_and_media">Дата и медиа</string>
+    <string name="subtitle_event_location">Локация проведения</string>
+    <string name="subtitle_system_navigation">Системная навигация</string>
+    <string name="subtitle_reports">Отчетность и аналитика</string>
+    <string name="subtitle_tag_manage">Управление тегами</string>
+    <string name="subtitle_extra_delete">Экстренное удаление объектов</string>
+
+    <string name="label_date">Дата</string>
+    <string name="label_duration">Длительность</string>
+    <string name="label_address">Адрес</string>
+    <string name="label_nothing_found">Ничего не нашли</string>
+    <string name="label_wawlft">Что ищем сегодня?</string>
+    <string name="label_try_change">Попробуйте изменить параметры поиска или ключевые слова</string>
+    <string name="label_enter_name_address">Введите название мероприятия или адрес, чтобы найти волонтерские активности</string>
+    <string name="label_empty">Пока пусто…</string>
+    <string name="label_chosen_address">Выбрано: %1$s</string>
+    <string name="label_export_analytics">Доступ к выгрузке аналитики</string>
+    <string name="label_moderation_tools">Инструменты модерации тегов и экстренного удаления</string>
+    <string name="label_event_status_ongoing">Предстоит!</string>
+    <string name="label_event_status_in_progress">Уже идёт!</string>
+    <string name="label_event_status_completed">Завершено!</string>
+    <string name="label_event_status_unknown">Неизвестно</string>
+    <string name="label_unknown">Неизвестно</string>
+
+    <string name="body_learn">я ознакомился с</string>
+    <string name="body_privacy_policy">политикой конфиденциальности</string>
+    <string name="body_number_event_all">Кол-во событий</string>
+    <string name="body_number_event_month">Кол-во за месяц</string>
+    <string name="body_work_hours">Всего отработано</string>
+    <string name="body_minutes_all">%1$d мин</string>
+    <string name="body_minutes_month">%1$d мин в этом месяце</string>
+    <string name="body_record">Рекорд</string>
+    <string name="body_shock_mode">Ударный режим</string>
+    <string name="body_months">%1$d мес</string>
+    <string name="body_month_in_row">%1$d месяца подряд</string>
+    <string name="body_biometrical">Пароль, вход по биометрии</string>
+    <string name="body_contribution">Ваш вклад и посещенные события</string>
+    <string name="body_event_date">Дата проведения</string>
+    <string name="body_enter_event_date">Укажите дату и время</string>
+    <string name="body_cover_success">Обложка успешно добавлена</string>
+    <string name="body_cover_upload">Загрузить фоновое изображение</string>
+    <string name="body_change">Изменить</string>
+    <string name="body_for_month">Месяц</string>
+    <string name="body_for_all_time">Все время</string>
+    <string name="body_choose_role">Выбрать роль</string>
+    <string name="body_empty_day">На этот день пока нет событий</string>
+    <string name="body_participating">Вы участвуете</string>
+
+    <string name="textfield_email">Почта</string>
+    <string name="textfield_password">Пароль</string>
+    <string name="textfield_firstname">Имя</string>
+    <string name="textfield_surname">Фамилия</string>
+    <string name="textfield_patronymic">Отчество</string>
+    <string name="textfield_phone">Телефон</string>
+    <string name="textfield_search_keywords">Поиск по ключевым словам</string>
+    <string name="textfield_name">Название</string>
+    <string name="textfield_description">Описание</string>
+    <string name="textfield_max_participants">Макс. участников</string>
+    <string name="textfield_tag_ids">ID Тегов (через запятую)</string>
+    <string name="textfield_enter_address">Введите адрес для поиска</string>
+    <string name="textfield_search_address">Найти адрес на карте</string>
+    <string name="textfield_enter_id_volunteer">Укажите ID волонтера для выгрузки</string>
+    <string name="textfield_enter_id_coordinator">Укажите ID координатора для выгрузки</string>
+    <string name="textfield_tag_name">Название тега</string>
+    <string name="textfield_event_id">ID Мероприятия</string>
+
+    <string name="button_continue">Продолжить</string>
+    <string name="button_register">Зарегистрироваться</string>
+    <string name="button_forgot_password">Забыли пароль?</string>
+    <string name="button_start">Начать</string>
+    <string name="button_login">Войти</string>
+    <string name="button_skip">Пропустить</string>
+    <string name="button_next">Далее</string>
+    <string name="button_update">Обновить</string>
+    <string name="button_only_mine">Только мои</string>
+    <string name="button_application_send">Заявка отправлена</string>
+    <string name="button_participating">Вы участвуете</string>
+    <string name="button_logout">Выйти из аккаунта</string>
+    <string name="button_cancel">Отмена</string>
+    <string name="button_back">Назад</string>
+    <string name="button_choose_time">Выберите время</string>
+    <string name="button_upload">Опубликовать</string>
+    <string name="button_export_pdf">Экспортировать PDF отчет</string>
+    <string name="button_create">Создать</string>
+    <string name="button_get_id">Получить ID</string>
+    <string name="button_delete_tag">Удалить тег</string>
+    <string name="button_delete_event">Удалить мероприятие</string>
+    <string name="button_cover_id">ID Обложки</string>
+    <string name="button_delete_cover">Удалить обложку</string>
+
+    <string name="onboarding_page_1_title">Каталог и мероприятия</string>
+    <string name="onboarding_page_1_label">Просматривай список ярких событий\nи записывайся на них в один клик</string>
+    <string name="onboarding_page_2_title">Глобальный рейтинг</string>
+    <string name="onboarding_page_2_label">Участвуй в активностях, делай добро\nи соревнуйся с ребятами со всего мира</string>
+    <string name="onboarding_page_3_title">Личная статистика</string>
+    <string name="onboarding_page_3_label">Отслеживай свой прогресс, развивай\nполезные навыки и оценивай результаты</string>
+    <string name="onboarding_page_4_title">Удобный календарь</string>
+    <string name="onboarding_page_4_label">Управляй своим временем эффективно.\nВсе важные события всегда под рукой</string>
+
+    <string name="role_volunteer">Волонтёр</string>
+    <string name="role_volunteer_rank">Опытный волонтер</string>
+    <string name="role_coordinator">Координатор</string>
+    <string name="role_coordinator_rank">Опытный координатор</string>
+    <string name="role_admin">Администратор</string>
+
+    <string name="father">Лимасов Андрей</string>
+    <string name="title_create">Создание</string>
 </resources>

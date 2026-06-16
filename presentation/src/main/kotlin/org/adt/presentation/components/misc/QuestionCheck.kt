@@ -1,4 +1,4 @@
-package org.adt.presentation.components
+package org.adt.presentation.components.misc
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

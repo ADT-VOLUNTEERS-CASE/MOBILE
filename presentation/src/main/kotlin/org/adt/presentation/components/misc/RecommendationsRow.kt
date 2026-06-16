@@ -1,4 +1,4 @@
-package org.adt.presentation.components
+package org.adt.presentation.components.misc
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background

@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.adt.core.entities.rating.UserRating
+import org.adt.presentation.R
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Aqua
 import org.adt.presentation.theme.Graphite
@@ -130,7 +132,7 @@ fun RankingCard(
                     }
 
                     Text(
-                        text = "${entry.workedMinutes} мин",
+                        text = stringResource(R.string.body_minutes_all,entry.workedMinutes),
                         style = VolunteersCaseTheme.typography.titleSmall.copy(
                             fontWeight = FontWeight.Bold,
                             color = Abyss,

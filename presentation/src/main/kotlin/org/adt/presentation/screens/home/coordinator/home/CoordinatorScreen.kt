@@ -1,5 +1,6 @@
 package org.adt.presentation.screens.home.coordinator.home
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.widget.Toast
@@ -60,22 +61,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import org.adt.core.entities.Location
 import org.adt.core.entities.event.EventApplication
-import org.adt.presentation.components.CustomSearchTextField
-import org.adt.presentation.components.CustomTextField
-import org.adt.presentation.components.bars.SyncedTopNavigationBarCoordinator
+import org.adt.presentation.R
+import org.adt.presentation.components.bars.CoordinatorTopNavigationBar
 import org.adt.presentation.components.buttons.ButtonVariant
 import org.adt.presentation.components.buttons.CustomButton
 import org.adt.presentation.components.cards.ApplicationCard
 import org.adt.presentation.components.cards.EventSummaryCard
+import org.adt.presentation.components.textfields.CustomSearchTextField
+import org.adt.presentation.components.textfields.CustomTextField
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
@@ -93,7 +95,6 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun CoordinatorScreen(
-    navController: NavHostController,
     viewModel: CoordinatorViewModel,
 ) {
     val uiState = viewModel.uiState.collectAsState().value
@@ -125,6 +126,7 @@ fun CoordinatorScreen(
 }
 
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CoordinatorScreenContent(
@@ -142,8 +144,7 @@ fun CoordinatorScreenContent(
     onApprove: (Long, Long) -> Unit = { _, _ -> },
     onReject: (Long, Long) -> Unit = { _, _ -> },
     onLoadApplications: (Long) -> Unit = {},
-    onRefreshAction: () -> Unit = {},
-    animationOverride: Boolean = false
+    onRefreshAction: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val visualFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm") }
@@ -187,7 +188,7 @@ fun CoordinatorScreenContent(
                     }
                 }) {
                     Text(
-                        "Далее",
+                        stringResource(R.string.button_next),
                         color = Lagoon,
                         style = VolunteersCaseTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold
@@ -197,7 +198,7 @@ fun CoordinatorScreenContent(
             dismissButton = {
                 TextButton(onClick = { setShowDatePicker(false) }) {
                     Text(
-                        "Отмена",
+                        stringResource(R.string.button_cancel),
                         color = Graphite.copy(0.4f),
                         style = VolunteersCaseTheme.typography.labelLarge
                     )
@@ -257,7 +258,7 @@ fun CoordinatorScreenContent(
             dismissButton = {
                 TextButton(onClick = { setShowTimePicker(false) }) {
                     Text(
-                        "Назад",
+                        stringResource(R.string.button_back),
                         color = Graphite.copy(0.4f),
                         style = VolunteersCaseTheme.typography.labelLarge
                     )
@@ -265,7 +266,7 @@ fun CoordinatorScreenContent(
             },
             title = {
                 Text(
-                    text = "Выберите время",
+                    text = stringResource(R.string.button_choose_time),
                     style = VolunteersCaseTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = Abyss,
@@ -309,14 +310,12 @@ fun CoordinatorScreenContent(
         containerColor = Milk,
         contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0.dp),
         topBar = {
-            SyncedTopNavigationBarCoordinator(
+            CoordinatorTopNavigationBar(
                 pagerState = pagerState,
                 modifier = Modifier.fillMaxWidth()
             )
         }
-    ) { paddingValues ->
-        val _unusedPadding = paddingValues
-
+    ) {
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
@@ -338,18 +337,17 @@ fun CoordinatorScreenContent(
                                 color = Lagoon,
                                 modifier = Modifier
                                     .align(Alignment.TopCenter)
-                                    .padding(top = 80.dp) // Чуть опустили индикатор ниже топбара
+                                    .padding(top = 80.dp)
                             )
                         }
                     ) {
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(2),
-                            // КРИТИЧЕСКИ ВАЖНО: Разрешаем сетке рисовать элементы за пределами своих границ (под топ-баром)
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(
                                 start = 16.dp,
                                 end = 16.dp,
-                                top = 90.dp, // Делаем базовый отступ чуть больше, чтобы в покое всё стояло идеально под топ-баром
+                                top = 90.dp,
                                 bottom = 24.dp
                             ),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -357,61 +355,80 @@ fun CoordinatorScreenContent(
                         ) {
                             item(span = { GridItemSpan(maxLineSpan) }) {
                                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                if (uiState.eventsLoading) {
-                                    Box(Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
-                                        CircularProgressIndicator(modifier = Modifier.size(32.dp), color = Lagoon)
+                                    if (uiState.eventsLoading) {
+                                        Box(
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .padding(40.dp), contentAlignment = Alignment.Center
+                                        ) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(32.dp),
+                                                color = Lagoon
+                                            )
+                                        }
+                                    } else if (uiState.myEvents.isNotEmpty()) {
+                                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                            uiState.myEvents.take(3).forEach { event ->
+                                                Surface(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    shape = RoundedCornerShape(16.dp),
+                                                    tonalElevation = 1.dp,
+                                                    color = Arctic
+                                                ) {
+                                                    EventSummaryCard(event = event) {
+                                                        onLoadApplications(event.eventId)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        Text(
+                                            stringResource(R.string.label_empty),
+                                            style = VolunteersCaseTheme.typography.titleMedium,
+                                            color = Silver,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 48.dp),
+                                            textAlign = TextAlign.Center
+                                        )
                                     }
-                                } else if (uiState.myEvents.isNotEmpty()) {
-                                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                        uiState.myEvents.take(3).forEach { event ->
-                                            Surface(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                shape = RoundedCornerShape(16.dp),
-                                                tonalElevation = 1.dp,
-                                                color = Arctic
-                                            ) {
-                                                EventSummaryCard(event = event) {
-                                                    onLoadApplications(event.eventId)
+
+                                    if (uiState.applications.isNotEmpty()) {
+                                        Spacer(Modifier.height(28.dp))
+                                        Text(
+                                            stringResource(R.string.subtitle_participation_applications),
+                                            style = VolunteersCaseTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Abyss,
+                                            modifier = Modifier.padding(bottom = 12.dp)
+                                        )
+                                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                            uiState.applications.forEach { app ->
+                                                Surface(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    shape = RoundedCornerShape(16.dp),
+                                                    tonalElevation = 1.dp,
+                                                    color = Arctic
+                                                ) {
+                                                    ApplicationCard(
+                                                        app = app,
+                                                        onApprove = {
+                                                            onApprove(
+                                                                app.eventId.toLong(),
+                                                                app.userId.toLong()
+                                                            )
+                                                        },
+                                                        onReject = {
+                                                            onReject(
+                                                                app.eventId.toLong(),
+                                                                app.userId.toLong()
+                                                            )
+                                                        }
+                                                    )
                                                 }
                                             }
                                         }
                                     }
-                                } else {
-                                    Text(
-                                        "Пока пусто...",
-                                        style = VolunteersCaseTheme.typography.titleMedium,
-                                        color = Silver,
-                                        modifier = Modifier.fillMaxWidth().padding(vertical = 48.dp),
-                                        textAlign = TextAlign.Center
-                                    )
-                                }
-
-                                if (uiState.applications.isNotEmpty()) {
-                                    Spacer(Modifier.height(28.dp))
-                                    Text(
-                                        "Заявки на участие",
-                                        style = VolunteersCaseTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Abyss,
-                                        modifier = Modifier.padding(bottom = 12.dp)
-                                    )
-                                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                        uiState.applications.forEach { app ->
-                                            Surface(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                shape = RoundedCornerShape(16.dp),
-                                                tonalElevation = 1.dp,
-                                                color = Arctic
-                                            ) {
-                                                ApplicationCard(
-                                                    app = app,
-                                                    onApprove = { onApprove(app.eventId.toLong(), app.userId.toLong()) },
-                                                    onReject = { onReject(app.eventId.toLong(), app.userId.toLong()) }
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
                                 }
                             }
                         }
@@ -423,7 +440,6 @@ fun CoordinatorScreenContent(
                         Modifier
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
-                            // Сдвигаем форму на 90.dp сверху, чтобы она не залезала под статичный бар в начале
                             .padding(start = 20.dp, end = 20.dp, top = 90.dp, bottom = 24.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         horizontalAlignment = Alignment.Start
@@ -439,24 +455,43 @@ fun CoordinatorScreenContent(
                                 verticalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 Text(
-                                    "Основная информация",
+                                    stringResource(R.string.subtitle_main_information),
                                     style = VolunteersCaseTheme.typography.titleMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = Abyss
                                 )
 
-                                CustomTextField(Modifier.fillMaxWidth(), "Название") { updateFields(fields.copy(name = it)) }
-                                CustomTextField(Modifier.fillMaxWidth(), "Описание") { updateFields(fields.copy(description = it)) }
-                                CustomTextField(Modifier.fillMaxWidth(), "Макс. участников") { updateFields(fields.copy(maxCapacity = it.toLongOrNull() ?: 0)) }
-                                CustomTextField(Modifier.fillMaxWidth(), "ID Тегов (через запятую)") {
-                                    val ids = it.split(",").mapNotNull { id -> id.trim().toLongOrNull() }
+                                CustomTextField(
+                                    Modifier.fillMaxWidth(),
+                                    stringResource(R.string.textfield_name)
+                                ) { updateFields(fields.copy(name = it)) }
+                                CustomTextField(
+                                    Modifier.fillMaxWidth(),
+                                    stringResource(R.string.textfield_description)
+                                ) { updateFields(fields.copy(description = it)) }
+                                CustomTextField(
+                                    Modifier.fillMaxWidth(),
+                                    stringResource(R.string.textfield_max_participants)
+                                ) {
+                                    updateFields(
+                                        fields.copy(
+                                            maxCapacity = it.toLongOrNull() ?: 0
+                                        )
+                                    )
+                                }
+                                CustomTextField(
+                                    Modifier.fillMaxWidth(),
+                                    stringResource(R.string.textfield_tag_ids)
+                                ) {
+                                    val ids =
+                                        it.split(",").mapNotNull { id -> id.trim().toLongOrNull() }
                                     updateFields(fields.copy(tagIds = ids))
                                 }
 
                                 HorizontalDivider(color = Milk, thickness = 1.dp)
 
                                 Text(
-                                    "Дата и медиа",
+                                    stringResource(R.string.subtitle_date_and_media),
                                     style = VolunteersCaseTheme.typography.titleMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = Abyss
@@ -485,9 +520,13 @@ fun CoordinatorScreenContent(
                                             )
                                             Spacer(Modifier.width(12.dp))
                                             Text(
-                                                text = if (fields.selectedDateTime != null) "Дата проведения" else "Укажите дату и время",
+                                                text = if (fields.selectedDateTime != null) stringResource(
+                                                    R.string.body_event_date
+                                                ) else stringResource(R.string.body_enter_event_date),
                                                 style = VolunteersCaseTheme.typography.titleMedium,
-                                                color = if (fields.selectedDateTime != null) Void else Graphite.copy(alpha = 0.5f),
+                                                color = if (fields.selectedDateTime != null) Void else Graphite.copy(
+                                                    alpha = 0.5f
+                                                ),
                                                 fontSize = 15.sp
                                             )
                                         }
@@ -503,7 +542,10 @@ fun CoordinatorScreenContent(
                                                     color = Lagoon,
                                                     style = VolunteersCaseTheme.typography.labelMedium,
                                                     fontWeight = FontWeight.Bold,
-                                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                                                    modifier = Modifier.padding(
+                                                        horizontal = 10.dp,
+                                                        vertical = 6.dp
+                                                    )
                                                 )
                                             }
                                         }
@@ -514,10 +556,14 @@ fun CoordinatorScreenContent(
                                 Surface(
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(14.dp),
-                                    color = if (hasCover) Mint.copy(alpha = 0.06f) else Graphite.copy(alpha = 0.02f),
+                                    color = if (hasCover) Mint.copy(alpha = 0.06f) else Graphite.copy(
+                                        alpha = 0.02f
+                                    ),
                                     border = BorderStroke(
                                         width = 1.dp,
-                                        color = if (hasCover) Mint.copy(alpha = 0.4f) else Graphite.copy(alpha = 0.1f)
+                                        color = if (hasCover) Mint.copy(alpha = 0.4f) else Graphite.copy(
+                                            alpha = 0.1f
+                                        )
                                     ),
                                     onClick = { if (!uiState.isUploadingCover) launcher.launch("image/*") }
                                 ) {
@@ -537,7 +583,9 @@ fun CoordinatorScreenContent(
                                             )
                                             Spacer(Modifier.width(12.dp))
                                             Text(
-                                                text = if (hasCover) "Обложка успешно добавлена" else "Загрузить фоновое изображение",
+                                                text = if (hasCover) stringResource(R.string.body_cover_success) else stringResource(
+                                                    R.string.body_cover_upload
+                                                ),
                                                 style = VolunteersCaseTheme.typography.titleMedium,
                                                 color = if (hasCover) Abyss else Graphite.copy(alpha = 0.5f),
                                                 fontSize = 15.sp
@@ -552,7 +600,7 @@ fun CoordinatorScreenContent(
                                             )
                                         } else if (hasCover) {
                                             Text(
-                                                text = "Изменить",
+                                                text = stringResource(R.string.body_change),
                                                 color = Graphite.copy(alpha = 0.6f),
                                                 style = VolunteersCaseTheme.typography.labelMedium,
                                                 fontWeight = FontWeight.SemiBold,
@@ -565,14 +613,14 @@ fun CoordinatorScreenContent(
                                 HorizontalDivider(color = Milk, thickness = 1.dp)
 
                                 Text(
-                                    "Локация проведения",
+                                    stringResource(R.string.subtitle_event_location),
                                     style = VolunteersCaseTheme.typography.titleMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = Abyss
                                 )
 
                                 CustomSearchTextField(
-                                    label = "Введите адрес для поиска",
+                                    label = stringResource(R.string.textfield_enter_address),
                                     value = "",
                                     onConfirm = { onSearchLocation(it) },
                                     onValueChange = {},
@@ -581,11 +629,20 @@ fun CoordinatorScreenContent(
 
                                 if (uiState.isSearchMode) {
                                     if (uiState.searchLoading) {
-                                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                            CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Lagoon)
+                                        Box(
+                                            Modifier.fillMaxWidth(),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(20.dp),
+                                                color = Lagoon
+                                            )
                                         }
                                     } else {
-                                        Column(Modifier.fillMaxWidth(), Arrangement.spacedBy(8.dp)) {
+                                        Column(
+                                            Modifier.fillMaxWidth(),
+                                            Arrangement.spacedBy(8.dp)
+                                        ) {
                                             uiState.searchResults.forEach { location ->
                                                 Text(
                                                     location.address,
@@ -608,7 +665,10 @@ fun CoordinatorScreenContent(
                                         modifier = Modifier.fillMaxWidth()
                                     ) {
                                         Text(
-                                            "Выбрано: ${it.address}",
+                                            stringResource(
+                                                R.string.label_chosen_address,
+                                                it.address
+                                            ),
                                             color = Abyss,
                                             style = VolunteersCaseTheme.typography.labelMedium,
                                             modifier = Modifier.padding(12.dp)
@@ -619,7 +679,7 @@ fun CoordinatorScreenContent(
                                 Spacer(Modifier.height(12.dp))
 
                                 CustomButton(
-                                    text = "Опубликовать",
+                                    text = stringResource(R.string.button_upload),
                                     enabled = fields.name.isNotBlank() &&
                                             uiState.selectedLocation != null &&
                                             uiState.selectedCover != null &&
@@ -662,7 +722,7 @@ object CoordinatorFileUtils {
 private fun CoordinatorScreenPreview() {
     VolunteersCaseTheme {
         CoordinatorScreenContent(
-            animationOverride = true, uiState = CoordinatorState(
+            uiState = CoordinatorState(
                 isLoading = false, applications = listOf(
                     EventApplication()
                 )

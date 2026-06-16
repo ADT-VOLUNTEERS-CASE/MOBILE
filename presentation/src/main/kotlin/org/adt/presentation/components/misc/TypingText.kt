@@ -1,4 +1,4 @@
-package org.adt.presentation.components
+package org.adt.presentation.components.misc
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import kotlinx.coroutines.delay
 import org.adt.presentation.theme.VolunteersCaseTheme
+import kotlin.text.iterator
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun TypingText(
@@ -24,11 +26,11 @@ fun TypingText(
     var displayedText by remember { mutableStateOf(if (animationOverride) text else "") }
 
     LaunchedEffect(text, charDelay) {
-        delay(delay)
+        delay(delay.milliseconds)
         displayedText = ""
         for (char in text) {
             displayedText += char
-            delay(charDelay)
+            delay(charDelay.milliseconds)
         }
     }
 

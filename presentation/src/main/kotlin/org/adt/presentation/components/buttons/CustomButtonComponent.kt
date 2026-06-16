@@ -46,40 +46,35 @@ fun CustomButton(
     val finalColors = colors ?: defaultColors
     val finalText = if (config.uppercase) text.uppercase() else text
 
-    // Отслеживаем состояние нажатия пальца
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    // Динамическая тень: при нажатии кнопка "прижимается" к экрану, глубина уменьшается
     val shadowElevation by animateDpAsState(
         targetValue = when {
-            !isInteractable -> 0.dp // У заблокированной кнопки нет тени
-            isPressed -> 1.dp       // Прижатое состояние
-            style == ButtonStyle.Outlined || style == ButtonStyle.Translucent -> 0.dp // Стильные прозрачные кнопки обходятся без теней
-            else -> 4.dp            // Обычное состояние (красивая объемная пастельная тень)
+            !isInteractable -> 0.dp
+            isPressed -> 1.dp
+            style == ButtonStyle.Outlined || style == ButtonStyle.Translucent -> 0.dp
+            else -> 4.dp
         },
         animationSpec = tween(durationMillis = 100),
         label = "ButtonShadowAnimation"
     )
 
-    // Конфигурируем новый M3 Ripple: задаем ему деликатную прозрачность для пастельного эффекта
     val elegantRippleConfiguration = RippleConfiguration(
         color = Color.White.copy(alpha = 0.2f)
     )
 
-    // Передаем конфигурацию через новый LocalRippleConfiguration из Material 3
     CompositionLocalProvider(LocalRippleConfiguration provides elegantRippleConfiguration) {
         Button(
             onClick = onClick,
             modifier = modifier
                 .fillMaxWidth()
                 .then(if (config.height != null) Modifier.height(config.height) else Modifier)
-                // Накладываем мягкую тень по контуру формы кнопки
                 .shadow(elevation = shadowElevation, shape = config.shape, clip = false),
             enabled = isInteractable,
             shape = config.shape,
             interactionSource = interactionSource,
-            border = finalColors.borderColor?.let { BorderStroke(1.dp, it) },
+            border = finalColors.borderColor?.let { BorderStroke(2.dp, it) },
             colors = ButtonDefaults.buttonColors(
                 containerColor = finalColors.containerColor,
                 contentColor = finalColors.contentColor,
