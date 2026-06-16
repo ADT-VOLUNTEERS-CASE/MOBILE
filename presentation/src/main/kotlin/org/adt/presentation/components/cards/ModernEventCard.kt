@@ -47,13 +47,22 @@ import org.adt.core.entities.event.Event
 import org.adt.core.entities.event.EventLocation
 import org.adt.presentation.R
 
-
+/**
+ * Card displaying details of a charity event including coverage image and registration status
+ *
+ * @param event object containing complete event information like title, description, and location
+ *
+ * @param isParticipating flag indicating if the current user is registered for this event
+ *
+ * @param onClick function to be invoked when the card is clicked
+ *
+ * @param modifier modifier for managing card sizes, padding, and layout behavior
+ */
 @Composable
 fun CharityEventCard(
     event: Event,
     isParticipating: Boolean,
     onClick: () -> Unit,
-    onFavoriteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val statusColor = when (event.status) {
@@ -247,29 +256,6 @@ fun CharityEventCard(
     }
 }
 
-@Composable
-fun CharityEventsGrid(
-    events: List<Event>,
-    modifier: Modifier = Modifier
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(12.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        items(events) { event ->
-            CharityEventCard(
-                event = event,
-                onClick = { },
-                onFavoriteClick = { },
-                isParticipating = true
-            )
-        }
-    }
-}
-
 @Preview(showBackground = true, backgroundColor = 0xFFF8F9FA)
 @Composable
 private fun CharityEventsGridPreview() {
@@ -340,6 +326,20 @@ private fun CharityEventsGridPreview() {
     )
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFF8F9FA)) {
-        CharityEventsGrid(events = mockEvents)
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            items(mockEvents) { event ->
+                CharityEventCard(
+                    event = event,
+                    onClick = { },
+                    isParticipating = true
+                )
+            }
+        }
     }
 }

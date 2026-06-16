@@ -53,6 +53,20 @@ import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.Void
 import org.adt.presentation.theme.VolunteersCaseTheme
 
+/**
+ * Universal text input field built on top of BasicTextField with password masking and focus indicator
+ *
+ * Provides built-in support for password toggles, custom cursor behaviors,
+ * selection colors, and an animated border that reacts to focus events.
+ *
+ * @param modifier modifier used for custom positioning, sizing, or outer padding
+ * @param label placeholder text displayed inside the field when the input value is empty
+ * @param value initial state text value of the input field
+ * @param type input layout behavior flag, uses "password" to activate masking and toggle icons
+ * @param onValueChange function invoked on every character change or text modification
+ *
+ * @sample [CustomTextFieldPreview]
+ */
 @Composable
 fun CustomTextField(
     modifier: Modifier = Modifier,

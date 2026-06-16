@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.EventNote
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material3.Card
@@ -35,6 +36,15 @@ import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
 
+/**
+ * Card displaying a planned event in the calendar list with its current completion status
+ *
+ * @param userEvent object containing user-specific event details such as name and status
+ *
+ * @param onClick function to be invoked when the calendar card is clicked
+ *
+ * @sample [PlannedEventCardPreview]
+ */
 @Composable
 fun PlannedEventCalendarCard(
     userEvent: UserEvents, onClick: () -> Unit
@@ -58,7 +68,7 @@ fun PlannedEventCalendarCard(
                     .clip(RoundedCornerShape(12.dp))
                     .background(Mint.copy(alpha = 0.1f)), contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.EventNote, contentDescription = null, tint = Mint)
+                Icon(Icons.AutoMirrored.Filled.EventNote, contentDescription = null, tint = Mint)
             }
 
             Spacer(Modifier.width(16.dp))

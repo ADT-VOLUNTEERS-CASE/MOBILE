@@ -28,6 +28,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Universal highly customizable button component supporting loaders and state animations
+ *
+ * Wraps the standard Material 3 button to provide predefined design variations,
+ * loading indicators, custom shadow elevations, and localized text transform behaviors.
+ *
+ * @param text string resource payload to display inside the button or loader fallback
+ * @param modifier modifier used for managing button sizes, padding, and layout constraints
+ * @param variant layout configuration token determining shapes, heights, and casing rules
+ * @param style visual style token identifying color structures like Filled or Outlined
+ * @param enabled flag indicating whether the button reacts to user interactions
+ * @param isLoading flag replacing the core text label with a smooth spinning indicator
+ * @param colors explicit color overrides bypassing default theme provider values
+ * @param onClick function to be invoked when the interactable button is pressed
+ *
+ * @sample [CustomButtonPreview]
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomButton(

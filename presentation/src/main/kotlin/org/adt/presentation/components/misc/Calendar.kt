@@ -86,6 +86,7 @@ fun CalendarWidget(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            @Suppress("DEPRECATION")
             Text(
                 text = state.firstVisibleMonth.yearMonth.month.getDisplayName(TextStyle.FULL, Locale("ru"))
                     .replaceFirstChar { it.uppercase() } + " ${state.firstVisibleMonth.yearMonth.year}",
@@ -112,6 +113,7 @@ fun CalendarWidget(
 
         Row(Modifier.fillMaxWidth()) {
             daysOfWeek.forEach { dayOfWeek ->
+                @Suppress("DEPRECATION")
                 Text(
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center,

@@ -38,6 +38,22 @@ import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.Void
 import org.adt.presentation.theme.VolunteersCaseTheme
 
+/**
+ * Custom search text field built on top of BasicTextField with shadow and search action
+ *
+ * Implements a unified look with a search icon, a dynamic placeholder label,
+ * explicit height scaling, and focus state observation helpers.
+ *
+ * @param modifier modifier used for custom positioning, sizing, or outer padding
+ * @param label placeholder text displayed inside the field when the input value is empty
+ * @param value initial state text value of the input field
+ * @param verticalScale height multiplier factor used to dynamically scale the base 48.dp field height
+ * @param onValueChange function invoked on every character change or text modification
+ * @param onConfirm function invoked when the keyboard IME Search action is triggered
+ * @param onFocused function invoked when the focus state of this input field shifts
+ *
+ * @sample [CustomSearchTextFieldPreview]
+ */
 @Composable
 fun CustomSearchTextField(
     modifier: Modifier = Modifier,

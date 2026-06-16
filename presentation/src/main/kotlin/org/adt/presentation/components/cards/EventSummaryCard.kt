@@ -33,6 +33,16 @@ import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.Void
 import org.adt.presentation.theme.VolunteersCaseTheme
 
+/**
+ * Card displaying summarized information about an event for a coordinator
+ *
+ * @param event object containing event metrics like participant counts and capacity
+ *
+ * @param onClick function to be invoked when the card is clicked
+ *
+ * @sample [EventSummaryCardWithPendingPreview]
+ * @sample [EventSummaryCardFullPreview]
+ */
 @Composable
 fun EventSummaryCard(
     event: CoordinatorEventSummary,

@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.adt.presentation.BuildConfig
 import org.adt.presentation.R
-import org.adt.presentation.components.cards.ProfileMenuCard
+import org.adt.presentation.components.cards.MenuCard
 import org.adt.presentation.components.misc.NotImplementedSheet
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
@@ -167,7 +167,7 @@ fun ProfileScreenContent(
                     modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
                 )
 
-                ProfileMenuCard(
+                MenuCard(
                     title = stringResource(R.string.subtitle_safety),
                     subtitle = stringResource(R.string.body_biometrical),
                     icon = Icons.Default.Security,
@@ -175,7 +175,7 @@ fun ProfileScreenContent(
                     onClick = { showWIPSheet = true }
                 )
 
-                ProfileMenuCard(
+                MenuCard(
                     title = stringResource(R.string.subtitle_activity_history),
                     subtitle = stringResource(R.string.body_contribution),
                     icon = Icons.Default.History,

@@ -258,7 +258,6 @@ fun VolunteerScreenContent(
                                 CharityEventCard(
                                     event = event,
                                     onClick = { eventPickerAction(event) },
-                                    onFavoriteClick = { },
                                     isParticipating = isParticipatingRecommendationEvaluateAction.invoke(
                                         event
                                     )
@@ -282,7 +281,7 @@ fun VolunteerScreenContent(
             modifier = Modifier.padding(top = 80.dp),
             contentAlignment = Alignment.BottomCenter
         ) {
-            SearchOverlay(uiState, {}, { data -> })
+            SearchOverlay(uiState, {}, {})
         }
     }
 }

@@ -31,6 +31,17 @@ import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.Void
 import org.adt.presentation.theme.VolunteersCaseTheme
 
+/**
+ * Card displaying volunteer event application details with action buttons
+ *
+ * @param app object containing volunteer application data like name and email
+ *
+ * @param onApprove function to be invoked when the "Approve" button is clicked
+ *
+ * @param onReject function to be invoked when the "Reject" button is clicked
+ *
+ * @sample [ApplicationCardPreview]
+ */
 @Composable
 fun ApplicationCard(
     app: EventApplication,

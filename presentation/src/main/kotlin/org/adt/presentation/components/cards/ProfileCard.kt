@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.sp
 import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable
-//TODO: rename UserResponse class
 fun ProfileCard(
     modifier: Modifier = Modifier,
     firstName: String = "Пользователь",

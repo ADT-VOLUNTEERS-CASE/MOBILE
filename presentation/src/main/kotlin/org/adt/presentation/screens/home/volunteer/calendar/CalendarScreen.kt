@@ -128,6 +128,7 @@ fun VolunteerCalendarScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
                     ) {
+                        @Suppress("DEPRECATION")
                         Text(
                             text = targetDate.format(DateTimeFormatter.ofPattern("d MMMM yyyy", Locale("ru"))),
                             style = VolunteersCaseTheme.typography.titleMedium,
