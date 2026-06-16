@@ -2,6 +2,7 @@ package org.adt.presentation.screens.home.admin.dashboard
 
 import android.content.ContentValues
 import android.content.Context
+import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
@@ -135,6 +136,9 @@ class AdminDashboardViewModel @Inject constructor(
     }
 
     suspend fun saveFileToDownloads(context: Context, bytes: ByteArray, fileName: String): Boolean {
+        val resolver = context.contentResolver
+        var createdUri: Uri? = null
+
         return withContext(Dispatchers.IO) {
             try {
                 val contentValues = ContentValues().apply {
@@ -142,10 +146,9 @@ class AdminDashboardViewModel @Inject constructor(
                     put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
                     put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
                 }
-                val resolver = context.contentResolver
-                val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                createdUri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
 
-                uri?.let { targetUri ->
+                createdUri?.let { targetUri ->
                     resolver.openOutputStream(targetUri).use { outputStream ->
                         bytes.inputStream().use { inputStream ->
                             inputStream.copyTo(outputStream!!)
@@ -154,6 +157,7 @@ class AdminDashboardViewModel @Inject constructor(
                     true
                 } ?: false
             } catch (e: Exception) {
+                createdUri?.let { resolver.delete(it, null, null) }
                 Log.e("AdminDashboardVM", "Ошибка записи файла в память", e)
                 false
             }
