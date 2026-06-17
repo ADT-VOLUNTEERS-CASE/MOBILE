@@ -3,17 +3,27 @@ package org.adt.presentation.components.buttons
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LocalRippleConfiguration
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RippleConfiguration
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +37,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.adt.presentation.theme.Abyss
+import org.adt.presentation.theme.Milk
+import org.adt.presentation.theme.VolunteersCaseTheme
 
 /**
  * Universal highly customizable button component supporting loaders and state animations
@@ -43,7 +56,7 @@ import androidx.compose.ui.unit.sp
  * @param colors explicit color overrides bypassing default theme provider values
  * @param onClick function to be invoked when the interactable button is pressed
  *
- * @sample [CustomButtonPreview]
+ * @sample [CustomButtonAllVariantsPreview]
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,15 +100,16 @@ fun CustomButton(
             modifier = modifier
                 .fillMaxWidth()
                 .then(if (config.height != null) Modifier.height(config.height) else Modifier)
-                .shadow(elevation = shadowElevation, shape = config.shape, clip = false),
+                .shadow(elevation = shadowElevation, shape = config.shape, clip = false)
+                .background(color = finalColors.containerColor, shape = config.shape),
             enabled = isInteractable,
             shape = config.shape,
             interactionSource = interactionSource,
             border = finalColors.borderColor?.let { BorderStroke(2.dp, it) },
             colors = ButtonDefaults.buttonColors(
-                containerColor = finalColors.containerColor,
+                containerColor = Color.Transparent,
                 contentColor = finalColors.contentColor,
-                disabledContainerColor = finalColors.containerColor,
+                disabledContainerColor = Color.Transparent,
                 disabledContentColor = finalColors.contentColor
             ),
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 0.dp)
@@ -121,11 +135,98 @@ fun CustomButton(
 }
 
 
-@Preview
+@Preview(showBackground = true, name = "Custom Buttons - All Styles")
 @Composable
-private fun CustomButtonPreview() {
-    CustomButton(
-        text = "Press custom button",
-        style = ButtonStyle.Translucent
-    ) { }
+private fun CustomButtonAllVariantsPreview() {
+    VolunteersCaseTheme {
+        Column(
+            modifier = Modifier
+                .background(Milk)
+                .padding(horizontal = 16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            Spacer(Modifier.height(16.dp))
+            // ----------------------------------------------------
+            // 1. STYLE TRANSLUCENT
+            // ----------------------------------------------------
+            Text("Translucent", style = MaterialTheme.typography.titleMedium, color = Abyss)
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                CustomButton(text = "Translucent Default", style = ButtonStyle.Translucent) {}
+                CustomButton(text = "Translucent Loading", style = ButtonStyle.Translucent, isLoading = true) {}
+                CustomButton(text = "Translucent Disabled", style = ButtonStyle.Translucent, enabled = false) {}
+            }
+
+            HorizontalDivider(Modifier.fillMaxWidth())
+
+            // ----------------------------------------------------
+            // 2. VARIANT - ROUNDED
+            // ----------------------------------------------------
+            Text("Variant - Rounded (Circle Shape)", style = MaterialTheme.typography.titleMedium, color = Abyss)
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Filled", style = MaterialTheme.typography.labelMedium)
+                    CustomButton(text = "Active", variant = ButtonVariant.Rounded, style = ButtonStyle.Filled) {}
+                    CustomButton(text = "Disabled", variant = ButtonVariant.Rounded, style = ButtonStyle.Filled, enabled = false) {}
+                }
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Outlined", style = MaterialTheme.typography.labelMedium)
+                    CustomButton(text = "Active", variant = ButtonVariant.Rounded, style = ButtonStyle.Outlined) {}
+                    CustomButton(text = "Loading", variant = ButtonVariant.Rounded, style = ButtonStyle.Outlined, isLoading = true) {}
+                }
+            }
+
+            // ----------------------------------------------------
+            // 3. VARIANT - LITE ROUNDED
+            // ----------------------------------------------------
+            Text("Variant - Lite Rounded (Clip 14.dp)", style = MaterialTheme.typography.titleMedium, color = Abyss)
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Filled", style = MaterialTheme.typography.labelMedium)
+                    CustomButton(text = "Active", variant = ButtonVariant.LiteRounded, style = ButtonStyle.Filled) {}
+                    CustomButton(text = "Disabled", variant = ButtonVariant.LiteRounded, style = ButtonStyle.Filled, enabled = false) {}
+                }
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Outlined", style = MaterialTheme.typography.labelMedium)
+                    CustomButton(text = "Active", variant = ButtonVariant.LiteRounded, style = ButtonStyle.Outlined) {}
+                    CustomButton(text = "Loading", variant = ButtonVariant.LiteRounded, style = ButtonStyle.Outlined, isLoading = true) {}
+                }
+            }
+
+            // ----------------------------------------------------
+            // 4. VARIANT - ROUGH ROUNDED
+            // ----------------------------------------------------
+            Text("Variant - Rough Rounded (Clip 12.dp)", style = MaterialTheme.typography.titleMedium, color = Abyss)
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Filled", style = MaterialTheme.typography.labelMedium)
+                    CustomButton(text = "Active", variant = ButtonVariant.RoughRounded, style = ButtonStyle.Filled) {}
+                    CustomButton(text = "Disabled", variant = ButtonVariant.RoughRounded, style = ButtonStyle.Filled, enabled = false) {}
+                }
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Outlined", style = MaterialTheme.typography.labelMedium)
+                    CustomButton(text = "Active", variant = ButtonVariant.RoughRounded, style = ButtonStyle.Outlined) {}
+                    CustomButton(text = "Loading", variant = ButtonVariant.RoughRounded, style = ButtonStyle.Outlined, isLoading = true) {}
+                }
+            }
+
+            // ----------------------------------------------------
+            // 5. VARIANT - WIDE
+            // ----------------------------------------------------
+            Text("Variant - Wide (Clip 10.dp)", style = MaterialTheme.typography.titleMedium, color = Abyss)
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Filled", style = MaterialTheme.typography.labelMedium)
+                    CustomButton(text = "Active", variant = ButtonVariant.Wide, style = ButtonStyle.Filled) {}
+                    CustomButton(text = "Disabled", variant = ButtonVariant.Wide, style = ButtonStyle.Filled, enabled = false) {}
+                }
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Outlined", style = MaterialTheme.typography.labelMedium)
+                    CustomButton(text = "Active", variant = ButtonVariant.Wide, style = ButtonStyle.Outlined) {}
+                    CustomButton(text = "Loading", variant = ButtonVariant.Wide, style = ButtonStyle.Outlined, isLoading = true) {}
+                }
+            }
+            Spacer(Modifier.height(16.dp))
+        }
+    }
 }

@@ -19,11 +19,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.adt.core.entities.event.CoordinatorEventSummary
+import org.adt.presentation.R
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
@@ -102,14 +104,14 @@ fun EventSummaryCard(
         ) {
 
             MiniStatusChip(
-                text = "${event.acceptedCount} одобрено",
+                text = stringResource(R.string.body_number_accepted, event.acceptedCount),
                 containerColor = Lagoon.copy(alpha = 0.08f),
                 contentColor = Lagoon
             )
 
             if (event.rejectedCount > 0) {
                 MiniStatusChip(
-                    text = "${event.rejectedCount} отказ",
+                    text = stringResource(R.string.body_number_canceled, event.rejectedCount),
                     containerColor = Color(0xFFD32F2F).copy(alpha = 0.06f),
                     contentColor = Color(0xFFD32F2F).copy(alpha = 0.7f)
                 )
@@ -120,7 +122,10 @@ fun EventSummaryCard(
                 if (remainingPlaces > 0) Mint.copy(alpha = 0.1f) else Graphite.copy(alpha = 0.04f)
 
             MiniStatusChip(
-                text = if (remainingPlaces > 0) "$remainingPlaces мест" else "Мест нет",
+                text = if (remainingPlaces > 0) stringResource(
+                    R.string.body_number_free,
+                    remainingPlaces
+                ) else stringResource(R.string.body_number_full),
                 containerColor = placesBg,
                 contentColor = placesColor
             )

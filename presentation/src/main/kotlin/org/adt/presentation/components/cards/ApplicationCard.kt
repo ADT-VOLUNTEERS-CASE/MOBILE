@@ -16,10 +16,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.adt.core.entities.event.EventApplication
+import org.adt.presentation.R
 import org.adt.presentation.components.buttons.ButtonColorScheme
 import org.adt.presentation.components.buttons.ButtonStyle
 import org.adt.presentation.components.buttons.ButtonVariant
@@ -92,7 +94,7 @@ fun ApplicationCard(
 
             CustomButton(
                 modifier = Modifier.weight(1f),
-                text = "Отклонить",
+                text = stringResource(R.string.button_cancel),
                 style = ButtonStyle.Outlined,
                 variant = ButtonVariant.LiteRounded,
                 colors = ButtonColorScheme(
@@ -105,7 +107,7 @@ fun ApplicationCard(
 
             CustomButton(
                 modifier = Modifier.weight(1.5f),
-                text = "Принять",
+                text = stringResource(R.string.button_accept),
                 style = ButtonStyle.Filled,
                 variant = ButtonVariant.LiteRounded,
                 colors = ButtonColorScheme(

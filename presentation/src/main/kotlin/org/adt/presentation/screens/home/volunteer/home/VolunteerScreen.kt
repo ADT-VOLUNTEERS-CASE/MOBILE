@@ -281,7 +281,10 @@ fun VolunteerScreenContent(
             modifier = Modifier.padding(top = 80.dp),
             contentAlignment = Alignment.BottomCenter
         ) {
-            SearchOverlay(uiState, {}, {})
+            SearchOverlay(uiState, eventPickerAction, { address ->
+                searchFieldValueChangedAction(address)
+                searchFieldOnConfirmAction(address)
+            })
         }
     }
 }

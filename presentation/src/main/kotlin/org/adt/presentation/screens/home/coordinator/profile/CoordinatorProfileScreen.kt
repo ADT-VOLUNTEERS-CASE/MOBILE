@@ -253,7 +253,7 @@ fun CoordinatorProfileScreenContent(
             Spacer(Modifier.height(32.dp))
 
             Text(
-                text = stringResource(R.string.app_version, { BuildConfig.VERSION_NAME }),
+                text = stringResource(R.string.app_version, BuildConfig.VERSION_NAME),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 24.dp),

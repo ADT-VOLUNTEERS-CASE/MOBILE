@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 import org.adt.presentation.R
 import org.adt.presentation.theme.Aqua
 import org.adt.presentation.theme.Graphite
+import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.VolunteersCaseTheme
 
 @SuppressLint("UseOfNonLambdaOffsetOverload")
@@ -117,6 +118,12 @@ fun PeriodSwitch(
 @Composable
 private fun PeriodSwitchPreview() {
     VolunteersCaseTheme {
-        PeriodSwitch(current = "monthly", onSelect = {})
+        Box(
+            modifier = Modifier
+                .background(Milk)
+                .padding(16.dp)
+        ) {
+            PeriodSwitch(current = "monthly", onSelect = {})
+        }
     }
 }

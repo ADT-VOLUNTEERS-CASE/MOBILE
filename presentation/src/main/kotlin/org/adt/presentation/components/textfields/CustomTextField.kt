@@ -171,15 +171,14 @@ fun CustomTextField(
 @Preview
 @Composable
 private fun CustomTextFieldPreview() {
-    Box(
-        Modifier
-            .height(700.dp)
-            .width(500.dp)
-            .background(Arctic)
-            .padding(horizontal = 20.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        CustomTextField(Modifier, "CustomTextField") { }
+    VolunteersCaseTheme {
+        Box(
+            modifier = Modifier
+                .background(Milk)
+                .padding(16.dp)
+        ) {
+            CustomTextField(Modifier, "CustomTextField") { }
+        }
     }
 }
 

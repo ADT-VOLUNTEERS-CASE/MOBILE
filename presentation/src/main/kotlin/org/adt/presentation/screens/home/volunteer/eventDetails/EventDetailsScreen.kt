@@ -354,7 +354,7 @@ private fun BottomActionSurface(uiState: EventDetailsState, onApply: () -> Unit)
     val (btnText, btnColor) = when (status) {
         "PENDING", "ALREADY_EXISTS" -> stringResource(R.string.button_application_send) to Color(0xFFFBC02D)
         "SUCCESS", "ACCEPTED" -> stringResource(R.string.button_participating) to Mint
-        else -> "Принять участие" to Lagoon
+        else -> stringResource(R.string.button_accept_participating) to Lagoon
     }
 
     Surface(

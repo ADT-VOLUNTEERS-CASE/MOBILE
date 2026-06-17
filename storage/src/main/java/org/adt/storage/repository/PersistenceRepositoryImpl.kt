@@ -30,10 +30,6 @@ class PersistenceRepositoryImpl @Inject constructor(
         private val KEY_ONBOARDING_COMPLETED = booleanPreferencesKey("onboardingCompleted")
     }
 
-//    val tokenFlow: Flow<String?> = context.dataStore.data.map { prefs ->
-//        prefs[KEY_TOKEN]?.let { "Bearer $it" }
-//    }
-
     override val onboardingCompletedFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
         prefs[KEY_ONBOARDING_COMPLETED] ?: false
     }

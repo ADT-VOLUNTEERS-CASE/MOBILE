@@ -42,6 +42,7 @@ import org.adt.core.entities.event.EventLocation
 import org.adt.presentation.R
 import org.adt.presentation.components.icons.TrailingIconRow
 import org.adt.presentation.components.icons.IconSource
+import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable
@@ -170,15 +171,21 @@ fun RecommendationCard(
 @Composable
 private fun RecommendationCardPreview() {
     VolunteersCaseTheme {
-        RecommendationCard(
-            event = Event(
-                name = "Уборка в парке",
-                description = "Плановая уборка",
-                location = EventLocation(address = "Центральная улица"),
-                dateTimestamp = "1778528250",
-                maxCapacity = 10
-            ),
-            backgroundImageOverride = painterResource(R.drawable.baseimage)
-        )
+        Box(
+            modifier = Modifier
+                .background(Milk)
+                .padding(16.dp)
+        ) {
+            RecommendationCard(
+                event = Event(
+                    name = "Уборка в парке",
+                    description = "Плановая уборка",
+                    location = EventLocation(address = "Центральная улица"),
+                    dateTimestamp = "1778528250",
+                    maxCapacity = 10
+                ),
+                backgroundImageOverride = painterResource(R.drawable.baseimage)
+            )
+        }
     }
 }

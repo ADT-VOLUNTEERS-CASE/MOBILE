@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import kotlinx.coroutines.delay
 import org.adt.presentation.theme.VolunteersCaseTheme
-import kotlin.text.iterator
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -38,7 +37,7 @@ fun TypingText(
 ) {
     var displayedText by remember { mutableStateOf(if (animationOverride) text else "") }
 
-    LaunchedEffect(text, charDelay) {
+    LaunchedEffect(text, charDelay, delay) {
         delay(delay.milliseconds)
         displayedText = ""
         for (char in text) {

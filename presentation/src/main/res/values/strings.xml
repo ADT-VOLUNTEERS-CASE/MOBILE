@@ -134,4 +134,10 @@
 
     <string name="father">Лимасов Андрей</string>
     <string name="title_create">Создание</string>
+    <string name="button_accept">Принять</string>
+    <string name="body_number_accepted">%1$d одобрено</string>
+    <string name="body_number_canceled">%1$d отказ</string>
+    <string name="body_number_full">Мест нет</string>
+    <string name="body_number_free">%1$d мест</string>
+    <string name="button_accept_participating">Принять участие</string>
 </resources>

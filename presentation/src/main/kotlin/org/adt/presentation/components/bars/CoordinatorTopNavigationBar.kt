@@ -42,6 +42,18 @@ import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.VolunteersCaseTheme
 import kotlin.math.roundToInt
 
+/**
+ * Universal top navigation bar for the coordinator screen with a sliding toggle indicator
+ *
+ * Wraps the standard Material 3 CenterAlignedTopAppBar to provide a custom segmented
+ * switch (tab control) inside the title area. Syncs its selection state and slider offset
+ * dynamically with an Accompanist/Compose PagerState during page swipes.
+ *
+ * @param pagerState the state of the scrollable pager used to bind and animate the sliding tab selector
+ * @param modifier modifier used for adding external layout constraints or custom background paddings
+ *
+ * @sample [CoordinatorTopNavigationBarPreview]
+ */
 @SuppressLint("FrequentlyChangingValue")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -147,7 +159,7 @@ fun CoordinatorTopNavigationBar(
 @Preview
 @Composable
 private fun CoordinatorTopNavigationBarPreview() {
-    val pagerState = rememberPagerState { 1 }
+    val pagerState = rememberPagerState { 2 }
     VolunteersCaseTheme {
         Box(
             modifier = Modifier

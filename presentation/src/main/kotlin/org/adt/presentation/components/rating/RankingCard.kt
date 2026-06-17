@@ -41,6 +41,7 @@ import org.adt.presentation.R
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Aqua
 import org.adt.presentation.theme.Graphite
+import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
 
@@ -132,7 +133,7 @@ fun RankingCard(
                     }
 
                     Text(
-                        text = stringResource(R.string.body_minutes_all,entry.workedMinutes),
+                        text = stringResource(R.string.body_minutes_all, entry.workedMinutes),
                         style = VolunteersCaseTheme.typography.titleSmall.copy(
                             fontWeight = FontWeight.Bold,
                             color = Abyss,
@@ -148,17 +149,23 @@ fun RankingCard(
 @Composable
 private fun RankingCardPreview() {
     VolunteersCaseTheme {
-        RankingCard(
-            entry = UserRating(
-                firstname = "Анна",
-                lastname = "Иванова",
-                patronymic = "Сергеевна",
-                workedMinutes = 450,
-                userId = 1,
-            ),
-            rank = 5,
-            index = 0,
-            animationOverride = true,
-        )
+        Box(
+            modifier = Modifier
+                .background(Milk)
+                .padding(16.dp)
+        ) {
+            RankingCard(
+                entry = UserRating(
+                    firstname = "Анна",
+                    lastname = "Иванова",
+                    patronymic = "Сергеевна",
+                    workedMinutes = 450,
+                    userId = 1,
+                ),
+                rank = 5,
+                index = 0,
+                animationOverride = true,
+            )
+        }
     }
 }

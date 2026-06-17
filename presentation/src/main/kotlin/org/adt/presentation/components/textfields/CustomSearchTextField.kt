@@ -16,6 +16,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,6 +67,12 @@ fun CustomSearchTextField(
 ) {
     var textFieldValue by remember { mutableStateOf(value) }
     val focusManager = LocalFocusManager.current
+
+    LaunchedEffect(value) {
+        if (textFieldValue != value) {
+            textFieldValue = value
+        }
+    }
 
     BasicTextField(
         textFieldValue,
@@ -122,14 +129,13 @@ fun CustomSearchTextField(
 @Preview
 @Composable
 private fun CustomSearchTextFieldPreview() {
-    Box(
-        Modifier
-            .height(700.dp)
-            .width(500.dp)
-            .background(Arctic)
-            .padding(horizontal = 20.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        CustomSearchTextField(Modifier, "CustomSearchTextField", "", 1f, {}, {})
+    VolunteersCaseTheme {
+        Box(
+            modifier = Modifier
+                .background(Milk)
+                .padding(16.dp)
+        ) {
+            CustomSearchTextField(Modifier, "CustomSearchTextField", "", 1f, {}, {})
+        }
     }
 }
