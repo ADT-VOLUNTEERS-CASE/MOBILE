@@ -69,7 +69,6 @@ internal object NetworkModule {
 
             install(DefaultRequest) {
                 header(HttpHeaders.Accept, ContentType.Application.Json.toString())
-                header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
             }
 
             install(ContentNegotiation) {
