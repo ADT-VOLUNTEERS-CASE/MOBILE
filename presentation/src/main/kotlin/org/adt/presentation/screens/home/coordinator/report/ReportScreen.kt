@@ -58,10 +58,12 @@ fun ReportScreen(viewModel: ReportViewModel) {
     val context = LocalContext.current
 
     LaunchedEffect(uiState.downloadedFile) {
-        uiState.downloadedFile?.let { body ->
+        //TODO: WHY STATE UPDATE IN UI???
+        //Also, should be on Dispatchers.IO context.
+        uiState.downloadedFile?.let { bytes ->
             val success = viewModel.saveFileToDownloads(
                 context = context,
-                responseBody = body,
+                bytes = bytes,
                 fileName = "report-${System.currentTimeMillis()}.pdf"
             )
             if (success) {

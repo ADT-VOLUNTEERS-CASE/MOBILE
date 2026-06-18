@@ -2,7 +2,7 @@ package org.adt.presentation.screens.home.admin.dashboard
 
 import android.content.ContentValues
 import android.content.Context
-import android.os.Build
+import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
@@ -16,11 +16,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.ResponseBody
 import org.adt.domain.abstraction.DataRepository
 import org.adt.presentation.utils.LocalizationManager.message
-import java.io.File
-import java.io.FileOutputStream
 import javax.inject.Inject
 
 @HiltViewModel
@@ -138,37 +135,29 @@ class AdminDashboardViewModel @Inject constructor(
         }
     }
 
-    suspend fun saveFileToDownloads(context: Context, responseBody: ResponseBody, fileName: String): Boolean {
+    suspend fun saveFileToDownloads(context: Context, bytes: ByteArray, fileName: String): Boolean {
+        val resolver = context.contentResolver
+        var createdUri: Uri? = null
+
         return withContext(Dispatchers.IO) {
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val contentValues = ContentValues().apply {
-                        put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-                        put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
-                        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-                    }
-                    val resolver = context.contentResolver
-                    val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                val contentValues = ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                    put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                }
+                createdUri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
 
-                    uri?.let { targetUri ->
-                        resolver.openOutputStream(targetUri).use { outputStream ->
-                            responseBody.byteStream().use { inputStream ->
-                                inputStream.copyTo(outputStream!!)
-                            }
-                        }
-                        true
-                    } ?: false
-                } else {
-                    val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                    val file = File(downloadsDir, fileName)
-                    FileOutputStream(file).use { outputStream ->
-                        responseBody.byteStream().use { inputStream ->
-                            inputStream.copyTo(outputStream)
+                createdUri?.let { targetUri ->
+                    resolver.openOutputStream(targetUri).use { outputStream ->
+                        bytes.inputStream().use { inputStream ->
+                            inputStream.copyTo(outputStream!!)
                         }
                     }
                     true
-                }
+                } ?: false
             } catch (e: Exception) {
+                createdUri?.let { resolver.delete(it, null, null) }
                 Log.e("AdminDashboardVM", "Ошибка записи файла в память", e)
                 false
             }

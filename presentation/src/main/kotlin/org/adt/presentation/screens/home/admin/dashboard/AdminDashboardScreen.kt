@@ -80,7 +80,7 @@ fun AdminDashboardScreen(
             val success = withContext(Dispatchers.IO) {
                 viewModel.saveFileToDownloads(
                     context = context,
-                    responseBody = body,
+                    bytes = body,
                     fileName = "report-${System.currentTimeMillis()}.pdf"
                 )
             }

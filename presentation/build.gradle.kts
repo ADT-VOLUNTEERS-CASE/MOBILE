@@ -152,7 +152,7 @@ kotlin {
 
 dependencies {
     implementation(project("::domain"))
-    implementation(project("::data"))
+    implementation(project("::data")) // TODO: MIGRATE TO DOMAIN
     implementation(project("::core"))
     implementation(project("::storage"))
     implementation(libs.androidx.compose.ui.geometry)

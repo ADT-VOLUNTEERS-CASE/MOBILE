@@ -2,80 +2,29 @@ package org.adt.data.modules
 
 import dagger.Module
 import dagger.Provides
+import de.jensklingenberg.ktorfit.Ktorfit
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.api.createClientPlugin
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.header
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import okhttp3.Interceptor
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.ResponseBody.Companion.toResponseBody
 import org.adt.core.abstraction.BuildConfigurationRepository
 import org.adt.core.annotations.ImplicitUsage
 import org.adt.data.abstraction.NetworkStatusProvider
-import org.adt.data.repository.RetrofitRepository
-import retrofit2.Retrofit
-import retrofit2.converter.kotlinx.serialization.asConverterFactory
-import retrofit2.converter.scalars.ScalarsConverterFactory
-import java.util.concurrent.TimeUnit
+import org.adt.data.repository.KtorRepository
+import org.adt.data.repository.createKtorRepository
 import javax.inject.Singleton
+import kotlin.coroutines.cancellation.CancellationException
+
 
 @Module
 internal object NetworkModule {
-    @Provides
-    @Singleton
-    @ImplicitUsage
-    fun provideInterceptor(
-        networkStatusProvider: NetworkStatusProvider
-    ): Interceptor {
-        return Interceptor { chain ->
-            val request = chain.request()
-
-            if (!networkStatusProvider.isInternetAvailable()) {
-                val emptyBody = "{}".toResponseBody("application/json".toMediaTypeOrNull())
-
-                return@Interceptor okhttp3.Response.Builder()
-                    .request(request)
-                    .protocol(okhttp3.Protocol.HTTP_1_1)
-                    .code(503)
-                    .message("No internet connection")
-                    .body(emptyBody)
-                    .build()
-            }
-
-            val newRequest = request.newBuilder()
-                .addHeader("Accept", "application/json")
-                .addHeader("Content-Type", "application/json")
-                .build()
-
-            try {
-                chain.proceed(newRequest)
-            } catch (e: Exception) {
-                val errorBody = "{\"error\":\"${e.localizedMessage}\"}".toResponseBody("application/json".toMediaTypeOrNull())
-                okhttp3.Response.Builder()
-                    .request(newRequest)
-                    .protocol(okhttp3.Protocol.HTTP_1_1)
-                    .code(600) // Transport failure
-                    .message(e.message ?: "Network transport error")
-                    .body(errorBody)
-                    .build()
-            }
-        }
-    }
-
-    @Provides
-    @Singleton
-    @ImplicitUsage
-    fun provideOkHttpClient(
-        interceptor: Interceptor
-    ): OkHttpClient {
-        return OkHttpClient.Builder()
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
-            .retryOnConnectionFailure(true)
-            .addInterceptor(interceptor)
-            .build()
-    }
-
     private val jsonConfig = Json {
         ignoreUnknownKeys = true
         coerceInputValues = true
@@ -84,25 +33,72 @@ internal object NetworkModule {
     @Provides
     @Singleton
     @ImplicitUsage
-    fun provideRetrofit(
-        okHttpClient: OkHttpClient,
+    fun provideOfflineAndExceptionPlugin(
+        networkStatusProvider: NetworkStatusProvider
+    ) = createClientPlugin("OfflineAndExceptionPlugin") {
+        onRequest { request, _ ->
+            if (!networkStatusProvider.isInternetAvailable()) {
+                throw CancellationException("No internet connection")
+            }
+        }
+
+        onResponse { response ->
+            // Handle global status codes
+        }
+    }
+
+    @Provides
+    @Singleton
+    @ImplicitUsage
+    fun provideHttpClient(
+        offlinePlugin: io.ktor.client.plugins.api.ClientPlugin<Unit>,
+        networkStatusProvider: NetworkStatusProvider
+    ): HttpClient {
+        return HttpClient(OkHttp) {
+            engine {
+                config {
+                    retryOnConnectionFailure(true)
+                }
+            }
+
+            install(HttpTimeout) {
+                requestTimeoutMillis = 30_000
+                connectTimeoutMillis = 30_000
+                socketTimeoutMillis = 30_000
+            }
+
+            install(DefaultRequest) {
+                header(HttpHeaders.Accept, ContentType.Application.Json.toString())
+            }
+
+            install(ContentNegotiation) {
+                json(jsonConfig)
+            }
+
+            install(offlinePlugin)
+
+            expectSuccess = false
+        }
+    }
+
+    @Provides
+    @Singleton
+    @ImplicitUsage
+    fun provideKtorfit(
+        httpClient: HttpClient,
         buildConfigurationRepository: BuildConfigurationRepository
-    ): Retrofit {
+    ): Ktorfit {
         val url = buildConfigurationRepository.getApiBaseUrl()
 
-        return Retrofit.Builder()
-            .baseUrl(url) //"https://adt.rss14.ru/api/v1/"
-            .client(okHttpClient)
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .addConverterFactory(
-                jsonConfig.asConverterFactory(
-                    "application/json; charset=utf-8".toMediaType())
-            ).build()
+        return Ktorfit.Builder()
+            .baseUrl(url)
+            .httpClient(httpClient)
+            .build()
     }
 
     @Provides
     @ImplicitUsage
-    fun provideNetworkRepository(retrofit: Retrofit): RetrofitRepository {
-        return retrofit.create(RetrofitRepository::class.java)
+    fun provideNetworkRepository(ktorfit: Ktorfit): KtorRepository {
+        return ktorfit.createKtorRepository()
     }
 }

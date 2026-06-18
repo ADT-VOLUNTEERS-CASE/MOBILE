@@ -4,13 +4,13 @@ android = "0.9.0"
 archunitJunit5 = "1.4.2"
 coilCompose = "2.7.0"
 compose = "2.10.1"
-converterScalars = "3.0.0"
 dagger = "2.59.2"
 dotsindicator = "5.1.0"
 gson = "2.14.0"
 javaxInject = "1"
 junitJupiter = "6.1.0"
 kotlin = "2.3.21"
+ktorClientOkhttp = "3.5.0"
 mockk = "1.14.11"
 serialization = "2.3.21"
 coreKtx = "1.18.0"
@@ -36,14 +36,15 @@ kotlinxCoroutinesAndroid = "1.11.0"
 kotlinxCoroutinesCore = "1.11.0"
 
 kotlinxSerializationJson = "1.11.0"
-serializationConverter = "3.0.0"
-retrofit = "3.0.0"
 navigationCompose = "2.9.8"
 
 shadowglow = "2.0.0"
 
 ksp = "2.3.8"
-symbolProcessingApi = "2.3.8"
+symbolProcessingApi = "2.3.9"
+
+ktor = "3.5.0"
+ktorfit = "2.7.5"
 
 stability-analyzer = "0.8.0"
 uiGeometry = "1.11.2"
@@ -54,7 +55,6 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunitJunit5" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 compose = { module = "com.kizitonwose.calendar:compose", version.ref = "compose" }
-converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "converterScalars" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
 dotsindicator = { module = "com.tbuonomo:dotsindicator", version.ref = "dotsindicator" }
@@ -87,9 +87,14 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jun
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoetKsp" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktorClientOkhttp" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
-retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
-converter-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "serializationConverter" }
+
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktorfit-lib = { module = "de.jensklingenberg.ktorfit:ktorfit-lib", version.ref = "ktorfit" }
+ktorfit-ksp = { module = "de.jensklingenberg.ktorfit:ktorfit-ksp", version.ref = "ktorfit" }
 
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
@@ -113,6 +118,8 @@ jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin"
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serialization" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid" }
+
+ktorfit = { id = "de.jensklingenberg.ktorfit", version.ref = "ktorfit" }
 
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
 stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version.ref = "stability-analyzer" }

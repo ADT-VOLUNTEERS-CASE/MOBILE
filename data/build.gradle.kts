@@ -4,6 +4,8 @@ plugins {
 
     alias(libs.plugins.ksp)
     alias(libs.plugins.serialization)
+
+    alias(libs.plugins.ktorfit)
 }
 
 java {
@@ -56,9 +58,13 @@ dependencies{
     implementation(project(":domain"))
     implementation(project(":core"))
 
-    implementation(libs.retrofit)
-    implementation(libs.converter.scalars)
-    implementation(libs.converter.serialization)
+    implementation(libs.ktorfit.lib)
+    ksp(libs.ktorfit.ksp)
+
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
 
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)

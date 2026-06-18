@@ -109,7 +109,7 @@ class ReportViewModel @Inject constructor(
         }
     }
 
-    fun saveFileToDownloads(context: Context, responseBody: ResponseBody, fileName: String): Boolean {
+    fun saveFileToDownloads(context: Context, bytes: ByteArray, fileName: String): Boolean {
         return try {
             val contentValues = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
@@ -122,7 +122,7 @@ class ReportViewModel @Inject constructor(
 
             uri?.let {
                 resolver.openOutputStream(it)?.use { outputStream ->
-                    responseBody.byteStream().use { inputStream ->
+                    bytes.inputStream().use { inputStream ->
                         inputStream.copyTo(outputStream)
                     }
                 } ?: return false

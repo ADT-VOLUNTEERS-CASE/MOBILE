@@ -1,6 +1,5 @@
 package org.adt.domain.abstraction
 
-import okhttp3.ResponseBody
 import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.Location
 import org.adt.core.entities.Tag
@@ -10,10 +9,10 @@ import org.adt.core.entities.event.Cover
 import org.adt.core.entities.event.Event
 import org.adt.core.entities.event.EventApplication
 import org.adt.core.entities.rating.CoordinatorRatingResponse
+import org.adt.core.entities.rating.RatingResponse
 import org.adt.core.entities.response.EventResponse
 import org.adt.core.entities.response.UserEventResponse
 import org.adt.core.entities.response.UserResponse
-import org.adt.core.entities.rating.RatingResponse
 import org.adt.core.entities.user.statistics.UserStatistics
 import java.io.File
 
@@ -52,13 +51,13 @@ interface DataRepository {
 
     suspend fun findEvent(name: String, retried: Boolean = false): GeneralResponse<List<Event>>
 
-    suspend fun findLocation(address: String): GeneralResponse<List<Location>>
+    suspend fun findLocation(address: String, retried: Boolean = false): GeneralResponse<List<Location>>
 
     suspend fun userInfo(): GeneralResponse<UserResponse>
 
     suspend fun getUserStatistics(): GeneralResponse<UserStatistics>
 
-    suspend fun getUserRating(period: String = "monthly", page: Int = 0, size: Int = 20): GeneralResponse<RatingResponse>
+    suspend fun getUserRating(period: String = "monthly", page: Int = 0, size: Int = 20, retried: Boolean = false): GeneralResponse<RatingResponse>
 
     suspend fun uploadCover(file: File, retried: Boolean = false): GeneralResponse<Cover>
 
@@ -69,7 +68,7 @@ interface DataRepository {
 
     suspend fun getEvents(retried: Boolean = false): GeneralResponse<EventResponse>
 
-    suspend fun getRecommendedEvents(): GeneralResponse<EventResponse>
+    suspend fun getRecommendedEvents(retried: Boolean = false): GeneralResponse<EventResponse>
 
     suspend fun getCoordinatorEvents(retried: Boolean = false): GeneralResponse<CoordinatorEventsResponse>
 
@@ -86,7 +85,7 @@ interface DataRepository {
         retried: Boolean = false
     ): GeneralResponse<Int>
 
-    suspend fun getEventById(eventId: Long): GeneralResponse<Event>
+    suspend fun getEventById(eventId: Long, retried: Boolean = false): GeneralResponse<Event>
 
     suspend fun deleteEvent(eventId: Long, retried: Boolean = false): GeneralResponse<Int>
 
@@ -98,16 +97,16 @@ interface DataRepository {
 
     suspend fun deleteTagByName(tagName: String, retried: Boolean = false): GeneralResponse<Int>
 
-    suspend fun getEventApplications(eventId: Long, status: String?): GeneralResponse<List<EventApplication>>
+    suspend fun getEventApplications(eventId: Long, status: String?, retried: Boolean = false): GeneralResponse<List<EventApplication>>
 
-    suspend fun getApplicationStatus(eventId: Long): GeneralResponse<String>
+    suspend fun getApplicationStatus(eventId: Long, retried: Boolean = false): GeneralResponse<String>
 
-    suspend fun updateApplicationStatus(eventId: Long, userId: Long, status: String, reason: String?): GeneralResponse<UserEventResponse>
+    suspend fun updateApplicationStatus(eventId: Long, userId: Long, status: String, reason: String?, retried: Boolean = false): GeneralResponse<UserEventResponse>
 
     suspend fun getCoordinatorRating(period: String = "monthly", page: Int = 0, size: Int = 20, retried: Boolean = false): GeneralResponse<CoordinatorRatingResponse>
 
-    suspend fun assembleCoordinatorReportFile(period: String = "monthly", retried: Boolean = false): GeneralResponse<ResponseBody>
-    suspend fun assembleUserReportFileByAdmin(id: Long, period: String = "monthly", retried: Boolean = false): GeneralResponse<ResponseBody>
-    suspend fun assembleCoordinatorReportFileByAdmin(id: Long, period: String = "monthly", retried: Boolean = false): GeneralResponse<ResponseBody>
+    suspend fun assembleCoordinatorReportFile(period: String = "monthly", retried: Boolean = false): GeneralResponse<ByteArray>
+    suspend fun assembleUserReportFileByAdmin(id: Long, period: String = "monthly", retried: Boolean = false): GeneralResponse<ByteArray>
+    suspend fun assembleCoordinatorReportFileByAdmin(id: Long, period: String = "monthly", retried: Boolean = false): GeneralResponse<ByteArray>
 
 }
