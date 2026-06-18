@@ -47,6 +47,7 @@ import org.adt.presentation.R
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Aqua
 import org.adt.presentation.theme.Graphite
+import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable
@@ -117,7 +118,7 @@ fun PodiumCard(
         )
 
         Text(
-            text = stringResource(R.string.body_minutes_all,entry.workedMinutes),
+            text = stringResource(R.string.body_minutes_all, entry.workedMinutes),
             style = VolunteersCaseTheme.typography.labelSmall.copy(
                 fontSize = 11.sp,
                 color = Graphite.copy(alpha = 0.7f),
@@ -196,12 +197,18 @@ fun PodiumRow(
 @Composable
 private fun PodiumRowPreview() {
     VolunteersCaseTheme {
-        PodiumRow(
-            entries = listOf(
-                UserRating(firstname = "Анна", workedMinutes = 1200, userId = 1),
-                UserRating(firstname = "Иван", workedMinutes = 900, userId = 2),
-                UserRating(firstname = "Ольга", workedMinutes = 750, userId = 3),
-            ),
-        )
+        Box(
+            modifier = Modifier
+                .background(Milk)
+                .padding(16.dp)
+        ) {
+            PodiumRow(
+                entries = listOf(
+                    UserRating(firstname = "Анна", workedMinutes = 1200, userId = 1),
+                    UserRating(firstname = "Иван", workedMinutes = 900, userId = 2),
+                    UserRating(firstname = "Ольга", workedMinutes = 750, userId = 3),
+                ),
+            )
+        }
     }
 }
