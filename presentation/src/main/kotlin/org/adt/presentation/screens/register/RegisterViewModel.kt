@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -69,7 +70,7 @@ class RegisterViewModel @Inject constructor(
                 return@launch
             }
 
-            val role = _dataRepository.getCurrentUserRole()
+            val role = _dataRepository.getCurrentUserRole().first()
             _persistenceRepository.saveRole(role)
             val destination = Destinations.mapRole(role)
 

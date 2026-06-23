@@ -1,5 +1,6 @@
 package org.adt.domain.abstraction
 
+import kotlinx.coroutines.flow.Flow
 import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.Location
 import org.adt.core.entities.Tag
@@ -25,7 +26,7 @@ interface DataRepository {
         }
     }
 
-    suspend fun getCurrentUserRole(): UserRole
+    suspend fun getCurrentUserRole(): Flow<UserRole>
 
     suspend fun ping(): GeneralResponse<String>
 
@@ -53,7 +54,7 @@ interface DataRepository {
 
     suspend fun findLocation(address: String, retried: Boolean = false): GeneralResponse<List<Location>>
 
-    suspend fun userInfo(): GeneralResponse<UserResponse>
+    suspend fun userInfo(): Flow<GeneralResponse<UserResponse>>
 
     suspend fun getUserStatistics(): GeneralResponse<UserStatistics>
 

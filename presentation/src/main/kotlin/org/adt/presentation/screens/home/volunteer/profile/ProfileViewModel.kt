@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -33,7 +34,7 @@ class ProfileViewModel @Inject constructor(
 
     fun requestUserInfo() {
         viewModelScope.launch(Dispatchers.IO) {
-            val response = _dataRepository.userInfo()
+            val response = _dataRepository.userInfo().first()
 
             if (!response.isSuccessful)
                 return@launch

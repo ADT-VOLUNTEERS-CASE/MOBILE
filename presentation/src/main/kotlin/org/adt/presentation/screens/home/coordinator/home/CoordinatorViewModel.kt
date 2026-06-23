@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.adt.core.entities.Location
@@ -118,7 +119,7 @@ class CoordinatorViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { it.copy(isLoading = true) }
-            val user = _dataRepository.userInfo()
+            val user = _dataRepository.userInfo().first()
 
             val response = _dataRepository.createEvent(
                 name = fields.name,

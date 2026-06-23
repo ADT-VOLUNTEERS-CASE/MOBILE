@@ -9,6 +9,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.adt.core.entities.AllDescriptionEvent
@@ -91,7 +92,7 @@ class VolunteerViewModel @Inject constructor(
     fun getEvents() {
         viewModelScope.launch(Dispatchers.IO) {
             _isRefreshing.update { true }
-            val userResponse = _dataRepository.userInfo()
+            val userResponse = _dataRepository.userInfo().first()
             val eventsResponse = _dataRepository.getEvents()
 
             if (

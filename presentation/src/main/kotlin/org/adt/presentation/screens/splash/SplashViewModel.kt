@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.adt.core.entities.UserRole
@@ -44,7 +45,7 @@ class SplashViewModel @Inject constructor(
 
         if (!isAuthorized) return Destinations.mapRole(userRole)
 
-        userRole = _dataRepository.getCurrentUserRole()
+        userRole = _dataRepository.getCurrentUserRole().first()
 
         Log.d("SplashViewModel::Role", userRole.toString())
 

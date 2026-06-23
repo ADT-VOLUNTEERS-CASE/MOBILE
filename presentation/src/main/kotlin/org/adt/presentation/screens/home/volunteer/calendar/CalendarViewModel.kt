@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.adt.domain.abstraction.DataRepository
@@ -32,7 +33,7 @@ class CalendarViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { it.copy(isLoading = true) }
 
-            val response = dataRepository.userInfo()
+            val response = dataRepository.userInfo().first()
 
             if (response.isSuccessful) {
                 val events = response.data().events

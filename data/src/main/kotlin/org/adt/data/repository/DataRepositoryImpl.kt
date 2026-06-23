@@ -4,6 +4,8 @@ import io.ktor.client.call.body
 import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.readRawBytes
 import io.ktor.http.isSuccess
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -92,15 +94,17 @@ class DataRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getCurrentUserRole(): UserRole {
-        if (!authorized()) return UserRole.NONE
+    override suspend fun getCurrentUserRole(): Flow<UserRole> = flow {
+        if (!authorized()) emit(UserRole.NONE)
 
-        val result = userInfo()
-
-        if (!result.isSuccessful)
-            return UserRole.NONE
-
-        return result.data().toRole()
+        userInfo().collect {
+            if (!it.isSuccessful) {
+                emit(UserRole.NONE)
+            }
+            else {
+                emit(it.data().toRole())
+            }
+        }
     }
 
     override suspend fun ping(): GeneralResponse<String> {
@@ -316,28 +320,28 @@ class DataRepositoryImpl @Inject constructor(
         return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
     }
 
-    override suspend fun userInfo(): GeneralResponse<UserResponse> {
+    override suspend fun userInfo(): Flow<GeneralResponse<UserResponse>> = flow {
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
         val response = networkRepository.userInfo(token)
 
         if (response.status.isSuccess()) {
-            return GeneralResponse.success(response.body()!!)
+            emit(GeneralResponse.success(response.body()!!))
         }
 
-        if (response.status.value == 403) {
-            val request = requestFreshAccessToken()
+//        if (response.status.value == 403) {
+//            val request = requestFreshAccessToken()
+//
+//            if (request.isSuccessful) {
+//                emit(userInfo())
+//            }
+//
+//            val error = parseError(response.bodyAsText())
+//            persistenceRepository.removeToken()
+//
+//            emit(GeneralResponse.failure(403, error?.message ?: "HTTP ${response.status.value}"))
+//        }
 
-            if (request.isSuccessful) {
-                return userInfo()
-            }
-
-            val error = parseError(response.bodyAsText())
-            persistenceRepository.removeToken()
-
-            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.status.value}")
-        }
-
-        return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
+        emit(GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}"))
     }
 
     override suspend fun getUserStatistics(): GeneralResponse<UserStatistics> {

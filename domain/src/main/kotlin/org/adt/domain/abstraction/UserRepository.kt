@@ -1,5 +1,6 @@
 package org.adt.domain.abstraction
 
+import kotlinx.coroutines.flow.Flow
 import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.UserRole
 import org.adt.core.entities.rating.RatingResponse
@@ -28,7 +29,7 @@ interface UserRepository {
     ): GeneralResponse<String>
 
     suspend fun requestFreshAccessToken(): GeneralResponse<String>
-    suspend fun userInfo(): GeneralResponse<UserResponse>
+    fun userInfo(): Flow<GeneralResponse<UserResponse>>
 
     suspend fun getUserStatistics(): GeneralResponse<UserStatistics>
     suspend fun getUserRating(period: String = "monthly", page: Int = 0, size: Int = 20, retried: Boolean = false): GeneralResponse<RatingResponse>
