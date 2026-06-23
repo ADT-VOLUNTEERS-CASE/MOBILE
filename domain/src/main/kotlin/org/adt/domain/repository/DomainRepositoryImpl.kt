@@ -12,6 +12,7 @@ import javax.inject.Inject
  **/
 
 @RepositoryImpl
+@Deprecated("Redundant architecture element")
 internal class DomainRepositoryImpl @Inject constructor(
     private val dataRepository: DataRepository
 ) : DomainRepository {
