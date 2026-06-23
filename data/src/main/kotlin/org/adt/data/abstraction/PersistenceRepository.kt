@@ -5,6 +5,8 @@ import org.adt.core.entities.UserRole
 
 interface PersistenceRepository {
     val roleFlow: Flow<UserRole>
+    val onboardingCompletedFlow: Flow<Boolean>
+    suspend fun saveOnboardingCompleted()
 
     suspend fun authorized(): Boolean
 

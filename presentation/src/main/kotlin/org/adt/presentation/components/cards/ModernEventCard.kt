@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,14 +45,24 @@ import org.adt.core.entities.EventStatus
 import org.adt.core.entities.event.Cover
 import org.adt.core.entities.event.Event
 import org.adt.core.entities.event.EventLocation
+import org.adt.presentation.R
 
-
+/**
+ * Card displaying details of a charity event including coverage image and registration status
+ *
+ * @param event object containing complete event information like title, description, and location
+ *
+ * @param isParticipating flag indicating if the current user is registered for this event
+ *
+ * @param onClick function to be invoked when the card is clicked
+ *
+ * @param modifier modifier for managing card sizes, padding, and layout behavior
+ */
 @Composable
 fun CharityEventCard(
     event: Event,
     isParticipating: Boolean,
     onClick: () -> Unit,
-    onFavoriteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val statusColor = when (event.status) {
@@ -61,10 +72,10 @@ fun CharityEventCard(
         EventStatus.UNKNOWN -> Color(0xFFBDBDBD)
     }
     val statusText = when (event.status) {
-        EventStatus.ONGOING -> "Предстоит!"
-        EventStatus.IN_PROGRESS -> "Уже идёт!"
-        EventStatus.COMPLETED -> "Завершено!"
-        EventStatus.UNKNOWN -> "Неизвестно"
+        EventStatus.ONGOING -> stringResource(R.string.label_event_status_ongoing)
+        EventStatus.IN_PROGRESS -> stringResource(R.string.label_event_status_in_progress)
+        EventStatus.COMPLETED -> stringResource(R.string.label_event_status_completed)
+        EventStatus.UNKNOWN -> stringResource(R.string.label_event_status_unknown)
     }
 
     Card(
@@ -109,7 +120,7 @@ fun CharityEventCard(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "Вы участвуете!",
+                                text = stringResource(R.string.body_participating),
                                 color = Color.White,
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold
@@ -245,29 +256,6 @@ fun CharityEventCard(
     }
 }
 
-@Composable
-fun CharityEventsGrid(
-    events: List<Event>,
-    modifier: Modifier = Modifier
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(12.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        items(events) { event ->
-            CharityEventCard(
-                event = event,
-                onClick = { },
-                onFavoriteClick = { },
-                isParticipating = true
-            )
-        }
-    }
-}
-
 @Preview(showBackground = true, backgroundColor = 0xFFF8F9FA)
 @Composable
 private fun CharityEventsGridPreview() {
@@ -338,6 +326,20 @@ private fun CharityEventsGridPreview() {
     )
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFF8F9FA)) {
-        CharityEventsGrid(events = mockEvents)
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            items(mockEvents) { event ->
+                CharityEventCard(
+                    event = event,
+                    onClick = { },
+                    isParticipating = true
+                )
+            }
+        }
     }
 }

@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,9 +37,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.adt.core.entities.rating.UserRating
+import org.adt.presentation.R
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Aqua
 import org.adt.presentation.theme.Graphite
+import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
 
@@ -130,7 +133,7 @@ fun RankingCard(
                     }
 
                     Text(
-                        text = "${entry.workedMinutes} мин",
+                        text = stringResource(R.string.body_minutes_all, entry.workedMinutes),
                         style = VolunteersCaseTheme.typography.titleSmall.copy(
                             fontWeight = FontWeight.Bold,
                             color = Abyss,
@@ -146,17 +149,23 @@ fun RankingCard(
 @Composable
 private fun RankingCardPreview() {
     VolunteersCaseTheme {
-        RankingCard(
-            entry = UserRating(
-                firstname = "Анна",
-                lastname = "Иванова",
-                patronymic = "Сергеевна",
-                workedMinutes = 450,
-                userId = 1,
-            ),
-            rank = 5,
-            index = 0,
-            animationOverride = true,
-        )
+        Box(
+            modifier = Modifier
+                .background(Milk)
+                .padding(16.dp)
+        ) {
+            RankingCard(
+                entry = UserRating(
+                    firstname = "Анна",
+                    lastname = "Иванова",
+                    patronymic = "Сергеевна",
+                    workedMinutes = 450,
+                    userId = 1,
+                ),
+                rank = 5,
+                index = 0,
+                animationOverride = true,
+            )
+        }
     }
 }

@@ -1,10 +1,6 @@
 package org.adt.presentation.components.bars
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -18,18 +14,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -37,67 +27,37 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
-import org.adt.presentation.components.cards.ProfileCard
+import org.adt.presentation.R
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Graphite
+import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.VolunteersCaseTheme
 import kotlin.math.roundToInt
 
+/**
+ * Universal top navigation bar for the coordinator screen with a sliding toggle indicator
+ *
+ * Wraps the standard Material 3 CenterAlignedTopAppBar to provide a custom segmented
+ * switch (tab control) inside the title area. Syncs its selection state and slider offset
+ * dynamically with an Accompanist/Compose PagerState during page swipes.
+ *
+ * @param pagerState the state of the scrollable pager used to bind and animate the sliding tab selector
+ * @param modifier modifier used for adding external layout constraints or custom background paddings
+ *
+ * @sample [CoordinatorTopNavigationBarPreview]
+ */
+@SuppressLint("FrequentlyChangingValue")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SyncedTopNavigationBar(
-    modifier: Modifier = Modifier,
-    firstName: String = "Пользователь",
-    scrollBehavior: TopAppBarScrollBehavior,
-    scale: Float,
-    onSettingsNavigateAction: () -> Unit = {},
-    onNotificationsNavigateAction: () -> Unit = {},
-) {
-    TopAppBar(
-        modifier = modifier,
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Transparent,
-            scrolledContainerColor = Transparent,
-            titleContentColor = VolunteersCaseTheme.colors.text,
-        ),
-        title = {
-            ProfileCard(
-                scaleFactor = scale,
-                firstName = firstName
-            ) {
-                onSettingsNavigateAction.invoke()
-            }
-        },
-        actions = {
-            AnimatedVisibility(
-                visible = scale < 0.2f,
-                enter = fadeIn() + expandHorizontally(),
-                exit = fadeOut() + shrinkHorizontally()
-            ) {
-                IconButton(onClick = onNotificationsNavigateAction) {
-                    Icon(
-                        imageVector = Icons.Filled.Notifications,
-                        contentDescription = "Notifications navigation",
-                        tint = Color.Black
-                    )
-                }
-            }
-        },
-        scrollBehavior = scrollBehavior
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SyncedTopNavigationBarCoordinator(
+fun CoordinatorTopNavigationBar(
     pagerState: PagerState,
     modifier: Modifier = Modifier
 ) {
@@ -110,8 +70,8 @@ fun SyncedTopNavigationBarCoordinator(
     CenterAlignedTopAppBar(
         modifier = modifier.statusBarsPadding(),
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Transparent,
-            scrolledContainerColor = Transparent
+            containerColor = Color.Transparent,
+            scrolledContainerColor = Color.Transparent
         ),
         title = {
             Box(
@@ -127,7 +87,8 @@ fun SyncedTopNavigationBarCoordinator(
                         .width(tabWidthDp)
                         .fillMaxHeight()
                         .offset {
-                            val positionProgress = pagerState.currentPage + pagerState.currentPageOffsetFraction
+                            val positionProgress =
+                                pagerState.currentPage + pagerState.currentPageOffsetFraction
                             val xOffset = positionProgress * tabWidthPx
                             IntOffset(xOffset.roundToInt(), 0)
                         }
@@ -149,11 +110,12 @@ fun SyncedTopNavigationBarCoordinator(
                             },
                         contentAlignment = Alignment.Center
                     ) {
-                        val positionProgress = pagerState.currentPage + pagerState.currentPageOffsetFraction
+                        val positionProgress =
+                            pagerState.currentPage + pagerState.currentPageOffsetFraction
                         val isSelected = positionProgress < 0.5f
 
                         Text(
-                            text = "Мероприятия",
+                            text = stringResource(R.string.title_events),
                             style = VolunteersCaseTheme.typography.labelMedium.copy(
                                 fontSize = 14.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
@@ -175,11 +137,12 @@ fun SyncedTopNavigationBarCoordinator(
                             },
                         contentAlignment = Alignment.Center
                     ) {
-                        val positionProgress = pagerState.currentPage + pagerState.currentPageOffsetFraction
+                        val positionProgress =
+                            pagerState.currentPage + pagerState.currentPageOffsetFraction
                         val isSelected = positionProgress >= 0.5f
 
                         Text(
-                            text = "Создание",
+                            text = stringResource(R.string.title_create),
                             style = VolunteersCaseTheme.typography.labelMedium.copy(
                                 fontSize = 14.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
@@ -193,12 +156,17 @@ fun SyncedTopNavigationBarCoordinator(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-private fun TopNavigationBarPreview() {
+private fun CoordinatorTopNavigationBarPreview() {
+    val pagerState = rememberPagerState { 2 }
     VolunteersCaseTheme {
-        val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-        SyncedTopNavigationBar(scrollBehavior = scrollBehavior, scale = 1f)
+        Box(
+            modifier = Modifier
+                .background(Milk)
+                .padding(16.dp)
+        ) {
+            CoordinatorTopNavigationBar(pagerState)
+        }
     }
 }

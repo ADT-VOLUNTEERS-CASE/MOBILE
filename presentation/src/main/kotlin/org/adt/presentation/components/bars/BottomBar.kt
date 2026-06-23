@@ -67,6 +67,11 @@ import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.VolunteersCaseTheme
 
+/**
+ * Configuration registry for bottom navigation items mapped to specific user roles
+ *
+ * Provides static predefined lists of navigation targets for volunteers, coordinators, and admins.
+ */
 @Keep
 object BottomBarConfigs {
     val volunteerItems = listOf(
@@ -99,6 +104,16 @@ object BottomBarConfigs {
     }
 }
 
+/**
+ * Sealed class representing a single navigation destination within the bottom bar
+ *
+ * Each item encapsulates its navigation route, localized display label, and active/inactive icons.
+ *
+ * @property route fully qualified destination class name used as the navigation route
+ * @property label text resource or string displayed under the navigation icon
+ * @property selectedIcon icon vector used when the current screen matches this destination
+ * @property unselectedIcon outline icon vector used when the destination is inactive
+ */
 @Keep
 sealed class BottomNavItem(
     val route: String,
@@ -195,7 +210,19 @@ sealed class BottomNavItem(
     )
 }
 
-@SuppressLint("ConfigurationScreenWidthHeight")
+/**
+ * Animated role-based bottom navigation bar with a sliding background pill indicator
+ *
+ * Tracks the current navigation backstack to seamlessly animate the active indicator width
+ * and offset across dynamic tab counts based on user permissions.
+ *
+ * @param navController navigation controller used to switch routes and preserve backstack state
+ * @param items list of tabs to render, should be fetched via [BottomBarConfigs.getItems]
+ * @param modifier modifier for custom positioning, sizing, or outer padding
+ *
+ * @sample [FancyBottomNavigationBarPreview]
+ */
+@SuppressLint("ConfigurationScreenWidthHeight", "UseOfNonLambdaOffsetOverload")
 @Composable
 fun FancyBottomNavigationBar(
     navController: NavHostController,
@@ -227,7 +254,7 @@ fun FancyBottomNavigationBar(
                 val offsetY = (-4).dp.toPx()
 
                 drawContext.canvas.save()
-                val paint = androidx.compose.ui.graphics.Paint().apply {
+                @Suppress("DEPRECATION") val paint = androidx.compose.ui.graphics.Paint().apply {
                     val nativePaint = asFrameworkPaint()
                     nativePaint.color = shadowColor.toArgb()
 

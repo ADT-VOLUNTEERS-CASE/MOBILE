@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import org.adt.core.entities.UserRole
+import org.adt.presentation.R
 import org.adt.presentation.components.buttons.ButtonStyle
 import org.adt.presentation.components.buttons.CustomButton
 import org.adt.presentation.navigation.Destinations
@@ -60,7 +62,7 @@ fun LoginDebugScreenContent(
         Spacer(modifier = Modifier.height(56.dp))
 
         Text(
-            text = "Отладочный вход", style = VolunteersCaseTheme.typography.titleLarge.copy(
+            text = stringResource(R.string.title_debug_login), style = VolunteersCaseTheme.typography.titleLarge.copy(
                 fontSize = 24.sp, lineHeight = 28.sp, fontWeight = FontWeight.Bold
             ), textAlign = TextAlign.Center
         )
@@ -82,7 +84,7 @@ fun LoginDebugScreenContent(
             Spacer(modifier = Modifier.width(12.dp))
 
             Text(
-                text = "Внимание! Данные всё ещё привязаны к тестовому серверу и не являются локальной копией! \n\nПри отсутствии соединения с сервером, проверить работоспособность приложения не получится! \n\nMock-шаблоны, к сожалению, пока не поддерживаются. \n\nПриносим извинения за доставленные неудобства.",
+                text = stringResource(R.string.body_warning),
                 style = VolunteersCaseTheme.typography.titleLarge.copy(
                     fontSize = 14.sp,
                     lineHeight = 20.sp,
@@ -96,7 +98,7 @@ fun LoginDebugScreenContent(
         Spacer(modifier = Modifier.height(36.dp))
 
         Text(
-            text = "Выберите профиль для быстрой авторизации:",
+            text = stringResource(R.string.label_choose_profile),
             style = VolunteersCaseTheme.typography.titleLarge.copy(
                 fontSize = 14.sp, lineHeight = 18.sp, color = Color.Gray
             ),
@@ -108,20 +110,20 @@ fun LoginDebugScreenContent(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        CustomButton(text = "Войти как Волонтёр") { onLoginAction.invoke(UserRole.VOLUNTEER) }
+        CustomButton(text = stringResource(R.string.button_volunteer)) { onLoginAction.invoke(UserRole.VOLUNTEER) }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        CustomButton(text = "Войти как Координатор") { onLoginAction.invoke(UserRole.COORDINATOR) }
+        CustomButton(text = stringResource(R.string.button_coordinator)) { onLoginAction.invoke(UserRole.COORDINATOR) }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        CustomButton(text = "Войти как Администратор") { onLoginAction.invoke(UserRole.ADMIN) }
+        CustomButton(text = stringResource(R.string.button_admin)) { onLoginAction.invoke(UserRole.ADMIN) }
 
         Spacer(modifier = Modifier.height(24.dp))
 
         CustomButton(
-            text = "Назад", style = ButtonStyle.Translucent
+            text =  stringResource(R.string.button_back), style = ButtonStyle.Outlined
         ) {
             onBackNavigateAction.invoke()
         }

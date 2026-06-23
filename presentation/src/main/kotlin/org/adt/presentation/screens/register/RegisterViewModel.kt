@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -45,7 +46,6 @@ class RegisterViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             clearErrorMessage()
-
             populateLoadingState(true)
 
             val response = _dataRepository.register(
@@ -63,15 +63,21 @@ class RegisterViewModel @Inject constructor(
             if (!response.isSuccessful) {
                 populateFailure(
                     message = response.message,
-                    logMessage = "Failure",
                     tagSuffix = "Register"
                 )
+                _uiState.update { it.copy(isLoading = false) }
                 return@launch
             }
 
             val role = _dataRepository.getCurrentUserRole()
             _persistenceRepository.saveRole(role)
-            val destination = Destinations.mapRole(role)
+
+            val destination = if (role == UserRole.VOLUNTEER) {
+                val isOnboardingCompleted = _persistenceRepository.onboardingCompletedFlow.first()
+                if (isOnboardingCompleted) Destinations.VolunteerHome else Destinations.Onboarding
+            } else {
+                Destinations.mapRole(role)
+            }
 
             withContext(Dispatchers.Main) {
                 navController.navigate(destination) {
@@ -84,7 +90,10 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-    private fun populateFailure(message: String, logMessage: String, tagSuffix: String = "Main") {
+    private fun populateFailure(
+        message: String,
+        @Suppress("SameParameterValue") tagSuffix: String = "Main"
+    ) {
         _uiState.update { it.copy(registerError = message, isLoading = false) }
 
         Log.e("RegisterViewModel::${tagSuffix}", message)
