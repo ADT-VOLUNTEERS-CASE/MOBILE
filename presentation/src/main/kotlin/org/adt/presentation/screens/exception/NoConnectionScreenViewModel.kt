@@ -7,15 +7,15 @@ import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
-import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.usecase.user.PingUseCase
 
 @HiltViewModel
 class NoConnectionScreenViewModel @Inject constructor(
-    private val dataRepository: DataRepository
+    private val pingUseCase: PingUseCase,
 ): ViewModel() {
     fun refresh(onSuccessNavigateAction: () -> Unit){
         viewModelScope.launch(Dispatchers.IO) {
-            val result = dataRepository.ping()
+            val result = pingUseCase()
 
             if(!result.isSuccessful)
                 return@launch

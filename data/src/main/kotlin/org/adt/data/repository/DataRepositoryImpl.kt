@@ -320,7 +320,7 @@ class DataRepositoryImpl @Inject constructor(
         return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
     }
 
-    override suspend fun userInfo(): Flow<GeneralResponse<UserResponse>> = flow {
+    override fun userInfo(): Flow<GeneralResponse<UserResponse>> = flow {
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
         val response = networkRepository.userInfo(token)
 

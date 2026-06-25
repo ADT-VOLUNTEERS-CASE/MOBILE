@@ -10,21 +10,25 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.adt.core.entities.UserRole
-import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.usecase.user.AuthorizedUseCase
+import org.adt.domain.usecase.user.GetCurrentUserRoleUseCase
+import org.adt.domain.usecase.user.PingUseCase
 import org.adt.presentation.navigation.Destinations
 import javax.inject.Inject
 
 @HiltViewModel
 //TODO: Use `Logger` for.. Logging!
 class SplashViewModel @Inject constructor(
-    private val _dataRepository: DataRepository,
+    private val pingUseCase: PingUseCase,
+    private val authorizedUseCase: AuthorizedUseCase,
+    private val getCurrentUserRoleUseCase: GetCurrentUserRoleUseCase,
 ) : ViewModel() {
     private val _authorized =
         MutableStateFlow(false) // TODO: Kept for future development..? No reason for StateFlow now.
 
     fun ping() {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = _dataRepository.ping()
+            val result = pingUseCase()
 
             if (!result.isSuccessful) {
                 Log.e("SplashViewModel::Ping", "Ping failed")
@@ -39,13 +43,13 @@ class SplashViewModel @Inject constructor(
     suspend fun getDestination(): Destinations {
         var userRole = UserRole.NONE
 
-        val isAuthorized = _dataRepository.authorized()
+        val isAuthorized = authorizedUseCase()
 
         _authorized.update { isAuthorized }
 
         if (!isAuthorized) return Destinations.mapRole(userRole)
 
-        userRole = _dataRepository.getCurrentUserRole().first()
+        userRole = getCurrentUserRoleUseCase().first()
 
         Log.d("SplashViewModel::Role", userRole.toString())
 

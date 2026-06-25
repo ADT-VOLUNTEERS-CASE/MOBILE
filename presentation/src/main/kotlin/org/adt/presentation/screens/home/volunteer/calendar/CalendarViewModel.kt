@@ -12,14 +12,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.usecase.user.GetUserInfoUseCase
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 
 @HiltViewModel
 class CalendarViewModel @Inject constructor(
-    private val dataRepository: DataRepository
+    private val getUserInfoUseCase: GetUserInfoUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CalendarState())
@@ -33,7 +33,7 @@ class CalendarViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { it.copy(isLoading = true) }
 
-            val response = dataRepository.userInfo().first()
+            val response = getUserInfoUseCase().first()
 
             if (response.isSuccessful) {
                 val events = response.data().events

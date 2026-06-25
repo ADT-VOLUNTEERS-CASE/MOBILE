@@ -5,7 +5,6 @@ import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.Location
 import org.adt.core.entities.UserRole
 import org.adt.core.entities.event.Event
-import org.adt.core.entities.rating.RatingResponse
 import org.adt.core.entities.response.UserResponse
 import org.adt.core.entities.user.statistics.UserStatistics
 
@@ -34,7 +33,6 @@ interface UserRepository {
     fun userInfo(): Flow<GeneralResponse<UserResponse>>
 
     suspend fun getUserStatistics(): GeneralResponse<UserStatistics>
-    suspend fun getUserRating(period: String = "monthly", page: Int = 0, size: Int = 20, retried: Boolean = false): GeneralResponse<RatingResponse>
 
     suspend fun findEvent(name: String, retried: Boolean = false): GeneralResponse<List<Event>>
 

@@ -13,13 +13,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import okhttp3.ResponseBody
-import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.usecase.rating.GetCoordinatorRatingUseCase
+import org.adt.domain.usecase.report.AssembleCoordinatorReportFileUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class ReportViewModel @Inject constructor(
-    private val _dataRepository: DataRepository
+    private val getCoordinatorRatingUseCase: GetCoordinatorRatingUseCase,
+    private val assembleCoordinatorReportFileUseCase: AssembleCoordinatorReportFileUseCase,
 ) : ViewModel() {
     private val _state = MutableStateFlow(ReportState())
     val state = _state.asStateFlow()
@@ -39,7 +40,7 @@ class ReportViewModel @Inject constructor(
                 else it.copy(isPaginating = true)
             }
 
-            val response = _dataRepository.getCoordinatorRating(
+            val response = getCoordinatorRatingUseCase(
                 period = current.period,
                 page = page.toInt(),
                 size = 20
@@ -97,7 +98,7 @@ class ReportViewModel @Inject constructor(
     fun downloadReport() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val response = _dataRepository.assembleCoordinatorReportFile(_state.value.period)
+                val response = assembleCoordinatorReportFileUseCase(_state.value.period)
                 if (response.isSuccessful) {
                     _state.update { it.copy(downloadedFile = response.data()) }
                 } else {

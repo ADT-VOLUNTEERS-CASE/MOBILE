@@ -7,9 +7,14 @@ import kotlinx.serialization.json.Json
 import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.event.CoordinatorEventsResponse
 import org.adt.core.entities.event.Event
+import org.adt.core.entities.event.EventApplication
+import org.adt.core.entities.request.ApplicationStatusRequest
 import org.adt.core.entities.request.EventRequest
+import org.adt.core.entities.response.ApplicationStatusResponse
+import org.adt.core.entities.response.ApplicationsResponse
 import org.adt.core.entities.response.ErrorResponse
 import org.adt.core.entities.response.EventResponse
+import org.adt.core.entities.response.UserEventResponse
 import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.abstraction.EventRepository
 import javax.inject.Inject
@@ -59,7 +64,6 @@ class EventRepositoryImpl @Inject constructor(
             return GeneralResponse.success(response.body()!!)
         }
 
-
 //        if (response.status.value == 403 && !retried) {
 //            val refresh = requestFreshAccessToken()
 //            if (refresh.isSuccessful) {
@@ -71,7 +75,6 @@ class EventRepositoryImpl @Inject constructor(
 //
 //            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.status.value}")
 //        }
-
 
         return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
     }
@@ -208,5 +211,81 @@ class EventRepositoryImpl @Inject constructor(
             response.status.value,
             error?.message ?: "HTTP ${response.status.value}"
         )
+    }
+
+    override suspend fun createEventApplication(
+        eventId: Long,
+        retried: Boolean
+    ): GeneralResponse<UserEventResponse> {
+        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val response = networkRepository.createEventApplication(token, eventId)
+
+        if (response.status.isSuccess()) {
+            return GeneralResponse.success(response.body()!!)
+        }
+
+        if (response.status.value == 403 && !retried) {
+            val error = parseError(response.bodyAsText())
+            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.status.value}")
+        }
+
+        return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
+    }
+
+    override suspend fun getEventApplications(
+        eventId: Long,
+        status: String?,
+        retried: Boolean,
+    ): GeneralResponse<List<EventApplication>> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
+        val response = networkRepository.getEventApplications(token, eventId, status)
+
+        if (response.status.isSuccess()) return GeneralResponse.success(response.body<ApplicationsResponse>().content)
+
+        if (response.status.value == 403 && !retried) {
+            persistenceRepository.removeToken()
+            return GeneralResponse.failure(403, "Session expired")
+        }
+
+        return GeneralResponse.failure(response.status.value)
+    }
+
+    override suspend fun getApplicationStatus(
+        eventId: Long,
+        retried: Boolean
+    ): GeneralResponse<String> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
+        val response = networkRepository.getApplicationStatus(token, eventId)
+
+        if (response.status.isSuccess())
+            return GeneralResponse.success(response.body<ApplicationStatusResponse>().status)
+
+        if (response.status.value == 403 && !retried) {
+            persistenceRepository.removeToken()
+            return GeneralResponse.failure(403, "Session expired")
+        }
+
+        return GeneralResponse.failure(response.status.value)
+    }
+
+    override suspend fun updateApplicationStatus(
+        eventId: Long,
+        userId: Long,
+        status: String,
+        reason: String?,
+        retried: Boolean,
+    ): GeneralResponse<UserEventResponse> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
+        val request = ApplicationStatusRequest(status, reason)
+        val response = networkRepository.updateApplicationStatus(token, eventId, userId, request)
+
+        if (response.status.isSuccess()) return GeneralResponse.success(response.body()!!)
+
+        if (response.status.value == 403 && !retried) {
+            persistenceRepository.removeToken()
+            return GeneralResponse.failure(403, "Session expired")
+        }
+
+        return GeneralResponse.failure(response.status.value)
     }
 }

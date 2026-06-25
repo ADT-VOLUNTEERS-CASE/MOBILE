@@ -8,19 +8,19 @@ import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
 import org.adt.core.entities.UserRole
 import org.adt.data.abstraction.PersistenceRepository
-import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.usecase.user.AuthenticateUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginDebugViewModel @Inject constructor(
-    private val _dataRepository: DataRepository,
+    private val authenticateUseCase: AuthenticateUseCase,
     private val _persistenceRepository: PersistenceRepository,
 ) : ViewModel() {
     fun loginAs(role: UserRole, onSuccessfulNavigate: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             val credentials = getDebugCredentialsFor(role)
 
-            val result = _dataRepository.authenticate(credentials.first, credentials.second)
+            val result = authenticateUseCase(credentials.first, credentials.second)
 
             if (result.isSuccessful) {
                 _persistenceRepository.saveRole(role)

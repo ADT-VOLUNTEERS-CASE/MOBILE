@@ -15,7 +15,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.adt.core.entities.UserRole
 import org.adt.data.abstraction.PersistenceRepository
-import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.usecase.user.GetCurrentUserRoleUseCase
+import org.adt.domain.usecase.user.RegisterUseCase
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.utils.LocalizationManager.message
 import javax.inject.Inject
@@ -23,7 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 //TODO: Use `Logger` for.. Logging!
 class RegisterViewModel @Inject constructor(
-    private val _dataRepository: DataRepository,
+    private val registerUseCase: RegisterUseCase,
+    private val getCurrentUserRoleUseCase: GetCurrentUserRoleUseCase,
     private val _persistenceRepository: PersistenceRepository
 ) : ViewModel() {
 
@@ -49,7 +51,7 @@ class RegisterViewModel @Inject constructor(
 
             populateLoadingState(true)
 
-            val response = _dataRepository.register(
+            val response = registerUseCase(
                 firstname = fields.firstName,
                 lastname = fields.lastName,
                 patronymic = fields.patronymic,
@@ -70,7 +72,7 @@ class RegisterViewModel @Inject constructor(
                 return@launch
             }
 
-            val role = _dataRepository.getCurrentUserRole().first()
+            val role = getCurrentUserRoleUseCase().first()
             _persistenceRepository.saveRole(role)
             val destination = Destinations.mapRole(role)
 

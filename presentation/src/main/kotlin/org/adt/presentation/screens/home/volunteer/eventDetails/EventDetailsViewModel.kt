@@ -12,19 +12,23 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.adt.core.utils.ApiStatus
-import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.usecase.event.CreateEventApplicationUseCase
+import org.adt.domain.usecase.event.GetApplicationStatusUseCase
+import org.adt.domain.usecase.event.GetEventByIdUseCase
 
 @HiltViewModel(assistedFactory = EventDetailsViewModel.Factory::class)
 class EventDetailsViewModel @AssistedInject constructor(
     @Assisted private val eventId: Long,
-    private val _dataRepository: DataRepository
+    private val getEventByIdUseCase: GetEventByIdUseCase,
+    private val getApplicationStatusUseCase: GetApplicationStatusUseCase,
+    private val createEventApplicationUseCase: CreateEventApplicationUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(EventDetailsState())
     val uiState = _uiState.asStateFlow()
 
     fun updateCardDetails() {
         viewModelScope.launch(Dispatchers.IO) {
-            val response = _dataRepository.getEventById(eventId)
+            val response = getEventByIdUseCase(eventId)
 
             if (!response.isSuccessful)
                 return@launch
@@ -43,7 +47,7 @@ class EventDetailsViewModel @AssistedInject constructor(
 
     fun retrieveEventApplicationStatus() {
         viewModelScope.launch(Dispatchers.IO) {
-            val response = _dataRepository.getApplicationStatus(eventId)
+            val response = getApplicationStatusUseCase(eventId)
 
             if (response.isSuccessful) {
                 _uiState.update { it.copy(applicationStatus = response.status.toString()) }
@@ -52,9 +56,8 @@ class EventDetailsViewModel @AssistedInject constructor(
     }
 
     fun sendEventApplication() {
-        //_uiState.update { it.copy(ap`plicationStatus = "PENDING") }
         viewModelScope.launch(Dispatchers.IO) {
-            val response = _dataRepository.createEventApplication(eventId)
+            val response = createEventApplicationUseCase(eventId)
 
             if (response.isSuccessful) {
                 _uiState.update { it.copy(applicationStatus = "PENDING") }

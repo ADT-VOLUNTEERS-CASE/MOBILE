@@ -17,7 +17,8 @@ import org.adt.core.entities.response.UserResponse
 import org.adt.core.entities.user.statistics.UserStatistics
 import java.io.File
 
-interface DataRepository {
+//TODO: Split when migration is complete
+interface DataRepository : UserRepository, EventRepository, CoverRepository, TagRepository, RatingRepository, ReportRepository {
     fun UserResponse.toRole(): UserRole {
         return when {
             admin -> UserRole.ADMIN
@@ -26,13 +27,13 @@ interface DataRepository {
         }
     }
 
-    suspend fun getCurrentUserRole(): Flow<UserRole>
+    override suspend fun getCurrentUserRole(): Flow<UserRole>
 
-    suspend fun ping(): GeneralResponse<String>
+    override suspend fun ping(): GeneralResponse<String>
 
-    suspend fun authorized(): Boolean
+    override suspend fun authorized(): Boolean
 
-    suspend fun register(
+    override suspend fun register(
         firstname: String,
         lastname: String,
         patronymic: String,
@@ -44,36 +45,33 @@ interface DataRepository {
         retried: Boolean
     ): GeneralResponse<String>
 
-    suspend fun authenticate(email: String, password: String): GeneralResponse<String>
+    override suspend fun authenticate(email: String, password: String): GeneralResponse<String>
 
-    suspend fun requestFreshAccessToken(): GeneralResponse<String>
+    override suspend fun requestFreshAccessToken(): GeneralResponse<String>
 
-    suspend fun deauthenticate()
+    override suspend fun deauthenticate()
 
-    suspend fun findEvent(name: String, retried: Boolean = false): GeneralResponse<List<Event>>
+    override suspend fun findEvent(name: String, retried: Boolean): GeneralResponse<List<Event>>
 
-    suspend fun findLocation(address: String, retried: Boolean = false): GeneralResponse<List<Location>>
+    override suspend fun findLocation(address: String, retried: Boolean): GeneralResponse<List<Location>>
 
-    suspend fun userInfo(): Flow<GeneralResponse<UserResponse>>
+    override fun userInfo(): Flow<GeneralResponse<UserResponse>>
 
-    suspend fun getUserStatistics(): GeneralResponse<UserStatistics>
+    override suspend fun getUserStatistics(): GeneralResponse<UserStatistics>
 
-    suspend fun getUserRating(period: String = "monthly", page: Int = 0, size: Int = 20, retried: Boolean = false): GeneralResponse<RatingResponse>
+    override suspend fun getUserRating(period: String, page: Int, size: Int, retried: Boolean): GeneralResponse<RatingResponse>
 
-    suspend fun uploadCover(file: File, retried: Boolean = false): GeneralResponse<Cover>
+    override suspend fun uploadCover(file: File, retried: Boolean): GeneralResponse<Cover>
 
-    suspend fun createEventApplication(
-        eventId: Long,
-        retried: Boolean = false
-    ): GeneralResponse<UserEventResponse>
+    override suspend fun createEventApplication(eventId: Long, retried: Boolean): GeneralResponse<UserEventResponse>
 
-    suspend fun getEvents(retried: Boolean = false): GeneralResponse<EventResponse>
+    override suspend fun getEvents(retried: Boolean): GeneralResponse<EventResponse>
 
-    suspend fun getRecommendedEvents(retried: Boolean = false): GeneralResponse<EventResponse>
+    override suspend fun getRecommendedEvents(retried: Boolean): GeneralResponse<EventResponse>
 
-    suspend fun getCoordinatorEvents(retried: Boolean = false): GeneralResponse<CoordinatorEventsResponse>
+    override suspend fun getCoordinatorEvents(retried: Boolean): GeneralResponse<CoordinatorEventsResponse>
 
-    suspend fun createEvent(
+    override suspend fun createEvent(
         name: String,
         status: String,
         description: String,
@@ -83,31 +81,32 @@ interface DataRepository {
         dateTimestamp: String,
         locationId: Long,
         tagIds: List<Long>,
-        retried: Boolean = false
+        retried: Boolean
     ): GeneralResponse<Int>
 
-    suspend fun getEventById(eventId: Long, retried: Boolean = false): GeneralResponse<Event>
+    override suspend fun getEventById(eventId: Long, retried: Boolean): GeneralResponse<Event>
 
-    suspend fun deleteEvent(eventId: Long, retried: Boolean = false): GeneralResponse<Int>
+    override suspend fun deleteEvent(eventId: Long, retried: Boolean): GeneralResponse<Int>
 
-    suspend fun deleteCover(coverId: Long, retried: Boolean = false): GeneralResponse<Int>
+    override suspend fun deleteCover(coverId: Long, retried: Boolean): GeneralResponse<Int>
 
-    suspend fun createTag(tagName: String, retried: Boolean = false): GeneralResponse<Int>
+    override suspend fun createTag(tagName: String, retried: Boolean): GeneralResponse<Int>
 
-    suspend fun getTagByName(tagName: String, retried: Boolean = false): GeneralResponse<Tag>
+    override suspend fun getTagByName(tagName: String, retried: Boolean): GeneralResponse<Tag>
 
-    suspend fun deleteTagByName(tagName: String, retried: Boolean = false): GeneralResponse<Int>
+    override suspend fun deleteTagByName(tagName: String, retried: Boolean): GeneralResponse<Int>
 
-    suspend fun getEventApplications(eventId: Long, status: String?, retried: Boolean = false): GeneralResponse<List<EventApplication>>
+    override suspend fun getEventApplications(eventId: Long, status: String?, retried: Boolean): GeneralResponse<List<EventApplication>>
 
-    suspend fun getApplicationStatus(eventId: Long, retried: Boolean = false): GeneralResponse<String>
+    override suspend fun getApplicationStatus(eventId: Long, retried: Boolean): GeneralResponse<String>
 
-    suspend fun updateApplicationStatus(eventId: Long, userId: Long, status: String, reason: String?, retried: Boolean = false): GeneralResponse<UserEventResponse>
+    override suspend fun updateApplicationStatus(eventId: Long, userId: Long, status: String, reason: String?, retried: Boolean): GeneralResponse<UserEventResponse>
 
-    suspend fun getCoordinatorRating(period: String = "monthly", page: Int = 0, size: Int = 20, retried: Boolean = false): GeneralResponse<CoordinatorRatingResponse>
+    override suspend fun getCoordinatorRating(period: String, page: Int, size: Int, retried: Boolean): GeneralResponse<CoordinatorRatingResponse>
 
-    suspend fun assembleCoordinatorReportFile(period: String = "monthly", retried: Boolean = false): GeneralResponse<ByteArray>
-    suspend fun assembleUserReportFileByAdmin(id: Long, period: String = "monthly", retried: Boolean = false): GeneralResponse<ByteArray>
-    suspend fun assembleCoordinatorReportFileByAdmin(id: Long, period: String = "monthly", retried: Boolean = false): GeneralResponse<ByteArray>
+    override suspend fun assembleCoordinatorReportFile(period: String, retried: Boolean): GeneralResponse<ByteArray>
 
+    override suspend fun assembleUserReportFileByAdmin(id: Long, period: String, retried: Boolean): GeneralResponse<ByteArray>
+
+    override suspend fun assembleCoordinatorReportFileByAdmin(id: Long, period: String, retried: Boolean): GeneralResponse<ByteArray>
 }

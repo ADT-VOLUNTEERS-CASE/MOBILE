@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.adt.data.abstraction.PersistenceRepository
-import org.adt.domain.abstraction.DataRepository
-import org.adt.domain.abstraction.DomainRepository
+import org.adt.domain.usecase.user.AuthenticateUseCase
+import org.adt.domain.usecase.user.GetCurrentUserRoleUseCase
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.utils.LocalizationManager.message
 import javax.inject.Inject
@@ -23,8 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 //TODO: Use `Logger` for.. Logging!
 class AuthenticateViewModel @Inject constructor(
-    private val _domainRepository: DomainRepository,
-    private val _dataRepository: DataRepository,
+    private val authenticateUseCase: AuthenticateUseCase,
+    private val getCurrentUserRoleUseCase: GetCurrentUserRoleUseCase,
     private val _persistenceRepository: PersistenceRepository
 ) : ViewModel() {
 
@@ -48,9 +48,9 @@ class AuthenticateViewModel @Inject constructor(
 
             _uiState.update { it.copy(isLoading = true) }
 
-            val response = _dataRepository.authenticate(
-                _fieldsState.value.email,
-                _fieldsState.value.password
+            val response = authenticateUseCase(
+                email = _fieldsState.value.email,
+                password = _fieldsState.value.password
             )
 
             if (!response.isSuccessful) {
@@ -63,7 +63,7 @@ class AuthenticateViewModel @Inject constructor(
                 return@launch
             }
 
-            val role = _dataRepository.getCurrentUserRole().first()
+            val role = getCurrentUserRoleUseCase().first()
             _persistenceRepository.saveRole(role)
             val destination = Destinations.mapRole(role)
 

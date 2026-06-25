@@ -11,7 +11,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.adt.core.entities.Location
-import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.usecase.cover.UploadCoverUseCase
+import org.adt.domain.usecase.event.CreateEventUseCase
+import org.adt.domain.usecase.event.GetCoordinatorEventsUseCase
+import org.adt.domain.usecase.event.GetEventApplicationsUseCase
+import org.adt.domain.usecase.event.UpdateApplicationStatusUseCase
+import org.adt.domain.usecase.user.FindLocationUseCase
+import org.adt.domain.usecase.user.GetUserInfoUseCase
 import org.adt.presentation.utils.LocalizationManager.message
 import java.io.File
 import java.time.LocalDateTime
@@ -19,7 +25,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CoordinatorViewModel @Inject constructor(
-    private val _dataRepository: DataRepository,
+    private val getEventApplicationsUseCase: GetEventApplicationsUseCase,
+    private val updateApplicationStatusUseCase: UpdateApplicationStatusUseCase,
+    private val uploadCoverUseCase: UploadCoverUseCase,
+    private val findLocationUseCase: FindLocationUseCase,
+    private val getUserInfoUseCase: GetUserInfoUseCase,
+    private val createEventUseCase: CreateEventUseCase,
+    private val getCoordinatorEventsUseCase: GetCoordinatorEventsUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(CoordinatorState())
     private val _fieldsState = MutableStateFlow(CoordinatorFieldsState())
@@ -36,14 +48,14 @@ class CoordinatorViewModel @Inject constructor(
 
     fun loadApplications(eventId: Long) {
         viewModelScope.launch {
-            val res = _dataRepository.getEventApplications(eventId, "PENDING")
+            val res = getEventApplicationsUseCase(eventId, "PENDING")
             if (res.isSuccessful) _uiState.update { it.copy(applications = res.data()) }
         }
     }
 
     fun approve(eventId: Long, userId: Long) {
         viewModelScope.launch {
-            val res = _dataRepository.updateApplicationStatus(eventId, userId, "ACCEPTED", null)
+            val res = updateApplicationStatusUseCase(eventId, userId, "ACCEPTED", null)
             if (res.isSuccessful) {
                 loadApplications(eventId)
                 loadMyEvents()
@@ -53,7 +65,7 @@ class CoordinatorViewModel @Inject constructor(
 
     fun reject(eventId: Long, userId: Long, reason: String = "Не подходит по критериям") {
         viewModelScope.launch {
-            val res = _dataRepository.updateApplicationStatus(eventId, userId, "REJECTED", reason)
+            val res = updateApplicationStatusUseCase(eventId, userId, "REJECTED", reason)
             if (res.isSuccessful) {
                 loadApplications(eventId)
                 loadMyEvents()
@@ -64,7 +76,7 @@ class CoordinatorViewModel @Inject constructor(
     fun uploadCover(file: File) {
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { it.copy(isUploadingCover = true) }
-            val response = _dataRepository.uploadCover(file)
+            val response = uploadCoverUseCase(file)
 
             if (response.isSuccessful) {
                 _uiState.update {
@@ -88,7 +100,7 @@ class CoordinatorViewModel @Inject constructor(
         if (query.isBlank()) return
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { it.copy(searchLoading = true, isSearchMode = true) }
-            val response = _dataRepository.findLocation(query)
+            val response = findLocationUseCase(query)
             if (response.isSuccessful) {
                 _uiState.update { it.copy(searchResults = response.data(), searchLoading = false) }
             } else {
@@ -119,9 +131,9 @@ class CoordinatorViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { it.copy(isLoading = true) }
-            val user = _dataRepository.userInfo().first()
+            val user = getUserInfoUseCase().first()
 
-            val response = _dataRepository.createEvent(
+            val response = createEventUseCase(
                 name = fields.name,
                 status = "ONGOING",
                 description = fields.description,
@@ -150,7 +162,7 @@ class CoordinatorViewModel @Inject constructor(
         _isRefreshing.update { true }
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { it.copy(eventsLoading = true) }
-            val response = _dataRepository.getCoordinatorEvents()
+            val response = getCoordinatorEventsUseCase()
             if (response.isSuccessful) {
                 _uiState.update {
                     it.copy(

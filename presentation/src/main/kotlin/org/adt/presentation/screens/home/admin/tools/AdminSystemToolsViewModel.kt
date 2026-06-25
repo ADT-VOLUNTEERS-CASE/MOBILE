@@ -9,12 +9,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.usecase.cover.DeleteCoverUseCase
+import org.adt.domain.usecase.event.DeleteEventUseCase
+import org.adt.domain.usecase.tag.CreateTagUseCase
+import org.adt.domain.usecase.tag.DeleteTagByNameUseCase
+import org.adt.domain.usecase.tag.GetTagByNameUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class AdminSystemToolsViewModel @Inject constructor(
-    private val _dataRepository: DataRepository,
+    private val createTagUseCase: CreateTagUseCase,
+    private val getTagByNameUseCase: GetTagByNameUseCase,
+    private val deleteTagByNameUseCase: DeleteTagByNameUseCase,
+    private val deleteEventUseCase: DeleteEventUseCase,
+    private val deleteCoverUseCase: DeleteCoverUseCase,
 ) : ViewModel() {
 
     private val _toolsState = MutableStateFlow(AdminSystemToolsState())
@@ -38,7 +46,7 @@ class AdminSystemToolsViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val response = _dataRepository.createTag(tagName)
+                val response = createTagUseCase(tagName)
                 _toolsState.update { it.copy(toastMessage = "Тег «$tagName» успешно создан", tagInput = "") }
             } catch (e: Exception) {
                 Log.e("AdminToolsVM", "Ошибка создания тега", e)
@@ -53,7 +61,7 @@ class AdminSystemToolsViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val response = _dataRepository.getTagByName(tagName)
+                val response = getTagByNameUseCase(tagName)
                 val tag = response.data()
                 _toolsState.update { it.copy(toastMessage = "Найден тег! ID: ${tag.tagId}") }
             } catch (e: Exception) {
@@ -69,7 +77,7 @@ class AdminSystemToolsViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val response = _dataRepository.deleteTagByName(tagName)
+                val response = deleteTagByNameUseCase(tagName)
                 _toolsState.update { it.copy(toastMessage = "Тег «$tagName» успешно удален", tagInput = "") }
             } catch (e: Exception) {
                 Log.e("AdminToolsVM", "Ошибка удаления тега", e)
@@ -89,7 +97,7 @@ class AdminSystemToolsViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val response = _dataRepository.deleteEvent(eventId)
+                val response = deleteEventUseCase(eventId)
                 _toolsState.update { it.copy(toastMessage = "Мероприятие с ID $eventId удалено", deleteEventId = "") }
             } catch (e: Exception) {
                 Log.e("AdminToolsVM", "Ошибка удаления мероприятия", e)
@@ -109,7 +117,7 @@ class AdminSystemToolsViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val response = _dataRepository.deleteCover(coverId)
+                val response = deleteCoverUseCase(coverId)
                 _toolsState.update { it.copy(toastMessage = "Обложка с ID $coverId удалена", deleteCoverId = "") }
             } catch (e: Exception) {
                 Log.e("AdminToolsVM", "Ошибка удаления обложки", e)

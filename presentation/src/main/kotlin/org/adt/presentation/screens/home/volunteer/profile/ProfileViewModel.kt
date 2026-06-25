@@ -10,12 +10,14 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.usecase.user.DeauthenticateUseCase
+import org.adt.domain.usecase.user.GetUserInfoUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val _dataRepository: DataRepository, // TODO: Rewrite to domain repository when ready
+    private val getUserInfoUseCase: GetUserInfoUseCase,
+    private val deauthenticateUseCase: DeauthenticateUseCase,
 ) : ViewModel() {
     private val _state = MutableStateFlow(ProfileState())
 
@@ -27,14 +29,14 @@ class ProfileViewModel @Inject constructor(
 
     fun logout(navigateAction: () -> Unit) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) { _dataRepository.deauthenticate() }
+            withContext(Dispatchers.IO) { deauthenticateUseCase() }
             navigateAction.invoke()
         }
     }
 
     fun requestUserInfo() {
         viewModelScope.launch(Dispatchers.IO) {
-            val response = _dataRepository.userInfo().first()
+            val response = getUserInfoUseCase().first()
 
             if (!response.isSuccessful)
                 return@launch

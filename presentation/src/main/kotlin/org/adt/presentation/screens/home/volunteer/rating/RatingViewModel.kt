@@ -8,12 +8,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.usecase.rating.GetUserRatingUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class RatingViewModel @Inject constructor(
-    private val dataRepository: DataRepository
+    private val getUserRatingUseCase: GetUserRatingUseCase,
 ) : ViewModel() {
     private val _state = MutableStateFlow(RatingState())
     val state = _state.asStateFlow()
@@ -33,7 +33,7 @@ class RatingViewModel @Inject constructor(
                 else it.copy(isPaginating = true)
             }
 
-            val response = dataRepository.getUserRating(
+            val response = getUserRatingUseCase(
                 period = current.period,
                 page = page,
                 size = 20

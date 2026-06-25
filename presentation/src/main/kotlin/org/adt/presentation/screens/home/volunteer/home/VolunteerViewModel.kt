@@ -12,17 +12,21 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.adt.core.entities.AllDescriptionEvent
 import org.adt.core.entities.event.Event
-import org.adt.core.utils.ApiStatus
-import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.usecase.event.GetEventsUseCase
+import org.adt.domain.usecase.user.FindEventUseCase
+import org.adt.domain.usecase.user.FindLocationUseCase
+import org.adt.domain.usecase.user.GetUserInfoUseCase
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class VolunteerViewModel @Inject constructor(
-    private val _dataRepository: DataRepository,
+    private val findLocationUseCase: FindLocationUseCase,
+    private val findEventUseCase: FindEventUseCase,
+    private val getEventsUseCase: GetEventsUseCase,
+    private val getUserInfoUseCase: GetUserInfoUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(VolunteerState())
     val uiState: StateFlow<VolunteerState> = _uiState.asStateFlow()
@@ -59,8 +63,8 @@ class VolunteerViewModel @Inject constructor(
             _isRefreshing.update { true }
             _uiState.update { it.copy(searchMode = true, searchModeLoading = true) }
 
-            val responseLocation = async { _dataRepository.findLocation(uiState.searchValue) }
-            val responseEvent = async { _dataRepository.findEvent(uiState.searchValue) }
+            val responseLocation = async { findLocationUseCase(uiState.searchValue) }
+            val responseEvent = async { findEventUseCase(uiState.searchValue) }
 
             val locationsResp = responseLocation.await()
             val eventsResp = responseEvent.await()
@@ -92,8 +96,8 @@ class VolunteerViewModel @Inject constructor(
     fun getEvents() {
         viewModelScope.launch(Dispatchers.IO) {
             _isRefreshing.update { true }
-            val userResponse = _dataRepository.userInfo().first()
-            val eventsResponse = _dataRepository.getEvents()
+            val userResponse = getUserInfoUseCase().first()
+            val eventsResponse = getEventsUseCase()
 
             if (
                 !eventsResponse.isSuccessful ||

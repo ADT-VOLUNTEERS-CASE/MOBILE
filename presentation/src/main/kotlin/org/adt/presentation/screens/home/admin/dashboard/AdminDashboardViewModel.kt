@@ -16,13 +16,24 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.usecase.cover.DeleteCoverUseCase
+import org.adt.domain.usecase.event.DeleteEventUseCase
+import org.adt.domain.usecase.report.AssembleCoordinatorReportFileByAdminUseCase
+import org.adt.domain.usecase.report.AssembleUserReportFileByAdminUseCase
+import org.adt.domain.usecase.tag.CreateTagUseCase
+import org.adt.domain.usecase.tag.DeleteTagByNameUseCase
+import org.adt.domain.usecase.tag.GetTagByNameUseCase
+import org.adt.domain.usecase.user.DeauthenticateUseCase
+import org.adt.domain.usecase.user.FindLocationUseCase
 import org.adt.presentation.utils.LocalizationManager.message
 import javax.inject.Inject
 
 @HiltViewModel
 class AdminDashboardViewModel @Inject constructor(
-    private val _dataRepository: DataRepository,
+    private val findLocationUseCase: FindLocationUseCase,
+    private val assembleUserReportFileByAdminUseCase: AssembleUserReportFileByAdminUseCase,
+    private val assembleCoordinatorReportFileByAdminUseCase: AssembleCoordinatorReportFileByAdminUseCase,
+    private val deauthenticateUseCase: DeauthenticateUseCase,
 ) : ViewModel() {
 
     private val _dashboardState = MutableStateFlow(AdminDashboardState())
@@ -43,7 +54,7 @@ class AdminDashboardViewModel @Inject constructor(
         viewModelScope.launch {
             _dashboardState.update { it.copy(searchModeLoading = true, searchMode = true) }
             try {
-                val response = _dataRepository.findLocation(query)
+                val response = findLocationUseCase(query)
                 val locations = response.data()
 
                 _dashboardState.update {
@@ -93,9 +104,9 @@ class AdminDashboardViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val response = if (target == "user") {
-                    _dataRepository.assembleUserReportFileByAdmin(id = id, period = type)
+                    assembleUserReportFileByAdminUseCase(id = id, period = type)
                 } else {
-                    _dataRepository.assembleCoordinatorReportFileByAdmin(id = id, period = type)
+                    assembleCoordinatorReportFileByAdminUseCase(id = id, period = type)
                 }
                 if (response.isSuccessful) {
                     _dashboardState.update { it.copy(downloadedFile = response.data()) }
@@ -126,7 +137,7 @@ class AdminDashboardViewModel @Inject constructor(
     fun deauthenticate(onSuccess: () -> Unit) {
         viewModelScope.launch {
             try {
-                _dataRepository.deauthenticate()
+                deauthenticateUseCase()
                 onSuccess()
             } catch (e: Exception) {
                 Log.e("AdminDashboardVM", "Ошибка выхода из системы", e)

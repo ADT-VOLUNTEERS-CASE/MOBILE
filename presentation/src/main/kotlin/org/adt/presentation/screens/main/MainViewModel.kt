@@ -12,13 +12,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.adt.core.entities.UserRole
 import org.adt.data.abstraction.PersistenceRepository
-import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.usecase.user.GetCurrentUserRoleUseCase
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val _dataRepository: DataRepository,
+    private val getCurrentUserRoleUseCase: GetCurrentUserRoleUseCase,
     private val _persistenceRepository: PersistenceRepository
 ) : ViewModel() {
 
@@ -41,7 +41,7 @@ class MainViewModel @Inject constructor(
         _uiState.update { it.copy(loading = true) }
         viewModelScope.launch {
             try {
-                val role = _dataRepository.getCurrentUserRole().first()
+                val role = getCurrentUserRoleUseCase().first()
 
                 _uiState.update { it.copy(role = role) }
             } catch (e: CancellationException) {
