@@ -315,11 +315,12 @@ fun CoordinatorScreenContent(
             )
         }
     ) { paddingValues ->
-        val _unusedPadding = paddingValues
+
 
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
+                .padding(paddingValues)
                 .fillMaxSize()
                 .clipToBounds(),
             userScrollEnabled = true
@@ -338,7 +339,7 @@ fun CoordinatorScreenContent(
                                 color = Lagoon,
                                 modifier = Modifier
                                     .align(Alignment.TopCenter)
-                                    .padding(top = 80.dp) // Чуть опустили индикатор ниже топбара
+                                    .padding(top = 8.dp) // Чуть опустили индикатор ниже топбара
                             )
                         }
                     ) {
@@ -349,7 +350,7 @@ fun CoordinatorScreenContent(
                             contentPadding = PaddingValues(
                                 start = 16.dp,
                                 end = 16.dp,
-                                top = 90.dp, // Делаем базовый отступ чуть больше, чтобы в покое всё стояло идеально под топ-баром
+                                top = 16.dp, // Делаем базовый отступ чуть больше, чтобы в покое всё стояло идеально под топ-баром
                                 bottom = 24.dp
                             ),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -424,7 +425,7 @@ fun CoordinatorScreenContent(
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
                             // Сдвигаем форму на 90.dp сверху, чтобы она не залезала под статичный бар в начале
-                            .padding(start = 20.dp, end = 20.dp, top = 90.dp, bottom = 24.dp),
+                            .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 24.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         horizontalAlignment = Alignment.Start
                     ) {

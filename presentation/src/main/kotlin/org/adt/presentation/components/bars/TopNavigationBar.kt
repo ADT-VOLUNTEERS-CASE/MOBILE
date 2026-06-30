@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -141,6 +142,7 @@ fun SyncedTopNavigationBarCoordinator(
                             .weight(1f)
                             .fillMaxHeight()
                             .clip(CircleShape)
+                            .testTag("tab_events")
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null
@@ -167,6 +169,7 @@ fun SyncedTopNavigationBarCoordinator(
                             .weight(1f)
                             .fillMaxHeight()
                             .clip(CircleShape)
+                            .testTag("tab_create")
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null

@@ -23,9 +23,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.adt.presentation.R
 import org.adt.presentation.components.TypingText
 import org.adt.presentation.navigation.Destinations
@@ -41,11 +43,12 @@ fun SplashScreen(
 
     SplashContent(pingAction = { viewModel.ping() }, navigateAction = {
         scope.launch {
-            navController.navigate(
-                viewModel.getDestination()
-            ) {
-                popUpTo(Destinations.Splash) { inclusive = true }
-                launchSingleTop = true
+            val destination = withContext(Dispatchers.Main) { viewModel.getDestination() }
+            withContext(Dispatchers.Main) {
+                navController.navigate(destination) {
+                    popUpTo(Destinations.Splash) { inclusive = true }
+                    launchSingleTop = true
+                }
             }
         }
     })
@@ -87,7 +90,9 @@ fun SplashContent(
 
         pingAction.invoke()
 
-        navigateAction.invoke()
+        withContext(Dispatchers.Main) {
+            navigateAction.invoke()
+        }
     }
 
     Box(

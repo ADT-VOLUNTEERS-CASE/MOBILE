@@ -2,16 +2,19 @@ package org.adt.storage.repository
 
 import android.content.Context
 import android.util.Log
+import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import org.adt.core.annotations.RepositoryImpl
 import org.adt.core.entities.UserRole
 import org.adt.data.abstraction.PersistenceRepository
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -119,5 +122,10 @@ class PersistenceRepositoryImpl @Inject constructor(
         context.dataStore.edit { prefs ->
             prefs.remove(KEY_ROLE)
         }
+    }
+
+    override suspend fun clearStorage() {
+        context.dataStore.edit { it.clear() }
+        File(context.filesDir, "datastore").deleteRecursively()
     }
 }

@@ -26,4 +26,6 @@ interface PersistenceRepository {
     suspend fun getRole(): UserRole
 
     suspend fun removeRole()
+
+    suspend fun clearStorage()
 }
