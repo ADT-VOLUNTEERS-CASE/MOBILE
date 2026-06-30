@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -204,7 +205,7 @@ fun EventDetailsScreenContent(
                         Spacer(modifier = Modifier.height(32.dp))
 
                         Text(
-                            text = "Описание",
+                            text = stringResource(R.string.subtitle_description),
                             style = VolunteersCaseTheme.typography.titleLarge,
                             color = Abyss,
                             fontWeight = FontWeight.Bold
@@ -220,13 +221,14 @@ fun EventDetailsScreenContent(
                         Spacer(modifier = Modifier.height(32.dp))
 
                         Text(
-                            text = "Координатор",
+                            text = stringResource(R.string.subtitle_coordinator),
                             style = VolunteersCaseTheme.typography.titleLarge,
                             color = Abyss,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        CoordinatorProfileCard("Лимасов Андрей")
+
+                        CoordinatorProfileCard(stringResource(R.string.father))
 
                         Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding() + 100.dp))
                     }
@@ -258,20 +260,20 @@ private fun InfoRowGrid(uiState: EventDetailsState) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             DetailItem(
                 icon = Icons.Default.CalendarToday,
-                label = "Дата",
+                label = stringResource(R.string.label_date),
                 value = uiState.localizedDateTime,
                 modifier = Modifier.weight(1f)
             )
             DetailItem(
                 icon = Icons.Default.AccessTime,
-                label = "Длительность",
+                label = stringResource(R.string.label_duration),
                 value = "1 ч. 55 мин.",
                 modifier = Modifier.weight(1f)
             )
         }
         DetailItem(
             icon = Icons.Default.LocationOn,
-            label = "Адрес",
+            label = stringResource(R.string.label_address),
             value = uiState.location.address,
             modifier = Modifier.fillMaxWidth()
         )
@@ -320,7 +322,9 @@ private fun CoordinatorProfileCard(name: String) {
         shadowElevation = 1.dp
     ) {
         Row(
-            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
@@ -348,9 +352,9 @@ private fun BottomActionSurface(uiState: EventDetailsState, onApply: () -> Unit)
     val isRegistered = status.isNotEmpty() && status != "REJECTED"
 
     val (btnText, btnColor) = when (status) {
-        "PENDING", "ALREADY_EXISTS" -> "Заявка отправлена" to Color(0xFFFBC02D)
-        "SUCCESS", "ACCEPTED" -> "Вы участвуете" to Mint
-        else -> "Принять участие" to Lagoon
+        "PENDING", "ALREADY_EXISTS" -> stringResource(R.string.button_application_send) to Color(0xFFFBC02D)
+        "SUCCESS", "ACCEPTED" -> stringResource(R.string.button_participating) to Mint
+        else -> stringResource(R.string.button_accept_participating) to Lagoon
     }
 
     Surface(
@@ -359,7 +363,9 @@ private fun BottomActionSurface(uiState: EventDetailsState, onApply: () -> Unit)
         shadowElevation = 16.dp,
         tonalElevation = 8.dp
     ) {
-        Box(Modifier.navigationBarsPadding().padding(20.dp)) {
+        Box(Modifier
+            .navigationBarsPadding()
+            .padding(20.dp)) {
             if (uiState.eventStatus != EventStatus.COMPLETED) {
                 CustomButton(
                     text = btnText,
@@ -373,7 +379,9 @@ private fun BottomActionSurface(uiState: EventDetailsState, onApply: () -> Unit)
                         contentColor = if (status == "ACCEPTED" || status == "SUCCESS") Color.White else Abyss
                     ),
                     enabled = !isRegistered,
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
                     onClick = onApply
                 )
             }

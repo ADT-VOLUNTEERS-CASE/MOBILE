@@ -48,7 +48,6 @@ class RegisterViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             clearErrorMessage()
-
             populateLoadingState(true)
 
             val response = registerUseCase(
@@ -66,9 +65,9 @@ class RegisterViewModel @Inject constructor(
             if (!response.isSuccessful) {
                 populateFailure(
                     message = response.message,
-                    logMessage = "Failure",
                     tagSuffix = "Register"
                 )
+                _uiState.update { it.copy(isLoading = false) }
                 return@launch
             }
 
@@ -87,7 +86,10 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-    private fun populateFailure(message: String, logMessage: String, tagSuffix: String = "Main") {
+    private fun populateFailure(
+        message: String,
+        @Suppress("SameParameterValue") tagSuffix: String = "Main"
+    ) {
         _uiState.update { it.copy(registerError = message, isLoading = false) }
 
         Log.e("RegisterViewModel::${tagSuffix}", message)

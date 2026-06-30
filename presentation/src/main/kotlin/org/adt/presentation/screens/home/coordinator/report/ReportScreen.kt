@@ -40,10 +40,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.adt.core.entities.rating.UserRating
+import org.adt.presentation.R
 import org.adt.presentation.components.rating.ErrorBanner
 import org.adt.presentation.components.rating.PeriodSwitch
 import org.adt.presentation.theme.Abyss
@@ -116,7 +117,7 @@ fun ReportScreenContent(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        "Рейтинг",
+                        stringResource(R.string.title_rating),
                         style = VolunteersCaseTheme.typography.titleLarge,
                     )
                 },
@@ -165,7 +166,7 @@ fun ReportScreenContent(
 
                 item {
                     Text(
-                        "Моя активность",
+                        stringResource(R.string.subtitle_activity),
                         style = VolunteersCaseTheme.typography.titleLarge,
                     )
                 }
@@ -197,21 +198,14 @@ fun ReportScreenContent(
                             Spacer(Modifier.width(8.dp))
                             Icon(
                                 Icons.Default.Download,
-                            null,
-                            tint = Graphite.copy(0.6f)
+                                null,
+                                tint = Graphite.copy(0.6f)
                             )
                         }
                     }
                 }
 
                 item { Spacer(Modifier.height(8.dp)) }
-
-                item {
-                    Text(
-                        "Общий рейтинг",
-                        style = VolunteersCaseTheme.typography.titleLarge,
-                    )
-                }
 
 //                if (state.entries.isNotEmpty()) {
 //                    item { PodiumRow(state.entries) }
@@ -233,10 +227,8 @@ fun ReportScreenContent(
                 } else {
                     item {
                         Text(
-                            "Все участники",
-                            style = VolunteersCaseTheme.typography.titleMedium,
-                            color = Graphite,
-                            modifier = Modifier.padding(vertical = 4.dp),
+                            stringResource(R.string.subtitle_all_participants),
+                            style = VolunteersCaseTheme.typography.titleLarge,
                         )
                     }
 
@@ -250,8 +242,11 @@ fun ReportScreenContent(
 //                            index = idx,
 //                        )
 
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                            Text((idx+1).toString())
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(20.dp)
+                        ) {
+                            Text((idx + 1).toString())
                             Text(entry.firstname)
 
                         }
@@ -292,18 +287,6 @@ fun ReportScreenContent(
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
 @Composable
 private fun RatingScreenPreview() {
-    val previewEntries = listOf(
-        UserRating(
-            userId = 1,
-            firstname = "Анна",
-            lastname = "Иванова",
-            patronymic = "Сергеевна",
-            workedMinutes = 1200
-        ),
-        UserRating(userId = 2, firstname = "Иван", lastname = "Петров", workedMinutes = 900),
-        UserRating(userId = 3, firstname = "Ольга", lastname = "Сидорова", workedMinutes = 750),
-        UserRating(userId = 4, firstname = "Михаил", lastname = "Козлов", workedMinutes = 600),
-    )
     VolunteersCaseTheme {
         ReportScreenContent(
             state = ReportState(

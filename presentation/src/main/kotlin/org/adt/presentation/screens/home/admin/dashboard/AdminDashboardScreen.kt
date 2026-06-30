@@ -48,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -55,8 +56,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.adt.presentation.components.CustomSearchTextField
-import org.adt.presentation.components.CustomTextField
+import org.adt.presentation.R
+import org.adt.presentation.components.textfields.CustomSearchTextField
+import org.adt.presentation.components.textfields.CustomTextField
 import org.adt.presentation.components.buttons.CustomButton
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
@@ -128,7 +130,6 @@ fun AdminDashboardContent(
     onUserInputBoxChange: (String) -> Unit = {},
     onCoordinatorInputBoxChange: (String) -> Unit = {},
     logoutAction: () -> Unit = {},
-    animationOverride: Boolean = false,
 ) {
     BackHandler(uiState.searchMode, searchModeChangedAction)
 
@@ -146,16 +147,18 @@ fun AdminDashboardContent(
                 .padding(horizontal = 20.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 8.dp)) {
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp, vertical = 8.dp)) {
                 Text(
-                    text = "Панель управления",
+                    text = stringResource(R.string.title_control_panel),
                     style = VolunteersCaseTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = Abyss,
                     letterSpacing = (-0.5).sp
                 )
                 Text(
-                    text = "Доступ к системным утилитам и выгрузке аналитики",
+                    text = stringResource(R.string.label_export_analytics),
                     style = VolunteersCaseTheme.typography.labelMedium,
                     color = Graphite.copy(alpha = 0.7f)
                 )
@@ -172,7 +175,7 @@ fun AdminDashboardContent(
                     verticalArrangement = Arrangement.spacedBy(18.dp)
                 ) {
                     Text(
-                        text = "Системная навигация",
+                        text = stringResource(R.string.subtitle_system_navigation),
                         style = VolunteersCaseTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = Abyss
@@ -180,7 +183,7 @@ fun AdminDashboardContent(
 
                     CustomSearchTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        label = "Найти адрес на карте",
+                        label = stringResource(R.string.textfield_search_address),
                         value = uiState.searchValue,
                         onValueChange = searchFieldValueChangedAction,
                         onConfirm = searchFieldOnConfirmAction
@@ -212,7 +215,7 @@ fun AdminDashboardContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Отчетность и аналитика",
+                            text = stringResource(R.string.subtitle_reports),
                             style = VolunteersCaseTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = Abyss
@@ -226,7 +229,9 @@ fun AdminDashboardContent(
                                 .padding(horizontal = 14.dp, vertical = 6.dp)
                         ) {
                             Text(
-                                text = if (uiState.reportType == "monthly") "За месяц" else "Все время",
+                                text = if (uiState.reportType == "monthly") stringResource(R.string.body_for_month) else stringResource(
+                                    R.string.body_for_all_time
+                                ),
                                 color = Lagoon,
                                 style = VolunteersCaseTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold
@@ -240,7 +245,7 @@ fun AdminDashboardContent(
                             .background(Milk, RoundedCornerShape(14.dp))
                             .padding(4.dp)
                     ) {
-                        val targets = listOf("user" to "Волонтер", "coordinator" to "Координатор")
+                        val targets = listOf("user" to stringResource(R.string.role_volunteer), "coordinator" to stringResource(R.string.role_coordinator))
                         targets.forEach { (targetKey, label) ->
                             val isSelected = selectedReportTarget == targetKey
                             val interactionSource = remember { MutableInteractionSource() }
@@ -290,21 +295,21 @@ fun AdminDashboardContent(
                         if (selectedReportTarget == "user") {
                             CustomTextField(
                                 modifier = Modifier.fillMaxWidth(),
-                                label = "Укажите ID волонтера для выгрузки",
+                                label = stringResource(R.string.textfield_enter_id_volunteer),
                                 value = uiState.userInput,
                                 onValueChange = onUserInputBoxChange
                             )
                         } else {
                             CustomTextField(
                                 modifier = Modifier.fillMaxWidth(),
-                                label = "Укажите ID координатора для выгрузки",
+                                label = stringResource(R.string.textfield_enter_id_coordinator),
                                 value = uiState.coordinatorInput,
                                 onValueChange = onCoordinatorInputBoxChange
                             )
                         }
 
                         CustomButton(
-                            text = "Экспортировать PDF отчет",
+                            text = stringResource(R.string.button_export_pdf),
                             onClick = { onDownloadAction(selectedReportTarget) },
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -333,12 +338,12 @@ fun AdminDashboardContent(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Logout,
-                        contentDescription = "Выйти",
+                        contentDescription = stringResource(R.string.button_logout),
                         tint = Color.Red.copy(alpha = 0.6f)
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = "Выйти из аккаунта",
+                        text = stringResource(R.string.button_logout),
                         style = VolunteersCaseTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -364,7 +369,9 @@ private fun CardSearchResults(uiState: AdminDashboardState) {
             color = Abyss
         )
         if (uiState.searchModeLoading) {
-            Box(Modifier.fillMaxWidth().padding(vertical = 8.dp), contentAlignment = Alignment.Center) {
+            Box(Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Lagoon, strokeWidth = 2.5.dp)
             }
         } else {
@@ -384,6 +391,6 @@ private fun CardSearchResults(uiState: AdminDashboardState) {
 @Composable
 private fun AdminDashboardPreview() {
     VolunteersCaseTheme {
-        AdminDashboardContent(animationOverride = true)
+        AdminDashboardContent()
     }
 }

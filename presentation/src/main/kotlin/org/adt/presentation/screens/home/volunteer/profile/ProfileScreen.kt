@@ -43,13 +43,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.adt.presentation.BuildConfig
-import org.adt.presentation.components.cards.ProfileMenuCard
+import org.adt.presentation.R
+import org.adt.presentation.components.cards.MenuCard
 import org.adt.presentation.components.misc.NotImplementedSheet
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Abyss
@@ -125,7 +127,7 @@ fun ProfileScreenContent(
                     Spacer(Modifier.height(16.dp))
 
                     Text(
-                        text = profileState.firstName.ifEmpty { "Волонтёр" },
+                        text = profileState.firstName.ifEmpty { stringResource(R.string.role_volunteer) },
                         style = MaterialTheme.typography.headlineMedium,
                         color = Color.White,
                         fontWeight = FontWeight.Bold
@@ -143,7 +145,7 @@ fun ProfileScreenContent(
                             Icon(Icons.Default.Star, null, Modifier.size(14.dp), Color.White)
                             Spacer(Modifier.width(4.dp))
                             Text(
-                                "Опытный волонтер",
+                                stringResource(R.string.role_volunteer_rank),
                                 style = VolunteersCaseTheme.typography.labelMedium,
                                 color = Color.White
                             )
@@ -159,23 +161,23 @@ fun ProfileScreenContent(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    "Настройки профиля",
+                    stringResource(R.string.subtitle_profile_settings),
                     style = VolunteersCaseTheme.typography.titleMedium,
                     color = Abyss,
                     modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
                 )
 
-                ProfileMenuCard(
-                    title = "Безопасность",
-                    subtitle = "Пароль, вход по биометрии",
+                MenuCard(
+                    title = stringResource(R.string.subtitle_safety),
+                    subtitle = stringResource(R.string.body_biometrical),
                     icon = Icons.Default.Security,
                     iconColor = Aqua,
                     onClick = { showWIPSheet = true }
                 )
 
-                ProfileMenuCard(
-                    title = "История активности",
-                    subtitle = "Ваш вклад и посещенные события",
+                MenuCard(
+                    title = stringResource(R.string.subtitle_activity_history),
+                    subtitle = stringResource(R.string.body_contribution),
                     icon = Icons.Default.History,
                     iconColor = Mint,
                     onClick = { showWIPSheet = true }
@@ -205,7 +207,7 @@ fun ProfileScreenContent(
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            "Выйти из аккаунта",
+                            stringResource(R.string.button_logout),
                             style = VolunteersCaseTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -216,7 +218,7 @@ fun ProfileScreenContent(
             Spacer(Modifier.height(32.dp))
 
             Text(
-                text = "Версия ${BuildConfig.VERSION_NAME}",
+                text = stringResource(R.string.app_version, BuildConfig.VERSION_NAME),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 24.dp),

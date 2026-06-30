@@ -3,6 +3,8 @@ package org.adt.presentation.theme
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 val Arctic = Color(0xFFFFFFFF)
@@ -18,6 +20,16 @@ val Milk = Color(0xFFF3F3F3)
 val Void = Color(0xFF181718)
 val Black = Color(0xFF000000)
 val Grey = Color(0xFFA1A4B2)
+
+val NobleSapphireGradient = Brush.linearGradient(
+    colors = listOf(
+        Lagoon,
+        Abyss,
+        Void
+    ),
+    start = Offset(0f, 0f),
+    end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+)
 
 @Immutable
 data class AppColors(

@@ -46,6 +46,7 @@ import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,8 +54,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import org.adt.core.entities.event.Event
-import org.adt.presentation.components.CustomSearchTextField
-import org.adt.presentation.components.bars.SyncedTopNavigationBar
+import org.adt.presentation.R
+import org.adt.presentation.components.textfields.CustomSearchTextField
+import org.adt.presentation.components.bars.VolunteerSyncedTopNavigationBar
 import org.adt.presentation.components.cards.CharityEventCard
 import org.adt.presentation.components.misc.NotImplementedSheet
 import org.adt.presentation.components.misc.rememberSyncedScrollState
@@ -144,7 +146,7 @@ fun VolunteerScreenContent(
                 Modifier.padding(
                     top = (35 * syncedScrollState.scaleFactor).dp, start = 16.dp, end = 16.dp
                 ),
-                label = "Поиск по ключевым словам",
+                label = stringResource(R.string.textfield_search_keywords),
                 value = uiState.searchValue,
                 verticalScale = syncedScrollState.scaleFactor,
                 onValueChange = searchFieldValueChangedAction,
@@ -160,7 +162,7 @@ fun VolunteerScreenContent(
                     .nestedScroll(syncedScrollState.connection),
                 containerColor = Color.Transparent,
                 topBar = {
-                    SyncedTopNavigationBar(
+                    VolunteerSyncedTopNavigationBar(
                         scale = syncedScrollState.scaleFactor,
                         firstName = uiState.firstName,
                         scrollBehavior = scrollBehavior,
@@ -206,7 +208,7 @@ fun VolunteerScreenContent(
                             ) {
                                 Text(
                                     modifier = Modifier.weight(1f),
-                                    text = "Каталог мероприятий",
+                                    text = stringResource(R.string.title_event_catalog),
                                     textAlign = TextAlign.Center,
                                     style = VolunteersCaseTheme.typography.titleLarge
                                 )
@@ -214,7 +216,7 @@ fun VolunteerScreenContent(
                                     selected = isFilterChipSelected,
                                     label = {
                                         Text(
-                                            text = "Только мои",
+                                            text = stringResource(R.string.button_only_mine),
                                             style = VolunteersCaseTheme.typography.labelLarge.copy(
                                                 fontSize = 13.sp
                                             )
@@ -256,7 +258,6 @@ fun VolunteerScreenContent(
                                 CharityEventCard(
                                     event = event,
                                     onClick = { eventPickerAction(event) },
-                                    onFavoriteClick = { },
                                     isParticipating = isParticipatingRecommendationEvaluateAction.invoke(
                                         event
                                     )
@@ -280,7 +281,10 @@ fun VolunteerScreenContent(
             modifier = Modifier.padding(top = 80.dp),
             contentAlignment = Alignment.BottomCenter
         ) {
-            SearchOverlay(uiState, {}, { data -> })
+            SearchOverlay(uiState, eventPickerAction, { address ->
+                searchFieldValueChangedAction(address)
+                searchFieldOnConfirmAction(address)
+            })
         }
     }
 }

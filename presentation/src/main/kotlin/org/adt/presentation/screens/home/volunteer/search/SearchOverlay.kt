@@ -9,8 +9,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,22 +25,17 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -59,17 +53,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import org.adt.core.entities.event.Event
-import org.adt.presentation.components.cards.EventSearchCard
-import org.adt.presentation.components.shaders.ShaderBox
+import org.adt.presentation.R
 import org.adt.presentation.screens.home.volunteer.home.VolunteerState
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Lagoon
-import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
-import org.adt.presentation.utils.ShaderPresets
 
 @Composable
 fun SearchOverlay(
@@ -125,7 +116,7 @@ fun SearchOverlay(
                     ) {
                         if (uiState.searchModeListEvent.isNotEmpty()) {
                             item {
-                                SectionTitle("Мероприятия")
+                                SectionTitle(stringResource(R.string.title_events))
                             }
                             items(uiState.searchModeListEvent) { event ->
                                 SearchResultCard(
@@ -140,7 +131,7 @@ fun SearchOverlay(
                         if (uiState.searchModeListLocation.isNotEmpty()) {
                             item {
                                 Spacer(Modifier.height(16.dp))
-                                SectionTitle("Локации")
+                                SectionTitle(stringResource(R.string.title_locations))
                             }
                             items(uiState.searchModeListLocation) { location ->
                                 LocationResultItem(location.address) {
@@ -285,7 +276,8 @@ private fun EmptySearchLayout(query: String) {
         }
         Spacer(Modifier.height(24.dp))
         Text(
-            text = if (query.isNotBlank()) "Ничего не нашли" else "Что ищем сегодня?",
+            text = if (query.isNotBlank()) stringResource(R.string.label_nothing_found)
+            else stringResource(R.string.label_wawlft),
             style = VolunteersCaseTheme.typography.titleLarge,
             color = Abyss,
             fontWeight = FontWeight.ExtraBold,
@@ -293,8 +285,8 @@ private fun EmptySearchLayout(query: String) {
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = if (query.isNotBlank()) "Попробуйте изменить параметры поиска или ключевые слова"
-            else "Введите название мероприятия или адрес, чтобы найти волонтерские активности",
+            text = if (query.isNotBlank()) stringResource(R.string.label_try_change)
+            else stringResource(R.string.label_enter_name_address),
             style = MaterialTheme.typography.bodyMedium,
             color = Graphite,
             textAlign = TextAlign.Center,

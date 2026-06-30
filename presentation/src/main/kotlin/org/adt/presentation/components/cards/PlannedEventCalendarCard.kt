@@ -12,8 +12,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.EventNote
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -23,16 +23,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.adt.core.entities.EventStatus
 import org.adt.core.entities.user.UserEvents
+import org.adt.presentation.R
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
 
+/**
+ * Card displaying a planned event in the calendar list with its current completion status
+ *
+ * @param userEvent object containing user-specific event details such as name and status
+ *
+ * @param onClick function to be invoked when the calendar card is clicked
+ *
+ * @sample [PlannedEventCardPreview]
+ */
 @Composable
 fun PlannedEventCalendarCard(
     userEvent: UserEvents, onClick: () -> Unit
@@ -56,7 +67,7 @@ fun PlannedEventCalendarCard(
                     .clip(RoundedCornerShape(12.dp))
                     .background(Mint.copy(alpha = 0.1f)), contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.EventNote, contentDescription = null, tint = Mint)
+                Icon(Icons.AutoMirrored.Filled.EventNote, contentDescription = null, tint = Mint)
             }
 
             Spacer(Modifier.width(16.dp))
@@ -71,11 +82,11 @@ fun PlannedEventCalendarCard(
                 )
                 Text(
                     text = when(userEvent.status.uppercase()){
-                        EventStatus.ONGOING.name.uppercase() -> "Предстоит!"
-                        EventStatus.IN_PROGRESS.name.uppercase() -> "Уже идёт!"
-                        EventStatus.COMPLETED.name.uppercase() -> "Завершено!"
-                        EventStatus.UNKNOWN.name.uppercase() -> "Неизвестно"
-                        else -> "Неизвестно"
+                        EventStatus.ONGOING.name.uppercase() -> stringResource(R.string.label_event_status_ongoing)
+                        EventStatus.IN_PROGRESS.name.uppercase() -> stringResource(R.string.label_event_status_in_progress)
+                        EventStatus.COMPLETED.name.uppercase() -> stringResource(R.string.label_event_status_completed)
+                        EventStatus.UNKNOWN.name.uppercase() -> stringResource(R.string.label_event_status_unknown)
+                        else -> stringResource(R.string.label_unknown)
                     },
                     style = VolunteersCaseTheme.typography.labelMedium,
                     color = when (userEvent.status.uppercase()) {

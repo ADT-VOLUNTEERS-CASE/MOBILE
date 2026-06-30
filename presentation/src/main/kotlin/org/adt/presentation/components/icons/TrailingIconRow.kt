@@ -1,4 +1,4 @@
-package org.adt.presentation.components
+package org.adt.presentation.components.icons
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,8 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.adt.presentation.components.icons.DynamicIcon
-import org.adt.presentation.components.icons.IconSource
 import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable

@@ -40,12 +40,10 @@ class AuthenticateViewModel @Inject constructor(
 
     //TODO: __GOD_FORGIVE_ME__(REWRITE THIS.. PLEASE..)
     fun onContinueClick(navController: NavHostController) {
-        if (!_fieldsState.value.isFormValid)
-            return
+        if (!_fieldsState.value.isFormValid) return
 
         viewModelScope.launch(Dispatchers.IO) {
             clearErrorMessage()
-
             _uiState.update { it.copy(isLoading = true) }
 
             val response = authenticateUseCase(
@@ -59,7 +57,7 @@ class AuthenticateViewModel @Inject constructor(
                     logMessage = response.message,
                     tagSuffix = "Auth"
                 )
-
+                _uiState.update { it.copy(isLoading = false) }
                 return@launch
             }
 
@@ -78,14 +76,14 @@ class AuthenticateViewModel @Inject constructor(
         }
     }
 
-    private fun clearErrorMessage(){
+    private fun clearErrorMessage() {
         _uiState.update { it.copy(authError = null) }
     }
 
     private fun populateFailure(
         displayError: String? = null,
         logMessage: String = "",
-        tagSuffix: String = "Main"
+        @Suppress("SameParameterValue") tagSuffix: String = "Main"
     ) {
         _uiState.update {
             it.copy(

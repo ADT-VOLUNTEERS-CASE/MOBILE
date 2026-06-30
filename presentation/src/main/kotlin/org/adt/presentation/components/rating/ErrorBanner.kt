@@ -1,10 +1,13 @@
 package org.adt.presentation.components.rating
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.adt.presentation.theme.Abyss
+import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.Void
 import org.adt.presentation.theme.VolunteersCaseTheme
 
@@ -41,7 +45,7 @@ import org.adt.presentation.theme.VolunteersCaseTheme
 fun ErrorBanner(
     message: String,
     onDismiss: () -> Unit = {},
-    modifier: Modifier = Modifier,
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
     animationOverride: Boolean = false,
 ) {
     var visible by remember { mutableStateOf(animationOverride) }
@@ -87,7 +91,7 @@ fun ErrorBanner(
                 IconButton(onClick = onDismiss) {
                     Icon(
                         imageVector = Icons.Filled.Close,
-                        contentDescription = "Закрыть",
+                        contentDescription = "Close",
                         tint = Abyss.copy(alpha = 0.5f),
                         modifier = Modifier.size(18.dp),
                     )
@@ -101,9 +105,14 @@ fun ErrorBanner(
 @Composable
 private fun ErrorBannerPreview() {
     VolunteersCaseTheme {
-        ErrorBanner(
-            message = "Не удалось загрузить рейтинг. Проверьте подключение к интернету.",
-            animationOverride = true,
-        )
+        Box(
+            modifier = Modifier
+                .background(Milk)
+                .padding(16.dp)
+        ) {
+            ErrorBanner(
+                message = "Не удалось загрузить рейтинг. Проверьте подключение к интернету.",
+                animationOverride = true,
+            ) }
+        }
     }
-}

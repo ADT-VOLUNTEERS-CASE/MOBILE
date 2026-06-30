@@ -27,15 +27,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.navigation.NavHostController
 import org.adt.core.entities.UserRole
-import org.adt.presentation.components.CustomTextField
+import org.adt.presentation.R
+import org.adt.presentation.components.textfields.CustomTextField
 import org.adt.presentation.components.buttons.CustomButton
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
@@ -46,7 +47,7 @@ import org.adt.presentation.theme.VolunteersCaseTheme
 import org.adt.presentation.theme.VolunteersCaseTheme.typography
 
 @Composable
-fun AdminRegisterScreen(navController: NavHostController, viewModel: AdminRegisterViewModel) {
+fun AdminRegisterScreen(viewModel: AdminRegisterViewModel) {
     val uiState = viewModel.uiState.collectAsState().value
     val fieldsState = viewModel.fieldsState.collectAsState().value
 
@@ -68,7 +69,6 @@ fun AdminRegisterScreenContent(
     onStartButtonClickAction: () -> Unit = {},
     roleDialogToggleAction: () -> Unit = {},
     roleSelectedAction: (role: UserRole) -> Unit = {},
-    animationOverride: Boolean = false,
 ) {
     val context = LocalContext.current
 
@@ -96,7 +96,7 @@ fun AdminRegisterScreenContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "VOLUNTEERS",
+                    text = stringResource(R.string.app_name).uppercase(),
                     style = typography.displayLarge.copy(
                         color = Abyss.copy(alpha = 0.15f),
                         fontSize = 32.sp,
@@ -122,12 +122,15 @@ fun AdminRegisterScreenContent(
                     ) {
                         Text(
                             text = when (uiState.chosenRole) {
-                                UserRole.ADMIN -> "Администратор"
-                                UserRole.COORDINATOR -> "Координатор"
-                                UserRole.VOLUNTEER -> "Волонтер"
-                                UserRole.NONE -> "Выбрать роль"
+                                UserRole.ADMIN -> stringResource(R.string.role_admin)
+                                UserRole.COORDINATOR -> stringResource(R.string.role_coordinator)
+                                UserRole.VOLUNTEER -> stringResource(R.string.role_volunteer)
+                                UserRole.NONE -> stringResource(R.string.body_choose_role)
                             },
-                            style = typography.labelMedium.copy(color = Lagoon, fontWeight = FontWeight.Bold)
+                            style = typography.labelMedium.copy(
+                                color = Lagoon,
+                                fontWeight = FontWeight.Bold
+                            )
                         )
                     }
                 }
@@ -147,42 +150,42 @@ fun AdminRegisterScreenContent(
                 ) {
                     CustomTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        label = "Имя",
+                        label = stringResource(R.string.textfield_firstname),
                         value = fieldsState.firstName,
                         onValueChange = { updateFieldsAction.invoke(fieldsState.copy(firstName = it)) }
                     )
 
                     CustomTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        label = "Фамилия",
+                        label = stringResource(R.string.textfield_surname),
                         value = fieldsState.lastName,
                         onValueChange = { updateFieldsAction.invoke(fieldsState.copy(lastName = it)) }
                     )
 
                     CustomTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        label = "Отчество",
+                        label = stringResource(R.string.textfield_patronymic),
                         value = fieldsState.patronymic,
                         onValueChange = { updateFieldsAction.invoke(fieldsState.copy(patronymic = it)) }
                     )
 
                     CustomTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        label = "Телефон",
+                        label = stringResource(R.string.textfield_phone),
                         value = fieldsState.phoneNumber,
                         onValueChange = { updateFieldsAction.invoke(fieldsState.copy(phoneNumber = it)) }
                     )
 
                     CustomTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        label = "Почта",
+                        label = stringResource(R.string.textfield_email),
                         value = fieldsState.email,
                         onValueChange = { updateFieldsAction.invoke(fieldsState.copy(email = it)) }
                     )
 
                     CustomTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        label = "Пароль",
+                        label = stringResource(R.string.textfield_password),
                         value = fieldsState.password,
                         type = "password",
                         onValueChange = { updateFieldsAction.invoke(fieldsState.copy(password = it)) }
@@ -191,7 +194,7 @@ fun AdminRegisterScreenContent(
                     Spacer(Modifier.height(8.dp))
 
                     CustomButton(
-                        text = "Зарегистрировать",
+                        text = stringResource(R.string.button_register),
                         onClick = { onStartButtonClickAction.invoke() },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -214,7 +217,7 @@ fun AdminRegisterScreenContent(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
-                            text = "Выберите роль",
+                            text = stringResource(R.string.body_choose_role),
                             style = typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = Abyss,
@@ -238,9 +241,9 @@ fun AdminRegisterScreenContent(
                             ) {
                                 Text(
                                     text = when (userRole) {
-                                        UserRole.ADMIN -> "Администратор"
-                                        UserRole.COORDINATOR -> "Координатор"
-                                        else -> "Волонтер"
+                                        UserRole.ADMIN -> stringResource(R.string.role_admin)
+                                        UserRole.COORDINATOR -> stringResource(R.string.role_coordinator)
+                                        else -> stringResource(R.string.role_volunteer)
                                     },
                                     style = typography.titleMedium.copy(
                                         color = if (isChosen) Lagoon else Abyss,
@@ -260,6 +263,6 @@ fun AdminRegisterScreenContent(
 @Composable
 private fun AdminRegisterScreenContentPreview() {
     VolunteersCaseTheme {
-        AdminRegisterScreenContent(animationOverride = true)
+        AdminRegisterScreenContent()
     }
 }

@@ -36,6 +36,8 @@ import org.adt.presentation.screens.home.volunteer.rating.RatingScreen
 import org.adt.presentation.screens.home.volunteer.rating.RatingViewModel
 import org.adt.presentation.screens.home.volunteer.statistics.StatisticsScreen
 import org.adt.presentation.screens.home.volunteer.statistics.StatisticsViewModel
+import org.adt.presentation.screens.onboarding.OnboardingScreen
+import org.adt.presentation.screens.onboarding.OnboardingViewModel
 import org.adt.presentation.screens.register.RegisterScreen
 import org.adt.presentation.screens.register.RegisterViewModel
 import org.adt.presentation.screens.register.admin.AdminRegisterScreen
@@ -46,7 +48,7 @@ import org.adt.presentation.screens.splash.SplashViewModel
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
-    innerPadding: PaddingValues = PaddingValues()
+    @Suppress("UNUSED_PARAMETER") innerPadding: PaddingValues = PaddingValues()
 ) {
     NavHost(
         navController, startDestination = Destinations.Splash,
@@ -80,6 +82,11 @@ fun NavigationGraph(
             SplashScreen(navController, viewModel)
         }
 
+        composable<Destinations.Onboarding> {
+            val viewModel: OnboardingViewModel = hiltViewModel()
+            OnboardingScreen(navController, viewModel)
+        }
+
         composable<Destinations.Authenticate> {
             val viewModel: AuthenticateViewModel = hiltViewModel()
             AuthenticateScreen(navController, viewModel)
@@ -96,17 +103,17 @@ fun NavigationGraph(
 
         composable<Destinations.AdminRegister> {
             val viewModel: AdminRegisterViewModel = hiltViewModel()
-            AdminRegisterScreen(navController, viewModel)
+            AdminRegisterScreen(viewModel)
         }
 
         composable<Destinations.AdminSystemTools> {
             val viewModel: AdminSystemToolsViewModel = hiltViewModel()
-            AdminSystemToolsScreen(navController, viewModel)
+            AdminSystemToolsScreen(viewModel)
         }
 
         composable<Destinations.CoordinatorHome> {
             val viewModel: CoordinatorViewModel = hiltViewModel()
-            CoordinatorScreen(navController, viewModel)
+            CoordinatorScreen(viewModel)
         }
         composable<Destinations.CoordinatorReport> {
             val viewModel: ReportViewModel = hiltViewModel()

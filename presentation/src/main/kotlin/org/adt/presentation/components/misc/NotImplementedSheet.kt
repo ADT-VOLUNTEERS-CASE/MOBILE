@@ -67,14 +67,14 @@ fun NotImplementedSheet(
 
             Text(
                 text = "Ещё не готово",
-                style = MaterialTheme.typography.headlineSmall, //Todo: change to VolunteersTheme typography
+                style = VolunteersCaseTheme.typography.labelLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
 
             Text(
                 text = "Мы уже работаем над этой функцией.\nСледите за обновлениями!",
-                style = MaterialTheme.typography.bodyMedium, //Todo: change to VolunteersTheme typography
+                style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.Center,
                 color = Color.Gray
             )

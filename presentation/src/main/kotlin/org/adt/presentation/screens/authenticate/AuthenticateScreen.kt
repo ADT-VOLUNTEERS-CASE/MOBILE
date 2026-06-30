@@ -25,9 +25,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
@@ -38,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,9 +51,10 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.adt.presentation.BuildConfig
 import org.adt.presentation.R
-import org.adt.presentation.components.CustomTextField
-import org.adt.presentation.components.TypingText
-import org.adt.presentation.components.buttons.CustomTranslucentButton
+import org.adt.presentation.components.buttons.ButtonStyle
+import org.adt.presentation.components.buttons.CustomButton
+import org.adt.presentation.components.misc.TypingText
+import org.adt.presentation.components.textfields.CustomTextField
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.VolunteersCaseTheme
@@ -161,31 +165,31 @@ fun AuthenticateScreenContent(
 
                 Spacer(Modifier.height(38.dp))
 
-                TypingText(Modifier, "Добро пожаловать!", TextAlign.Center, 40L, 900)
+                TypingText(Modifier,
+                    stringResource(R.string.title_welcome), TextAlign.Center, 40L, 900)
 
                 Spacer(Modifier.height(42.dp))
 
                 CustomTextField(
                     Modifier,
-                    "Почта"
+                    stringResource(R.string.textfield_email)
                 ) { updateFieldsAction.invoke(fieldsState.copy(email = it)) }
 
                 Spacer(Modifier.height(15.dp))
 
                 CustomTextField(
                     Modifier,
-                    "Пароль",
+                    stringResource(R.string.textfield_password),
                     type = "password"
                 ) { updateFieldsAction.invoke(fieldsState.copy(password = it)) }
 
                 Spacer(Modifier.height(25.dp))
 
-                CustomTranslucentButton(
-                    "Продолжить",
-                    fieldsState.isFormValid,
-                    uiState.isLoading,
-                    continueAction
-                )
+                CustomButton( stringResource(R.string.button_continue),
+                    style = ButtonStyle.Translucent,
+                    enabled = fieldsState.isFormValid,
+                    isLoading = uiState.isLoading,
+                    ) { continueAction() }
 
                 Spacer(Modifier.height(15.dp))
 
@@ -194,29 +198,31 @@ fun AuthenticateScreenContent(
                     Arrangement.SpaceBetween,
                     Alignment.CenterVertically
                 ) {
-                    TextButton(
-                        navigateToRegisterAction,
-                        contentPadding = PaddingValues(2.dp)
-                    ) {
-                        Text(
-                            "Зарегистрироваться",
-                            style = VolunteersCaseTheme.typography.titleMedium.copy(
-                                Milk,
-                                fontWeight = FontWeight.Normal
+                    CompositionLocalProvider(LocalRippleConfiguration provides null) {
+                        TextButton(
+                            navigateToRegisterAction,
+                            contentPadding = PaddingValues(2.dp)
+                        ) {
+                            Text(
+                                stringResource(R.string.button_register),
+                                style = VolunteersCaseTheme.typography.titleMedium.copy(
+                                    Milk,
+                                    fontWeight = FontWeight.Normal
+                                )
                             )
-                        )
-                    }
-                    TextButton(
-                        { },
-                        contentPadding = PaddingValues(2.dp)
-                    ) {
-                        Text(
-                            "Забыли пароль?",
-                            style = VolunteersCaseTheme.typography.titleMedium.copy(
-                                Milk,
-                                fontWeight = FontWeight.Normal
+                        }
+                        TextButton(
+                            { },
+                            contentPadding = PaddingValues(2.dp)
+                        ) {
+                            Text(
+                                stringResource(R.string.button_forgot_password),
+                                style = VolunteersCaseTheme.typography.titleMedium.copy(
+                                    Milk,
+                                    fontWeight = FontWeight.Normal
+                                )
                             )
-                        )
+                        }
                     }
                 }
 

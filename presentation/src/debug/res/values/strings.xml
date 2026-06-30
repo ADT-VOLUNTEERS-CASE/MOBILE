@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_debug_login">Отладочный вход</string>
+    <string name="body_warning">Внимание! Данные всё ещё привязаны к тестовому серверу и не являются локальной копией! \n\nПри отсутствии соединения с сервером, проверить работоспособность приложения не получится! \n\nMock-шаблоны, к сожалению, пока не поддерживаются. \n\nПриносим извинения за доставленные неудобства.</string>
+    <string name="label_choose_profile">Выберите профиль для быстрой авторизации:</string>
+    <string name="button_volunteer">Войти как Волонтёр</string>
+    <string name="button_coordinator">Войти как Координатор</string>
+    <string name="button_admin">Войти как Администратор</string>
+    <string name="button_back">Назад</string>
+</resources>

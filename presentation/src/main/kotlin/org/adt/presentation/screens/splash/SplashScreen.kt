@@ -17,6 +17,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -29,11 +30,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.adt.presentation.R
-import org.adt.presentation.components.TypingText
+import org.adt.presentation.components.misc.TypingText
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.theme.Arctic
+import org.adt.presentation.theme.NobleSapphireGradient
 import org.adt.presentation.theme.VolunteersCaseTheme
-import org.adt.presentation.theme.extendedColor
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun SplashScreen(
@@ -75,7 +77,7 @@ fun SplashContent(
             }
         }
 
-        delay(1800)
+        delay(1800.milliseconds)
 
         coroutineScope {
             launch {
@@ -86,7 +88,7 @@ fun SplashContent(
             }
         }
 
-        delay(200)
+        delay(200.milliseconds)
 
         pingAction.invoke()
 
@@ -98,7 +100,7 @@ fun SplashContent(
     Box(
         Modifier
             .fillMaxSize()
-            .background(extendedColor.primaryBackground),
+            .background(NobleSapphireGradient),
         contentAlignment = Alignment.Center
     ) {
         Box(
@@ -118,7 +120,7 @@ fun SplashContent(
                 .padding(horizontal = 40.dp), contentAlignment = Alignment.Center) {
             TypingText(
                 modifier = Modifier,
-                text = "Твоё следующее доброе дело ждёт своего момента",
+                text = stringResource(R.string.slogan),
                 align = TextAlign.Center,
                 charDelay = if (!animationOverride) 40L else 0L,
                 animationOverride = animationOverride

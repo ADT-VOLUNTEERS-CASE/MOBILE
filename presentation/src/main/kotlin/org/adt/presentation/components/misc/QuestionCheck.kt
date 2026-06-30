@@ -1,9 +1,12 @@
-package org.adt.presentation.components
+package org.adt.presentation.components.misc
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
@@ -21,9 +24,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Lagoon
+import org.adt.presentation.theme.Milk
 import org.adt.presentation.theme.Silver
 import org.adt.presentation.theme.VolunteersCaseTheme
 
+/**
+ * Interactive legal agreement row component with inline web hyperlinks
+ *
+ * Combines a multi-styled annotated single text block with a customized Material 3 Checkbox.
+ * Prevents horizontal layout overflow by safely wrapping long legal policy strings across lines.
+ *
+ * @param modifier modifier used for managing structural sizes, constraints, and external padding
+ * @param text primary descriptive string token preceding the hyperlink target
+ * @param textLink interactive hyperlinked text portion styled with brand accent tints
+ * @param checked boolean flag mapping the active selection state of the trailing checkbox node
+ * @param onChecked action lambda triggered when the selection state changes
+ * @param onLinkClick navigation callback executed when the interactive text link is pressed
+ *
+ * @sample [CustomQuestionCheckComponentPreview]
+ */
 @Composable
 fun CustomQuestionCheckComponent(
     modifier: Modifier = Modifier,
@@ -67,12 +86,20 @@ fun CustomQuestionCheckComponent(
 private fun CustomQuestionCheckComponentPreview() {
     var checked by remember { mutableStateOf(false) }
 
-    CustomQuestionCheckComponent(
-        Modifier,
-        "я ознакомился с ",
-        "политикой конфиденциальности",
-        checked,
-        {},
-        {}
-    )
+    VolunteersCaseTheme {
+        Box(
+            modifier = Modifier
+                .background(Milk)
+                .padding(16.dp)
+        ) {
+            CustomQuestionCheckComponent(
+                Modifier,
+                "я ознакомился с ",
+                "политикой конфиденциальности",
+                checked,
+                {},
+                {}
+            )
+        }
+    }
 }
