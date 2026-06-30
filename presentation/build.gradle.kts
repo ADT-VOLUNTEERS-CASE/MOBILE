@@ -152,7 +152,6 @@ kotlin {
 
 dependencies {
     implementation(project("::domain"))
-    implementation(project("::data")) // TODO: MIGRATE TO DOMAIN
     implementation(project("::core"))
     implementation(project("::storage"))
     implementation(libs.androidx.compose.ui.geometry)
@@ -173,7 +172,6 @@ dependencies {
     testImplementation(libs.roborazzi.compose.preview.scanner.support)
     testImplementation(libs.robolectric)
     testImplementation(libs.android)
-    testImplementation(libs.androidx.compose.ui.test.junit4)
 
     testImplementation(libs.roborazzi)
     testImplementation(libs.roborazzi.compose)

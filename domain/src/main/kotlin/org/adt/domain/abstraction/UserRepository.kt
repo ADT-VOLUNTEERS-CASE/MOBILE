@@ -9,6 +9,8 @@ import org.adt.core.entities.response.UserResponse
 import org.adt.core.entities.user.statistics.UserStatistics
 
 interface UserRepository {
+    suspend fun saveRole(role: UserRole)
+
     suspend fun getCurrentUserRole(): Flow<UserRole>
 
     suspend fun ping(): GeneralResponse<String>

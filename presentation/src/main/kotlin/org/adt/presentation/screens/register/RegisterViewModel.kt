@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.adt.core.entities.UserRole
-import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.usecase.user.GetCurrentUserRoleUseCase
+import org.adt.domain.usecase.user.SaveUserRoleUseCase
 import org.adt.domain.usecase.user.RegisterUseCase
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.utils.LocalizationManager.message
@@ -26,7 +26,7 @@ import javax.inject.Inject
 class RegisterViewModel @Inject constructor(
     private val registerUseCase: RegisterUseCase,
     private val getCurrentUserRoleUseCase: GetCurrentUserRoleUseCase,
-    private val _persistenceRepository: PersistenceRepository
+    private val saveUserRoleUseCase: SaveUserRoleUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RegisterState())
@@ -73,7 +73,7 @@ class RegisterViewModel @Inject constructor(
             }
 
             val role = getCurrentUserRoleUseCase().first()
-            _persistenceRepository.saveRole(role)
+            saveUserRoleUseCase(role)
             val destination = Destinations.mapRole(role)
 
             withContext(Dispatchers.Main) {
