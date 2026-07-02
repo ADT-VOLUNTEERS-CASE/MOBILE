@@ -315,7 +315,7 @@ fun CoordinatorScreenContent(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-    ) {
+    ) { paddingValues ->
         HorizontalPager(
             state = pagerState,
             modifier = Modifier

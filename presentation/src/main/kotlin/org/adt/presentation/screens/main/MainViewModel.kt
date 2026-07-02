@@ -11,15 +11,15 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.adt.core.entities.UserRole
-import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.usecase.user.GetCurrentUserRoleUseCase
+import org.adt.domain.usecase.user.GetRoleFlowUseCase
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val getCurrentUserRoleUseCase: GetCurrentUserRoleUseCase,
-    private val _persistenceRepository: PersistenceRepository
+    private val getRoleFlowUseCase: GetRoleFlowUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -30,7 +30,7 @@ class MainViewModel @Inject constructor(
         loadRole()
     }
 
-    val role = _persistenceRepository.roleFlow
+    val role = getRoleFlowUseCase()
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),

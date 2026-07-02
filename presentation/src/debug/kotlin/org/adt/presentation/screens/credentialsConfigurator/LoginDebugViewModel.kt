@@ -7,14 +7,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
 import org.adt.core.entities.UserRole
-import org.adt.data.abstraction.PersistenceRepository
+import org.adt.domain.usecase.user.SaveUserRoleUseCase
 import org.adt.domain.usecase.user.AuthenticateUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginDebugViewModel @Inject constructor(
     private val authenticateUseCase: AuthenticateUseCase,
-    private val _persistenceRepository: PersistenceRepository,
+    private val saveUserRoleUseCase: SaveUserRoleUseCase,
 ) : ViewModel() {
     fun loginAs(role: UserRole, onSuccessfulNavigate: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -23,7 +23,7 @@ class LoginDebugViewModel @Inject constructor(
             val result = authenticateUseCase(credentials.first, credentials.second)
 
             if (result.isSuccessful) {
-                _persistenceRepository.saveRole(role)
+                saveUserRoleUseCase(role)
                 Dispatchers.Main {
                     onSuccessfulNavigate.invoke()
                 }

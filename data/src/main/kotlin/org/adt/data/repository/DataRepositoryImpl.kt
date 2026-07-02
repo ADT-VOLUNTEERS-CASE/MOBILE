@@ -40,7 +40,6 @@ import org.adt.core.entities.response.UserResponse
 import org.adt.core.entities.user.statistics.UserStatistics
 import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.abstraction.DataRepository
-import org.adt.domain.abstraction.UserRepository
 import java.io.File
 import javax.inject.Inject
 
@@ -124,6 +123,14 @@ class DataRepositoryImpl @Inject constructor(
 
     override suspend fun saveRole(role: UserRole) {
         persistenceRepository.saveRole(role)
+    }
+
+    override val roleFlow: Flow<UserRole> = persistenceRepository.roleFlow
+
+    override val onboardingCompletedFlow: Flow<Boolean> = persistenceRepository.onboardingCompletedFlow
+
+    override suspend fun saveOnboardingCompleted() {
+        persistenceRepository.saveOnboardingCompleted()
     }
 
     override suspend fun register(

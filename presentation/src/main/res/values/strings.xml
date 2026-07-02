@@ -140,4 +140,7 @@
     <string name="role_admin">Администратор</string>
 
     <string name="father">Лимасов Андрей</string>
+    <string name="button_volunteer">Войти как Волонтёр</string>
+    <string name="button_coordinator">Войти как Координатор</string>
+    <string name="button_admin">Войти как Администратор</string>
 </resources>

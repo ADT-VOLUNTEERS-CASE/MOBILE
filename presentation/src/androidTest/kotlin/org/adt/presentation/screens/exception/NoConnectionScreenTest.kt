@@ -38,7 +38,7 @@ class NoConnectionScreenTest {
             VolunteersCaseTheme { NoConnectionScreenContent(onClick = {}) }
         }
 
-        composeTestRule.onNodeWithText("Обновить!").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Обновить").assertIsDisplayed()
     }
 
     @Test
@@ -47,7 +47,7 @@ class NoConnectionScreenTest {
             VolunteersCaseTheme { NoConnectionScreenContent(onClick = {}) }
         }
 
-        composeTestRule.onNodeWithText("Обновить!")
+        composeTestRule.onNodeWithText("Обновить")
             .assertIsDisplayed()
             .performClick()
     }

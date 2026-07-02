@@ -27,7 +27,7 @@ class AdminRegisterScreenTest {
     @Test
     fun adminRegisterScreen_displaysAllInputFields() {
         composeTestRule.setContent {
-            VolunteersCaseTheme { AdminRegisterScreenContent(uiState = AdminRegisterState(), animationOverride = true) }
+            VolunteersCaseTheme { AdminRegisterScreenContent(uiState = AdminRegisterState()) }
         }
 
         composeTestRule.onNodeWithText("Имя").assertIsDisplayed()
@@ -41,7 +41,7 @@ class AdminRegisterScreenTest {
     @Test
     fun adminRegisterScreen_acceptsFirstNameInput() {
         composeTestRule.setContent {
-            VolunteersCaseTheme { AdminRegisterScreenContent(uiState = AdminRegisterState(), animationOverride = true) }
+            VolunteersCaseTheme { AdminRegisterScreenContent(uiState = AdminRegisterState()) }
         }
 
         composeTestRule.onNodeWithText("Имя").performTextInput("Алексей")
@@ -50,7 +50,7 @@ class AdminRegisterScreenTest {
     @Test
     fun adminRegisterScreen_displaysRoleSelector() {
         composeTestRule.setContent {
-            VolunteersCaseTheme { AdminRegisterScreenContent(uiState = AdminRegisterState(), animationOverride = true) }
+            VolunteersCaseTheme { AdminRegisterScreenContent(uiState = AdminRegisterState()) }
         }
 
         composeTestRule.onNodeWithText("Выбрать роль").assertIsDisplayed()
@@ -59,9 +59,9 @@ class AdminRegisterScreenTest {
     @Test
     fun adminRegisterScreen_displaysSubmitButton() {
         composeTestRule.setContent {
-            VolunteersCaseTheme { AdminRegisterScreenContent(uiState = AdminRegisterState(), animationOverride = true) }
+            VolunteersCaseTheme { AdminRegisterScreenContent(uiState = AdminRegisterState()) }
         }
 
-        composeTestRule.onNodeWithText("Зарегистрировать").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Зарегистрироваться").assertIsDisplayed()
     }
 }

@@ -64,7 +64,7 @@ class AdminSystemToolsScreenTest {
 
         composeTestRule.onNodeWithText("Создать").assertIsDisplayed()
         composeTestRule.onNodeWithText("Получить ID").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Удалить этот тег").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Удалить тег").assertIsDisplayed()
     }
 
     @Test

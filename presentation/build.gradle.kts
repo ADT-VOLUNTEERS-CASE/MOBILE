@@ -152,6 +152,7 @@ kotlin {
 
 dependencies {
     implementation(project("::domain"))
+    implementation(project("::data"))
     implementation(project("::core"))
     implementation(project("::storage"))
     implementation(libs.androidx.compose.ui.geometry)

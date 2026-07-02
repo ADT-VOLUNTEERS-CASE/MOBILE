@@ -61,7 +61,7 @@ class AdminDashboardScreenTest {
             }
         }
 
-        composeTestRule.onNodeWithText("За месяц").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Месяц").assertIsDisplayed()
     }
 
     @Test

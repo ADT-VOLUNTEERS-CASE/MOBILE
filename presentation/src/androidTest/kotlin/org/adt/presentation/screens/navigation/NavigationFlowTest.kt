@@ -1,13 +1,11 @@
 package org.adt.presentation.screens.navigation
 
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import org.adt.presentation.BaseInstrumentedTest
 import dagger.hilt.android.testing.HiltAndroidTest
-import org.junit.Before
 import org.junit.Test
 
 /**
@@ -17,34 +15,10 @@ import org.junit.Test
 @HiltAndroidTest
 class NavigationFlowTest : BaseInstrumentedTest() {
 
-    @Before
-    override fun setup() {
-        super.setup()
-        composeTestRule.mainClock.autoAdvance = false
-    }
-
-    private fun advanceTimeBy(millis: Long) {
-        composeTestRule.mainClock.advanceTimeBy(millis, ignoreFrameDuration = true)
-    }
-
     private fun waitForText(text: String, timeoutMillis: Long = 30000) {
-        val endTime = System.currentTimeMillis() + timeoutMillis
-        while (System.currentTimeMillis() < endTime) {
-            advanceTimeBy(1000)
-            if (composeTestRule.onAllNodesWithText(text, ignoreCase = true).fetchSemanticsNodes().isNotEmpty()) {
-                return
-            }
+        composeTestRule.waitUntil(timeoutMillis = timeoutMillis) {
+            composeTestRule.onAllNodesWithText(text, ignoreCase = true).fetchSemanticsNodes().isNotEmpty()
         }
-        throw AssertionError("Text '$text' not found within ${timeoutMillis}ms")
-    }
-
-    private fun navigateToDebugLogin() {
-        waitForText("ДОБРО ПОЖАЛОВАТЬ!")
-
-        composeTestRule.onNodeWithContentDescription("OpenDebugPanel")
-            .assertIsDisplayed()
-            .performClick()
-        composeTestRule.waitForIdle()
     }
 
     @Test
@@ -54,34 +28,31 @@ class NavigationFlowTest : BaseInstrumentedTest() {
 
     @Test
     fun debugLogin_navigatesToVolunteerHome() {
-        navigateToDebugLogin()
-
-        composeTestRule.onNodeWithText("Войти как Волонтёр")
-            .assertIsDisplayed()
-            .performClick()
-
+        waitForText("ДОБРО ПОЖАЛОВАТЬ!")
+        composeTestRule.onNodeWithContentDescription("OpenDebugPanel").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Войти как Волонтёр", ignoreCase = true).performClick()
+        composeTestRule.waitForIdle()
         waitForText("Каталог мероприятий")
     }
 
     @Test
     fun debugLogin_navigatesToCoordinatorHome() {
-        navigateToDebugLogin()
-
-        composeTestRule.onNodeWithText("Войти как Координатор")
-            .assertIsDisplayed()
-            .performClick()
-
+        waitForText("ДОБРО ПОЖАЛОВАТЬ!")
+        composeTestRule.onNodeWithContentDescription("OpenDebugPanel").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Войти как Координатор", ignoreCase = true).performClick()
+        composeTestRule.waitForIdle()
         waitForText("Создание")
     }
 
     @Test
     fun debugLogin_navigatesToAdminDashboard() {
-        navigateToDebugLogin()
-
-        composeTestRule.onNodeWithText("Войти как Администратор")
-            .assertIsDisplayed()
-            .performClick()
-
+        waitForText("ДОБРО ПОЖАЛОВАТЬ!")
+        composeTestRule.onNodeWithContentDescription("OpenDebugPanel").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Войти как Администратор", ignoreCase = true).performClick()
+        composeTestRule.waitForIdle()
         waitForText("Панель администратора")
     }
 }

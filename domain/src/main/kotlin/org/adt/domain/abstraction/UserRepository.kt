@@ -11,6 +11,12 @@ import org.adt.core.entities.user.statistics.UserStatistics
 interface UserRepository {
     suspend fun saveRole(role: UserRole)
 
+    val roleFlow: Flow<UserRole>
+
+    val onboardingCompletedFlow: Flow<Boolean>
+
+    suspend fun saveOnboardingCompleted()
+
     suspend fun getCurrentUserRole(): Flow<UserRole>
 
     suspend fun ping(): GeneralResponse<String>
