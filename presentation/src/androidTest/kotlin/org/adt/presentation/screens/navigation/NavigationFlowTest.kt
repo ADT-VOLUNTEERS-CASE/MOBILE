@@ -53,6 +53,6 @@ class NavigationFlowTest : BaseInstrumentedTest() {
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("Войти как Администратор", ignoreCase = true).performClick()
         composeTestRule.waitForIdle()
-        waitForText("Панель администратора")
+        waitForText("Панель управления")
     }
 }
