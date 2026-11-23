@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -35,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -60,6 +62,7 @@ import org.adt.presentation.components.textfields.CustomSearchTextField
 import org.adt.presentation.components.bars.VolunteerSyncedTopNavigationBar
 import org.adt.presentation.components.cards.CharityEventCard
 import org.adt.presentation.components.misc.NotImplementedSheet
+import org.adt.presentation.components.misc.SyncedScrollState
 import org.adt.presentation.components.misc.rememberSyncedScrollState
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.screens.home.volunteer.search.SearchOverlay
@@ -101,7 +104,6 @@ fun VolunteerScreen(
         searchFieldOnFocusAction = { it: FocusState -> viewModel.setSearchModeValue(it.isFocused) },
         onResetFilterAction = { viewModel.resetLocationFilter(returnToSearch = true) },
         onSettingsNavigateAction = { navController.navigate(Destinations.VolunteerProfile) },
-        isParticipatingRecommendationEvaluateAction = viewModel::isParticipatingRecommendationEvaluate
     )
 }
 
@@ -120,14 +122,31 @@ fun VolunteerScreenContent(
     onResetFilterAction: () -> Unit = {},
     searchFieldOnFocusAction: (FocusState) -> Unit = {},
     onSettingsNavigateAction: () -> Unit = {},
-    isParticipatingRecommendationEvaluateAction: (Event) -> Boolean = { true },
 ) {
     var showWIPSheet by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val syncedScrollState = rememberSyncedScrollState()
     var isFilterChipSelected by rememberSaveable { mutableStateOf(false) }
+    var selectedPage by rememberSaveable { mutableIntStateOf(0) }
+    val gridState = rememberLazyGridState()
     val visibleEvents = if (isFilterChipSelected) uiState.filteredEventsByUserList else uiState.eventsList
+    val pageCount = catalogPageCount(visibleEvents.size)
+    val currentPage = selectedPage.coerceIn(0, (pageCount - 1).coerceAtLeast(0))
+    val pageBounds = catalogPageBounds(visibleEvents.size, currentPage)
+    val pageEvents = remember(visibleEvents, pageBounds) {
+        visibleEvents.subList(pageBounds.first, pageBounds.last + 1)
+    }
+
+    fun selectPage(page: Int) {
+        if (page == selectedPage) return
+        selectedPage = page
+        gridState.requestScrollToItem(0)
+    }
+
+    LaunchedEffect(pageCount) {
+        if (pageCount > 0 && selectedPage >= pageCount) selectPage(pageCount - 1)
+    }
 
     LaunchedEffect(uiState.eventError) {
         uiState.eventError?.let { error ->
@@ -142,19 +161,13 @@ fun VolunteerScreenContent(
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column {
-            CustomSearchTextField(
-                Modifier.padding(
-                    top = (35 * syncedScrollState.scaleFactor).dp, start = 16.dp, end = 16.dp
-                ),
-                label = stringResource(R.string.textfield_search_keywords),
+            CatalogSearchField(
+                scrollState = syncedScrollState,
                 value = uiState.searchValue,
-                verticalScale = syncedScrollState.scaleFactor,
                 onValueChange = searchFieldValueChangedAction,
-                onConfirm = searchFieldOnConfirmAction,
-                onFocused = searchFieldOnFocusAction,
+                onSearch = searchFieldOnConfirmAction,
+                onFocus = searchFieldOnFocusAction,
             )
-
-            Spacer(modifier = Modifier.height((15 * syncedScrollState.scaleFactor).dp))
 
             Scaffold(
                 modifier = Modifier
@@ -192,6 +205,7 @@ fun VolunteerScreenContent(
                 ) {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
+                        state = gridState,
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -222,7 +236,11 @@ fun VolunteerScreenContent(
                                             )
                                         )
                                     },
-                                    onClick = { isFilterChipSelected = !isFilterChipSelected },
+                                    onClick = {
+                                        isFilterChipSelected = !isFilterChipSelected
+                                        selectedPage = 0
+                                        gridState.requestScrollToItem(0)
+                                    },
                                     trailingIcon = {
                                         if (isFilterChipSelected) {
                                             Icon(
@@ -237,7 +255,7 @@ fun VolunteerScreenContent(
                             }
                         }
 
-                        if (isRefreshing && visibleEvents.isEmpty()) {
+                        if (isRefreshing && pageEvents.isEmpty()) {
                             item(span = { GridItemSpan(maxLineSpan) }) {
                                 Box(
                                     Modifier
@@ -248,14 +266,33 @@ fun VolunteerScreenContent(
                                     CircularProgressIndicator(color = Mint)
                                 }
                             }
+                        } else if (pageEvents.isEmpty()) {
+                            item(span = { GridItemSpan(maxLineSpan) }) {
+                                Text(
+                                    text = stringResource(R.string.label_empty),
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                                    textAlign = TextAlign.Center,
+                                    style = VolunteersCaseTheme.typography.titleMedium,
+                                )
+                            }
                         } else {
-                            items(visibleEvents, key = { it.eventId }) { event ->
+                            items(pageEvents, key = { it.eventId }, contentType = { "event" }) { event ->
                                 CharityEventCard(
                                     event = event,
                                     onClick = { eventPickerAction(event) },
-                                    isParticipating = isParticipatingRecommendationEvaluateAction.invoke(
-                                        event
-                                    )
+                                    isParticipating = event.eventId in uiState.registeredEventIds,
+                                )
+                            }
+                        }
+
+                        if (pageCount > 1) {
+                            item(key = "catalog-pager", span = { GridItemSpan(maxLineSpan) }) {
+                                CatalogPager(
+                                    currentPage = currentPage,
+                                    pageCount = pageCount,
+                                    eventCount = visibleEvents.size,
+                                    pageBounds = pageBounds,
+                                    onPageSelected = ::selectPage,
                                 )
                             }
                         }
@@ -284,13 +321,35 @@ fun VolunteerScreenContent(
     }
 }
 
+@Composable
+private fun CatalogSearchField(
+    scrollState: SyncedScrollState,
+    value: String,
+    onValueChange: (String) -> Unit,
+    onSearch: (String) -> Unit,
+    onFocus: (FocusState) -> Unit,
+) {
+    val scale = scrollState.scaleFactor
+    CustomSearchTextField(
+        modifier = Modifier.padding(top = (35 * scale).dp, start = 16.dp, end = 16.dp),
+        label = stringResource(R.string.textfield_search_keywords),
+        value = value,
+        verticalScale = scale,
+        onValueChange = onValueChange,
+        onConfirm = onSearch,
+        onFocused = onFocus,
+    )
+    Spacer(modifier = Modifier.height((15 * scale).dp))
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun VolunteerScreenPreview() {
     VolunteersCaseTheme {
         VolunteerScreenContent(
             uiState = VolunteerState(
-                eventsList = listOf(Event(eventId = 1), Event(eventId = 2))
+                eventsList = listOf(Event(eventId = 1), Event(eventId = 2)),
+                registeredEventIds = setOf(1L),
             ),
             searchModeChangedAction = {}
         )

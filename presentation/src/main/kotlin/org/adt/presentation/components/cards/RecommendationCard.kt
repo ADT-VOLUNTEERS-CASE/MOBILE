@@ -36,7 +36,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import org.adt.core.entities.event.Event
 import org.adt.core.entities.event.EventLocation
 import org.adt.presentation.R
@@ -84,11 +83,9 @@ fun RecommendationCard(
                     contentDescription = null
                 )
             } else {
-                AsyncImage(
-                    model = event.cover?.link,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = imageModifier
+                EventCoverImage(
+                    cover = event.cover,
+                    modifier = imageModifier,
                 )
             }
 

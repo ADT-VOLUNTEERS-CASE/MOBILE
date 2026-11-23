@@ -29,18 +29,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import org.adt.core.entities.EventStatus
 import org.adt.core.entities.event.Cover
 import org.adt.core.entities.event.Event
@@ -65,6 +65,10 @@ fun CharityEventCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val locales = LocalConfiguration.current.locales
+    val (date, time) = remember(event.dateTimestamp, locales) {
+        event.localizedDate to event.localizedDateTime
+    }
     val statusColor = when (event.status) {
         EventStatus.ONGOING -> Color(0xFFFFB300)
         EventStatus.IN_PROGRESS -> Color(0xFF4FC3F7)
@@ -83,7 +87,7 @@ fun CharityEventCard(
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        onClick = { onClick() }
+        onClick = onClick,
     ) {
         Column {
             Box(
@@ -91,13 +95,12 @@ fun CharityEventCard(
                     .fillMaxWidth()
                     .aspectRatio(1f)
             ) {
-                AsyncImage(
-                    model = event.cover?.link,
-                    contentDescription = null,
+                EventCoverImage(
+                    cover = event.cover,
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)),
-                    contentScale = ContentScale.Crop
+                    catalogThumbnail = true,
                 )
 
                 if (isParticipating) {
@@ -167,14 +170,14 @@ fun CharityEventCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = event.localizedDate,
+                        text = date,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.ExtraBold,
                         color = Color.Black,
                         maxLines = 1
                     )
                     Text(
-                        text = event.localizedDateTime,
+                        text = time,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium,
                         color = Color.Gray,

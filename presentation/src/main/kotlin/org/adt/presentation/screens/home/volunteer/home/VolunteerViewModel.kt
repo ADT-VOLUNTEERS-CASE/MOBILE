@@ -154,10 +154,6 @@ class VolunteerViewModel @Inject constructor(
         _uiState.update { it.copy(eventError = null) }
     }
 
-    fun isParticipatingRecommendationEvaluate(event: Event): Boolean {
-        return uiState.value.registeredEventIds.contains(event.eventId)
-    }
-
     private fun populateFailure(
         displayMessage: String = "",
         logMessage: String,
