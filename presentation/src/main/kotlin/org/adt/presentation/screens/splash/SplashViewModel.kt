@@ -5,57 +5,47 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.adt.core.entities.UserRole
-import org.adt.domain.usecase.user.AuthorizedUseCase
 import org.adt.domain.usecase.user.GetCurrentUserRoleUseCase
 import org.adt.domain.usecase.user.PingUseCase
 import org.adt.presentation.navigation.Destinations
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 //TODO: Use `Logger` for.. Logging!
 class SplashViewModel @Inject constructor(
     private val pingUseCase: PingUseCase,
-    private val authorizedUseCase: AuthorizedUseCase,
     private val getCurrentUserRoleUseCase: GetCurrentUserRoleUseCase,
 ) : ViewModel() {
-    private val _authorized =
-        MutableStateFlow(false) // TODO: Kept for future development..? No reason for StateFlow now.
-
     fun ping() {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = pingUseCase()
-
-            if (!result.isSuccessful) {
-                Log.e("SplashViewModel::Ping", "Ping failed")
-                return@launch
+            try {
+                val result = pingUseCase()
+                if (result.isSuccessful) Log.i("SplashViewModel::Ping", result.data())
+                else Log.e("SplashViewModel::Ping", "Ping failed")
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w("SplashViewModel::Ping", "Ping failed", e)
             }
-
-            Log.i("SplashViewModel::Ping", result.data())
         }
     }
 
-    //TODO: Rewrite
-    suspend fun getDestination(): Destinations {
-        var userRole = UserRole.NONE
-
-        val isAuthorized = authorizedUseCase()
-
-        _authorized.update { isAuthorized }
-
-        if (!isAuthorized) {
-            return withContext(Dispatchers.Main) { Destinations.mapRole(userRole) }
+    suspend fun getDestination(): Destinations = withContext(Dispatchers.IO) {
+        val role = try {
+            getCurrentUserRoleUseCase().first()
+        } catch (e: CancellationException) {
+            ensureActive()
+            UserRole.NONE
+        } catch (e: Exception) {
+            Log.w("SplashViewModel::Role", "Failed to load current user", e)
+            UserRole.NONE
         }
-
-        userRole = getCurrentUserRoleUseCase().first()
-
-        Log.d("SplashViewModel::Role", userRole.toString())
-
-        return withContext(Dispatchers.Main) { Destinations.mapRole(userRole) }
+        Destinations.mapRole(role)
     }
 }

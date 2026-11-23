@@ -1,5 +1,6 @@
 package org.adt.presentation.screens.credentialsConfigurator
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hasRoute
 import org.adt.core.entities.UserRole
 import org.adt.presentation.R
 import org.adt.presentation.components.buttons.ButtonStyle
@@ -36,20 +40,28 @@ import org.adt.presentation.theme.VolunteersCaseTheme
 @Composable
 fun LoginDebugScreen(navController: NavController) {
     val viewModel = hiltViewModel<LoginDebugViewModel>()
+    val state by viewModel.state.collectAsState()
+    BackHandler(enabled = state.loadingRole != null) {}
 
-    LoginDebugScreenContent(onLoginAction = {
-        viewModel.loginAs(it) {
-            navController.navigate(Destinations.mapRole(it)) {
-                popUpTo(navController.graph.id) { inclusive = true }
+    LoginDebugScreenContent(
+        state = state,
+        onLoginAction = { role ->
+            viewModel.loginAs(role) { serverRole ->
+                if (navController.currentDestination?.hasRoute<Destinations.LoginDebugScreen>() == true) {
+                    navController.navigate(Destinations.mapRole(serverRole)) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
             }
-        }
-    }, onBackNavigateAction = {
-        navController.popBackStack()
-    })
+        },
+        onBackNavigateAction = { navController.popBackStack() },
+    )
 }
 
 @Composable
-fun LoginDebugScreenContent(
+internal fun LoginDebugScreenContent(
+    state: DebugLoginState = DebugLoginState(),
     onLoginAction: (role: UserRole) -> Unit = {}, onBackNavigateAction: () -> Unit = {}
 ) {
     Column(
@@ -112,23 +124,41 @@ fun LoginDebugScreenContent(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        CustomButton(text = stringResource(R.string.button_volunteer)) { onLoginAction.invoke(UserRole.VOLUNTEER) }
+        state.error?.let {
+            Text(text = it, color = Color(0xFFAD2525), modifier = Modifier.padding(bottom = 12.dp))
+        }
+
+        CustomButton(
+            text = stringResource(R.string.button_volunteer),
+            enabled = state.loadingRole == null,
+            isLoading = state.loadingRole == UserRole.VOLUNTEER,
+        ) { onLoginAction(UserRole.VOLUNTEER) }
         DebugLoginCredentials(UserRole.VOLUNTEER)
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        CustomButton(text = stringResource(R.string.button_coordinator)) { onLoginAction.invoke(UserRole.COORDINATOR) }
+        CustomButton(
+            text = stringResource(R.string.button_coordinator),
+            enabled = state.loadingRole == null,
+            isLoading = state.loadingRole == UserRole.COORDINATOR,
+        ) { onLoginAction(UserRole.COORDINATOR) }
         DebugLoginCredentials(UserRole.COORDINATOR)
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        CustomButton(text = stringResource(R.string.button_admin)) { onLoginAction.invoke(UserRole.ADMIN) }
+        CustomButton(
+            text = stringResource(R.string.button_admin),
+            enabled = state.loadingRole == null,
+            isLoading = state.loadingRole == UserRole.ADMIN,
+        ) { onLoginAction(UserRole.ADMIN) }
         DebugLoginCredentials(UserRole.ADMIN)
 
         Spacer(modifier = Modifier.height(24.dp))
 
         CustomButton(
-            text =  stringResource(R.string.button_back), style = ButtonStyle.Outlined
+            text = stringResource(R.string.button_back),
+            style = ButtonStyle.Outlined,
+            enabled = state.loadingRole == null,
         ) {
             onBackNavigateAction.invoke()
         }

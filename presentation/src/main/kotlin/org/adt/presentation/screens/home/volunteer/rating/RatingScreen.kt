@@ -38,6 +38,7 @@ import org.adt.presentation.components.rating.ErrorBanner
 import org.adt.presentation.components.rating.PeriodSwitch
 import org.adt.presentation.components.rating.PodiumRow
 import org.adt.presentation.components.rating.RankingCard
+import org.adt.presentation.components.rating.toRatingParticipant
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
 import org.adt.presentation.theme.Mint
@@ -140,7 +141,7 @@ fun RatingScreenContent(
                 item { Spacer(Modifier.height(4.dp)) }
 
                 if (state.entries.isNotEmpty()) {
-                    item { PodiumRow(state.entries) }
+                    item { PodiumRow(state.entries.take(3).map { it.toRatingParticipant() }) }
                 }
 
                 item { Spacer(Modifier.height(8.dp)) }
@@ -172,7 +173,7 @@ fun RatingScreenContent(
                         key = { _, entry -> entry.userId },
                     ) { idx, entry ->
                         RankingCard(
-                            entry = entry,
+                            entry = entry.toRatingParticipant(),
                             rank = startFrom + idx + 1,
                             index = idx,
                         )

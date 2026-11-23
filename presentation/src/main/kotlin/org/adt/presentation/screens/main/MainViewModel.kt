@@ -3,53 +3,15 @@ package org.adt.presentation.screens.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import org.adt.core.entities.UserRole
-import org.adt.domain.usecase.user.GetCurrentUserRoleUseCase
 import org.adt.domain.usecase.user.GetRoleFlowUseCase
 import javax.inject.Inject
-import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val getCurrentUserRoleUseCase: GetCurrentUserRoleUseCase,
-    private val getRoleFlowUseCase: GetRoleFlowUseCase,
+    getRoleFlowUseCase: GetRoleFlowUseCase,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(MainUiState())
-
-    val uiState = _uiState.asStateFlow()
-
-    init {
-        loadRole()
-    }
-
-    val role = getRoleFlowUseCase()
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            UserRole.NONE
-        )
-
-    private fun loadRole() {
-        _uiState.update { it.copy(loading = true) }
-        viewModelScope.launch {
-            try {
-                val role = getCurrentUserRoleUseCase().first()
-
-                _uiState.update { it.copy(role = role) }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (_: Exception) {
-                _uiState.update { it.copy(role = UserRole.NONE) }
-            } finally {
-                _uiState.update { it.copy(loading = false) }
-            }
-        }
-    }
+    val role = getRoleFlowUseCase().stateIn(viewModelScope, SharingStarted.Eagerly, UserRole.NONE)
 }

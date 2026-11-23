@@ -52,7 +52,7 @@ class EventDetailsViewModel @AssistedInject constructor(
             val response = getApplicationStatusUseCase(eventId)
 
             if (response.isSuccessful) {
-                _uiState.update { it.copy(applicationStatus = response.status.toString()) }
+                _uiState.update { it.copy(applicationStatus = response.data()) }
             }
         }
     }

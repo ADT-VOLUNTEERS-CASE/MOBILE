@@ -37,7 +37,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,8 +51,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.launch
 import org.adt.core.entities.event.Event
 import org.adt.presentation.R
 import org.adt.presentation.components.textfields.CustomSearchTextField
@@ -74,23 +75,21 @@ fun VolunteerScreen(
     val uiState by viewModel.uiState.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
 
-    val scope = rememberCoroutineScope()
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.getEvents()
+    }
 
     VolunteerScreenContent(
         uiState = uiState,
         isRefreshing = isRefreshing,
-        onRefreshAction = {
-            scope.launch {
-                viewModel.findLocationAndEvents()
-                viewModel.getEvents()
-            }
-        },
+        onRefreshAction = viewModel::getEvents,
         searchModeChangedAction = { viewModel.onSearchModeChange(false) },
         searchFieldValueChangedAction = { viewModel.onSearchValueChange(it) },
         searchFieldOnConfirmAction = {
             viewModel.findLocationAndEvents()
         },
         eventPickerAction = {
+            viewModel.onSearchModeChange(false)
             navController.navigate(
                 Destinations.EventDetails(it.eventId)
             )
@@ -127,7 +126,8 @@ fun VolunteerScreenContent(
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val syncedScrollState = rememberSyncedScrollState()
-    var isFilterChipSelected by remember { mutableStateOf(false) }
+    var isFilterChipSelected by rememberSaveable { mutableStateOf(false) }
+    val visibleEvents = if (isFilterChipSelected) uiState.filteredEventsByUserList else uiState.eventsList
 
     LaunchedEffect(uiState.eventError) {
         uiState.eventError?.let { error ->
@@ -237,7 +237,7 @@ fun VolunteerScreenContent(
                             }
                         }
 
-                        if (isRefreshing) {
+                        if (isRefreshing && visibleEvents.isEmpty()) {
                             item(span = { GridItemSpan(maxLineSpan) }) {
                                 Box(
                                     Modifier
@@ -249,12 +249,7 @@ fun VolunteerScreenContent(
                                 }
                             }
                         } else {
-                            items(
-                                if (!isFilterChipSelected)
-                                    uiState.eventsList
-                                else
-                                    uiState.filteredEventsByUserList
-                            ) { event ->
+                            items(visibleEvents, key = { it.eventId }) { event ->
                                 CharityEventCard(
                                     event = event,
                                     onClick = { eventPickerAction(event) },
@@ -295,7 +290,7 @@ private fun VolunteerScreenPreview() {
     VolunteersCaseTheme {
         VolunteerScreenContent(
             uiState = VolunteerState(
-                eventsList = listOf(Event(), Event())
+                eventsList = listOf(Event(eventId = 1), Event(eventId = 2))
             ),
             searchModeChangedAction = {}
         )

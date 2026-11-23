@@ -1,15 +1,12 @@
 package org.adt.data.repository
 
 import io.ktor.client.call.body
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
-import io.ktor.client.statement.readRawBytes
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
 import org.adt.core.annotations.RepositoryImpl
 import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.Location
@@ -85,17 +82,11 @@ class DataRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun createCoverFile(file: File): MultipartBody.Part {
-        val requestFile = file.asRequestBody("image/*".toMediaType())
-        return MultipartBody.Part.createFormData(
-            name = "file",
-            filename = file.name,
-            body = requestFile
-        )
-    }
-
     override suspend fun getCurrentUserRole(): Flow<UserRole> = flow {
-        if (!authorized()) emit(UserRole.NONE)
+        if (!authorized()) {
+            emit(UserRole.NONE)
+            return@flow
+        }
 
         userInfo().collect {
             if (!it.isSuccessful) {
@@ -217,10 +208,11 @@ class DataRepositoryImpl @Inject constructor(
         val response = networkRepository.authenticate(request)
 
         if (response.status.isSuccess()) {
-            persistenceRepository.saveTokens(
-                response.body<AuthResponse>().accessToken,
-                response.body<AuthResponse>().refreshToken
-            )
+            val credentials = response.body<AuthResponse>()
+            if (credentials.accessToken.isBlank() || credentials.refreshToken.isBlank()) {
+                return GeneralResponse.failure(502, "Сервер не вернул токены для входа")
+            }
+            persistenceRepository.saveTokens(credentials.accessToken, credentials.refreshToken)
             return GeneralResponse.success("Success Auth")
         }
 
@@ -333,27 +325,28 @@ class DataRepositoryImpl @Inject constructor(
     }
 
     override fun userInfo(): Flow<GeneralResponse<UserResponse>> = flow {
-        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        emit(loadUserInfo(retried = false))
+    }
+
+    private suspend fun loadUserInfo(retried: Boolean): GeneralResponse<UserResponse> {
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401, "Not authorized")
         val response = networkRepository.userInfo(token)
 
         if (response.status.isSuccess()) {
-            emit(GeneralResponse.success(response.body()!!))
+            return GeneralResponse.success(response.body())
         }
 
-//        if (response.status.value == 403) {
-//            val request = requestFreshAccessToken()
-//
-//            if (request.isSuccessful) {
-//                emit(userInfo())
-//            }
-//
-//            val error = parseError(response.bodyAsText())
-//            persistenceRepository.removeToken()
-//
-//            emit(GeneralResponse.failure(403, error?.message ?: "HTTP ${response.status.value}"))
-//        }
+        if (!retried && (response.status.value == 401 || response.status.value == 403)) {
+            if (requestFreshAccessToken().isSuccessful) {
+                return loadUserInfo(retried = true)
+            }
 
-        emit(GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}"))
+            val error = parseError(response.bodyAsText())
+            persistenceRepository.removeToken()
+            return GeneralResponse.failure(response.status.value, error?.message ?: "HTTP ${response.status.value}")
+        }
+
+        return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
     }
 
     override suspend fun getUserStatistics(): GeneralResponse<UserStatistics> {
@@ -369,7 +362,7 @@ class DataRepositoryImpl @Inject constructor(
 
 
     override suspend fun uploadCover(file: File, retried: Boolean): GeneralResponse<Cover> {
-        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401, "Сессия истекла")
 
         val filePart = createCoverFile(file)
 
@@ -379,7 +372,7 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.success(response.body()!!)
         }
 
-        if (response.status.value == 403 && !retried) {
+        if ((response.status.value == 401 || response.status.value == 403) && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return uploadCover(file, retried = true)
@@ -391,7 +384,10 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.status.value}")
         }
 
-        return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
+        return GeneralResponse.failure(
+            response.status.value,
+            parseError(response.bodyAsText())?.message ?: "HTTP ${response.status.value}",
+        )
     }
 
     override suspend fun createEventApplication(
@@ -421,28 +417,17 @@ class DataRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun getEvents(retried: Boolean): GeneralResponse<EventResponse> {
-        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
-        val response = networkRepository.getEvents(token, 0, 10)
-
-        if (response.status.isSuccess()) {
-            return GeneralResponse.success(response.body()!!)
+    override suspend fun getEvents(retried: Boolean): GeneralResponse<EventResponse> =
+        loadEventPages(retried, networkRepository::getEvents, EventResponse::totalPages) { pages ->
+            val events = pages.flatMap { it.content }.distinctBy { it.eventId }
+            pages.first().copy(
+                content = events,
+                pageSize = events.size.toLong(),
+                totalElements = events.size.toLong(),
+                totalPages = if (events.isEmpty()) 0 else 1,
+                last = true,
+            )
         }
-
-        if (response.status.value == 403 && !retried) {
-            val refresh = requestFreshAccessToken()
-            if (refresh.isSuccessful) {
-                return getEvents(retried = true)
-            }
-
-            val error = parseError(response.bodyAsText())
-            persistenceRepository.removeToken()
-
-            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.status.value}")
-        }
-
-        return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
-    }
 
     override suspend fun getRecommendedEvents(retried: Boolean): GeneralResponse<EventResponse> {
         val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
@@ -469,27 +454,44 @@ class DataRepositoryImpl @Inject constructor(
         return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
     }
 
-    override suspend fun getCoordinatorEvents(retried: Boolean): GeneralResponse<CoordinatorEventsResponse> {
-        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
-        val response = networkRepository.getCoordinatorEvents(token, 0, 10)
-
-        if (response.status.isSuccess()) {
-            return GeneralResponse.success(response.body()!!)
+    override suspend fun getCoordinatorEvents(retried: Boolean): GeneralResponse<CoordinatorEventsResponse> =
+        loadEventPages(retried, networkRepository::getCoordinatorEvents, CoordinatorEventsResponse::totalPages) { pages ->
+            val events = pages.flatMap { it.content }.distinctBy { it.eventId }
+            pages.first().copy(
+                content = events,
+                pageSize = events.size.toLong(),
+                totalElements = events.size.toLong(),
+                totalPages = if (events.isEmpty()) 0 else 1,
+                last = true,
+            )
         }
 
-        if (response.status.value == 403 && !retried) {
-            val refresh = requestFreshAccessToken()
-            if (refresh.isSuccessful) {
-                return getCoordinatorEvents(retried = true)
+    private suspend inline fun <reified Page> loadEventPages(
+        retried: Boolean,
+        request: suspend (token: String, page: Int, size: Int) -> HttpResponse,
+        totalPages: (Page) -> Long,
+        merge: (List<Page>) -> Page,
+    ): GeneralResponse<Page> {
+        var token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401, "Сессия истекла")
+        var canRefresh = !retried
+        val pages = mutableListOf<Page>()
+        do {
+            val page = pages.size
+            var response = request(token, page, 100)
+            if (canRefresh && (response.status.value == 401 || response.status.value == 403)) {
+                canRefresh = false
+                if (requestFreshAccessToken().isSuccessful) {
+                    token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401, "Сессия истекла")
+                    response = request(token, page, 100)
+                }
             }
-
-            val error = parseError(response.bodyAsText())
-            persistenceRepository.removeToken()
-
-            return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.status.value}")
-        }
-
-        return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
+            if (!response.status.isSuccess()) {
+                val status = response.status.value
+                return GeneralResponse.failure(status, parseError(response.bodyAsText())?.message ?: "HTTP $status")
+            }
+            pages += response.body<Page>()
+        } while (pages.size < totalPages(pages.first()))
+        return GeneralResponse.success(merge(pages))
     }
 
     override suspend fun createEvent(
@@ -503,7 +505,7 @@ class DataRepositoryImpl @Inject constructor(
         locationId: Long,
         tagIds: List<Long>, retried: Boolean
     ): GeneralResponse<Int> {
-        val token = persistenceRepository.getToken() ?: throw Exception("Not authorized")
+        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401, "Сессия истекла")
         val request = EventRequest(
             name,
             status,
@@ -521,7 +523,7 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.success(response.status.value)
         }
 
-        if (response.status.value == 403 && !retried) {
+        if ((response.status.value == 401 || response.status.value == 403) && !retried) {
             val refresh = requestFreshAccessToken()
             if (refresh.isSuccessful) {
                 return createEvent(
@@ -544,7 +546,10 @@ class DataRepositoryImpl @Inject constructor(
             return GeneralResponse.failure(403, error?.message ?: "HTTP ${response.status.value}")
         }
 
-        return GeneralResponse.failure(response.status.value, "HTTP ${response.status.value}")
+        return GeneralResponse.failure(
+            response.status.value,
+            parseError(response.bodyAsText())?.message ?: "HTTP ${response.status.value}",
+        )
     }
 
     override suspend fun getEventById(eventId: Long, retried: Boolean): GeneralResponse<Event> {
@@ -844,67 +849,45 @@ class DataRepositoryImpl @Inject constructor(
 
     override suspend fun assembleCoordinatorReportFile(
         period: String,
-        retried: Boolean
-    ): GeneralResponse<ByteArray> {
-        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
-        val response = networkRepository.assembleCoordinatorReportFile(token, period).execute()
-
-        if (response.status.isSuccess()) return GeneralResponse.success(response.readRawBytes())
-
-        if (response.status.value == 403 && !retried) {
-            val refresh = requestFreshAccessToken()
-            if (refresh.isSuccessful) {
-                return assembleCoordinatorReportFile(period, true)
-            }
-            persistenceRepository.removeToken()
-            return GeneralResponse.failure(403, "Session expired")
-        }
-
-        return GeneralResponse.failure(response.status.value, response.bodyAsText())
+        retried: Boolean,
+    ): GeneralResponse<ByteArray> = fetchReport(retried) { token ->
+        networkRepository.assembleCoordinatorReportFile(token, period)
     }
 
     override suspend fun assembleUserReportFileByAdmin(
         id: Long,
         period: String,
-        retried: Boolean
-    ): GeneralResponse<ByteArray> {
-        val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
-        val response = networkRepository.assembleUserReportFileByAdmin(token, id, period).execute()
-
-        if (response.status.isSuccess()) return GeneralResponse.success(response.readRawBytes())
-
-        if (response.status.value == 403 && !retried) {
-            val refresh = requestFreshAccessToken()
-            if (refresh.isSuccessful) {
-                return assembleUserReportFileByAdmin(id, period, true)
-            }
-            persistenceRepository.removeToken()
-            return GeneralResponse.failure(403, "Session expired")
-        }
-
-        return GeneralResponse.failure(response.status.value, response.bodyAsText())
+        retried: Boolean,
+    ): GeneralResponse<ByteArray> = fetchReport(retried) { token ->
+        networkRepository.assembleUserReportFileByAdmin(token, id, period)
     }
 
     override suspend fun assembleCoordinatorReportFileByAdmin(
         id: Long,
         period: String,
-        retried: Boolean
+        retried: Boolean,
+    ): GeneralResponse<ByteArray> = fetchReport(retried) { token ->
+        networkRepository.assembleCoordinatorReportFileByAdmin(token, id, period)
+    }
+
+    private suspend fun fetchReport(
+        retried: Boolean,
+        request: suspend (String) -> HttpResponse,
     ): GeneralResponse<ByteArray> {
         val token = persistenceRepository.getToken() ?: return GeneralResponse.failure(401)
-        val response =
-            networkRepository.assembleCoordinatorReportFileByAdmin(token, id, period).execute()
-
-        if (response.status.isSuccess()) return GeneralResponse.success(response.readRawBytes())
-
-        if (response.status.value == 403 && !retried) {
-            val refresh = requestFreshAccessToken()
-            if (refresh.isSuccessful) {
-                return assembleCoordinatorReportFileByAdmin(id, period, true)
+        val response = request(token)
+        if (response.status.isSuccess()) {
+            val bytes = response.body<ByteArray>()
+            if (bytes.size < 5 || bytes.decodeToString(0, 5) != "%PDF-") {
+                return GeneralResponse.failure(502, "Сервер не вернул PDF")
             }
-            persistenceRepository.removeToken()
-            return GeneralResponse.failure(403, "Session expired")
+            return GeneralResponse.success(bytes)
         }
 
-        return GeneralResponse.failure(response.status.value, response.bodyAsText())
+        val status = response.status.value
+        if (!retried && (status == 401 || status == 403) && requestFreshAccessToken().isSuccessful) {
+            return fetchReport(retried = true, request)
+        }
+        return GeneralResponse.failure(status, parseError(response.bodyAsText())?.message ?: "HTTP $status")
     }
 }

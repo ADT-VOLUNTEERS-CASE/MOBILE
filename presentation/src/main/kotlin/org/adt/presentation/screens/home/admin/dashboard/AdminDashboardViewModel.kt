@@ -1,28 +1,18 @@
 package org.adt.presentation.screens.home.admin.dashboard
 
-import android.content.ContentValues
-import android.content.Context
-import android.net.Uri
-import android.os.Environment
-import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.adt.domain.usecase.cover.DeleteCoverUseCase
-import org.adt.domain.usecase.event.DeleteEventUseCase
 import org.adt.domain.usecase.report.AssembleCoordinatorReportFileByAdminUseCase
 import org.adt.domain.usecase.report.AssembleUserReportFileByAdminUseCase
-import org.adt.domain.usecase.tag.CreateTagUseCase
-import org.adt.domain.usecase.tag.DeleteTagByNameUseCase
-import org.adt.domain.usecase.tag.GetTagByNameUseCase
 import org.adt.domain.usecase.user.DeauthenticateUseCase
 import org.adt.domain.usecase.user.FindLocationUseCase
 import org.adt.presentation.utils.LocalizationManager.message
@@ -95,13 +85,13 @@ class AdminDashboardViewModel @Inject constructor(
         val idString = if (target == "user") state.userInput else state.coordinatorInput
         val type = state.reportType
 
-        val id = idString.toLongOrNull()
-        if (id == null) {
+        val id = idString.trim().toLongOrNull()
+        if (id == null || id <= 0) {
             _dashboardState.update { it.copy(toastMessage = "Введите корректный числовой ID") }
             return
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = if (target == "user") {
                     assembleUserReportFileByAdminUseCase(id = id, period = type)
@@ -110,18 +100,15 @@ class AdminDashboardViewModel @Inject constructor(
                 }
                 if (response.isSuccessful) {
                     _dashboardState.update { it.copy(downloadedFile = response.data()) }
+                } else {
+                    val message = response.rawData.exceptionOrNull()?.message ?: response.message
+                    _dashboardState.update { it.copy(toastMessage = "Не удалось скачать отчёт: $message") }
                 }
-                else {
-                    Log.e("AdminDashboardVM", "Ошибка скачивания отчета")
-                    _dashboardState.update { it.copy(toastMessage = "Не удалось скачать отчет: ${response.message}") }
-                }
-                //TODO: This try catch looks very suspicious, huh..
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e("AdminDashboardVM", "Ошибка скачивания отчета", e)
                 _dashboardState.update { it.copy(toastMessage = "Не удалось скачать отчет: ${e.localizedMessage}") }
-            } catch (t: Throwable){
-                Log.e("AdminDashboardVM", "Ошибка скачивания отчета", t)
-                _dashboardState.update { it.copy(toastMessage = "Не удалось скачать отчет: ${t.localizedMessage}") }
             }
         }
     }
@@ -146,32 +133,4 @@ class AdminDashboardViewModel @Inject constructor(
         }
     }
 
-    suspend fun saveFileToDownloads(context: Context, bytes: ByteArray, fileName: String): Boolean {
-        val resolver = context.contentResolver
-        var createdUri: Uri? = null
-
-        return withContext(Dispatchers.IO) {
-            try {
-                val contentValues = ContentValues().apply {
-                    put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-                    put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
-                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-                }
-                createdUri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-
-                createdUri?.let { targetUri ->
-                    resolver.openOutputStream(targetUri).use { outputStream ->
-                        bytes.inputStream().use { inputStream ->
-                            inputStream.copyTo(outputStream!!)
-                        }
-                    }
-                    true
-                } ?: false
-            } catch (e: Exception) {
-                createdUri?.let { resolver.delete(it, null, null) }
-                Log.e("AdminDashboardVM", "Ошибка записи файла в память", e)
-                false
-            }
-        }
-    }
 }

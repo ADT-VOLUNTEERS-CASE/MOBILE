@@ -86,7 +86,6 @@ internal object NetworkModule {
             }
 
             install(DefaultRequest) {
-                contentType(ContentType.Application.Json)
                 header(HttpHeaders.Accept, ContentType.Application.Json.toString())
             }
 
@@ -98,8 +97,9 @@ internal object NetworkModule {
 
             install(Auth) {
                 bearer {
+                    cacheTokens = false
                     loadTokens {
-                        val accessToken = tokenRepository.getToken() ?: return@loadTokens null
+                        val accessToken = tokenRepository.getToken()?.removePrefix("Bearer ") ?: return@loadTokens null
                         val refreshToken =
                             tokenRepository.getRefreshToken() ?: return@loadTokens null
                         BearerTokens(accessToken, refreshToken)

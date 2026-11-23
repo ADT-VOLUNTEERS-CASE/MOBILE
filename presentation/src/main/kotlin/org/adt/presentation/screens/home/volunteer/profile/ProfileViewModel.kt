@@ -43,7 +43,7 @@ class ProfileViewModel @Inject constructor(
 
             val data = response.data()
             _state.update {
-                it.copy(firstName = data.firstname ?: "")
+                it.copy(firstName = data.firstname.orEmpty(), userId = data.id.takeIf { id -> id > 0 })
             }
         }
     }

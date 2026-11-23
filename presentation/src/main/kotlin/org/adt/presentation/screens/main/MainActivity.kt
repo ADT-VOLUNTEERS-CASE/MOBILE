@@ -31,7 +31,6 @@ class MainActivity : ComponentActivity() {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
 
             val viewModel: MainViewModel = hiltViewModel()
-            val uiState by viewModel.uiState.collectAsState()
             val role by viewModel.role.collectAsState()
 
             val bottomBarItems = BottomBarConfigs.getItems(role)
@@ -46,17 +45,15 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     containerColor = Transparent,
                     bottomBar = {
-                        if (!uiState.loading) {
-                            AnimatedVisibility(
-                                visible = shouldShowBottomBar,
-                                enter = slideInVertically(initialOffsetY = { it }),
-                                exit = slideOutVertically(targetOffsetY = { it })
-                            ) {
-                                FancyBottomNavigationBar(
-                                    navController = navController,
-                                    items = bottomBarItems
-                                )
-                            }
+                        AnimatedVisibility(
+                            visible = shouldShowBottomBar,
+                            enter = slideInVertically(initialOffsetY = { it }),
+                            exit = slideOutVertically(targetOffsetY = { it })
+                        ) {
+                            FancyBottomNavigationBar(
+                                navController = navController,
+                                items = bottomBarItems
+                            )
                         }
                     }
                 ) { innerPadding ->

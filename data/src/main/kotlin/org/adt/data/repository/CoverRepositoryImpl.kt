@@ -1,12 +1,15 @@
 package org.adt.data.repository
 
 import io.ktor.client.call.body
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
+import kotlinx.io.asSource
+import kotlinx.io.buffered
 import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
 import org.adt.core.annotations.RepositoryImpl
 import org.adt.core.entities.GeneralResponse
 import org.adt.core.entities.event.Cover
@@ -14,6 +17,7 @@ import org.adt.core.entities.response.ErrorResponse
 import org.adt.data.abstraction.PersistenceRepository
 import org.adt.domain.abstraction.CoverRepository
 import java.io.File
+import java.net.URLConnection
 import javax.inject.Inject
 
 @RepositoryImpl(suppressed = true)
@@ -29,15 +33,6 @@ class CoverRepositoryImpl @Inject constructor(
         } catch (_: Exception) {
             null
         }
-    }
-
-    private fun createCoverFile(file: File): MultipartBody.Part {
-        val requestFile = file.asRequestBody("image/*".toMediaType())
-        return MultipartBody.Part.createFormData(
-            name = "file",
-            filename = file.name,
-            body = requestFile
-        )
     }
 
     override suspend fun uploadCover(file: File, retried: Boolean): GeneralResponse<Cover> {
@@ -98,4 +93,17 @@ class CoverRepositoryImpl @Inject constructor(
             error?.message ?: "HTTP ${response.status.value}"
         )
     }
+}
+
+internal fun createCoverFile(file: File): MultiPartFormDataContent {
+    val contentType = file.inputStream().buffered().use { URLConnection.guessContentTypeFromStream(it) }
+        ?: URLConnection.guessContentTypeFromName(file.name)
+        ?: "image/*"
+    return MultiPartFormDataContent(formData {
+        val headers = Headers.build {
+            append(HttpHeaders.ContentDisposition, "filename=\"${file.name}\"")
+            append(HttpHeaders.ContentType, contentType)
+        }
+        appendInput("file", headers, file.length()) { file.inputStream().asSource().buffered() }
+    })
 }

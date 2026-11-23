@@ -42,7 +42,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.adt.core.entities.rating.UserRating
 import org.adt.presentation.R
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Aqua
@@ -52,7 +51,7 @@ import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable
 fun PodiumCard(
-    entry: UserRating,
+    entry: RatingParticipant,
     rank: Int,
     height: Int,
     modifier: Modifier = Modifier,
@@ -118,7 +117,7 @@ fun PodiumCard(
         )
 
         Text(
-            text = stringResource(R.string.body_minutes_all, entry.workedMinutes),
+            text = stringResource(R.string.body_minutes_all, entry.minutes),
             style = VolunteersCaseTheme.typography.labelSmall.copy(
                 fontSize = 11.sp,
                 color = Graphite.copy(alpha = 0.7f),
@@ -149,7 +148,7 @@ fun PodiumCard(
 
 @Composable
 fun PodiumRow(
-    entries: List<UserRating>,
+    entries: List<RatingParticipant>,
     modifier: Modifier = Modifier,
 ) {
     val top3 = entries.take(3)
@@ -175,6 +174,7 @@ fun PodiumRow(
                 LaunchedEffect(Unit) { visible = true }
 
                 AnimatedVisibility(
+                    modifier = Modifier.weight(1f, fill = false),
                     visible = visible,
                     enter = fadeIn(animationSpec = tween(600, delayMillis = idx * 150)) +
                             slideInVertically(
@@ -204,9 +204,9 @@ private fun PodiumRowPreview() {
         ) {
             PodiumRow(
                 entries = listOf(
-                    UserRating(firstname = "Анна", workedMinutes = 1200, userId = 1),
-                    UserRating(firstname = "Иван", workedMinutes = 900, userId = 2),
-                    UserRating(firstname = "Ольга", workedMinutes = 750, userId = 3),
+                    RatingParticipant(firstname = "Анна", minutes = 1200),
+                    RatingParticipant(firstname = "Иван", minutes = 900),
+                    RatingParticipant(firstname = "Ольга", minutes = 750),
                 ),
             )
         }

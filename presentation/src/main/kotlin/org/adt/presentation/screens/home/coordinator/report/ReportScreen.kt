@@ -1,29 +1,29 @@
 package org.adt.presentation.screens.home.coordinator.report
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -38,20 +38,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.adt.core.entities.rating.CoordinatorRatingItem
 import org.adt.presentation.R
 import org.adt.presentation.components.rating.ErrorBanner
 import org.adt.presentation.components.rating.PeriodSwitch
+import org.adt.presentation.components.rating.PodiumRow
+import org.adt.presentation.components.rating.RankingCard
+import org.adt.presentation.components.rating.toRatingParticipant
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
 import org.adt.presentation.theme.Graphite
+import org.adt.presentation.theme.Lagoon
 import org.adt.presentation.theme.Mint
 import org.adt.presentation.theme.VolunteersCaseTheme
+import org.adt.presentation.utils.saveReportToDownloads
 
 @Composable
 fun ReportScreen(viewModel: ReportViewModel) {
@@ -59,17 +63,10 @@ fun ReportScreen(viewModel: ReportViewModel) {
     val context = LocalContext.current
 
     LaunchedEffect(uiState.downloadedFile) {
-        //TODO: WHY STATE UPDATE IN UI???
-        //Also, should be on Dispatchers.IO context.
         uiState.downloadedFile?.let { bytes ->
-            val success = viewModel.saveFileToDownloads(
-                context = context,
-                bytes = bytes,
-                fileName = "report-${System.currentTimeMillis()}.pdf"
-            )
-            if (success) {
-                Toast.makeText(context, "Отчет сохранен в Загрузки", Toast.LENGTH_SHORT).show()
-            }
+            val success = saveReportToDownloads(context, bytes)
+            val message = if (success) "Отчёт сохранён в Загрузки" else "Не удалось сохранить отчёт"
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             viewModel.onFileSaved()
         }
     }
@@ -80,8 +77,7 @@ fun ReportScreen(viewModel: ReportViewModel) {
         onRefreshAction = viewModel::refresh,
         onSetPeriodAction = viewModel::setPeriod,
         onDismissErrorAction = viewModel::dismissError,
-        onDownloadAction = viewModel::downloadReport
-
+        onDownloadAction = viewModel::downloadReport,
     )
 }
 
@@ -95,7 +91,6 @@ fun ReportScreenContent(
     onDismissErrorAction: () -> Unit = {},
     onDownloadAction: () -> Unit = {},
 ) {
-
     val listState = rememberLazyListState()
     val pullToRefreshState = rememberPullToRefreshState()
 
@@ -106,10 +101,10 @@ fun ReportScreenContent(
         }
     }
 
-    LaunchedEffect(shouldLoadNext) {
-        if (shouldLoadNext && !state.isPaginating && state.currentPage < state.totalPages - 1) {
-            onRequestNextPage.invoke()
-        }
+    val canLoadNext = shouldLoadNext && state.currentPage < state.totalPages - 1 &&
+        !state.isLoading && !state.isRefreshing && !state.isPaginating && state.error == null
+    LaunchedEffect(canLoadNext, state.currentPage, state.period) {
+        if (canLoadNext) onRequestNextPage()
     }
 
     Scaffold(
@@ -153,6 +148,10 @@ fun ReportScreenContent(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 state = listState,
             ) {
+                item {
+                    PeriodSwitch(state.period, onSetPeriodAction)
+                }
+
                 if (state.error != null) {
                     item {
                         ErrorBanner(
@@ -162,93 +161,71 @@ fun ReportScreenContent(
                     }
                 }
 
-                item { Spacer(Modifier.height(4.dp)) }
-
                 item {
-                    Text(
-                        stringResource(R.string.subtitle_activity),
-                        style = VolunteersCaseTheme.typography.titleLarge,
-                    )
-                }
-
-                item { Spacer(Modifier.height(4.dp)) }
-
-                item {
-                    Button(
+                    OutlinedButton(
                         onClick = onDownloadAction,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                         shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White,
-                            contentColor = Abyss
-                        )
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Abyss),
+                        border = BorderStroke(1.dp, Lagoon.copy(alpha = 0.45f)),
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Text(
-                                "Скачать отчет",
-                                style = VolunteersCaseTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Graphite.copy(0.8f)
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Icon(
-                                Icons.Default.Download,
-                                null,
-                                tint = Graphite.copy(0.6f)
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Default.Download,
+                            contentDescription = null,
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                        Text(
+                            text = stringResource(R.string.button_export_pdf),
+                            style = VolunteersCaseTheme.typography.titleSmall,
+                        )
                     }
                 }
 
-                item { Spacer(Modifier.height(8.dp)) }
-
-//                if (state.entries.isNotEmpty()) {
-//                    item { PodiumRow(state.entries) }
-//                }
-
-                item { Spacer(Modifier.height(4.dp)) }
-
-                if (state.isLoading) {
-                    item {
+                when {
+                    state.isLoading && state.entries.isEmpty() -> item {
                         Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(400.dp),
+                            modifier = Modifier.fillMaxWidth().height(240.dp),
                             contentAlignment = Alignment.Center,
                         ) {
                             CircularProgressIndicator(color = Mint)
                         }
                     }
-                } else {
-                    item {
-                        Text(
-                            stringResource(R.string.subtitle_all_participants),
-                            style = VolunteersCaseTheme.typography.titleLarge,
-                        )
+                    state.entries.isEmpty() -> item {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = stringResource(R.string.label_empty),
+                                style = VolunteersCaseTheme.typography.titleMedium,
+                                color = Graphite,
+                            )
+                        }
                     }
 
-                    itemsIndexed(
-                        state.entries,
-                        key = { _, entry -> entry.coordinatorId },
-                    ) { idx, entry ->
-//                        RankingCard(
-//                            entry = entry,
-//                            rank = startFrom + idx + 1,
-//                            index = idx,
-//                        )
+                    else -> {
+                        item {
+                            PodiumRow(state.entries.take(3).map { it.toRatingParticipant() })
+                        }
 
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(20.dp)
-                        ) {
-                            Text((idx + 1).toString())
-                            Text(entry.firstname)
+                        val remaining = state.entries.drop(3)
+                        if (remaining.isNotEmpty()) {
+                            item {
+                                Text(
+                                    text = stringResource(R.string.subtitle_all_participants),
+                                    style = VolunteersCaseTheme.typography.titleMedium,
+                                    color = Graphite,
+                                    modifier = Modifier.padding(vertical = 4.dp),
+                                )
+                            }
 
+                            itemsIndexed(remaining, key = { _, entry -> entry.coordinatorId }) { index, entry ->
+                                RankingCard(
+                                    entry = entry.toRatingParticipant(),
+                                    rank = entry.ratingPosition,
+                                    index = index,
+                                )
+                            }
                         }
                     }
                 }
@@ -275,23 +252,30 @@ fun ReportScreenContent(
             }
         }
     }
-
-    Box(
-        Modifier
-            .fillMaxSize()
-            .padding(horizontal = 30.dp, vertical = 100.dp),
-        contentAlignment = Alignment.BottomCenter
-    ) { PeriodSwitch(state.period, onSetPeriodAction) }
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
 @Composable
-private fun RatingScreenPreview() {
-    VolunteersCaseTheme {
-        ReportScreenContent(
-            state = ReportState(
-                isLoading = false
-            )
+private fun ReportScreenPreview() {
+    val entries = listOf(
+        "Анна" to "Иванова",
+        "Иван" to "Петров",
+        "Ольга" to "Сидорова",
+        "Михаил" to "Козлов",
+        "Елена" to "Орлова",
+    ).mapIndexed { index, (firstName, lastName) ->
+        CoordinatorRatingItem(
+            period = "monthly",
+            ratingPosition = index + 1,
+            coordinatorId = index.toLong() + 1,
+            firstname = firstName,
+            lastname = lastName,
+            patronymic = "",
+            workLocation = null,
+            totalWeightMinutes = 1200L - index * 150,
         )
+    }
+    VolunteersCaseTheme {
+        ReportScreenContent(state = ReportState(isLoading = false, entries = entries))
     }
 }

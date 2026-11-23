@@ -4,16 +4,13 @@ import de.jensklingenberg.ktorfit.http.Body
 import de.jensklingenberg.ktorfit.http.DELETE
 import de.jensklingenberg.ktorfit.http.GET
 import de.jensklingenberg.ktorfit.http.Header
-import de.jensklingenberg.ktorfit.http.Multipart
+import de.jensklingenberg.ktorfit.http.Headers
 import de.jensklingenberg.ktorfit.http.PATCH
 import de.jensklingenberg.ktorfit.http.POST
-import de.jensklingenberg.ktorfit.http.Part
 import de.jensklingenberg.ktorfit.http.Path
 import de.jensklingenberg.ktorfit.http.Query
-import de.jensklingenberg.ktorfit.http.Streaming
+import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.HttpStatement
-import okhttp3.MultipartBody
 import org.adt.core.entities.request.ApplicationStatusRequest
 import org.adt.core.entities.request.AuthRequest
 import org.adt.core.entities.request.EventRequest
@@ -42,6 +39,7 @@ interface KtorRepository {
      *
      *           404 | Invalid email
      */
+    @Headers("Content-Type: application/json")
     @POST("v1/auth/authenticate")
     suspend fun authenticate(
         @Body request: AuthRequest
@@ -60,6 +58,7 @@ interface KtorRepository {
      *
      *           409 | User Already Exists
      */
+    @Headers("Content-Type: application/json")
     @POST("v1/auth/register")
     suspend fun registerVolunteer(
         @Body request: RegisterRequest
@@ -78,6 +77,7 @@ interface KtorRepository {
      *
      *           409 | User Already Exists
      */
+    @Headers("Content-Type: application/json")
     @POST("v1/auth/register/coordinator")
     suspend fun registerCoordinator(
         @Header("Authorization") auth: String,
@@ -97,6 +97,7 @@ interface KtorRepository {
      *
      *           409 | User Already Exists
      */
+    @Headers("Content-Type: application/json")
     @POST("v1/auth/register/admin")
     suspend fun registerAdmin(
         @Header("Authorization") auth: String,
@@ -114,6 +115,7 @@ interface KtorRepository {
      *
      *           403 | Forbidden (Expired Token)
      */
+    @Headers("Content-Type: application/json")
     @POST("v1/auth/refreshtoken")
     suspend fun refreshToken(
         @Body request: RefreshRequest
@@ -133,12 +135,12 @@ interface KtorRepository {
      *
      *           504 | Gateway Time-out
      */
-    @Streaming
+    @Headers("Accept: application/pdf, application/json")
     @GET("v2/user/coordinator/assemble_report_file")
     suspend fun assembleCoordinatorReportFile(
         @Header("Authorization") auth: String,
         @Query("period") period: String? = "monthly", // monthly or overall
-    ): HttpStatement
+    ): HttpResponse
 
     /**
      * SUCCESS:
@@ -149,13 +151,13 @@ interface KtorRepository {
      *
      *           504 | Gateway Time-out
      */
-    @Streaming
+    @Headers("Accept: application/pdf, application/json")
     @GET("v2/user/admin/assemble_user_report_file")
     suspend fun assembleUserReportFileByAdmin(
         @Header("Authorization") auth: String,
         @Query("id") id: Long? = null,
         @Query("period") period: String? = "monthly",
-    ): HttpStatement
+    ): HttpResponse
 
     /**
      * SUCCESS:
@@ -166,13 +168,13 @@ interface KtorRepository {
      *
      *           504 | Gateway Time-out
      */
-    @Streaming
+    @Headers("Accept: application/pdf, application/json")
     @GET("v2/user/admin/assemble_coordinator_report_file")
     suspend fun assembleCoordinatorReportFileByAdmin(
         @Header("Authorization") auth: String,
         @Query("id") id: Long? = null,
         @Query("period") period: String? = "monthly",
-    ): HttpStatement
+    ): HttpResponse
     //endregion
 
     //-----------------------
@@ -242,6 +244,7 @@ interface KtorRepository {
         @Path("eventId") eventId: Long,
     ): HttpResponse
 
+    @Headers("Content-Type: application/json")
     @PATCH("v1/user-event/coordinator/events/{eventId}/applications/{userId}/status")
     suspend fun updateApplicationStatus(
         @Header("Authorization") auth: String,
@@ -275,6 +278,7 @@ interface KtorRepository {
      *
      *           409 | Already exists
      */
+    @Headers("Content-Type: application/json")
     @POST("v1/tag/create")
     suspend fun createTag(
         @Header("Authorization") auth: String,
@@ -366,6 +370,7 @@ interface KtorRepository {
      *
      *           403 | Forbidden (Expired Token)
      */
+    @Headers("Content-Type: application/json")
     @POST("v1/location/create")
     suspend fun createLocation(
         @Header("Authorization") auth: String,
@@ -383,6 +388,7 @@ interface KtorRepository {
      *
      *           403 | Forbidden (Expired Token)
      */
+    @Headers("Content-Type: application/json")
     @POST("v1/location/all")
     suspend fun findLocation(
         @Header("Authorization") auth: String,
@@ -404,6 +410,7 @@ interface KtorRepository {
      *
      *           404 | Does not exist
      */
+    @Headers("Content-Type: application/json")
     @POST("v1/location/update/{locationId}")
     suspend fun updateLocation(
         @Header("Authorization") auth: String,
@@ -428,6 +435,7 @@ interface KtorRepository {
      *
      *           403 | Forbidden (Expired Token)
      */
+    @Headers("Content-Type: application/json")
     @POST("v1/event/search")
     suspend fun findEvent(
         @Header("Authorization") auth: String,
@@ -485,6 +493,7 @@ interface KtorRepository {
      *
      *           409 | Current cover or location are already taken
      */
+    @Headers("Content-Type: application/json")
     @POST("v1/event/create")
     suspend fun createEvent(
         @Header("Authorization") auth: String,
@@ -550,11 +559,10 @@ interface KtorRepository {
      *
      *           500 | Error with uploading file in s3
      */
-    @Multipart
     @POST("v1/cover/create")
     suspend fun uploadCover(
         @Header("Authorization") auth: String,
-        @Part file: MultipartBody.Part
+        @Body file: MultiPartFormDataContent
     ): HttpResponse
 
     /**
