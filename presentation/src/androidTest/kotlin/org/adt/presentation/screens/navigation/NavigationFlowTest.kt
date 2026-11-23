@@ -1,5 +1,6 @@
 package org.adt.presentation.screens.navigation
 
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -44,6 +45,23 @@ class NavigationFlowTest : BaseInstrumentedTest() {
         composeTestRule.onNodeWithText("Войти как Координатор", ignoreCase = true).performClick()
         composeTestRule.waitForIdle()
         waitForText("Создание")
+    }
+
+    @Test
+    fun debugLogin_afterCoordinatorLogout_navigatesToVolunteerHome() {
+        waitForText("ДОБРО ПОЖАЛОВАТЬ!")
+        composeTestRule.onNodeWithContentDescription("OpenDebugPanel").performClick()
+        composeTestRule.onNodeWithText("Войти как Координатор", ignoreCase = true).performClick()
+        waitForText("Создание")
+
+        composeTestRule.onNodeWithText("Профиль").performClick()
+        composeTestRule.onNodeWithText("Выйти из аккаунта").performClick()
+        waitForText("ДОБРО ПОЖАЛОВАТЬ!")
+
+        composeTestRule.onNodeWithContentDescription("OpenDebugPanel").performClick()
+        composeTestRule.onNodeWithText("Войти как Волонтёр", ignoreCase = true).performClick()
+        waitForText("Каталог мероприятий")
+        composeTestRule.onAllNodesWithText("Создание").assertCountEquals(0)
     }
 
     @Test

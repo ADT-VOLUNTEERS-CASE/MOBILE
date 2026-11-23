@@ -170,6 +170,8 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
 
     testImplementation(libs.junit)
+    testImplementation(libs.androidx.junit)
+    testImplementation(libs.androidx.compose.ui.test.junit4)
     testImplementation(libs.roborazzi.compose.preview.scanner.support)
     testImplementation(libs.robolectric)
     testImplementation(libs.android)

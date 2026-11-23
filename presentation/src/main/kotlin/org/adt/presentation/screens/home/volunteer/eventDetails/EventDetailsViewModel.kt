@@ -33,6 +33,8 @@ class EventDetailsViewModel @AssistedInject constructor(
             if (!response.isSuccessful)
                 return@launch
 
+
+
             val data = response.data()
             _uiState.update { it.copy(
                 name = data.name,

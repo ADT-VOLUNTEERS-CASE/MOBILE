@@ -31,12 +31,11 @@ class LoginDebugViewModel @Inject constructor(
         }
     }
 
-    private fun getDebugCredentialsFor(role: UserRole): Pair<String, String> {
-        return when (role) {
-            UserRole.VOLUNTEER -> "user@example.com" to "base_pass"
-            UserRole.COORDINATOR -> "coordinator@example.com" to "coordinator_pass"
-            UserRole.ADMIN -> "admin@example.com" to "admin_pass"
-            UserRole.NONE -> "" to ""
-        }
-    }
+}
+
+internal fun getDebugCredentialsFor(role: UserRole): Pair<String, String> = when (role) {
+    UserRole.VOLUNTEER -> "user@example.com" to "base_pass"
+    UserRole.COORDINATOR -> "coordinator@example.com" to "coordinator_pass"
+    UserRole.ADMIN -> "admin@example.com" to "admin_pass"
+    UserRole.NONE -> "" to ""
 }

@@ -14,7 +14,7 @@ import org.junit.runner.RunWith
 
 /**
  * Debug login screen — available only in debug builds.
- * Covers: role button rendering, warning banner, clickability.
+ * Covers: role button rendering, demo credentials, warning banner, clickability.
  */
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
@@ -41,6 +41,17 @@ class LoginDebugScreenTest {
         composeTestRule.onNodeWithText("Войти как Волонтёр").assertIsDisplayed()
         composeTestRule.onNodeWithText("Войти как Координатор").assertIsDisplayed()
         composeTestRule.onNodeWithText("Войти как Администратор").assertIsDisplayed()
+    }
+
+    @Test
+    fun loginDebugScreen_displaysDemoAccountCredentials() {
+        composeTestRule.setContent {
+            VolunteersCaseTheme { LoginDebugScreenContent() }
+        }
+
+        composeTestRule.onNodeWithText("Логин: user@example.com\nПароль: base_pass").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Логин: coordinator@example.com\nПароль: coordinator_pass").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Логин: admin@example.com\nПароль: admin_pass").assertIsDisplayed()
     }
 
     @Test

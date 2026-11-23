@@ -39,7 +39,9 @@ fun LoginDebugScreen(navController: NavController) {
 
     LoginDebugScreenContent(onLoginAction = {
         viewModel.loginAs(it) {
-            navController.navigate(Destinations.Splash)
+            navController.navigate(Destinations.mapRole(it)) {
+                popUpTo(navController.graph.id) { inclusive = true }
+            }
         }
     }, onBackNavigateAction = {
         navController.popBackStack()
@@ -111,14 +113,17 @@ fun LoginDebugScreenContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         CustomButton(text = stringResource(R.string.button_volunteer)) { onLoginAction.invoke(UserRole.VOLUNTEER) }
+        DebugLoginCredentials(UserRole.VOLUNTEER)
 
         Spacer(modifier = Modifier.height(12.dp))
 
         CustomButton(text = stringResource(R.string.button_coordinator)) { onLoginAction.invoke(UserRole.COORDINATOR) }
+        DebugLoginCredentials(UserRole.COORDINATOR)
 
         Spacer(modifier = Modifier.height(12.dp))
 
         CustomButton(text = stringResource(R.string.button_admin)) { onLoginAction.invoke(UserRole.ADMIN) }
+        DebugLoginCredentials(UserRole.ADMIN)
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -130,6 +135,23 @@ fun LoginDebugScreenContent(
 
         Spacer(modifier = Modifier.height(40.dp))
     }
+}
+
+@Composable
+private fun DebugLoginCredentials(role: UserRole) {
+    val (email, password) = getDebugCredentialsFor(role)
+    Text(
+        text = stringResource(R.string.label_debug_login_credentials, email, password),
+        style = VolunteersCaseTheme.typography.titleSmall.copy(
+            fontSize = 12.sp,
+            lineHeight = 16.sp,
+            color = Color.Gray
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp),
+        textAlign = TextAlign.Center
+    )
 }
 
 @Preview
