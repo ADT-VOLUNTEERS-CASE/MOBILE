@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.map
 import org.adt.core.annotations.RepositoryImpl
 import org.adt.core.entities.UserRole
 import org.adt.data.abstraction.PersistenceRepository
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -61,12 +62,8 @@ class PersistenceRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveTokens(accessToken: String, refreshToken: String) {
-        Log.d("TokenHelper", "Saving token: $accessToken")
         context.dataStore.edit { prefs ->
             prefs[KEY_TOKEN] = accessToken
-        }
-        Log.d("TokenHelper", "Saving refresh token: $refreshToken")
-        context.dataStore.edit { prefs ->
             prefs[KEY_REFRESH_TOKEN] = refreshToken
         }
     }
@@ -75,17 +72,13 @@ class PersistenceRepositoryImpl @Inject constructor(
         val tokenValue = context.dataStore.data
             .map { prefs -> prefs[KEY_TOKEN] }
             .firstOrNull()
-        val bearerToken = tokenValue?.let { "Bearer $it" }
-        Log.d("TokenHelper", "Getting token: $bearerToken")
-        return bearerToken
+        return tokenValue?.let { "Bearer $it" }
     }
 
     override suspend fun getRefreshToken(): String? {
-        val refreshTokenValue = context.dataStore.data
+        return context.dataStore.data
             .map { prefs -> prefs[KEY_REFRESH_TOKEN] }
             .firstOrNull()
-        Log.d("TokenHelper", "Getting refresh token: $refreshTokenValue")
-        return refreshTokenValue
     }
 
     override suspend fun removeToken() {
@@ -128,5 +121,10 @@ class PersistenceRepositoryImpl @Inject constructor(
         context.dataStore.edit { prefs ->
             prefs.remove(KEY_ROLE)
         }
+    }
+
+    override suspend fun clearStorage() {
+        context.dataStore.edit { it.clear() }
+        File(context.filesDir, "datastore").deleteRecursively()
     }
 }

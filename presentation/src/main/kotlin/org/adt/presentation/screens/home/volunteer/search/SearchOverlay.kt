@@ -42,7 +42,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -51,9 +50,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import org.adt.core.entities.event.Cover
 import org.adt.core.entities.event.Event
 import org.adt.presentation.R
+import org.adt.presentation.components.cards.EventCoverImage
 import org.adt.presentation.screens.home.volunteer.home.VolunteerState
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Arctic
@@ -122,7 +122,7 @@ fun SearchOverlay(
                                 SearchResultCard(
                                     title = event.name,
                                     subtitle = event.location.address,
-                                    imageUrl = event.cover?.link,
+                                    cover = event.cover,
                                     onClick = { eventPickerAction(event) }
                                 )
                             }
@@ -164,7 +164,7 @@ private fun SectionTitle(text: String) {
 private fun SearchResultCard(
     title: String,
     subtitle: String,
-    imageUrl: String?,
+    cover: Cover?,
     onClick: () -> Unit
 ) {
     Surface(
@@ -178,14 +178,11 @@ private fun SearchResultCard(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AsyncImage(
-                model = imageUrl,
-                contentDescription = null,
+            EventCoverImage(
+                cover = cover,
                 modifier = Modifier
                     .size(64.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(Arctic),
-                contentScale = ContentScale.Crop
+                    .clip(RoundedCornerShape(14.dp)),
             )
 
             Column(

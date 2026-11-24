@@ -11,14 +11,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.adt.core.entities.UserRole
-import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.usecase.user.RegisterUseCase
 import org.adt.presentation.utils.LocalizationManager.message
 import javax.inject.Inject
 
 @HiltViewModel
 //TODO: Use `Logger` for.. Logging!
 class AdminRegisterViewModel @Inject constructor(
-    private val _dataRepository: DataRepository,
+    private val registerUseCase: RegisterUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdminRegisterState())
@@ -61,7 +61,7 @@ class AdminRegisterViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             populateLoadingState(true)
 
-            val response = _dataRepository.register(
+            val response = registerUseCase(
                 firstname = fieldsState.firstName,
                 lastname = fieldsState.lastName,
                 patronymic = fieldsState.patronymic,

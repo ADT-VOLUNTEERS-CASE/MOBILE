@@ -54,9 +54,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.adt.presentation.R
+import org.adt.presentation.utils.saveReportToDownloads
 import org.adt.presentation.components.textfields.CustomSearchTextField
 import org.adt.presentation.components.textfields.CustomTextField
 import org.adt.presentation.components.buttons.CustomButton
@@ -78,17 +77,10 @@ fun AdminDashboardScreen(
     val context = LocalContext.current
 
     LaunchedEffect(uiState.downloadedFile) {
-        uiState.downloadedFile?.let { body ->
-            val success = withContext(Dispatchers.IO) {
-                viewModel.saveFileToDownloads(
-                    context = context,
-                    bytes = body,
-                    fileName = "report-${System.currentTimeMillis()}.pdf"
-                )
-            }
-            if (success) {
-                Toast.makeText(context, "Отчет сохранен в Загрузки", Toast.LENGTH_SHORT).show()
-            }
+        uiState.downloadedFile?.let { bytes ->
+            val success = saveReportToDownloads(context, bytes)
+            val message = if (success) "Отчёт сохранён в Загрузки" else "Не удалось сохранить отчёт"
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             viewModel.onFileSaved()
         }
     }
@@ -111,7 +103,7 @@ fun AdminDashboardScreen(
         onCoordinatorInputBoxChange = { viewModel.onCoordinatorInputBoxChange(it) },
         logoutAction = {
             viewModel.deauthenticate {
-                navController.navigate(Destinations.Splash) {
+                navController.navigate(Destinations.Authenticate) {
                     popUpTo(navController.graph.id) { inclusive = true }
                 }
             }

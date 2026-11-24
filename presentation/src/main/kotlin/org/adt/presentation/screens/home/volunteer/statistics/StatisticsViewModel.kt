@@ -7,12 +7,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.usecase.user.GetUserStatisticsUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class StatisticsViewModel @Inject constructor(
-    private val _dataRepository: DataRepository
+    private val getUserStatisticsUseCase: GetUserStatisticsUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(StatisticsUiState())
     val uiState = _uiState.asStateFlow()
@@ -25,7 +25,7 @@ class StatisticsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            val response = _dataRepository.getUserStatistics().data()
+            val response = getUserStatisticsUseCase().data()
 
             _uiState.update {
                 it.copy(

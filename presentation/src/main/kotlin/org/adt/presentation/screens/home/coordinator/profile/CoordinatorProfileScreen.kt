@@ -71,7 +71,7 @@ fun CoordinatorProfileScreen(
         profileState = profileState,
         onLogoutAction = {
             viewModel.logout {
-                navController.navigate(Destinations.Splash) {
+                navController.navigate(Destinations.Authenticate) {
                     popUpTo(navController.graph.id) { inclusive = true }
                 }
             }
@@ -167,6 +167,16 @@ fun CoordinatorProfileScreenContent(
                         color = Color.White,
                         fontWeight = FontWeight.Bold
                     )
+                    if (BuildConfig.DEBUG) {
+                        profileState.userId?.let { id ->
+                            Text(
+                                text = "ID $id",
+                                style = VolunteersCaseTheme.typography.labelMedium,
+                                color = Color.White,
+                            )
+                        }
+                    }
+
 
                     Surface(
                         modifier = Modifier.padding(top = 8.dp),

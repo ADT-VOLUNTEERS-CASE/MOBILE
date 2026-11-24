@@ -12,12 +12,6 @@ data class CoordinatorFieldsState(
     val selectedDateTime: LocalDateTime? = null,
     val dateTimestamp: String = "",
     val locationId: Long = 0,
-    val tagIds: List<Long> = listOf()
-) {
-    val isFormValid: Boolean
-        get() =
-            name.isNotBlank() && status.isNotBlank() && description.isNotBlank()
-                    && (coverId.toInt() != 0) && (coordinatorId.toInt() != 0)
-                    && (maxCapacity.toInt() != 0) && dateTimestamp.isNotBlank()
-                    && (locationId.toInt() != 0) && tagIds.isNotEmpty()
-}
+    val tagIds: List<Long> = listOf(),
+    val formVersion: Int = 0,
+)

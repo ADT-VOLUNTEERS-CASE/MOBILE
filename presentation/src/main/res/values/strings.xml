@@ -43,6 +43,10 @@
     <string name="label_try_change">Попробуйте изменить параметры поиска или ключевые слова</string>
     <string name="label_enter_name_address">Введите название мероприятия или адрес, чтобы найти волонтерские активности</string>
     <string name="label_empty">Пока пусто…</string>
+    <string name="catalog_event_range">Мероприятия %1$d–%2$d из %3$d</string>
+    <string name="catalog_page_number">Страница %1$d из %2$d</string>
+    <string name="catalog_previous_page">Предыдущая страница</string>
+    <string name="catalog_next_page">Следующая страница</string>
     <string name="label_chosen_address">Выбрано: %1$s</string>
     <string name="label_export_analytics">Доступ к выгрузке аналитики</string>
     <string name="label_moderation_tools">Инструменты модерации тегов и экстренного удаления</string>
@@ -140,4 +144,7 @@
     <string name="role_admin">Администратор</string>
 
     <string name="father">Лимасов Андрей</string>
+    <string name="button_volunteer">Войти как Волонтёр</string>
+    <string name="button_coordinator">Войти как Координатор</string>
+    <string name="button_admin">Войти как Администратор</string>
 </resources>

@@ -4,30 +4,39 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import org.adt.core.entities.AllDescriptionEvent
+import kotlinx.coroutines.withContext
 import org.adt.core.entities.event.Event
-import org.adt.core.utils.ApiStatus
-import org.adt.domain.abstraction.DataRepository
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
+import org.adt.domain.usecase.event.GetEventsUseCase
+import org.adt.domain.usecase.user.FindEventUseCase
+import org.adt.domain.usecase.user.FindLocationUseCase
+import org.adt.domain.usecase.user.GetUserInfoUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class VolunteerViewModel @Inject constructor(
-    private val _dataRepository: DataRepository,
+    private val findLocationUseCase: FindLocationUseCase,
+    private val findEventUseCase: FindEventUseCase,
+    private val getEventsUseCase: GetEventsUseCase,
+    private val getUserInfoUseCase: GetUserInfoUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(VolunteerState())
     val uiState: StateFlow<VolunteerState> = _uiState.asStateFlow()
 
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+    private var eventsJob: Job? = null
 
     fun onSearchValueChange(value: String) {
         _uiState.update { it.copy(searchValue = value) }
@@ -55,11 +64,10 @@ class VolunteerViewModel @Inject constructor(
             return
 
         viewModelScope.launch(Dispatchers.IO) {
-            _isRefreshing.update { true }
             _uiState.update { it.copy(searchMode = true, searchModeLoading = true) }
 
-            val responseLocation = async { _dataRepository.findLocation(uiState.searchValue) }
-            val responseEvent = async { _dataRepository.findEvent(uiState.searchValue) }
+            val responseLocation = async { findLocationUseCase(uiState.searchValue) }
+            val responseEvent = async { findEventUseCase(uiState.searchValue) }
 
             val locationsResp = responseLocation.await()
             val eventsResp = responseEvent.await()
@@ -85,43 +93,45 @@ class VolunteerViewModel @Inject constructor(
                 )
             }
         }
-        _isRefreshing.update { false }
     }
 
     fun getEvents() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _isRefreshing.update { true }
-            val userResponse = _dataRepository.userInfo()
-            val eventsResponse = _dataRepository.getEvents()
+        eventsJob?.cancel()
+        _isRefreshing.value = true
+        eventsJob = viewModelScope.launch {
+            try {
+                val (userResponse, eventsResponse) = withContext(Dispatchers.IO) {
+                    getUserInfoUseCase().first() to getEventsUseCase()
+                }
+                if (!userResponse.isSuccessful || !eventsResponse.isSuccessful) {
+                    _uiState.update { it.copy(eventError = "Не удалось загрузить мероприятия") }
+                    return@launch
+                }
 
-            if (
-                !eventsResponse.isSuccessful ||
-                !userResponse.isSuccessful
-            ) {
-                _isRefreshing.update { false }
-
-                Log.e("VolunteerViewModel::Events", "Failure: Invalid data")
-                return@launch
-            }
-
-            val userEventsIds = userResponse.data().events.map { it.eventId }.toSet()
-            val allEvents = eventsResponse.data().content
-
-            val sortedEvents =
-                allEvents.sortedWith(
-                    compareByDescending<Event> { userEventsIds.contains(it.eventId) }
+                val user = userResponse.data()
+                val userEventIds = user.events.map { it.eventId }.toSet()
+                val sortedEvents = eventsResponse.data().content.sortedWith(
+                    compareByDescending<Event> { it.eventId in userEventIds }
                         .thenBy { it.status }
+                        .thenByDescending { it.eventId }
                 )
-
-            _uiState.update {
-                it.copy(
-                    eventsList = sortedEvents,
-                    filteredEventsByUserList = sortedEvents.filter { userEventsIds.contains(it.eventId) },
-                    registeredEventIds = userEventsIds,
-                    firstName = userResponse.data().firstname.toString()
-                )
+                _uiState.update {
+                    it.copy(
+                        eventsList = sortedEvents,
+                        filteredEventsByUserList = sortedEvents.filter { event -> event.eventId in userEventIds },
+                        registeredEventIds = userEventIds,
+                        firstName = user.firstname.orEmpty(),
+                    )
+                }
+            } catch (e: CancellationException) {
+                ensureActive()
+                _uiState.update { it.copy(eventError = "Не удалось загрузить мероприятия") }
+            } catch (e: Exception) {
+                Log.w("VolunteerViewModel", "Failed to load events", e)
+                _uiState.update { it.copy(eventError = "Не удалось загрузить мероприятия") }
+            } finally {
+                if (isActive) _isRefreshing.value = false
             }
-            _isRefreshing.update { false }
         }
     }
 
@@ -144,10 +154,6 @@ class VolunteerViewModel @Inject constructor(
         _uiState.update { it.copy(eventError = null) }
     }
 
-    fun isParticipatingRecommendationEvaluate(event: Event): Boolean {
-        return uiState.value.registeredEventIds.contains(event.eventId)
-    }
-
     private fun populateFailure(
         displayMessage: String = "",
         logMessage: String,
@@ -161,9 +167,5 @@ class VolunteerViewModel @Inject constructor(
         }
 
         Log.e("VolunteerViewModel::${tagSuffix}", logMessage)
-    }
-
-    init {
-        getEvents()
     }
 }

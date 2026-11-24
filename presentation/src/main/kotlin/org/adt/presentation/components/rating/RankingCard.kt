@@ -36,7 +36,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.adt.core.entities.rating.UserRating
 import org.adt.presentation.R
 import org.adt.presentation.theme.Abyss
 import org.adt.presentation.theme.Aqua
@@ -47,7 +46,7 @@ import org.adt.presentation.theme.VolunteersCaseTheme
 
 @Composable
 fun RankingCard(
-    entry: UserRating,
+    entry: RatingParticipant,
     rank: Int,
     index: Int,
     modifier: Modifier = Modifier,
@@ -133,7 +132,7 @@ fun RankingCard(
                     }
 
                     Text(
-                        text = stringResource(R.string.body_minutes_all, entry.workedMinutes),
+                        text = stringResource(R.string.body_minutes_all, entry.minutes),
                         style = VolunteersCaseTheme.typography.titleSmall.copy(
                             fontWeight = FontWeight.Bold,
                             color = Abyss,
@@ -155,12 +154,11 @@ private fun RankingCardPreview() {
                 .padding(16.dp)
         ) {
             RankingCard(
-                entry = UserRating(
+                entry = RatingParticipant(
                     firstname = "Анна",
                     lastname = "Иванова",
                     patronymic = "Сергеевна",
-                    workedMinutes = 450,
-                    userId = 1,
+                    minutes = 450,
                 ),
                 rank = 5,
                 index = 0,

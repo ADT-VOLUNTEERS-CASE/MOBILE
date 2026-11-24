@@ -20,9 +20,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -54,8 +54,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -67,7 +70,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import org.adt.core.entities.Location
 import org.adt.core.entities.event.EventApplication
 import org.adt.presentation.R
@@ -90,7 +94,8 @@ import org.adt.presentation.theme.VolunteersCaseTheme
 import java.io.File
 import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneId
+import java.time.LocalDate
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -100,7 +105,9 @@ fun CoordinatorScreen(
     val uiState = viewModel.uiState.collectAsState().value
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val fields = viewModel.fieldsState.collectAsState().value
-    val scope = rememberCoroutineScope()
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.loadMyEvents()
+    }
 
     CoordinatorScreenContent(
         uiState = uiState,
@@ -117,11 +124,7 @@ fun CoordinatorScreen(
         onApprove = { eventId, userId -> viewModel.approve(eventId, userId) },
         onReject = { eventId, userId -> viewModel.reject(eventId, userId) },
         onLoadApplications = { eventId -> viewModel.loadApplications(eventId) },
-        onRefreshAction = {
-            scope.launch {
-                viewModel.loadMyEvents()
-            }
-        }
+        onRefreshAction = viewModel::loadMyEvents,
     )
 }
 
@@ -130,7 +133,7 @@ fun CoordinatorScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CoordinatorScreenContent(
-    uiState: CoordinatorState = CoordinatorState(),
+    uiState: CoordinatorState,
     isRefreshing: Boolean = false,
     fields: CoordinatorFieldsState = CoordinatorFieldsState(),
     onUploadFile: (File) -> Unit = {},
@@ -169,7 +172,7 @@ fun CoordinatorScreenContent(
         val datePickerState = rememberDatePickerState(
             selectableDates = object : SelectableDates {
                 override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                    return utcTimeMillis >= System.currentTimeMillis() - 86400000L
+                    return Instant.ofEpochMilli(utcTimeMillis).atOffset(ZoneOffset.UTC).toLocalDate() >= LocalDate.now()
                 }
             }
         )
@@ -178,11 +181,14 @@ fun CoordinatorScreenContent(
             confirmButton = {
                 TextButton(onClick = {
                     val selectedDate = datePickerState.selectedDateMillis?.let {
-                        Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
+                        Instant.ofEpochMilli(it).atOffset(ZoneOffset.UTC).toLocalDate()
                     }
                     if (selectedDate != null) {
                         val currentDt = fields.selectedDateTime ?: LocalDateTime.now()
-                        updateFields(fields.copy(selectedDateTime = selectedDate.atTime(currentDt.toLocalTime())))
+                        updateFields(fields.copy(
+                            selectedDateTime = selectedDate.atTime(currentDt.toLocalTime()),
+                            dateTimestamp = "",
+                        ))
                         setShowDatePicker(false)
                         setShowTimePicker(true)
                     }
@@ -304,6 +310,17 @@ fun CoordinatorScreenContent(
     }
 
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
+    val eventsListState = rememberLazyListState()
+    var shownFormVersion by rememberSaveable { mutableIntStateOf(0) }
+    LaunchedEffect(fields.formVersion, uiState.eventsLoading) {
+        if (fields.formVersion == 0) {
+            shownFormVersion = 0
+        } else if (shownFormVersion != fields.formVersion && !uiState.eventsLoading) {
+            shownFormVersion = fields.formVersion
+            eventsListState.requestScrollToItem(0)
+            pagerState.animateScrollToPage(0)
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -315,10 +332,11 @@ fun CoordinatorScreenContent(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-    ) {
+    ) { paddingValues ->
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
+                .padding(paddingValues)
                 .fillMaxSize()
                 .clipToBounds(),
             userScrollEnabled = true
@@ -341,91 +359,61 @@ fun CoordinatorScreenContent(
                             )
                         }
                     ) {
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
+                        LazyColumn(
+                            state = eventsListState,
                             modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(
-                                start = 16.dp,
-                                end = 16.dp,
-                                top = 90.dp,
-                                bottom = 24.dp
-                            ),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 90.dp, bottom = 100.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
-                            item(span = { GridItemSpan(maxLineSpan) }) {
-                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    if (uiState.eventsLoading) {
-                                        Box(
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .padding(40.dp), contentAlignment = Alignment.Center
-                                        ) {
-                                            CircularProgressIndicator(
-                                                modifier = Modifier.size(32.dp),
-                                                color = Lagoon
-                                            )
-                                        }
-                                    } else if (uiState.myEvents.isNotEmpty()) {
-                                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                            uiState.myEvents.take(3).forEach { event ->
-                                                Surface(
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                    shape = RoundedCornerShape(16.dp),
-                                                    tonalElevation = 1.dp,
-                                                    color = Arctic
-                                                ) {
-                                                    EventSummaryCard(event = event) {
-                                                        onLoadApplications(event.eventId)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        Text(
-                                            stringResource(R.string.label_empty),
-                                            style = VolunteersCaseTheme.typography.titleMedium,
-                                            color = Silver,
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(vertical = 48.dp),
-                                            textAlign = TextAlign.Center
-                                        )
+                            if (uiState.eventsLoading && uiState.myEvents.isEmpty()) {
+                                item {
+                                    Box(Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
+                                        CircularProgressIndicator(modifier = Modifier.size(32.dp), color = Lagoon)
+                                    }
+                                }
+                            } else if (uiState.myEvents.isEmpty()) {
+                                item {
+                                    Text(
+                                        stringResource(R.string.label_empty),
+                                        style = VolunteersCaseTheme.typography.titleMedium,
+                                        color = Silver,
+                                        modifier = Modifier.fillMaxWidth().padding(vertical = 48.dp),
+                                        textAlign = TextAlign.Center,
+                                    )
+                                }
+                            }
+
+                            val applicationEventId = uiState.applications.firstOrNull()?.eventId?.toLong()
+                            items(uiState.myEvents, key = { it.eventId }) { event ->
+                                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                    Surface(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(16.dp),
+                                        tonalElevation = 1.dp,
+                                        color = Arctic,
+                                    ) {
+                                        EventSummaryCard(event = event) { onLoadApplications(event.eventId) }
                                     }
 
-                                    if (uiState.applications.isNotEmpty()) {
-                                        Spacer(Modifier.height(28.dp))
+                                    if (event.eventId == applicationEventId) {
                                         Text(
                                             stringResource(R.string.subtitle_participation_applications),
                                             style = VolunteersCaseTheme.typography.titleMedium,
                                             fontWeight = FontWeight.Bold,
                                             color = Abyss,
-                                            modifier = Modifier.padding(bottom = 12.dp)
                                         )
-                                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                            uiState.applications.forEach { app ->
-                                                Surface(
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                    shape = RoundedCornerShape(16.dp),
-                                                    tonalElevation = 1.dp,
-                                                    color = Arctic
-                                                ) {
-                                                    ApplicationCard(
-                                                        app = app,
-                                                        onApprove = {
-                                                            onApprove(
-                                                                app.eventId.toLong(),
-                                                                app.userId.toLong()
-                                                            )
-                                                        },
-                                                        onReject = {
-                                                            onReject(
-                                                                app.eventId.toLong(),
-                                                                app.userId.toLong()
-                                                            )
-                                                        }
-                                                    )
-                                                }
+                                        uiState.applications.forEach { app ->
+                                            Surface(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                shape = RoundedCornerShape(16.dp),
+                                                tonalElevation = 1.dp,
+                                                color = Arctic,
+                                            ) {
+                                                ApplicationCard(
+                                                    app = app,
+                                                    onApprove = { onApprove(event.eventId, app.userId.toLong()) },
+                                                    onReject = { onReject(event.eventId, app.userId.toLong()) },
+                                                )
                                             }
                                         }
                                     }
@@ -461,31 +449,30 @@ fun CoordinatorScreenContent(
                                     color = Abyss
                                 )
 
-                                CustomTextField(
-                                    Modifier.fillMaxWidth(),
-                                    stringResource(R.string.textfield_name)
-                                ) { updateFields(fields.copy(name = it)) }
-                                CustomTextField(
-                                    Modifier.fillMaxWidth(),
-                                    stringResource(R.string.textfield_description)
-                                ) { updateFields(fields.copy(description = it)) }
-                                CustomTextField(
-                                    Modifier.fillMaxWidth(),
-                                    stringResource(R.string.textfield_max_participants)
-                                ) {
-                                    updateFields(
-                                        fields.copy(
-                                            maxCapacity = it.toLongOrNull() ?: 0
-                                        )
-                                    )
-                                }
-                                CustomTextField(
-                                    Modifier.fillMaxWidth(),
-                                    stringResource(R.string.textfield_tag_ids)
-                                ) {
-                                    val ids =
-                                        it.split(",").mapNotNull { id -> id.trim().toLongOrNull() }
-                                    updateFields(fields.copy(tagIds = ids))
+                                key(fields.formVersion) {
+                                    CustomTextField(
+                                        Modifier.fillMaxWidth(),
+                                        stringResource(R.string.textfield_name),
+                                        value = fields.name,
+                                    ) { updateFields(fields.copy(name = it)) }
+                                    CustomTextField(
+                                        Modifier.fillMaxWidth(),
+                                        stringResource(R.string.textfield_description),
+                                        value = fields.description,
+                                    ) { updateFields(fields.copy(description = it)) }
+                                    CustomTextField(
+                                        Modifier.fillMaxWidth(),
+                                        stringResource(R.string.textfield_max_participants),
+                                        value = fields.maxCapacity.takeIf { it > 0 }?.toString().orEmpty(),
+                                    ) { updateFields(fields.copy(maxCapacity = it.toLongOrNull() ?: 0)) }
+                                    CustomTextField(
+                                        Modifier.fillMaxWidth(),
+                                        stringResource(R.string.textfield_tag_ids),
+                                        value = fields.tagIds.joinToString(", "),
+                                    ) {
+                                        val ids = it.split(",").mapNotNull { id -> id.trim().toLongOrNull() }
+                                        updateFields(fields.copy(tagIds = ids))
+                                    }
                                 }
 
                                 HorizontalDivider(color = Milk, thickness = 1.dp)
@@ -683,7 +670,7 @@ fun CoordinatorScreenContent(
                                     enabled = fields.name.isNotBlank() &&
                                             uiState.selectedLocation != null &&
                                             uiState.selectedCover != null &&
-                                            fields.selectedDateTime != null,
+                                            fields.dateTimestamp.isNotBlank(),
                                     isLoading = uiState.isLoading,
                                     onClick = createAction,
                                     variant = ButtonVariant.Wide,

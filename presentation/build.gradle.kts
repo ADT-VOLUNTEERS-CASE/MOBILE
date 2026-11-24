@@ -27,7 +27,7 @@ android {
         versionCode = 1
         versionName = "0.1.1"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "org.adt.presentation.HiltTestRunner"
 
         buildConfigField("String", "API_BASE_URL", "\"https://adt.rss14.ru/api/\"")
     }
@@ -152,7 +152,7 @@ kotlin {
 
 dependencies {
     implementation(project("::domain"))
-    implementation(project("::data")) // TODO: MIGRATE TO DOMAIN
+    implementation(project("::data"))
     implementation(project("::core"))
     implementation(project("::storage"))
     implementation(libs.androidx.compose.ui.geometry)
@@ -170,10 +170,11 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
 
     testImplementation(libs.junit)
+    testImplementation(libs.androidx.junit)
+    testImplementation(libs.androidx.compose.ui.test.junit4)
     testImplementation(libs.roborazzi.compose.preview.scanner.support)
     testImplementation(libs.robolectric)
     testImplementation(libs.android)
-    testImplementation(libs.androidx.compose.ui.test.junit4)
 
     testImplementation(libs.roborazzi)
     testImplementation(libs.roborazzi.compose)
@@ -194,6 +195,8 @@ dependencies {
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.hilt.android.testing)
+    kspAndroidTest(libs.hilt.android.compiler)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)

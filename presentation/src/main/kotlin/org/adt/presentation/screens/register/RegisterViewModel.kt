@@ -14,8 +14,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.adt.core.entities.UserRole
-import org.adt.data.abstraction.PersistenceRepository
-import org.adt.domain.abstraction.DataRepository
+import org.adt.domain.usecase.user.GetCurrentUserRoleUseCase
+import org.adt.domain.usecase.user.SaveUserRoleUseCase
+import org.adt.domain.usecase.user.RegisterUseCase
 import org.adt.presentation.navigation.Destinations
 import org.adt.presentation.utils.LocalizationManager.message
 import javax.inject.Inject
@@ -23,8 +24,9 @@ import javax.inject.Inject
 @HiltViewModel
 //TODO: Use `Logger` for.. Logging!
 class RegisterViewModel @Inject constructor(
-    private val _dataRepository: DataRepository,
-    private val _persistenceRepository: PersistenceRepository
+    private val registerUseCase: RegisterUseCase,
+    private val getCurrentUserRoleUseCase: GetCurrentUserRoleUseCase,
+    private val saveUserRoleUseCase: SaveUserRoleUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RegisterState())
@@ -48,7 +50,7 @@ class RegisterViewModel @Inject constructor(
             clearErrorMessage()
             populateLoadingState(true)
 
-            val response = _dataRepository.register(
+            val response = registerUseCase(
                 firstname = fields.firstName,
                 lastname = fields.lastName,
                 patronymic = fields.patronymic,
@@ -69,15 +71,9 @@ class RegisterViewModel @Inject constructor(
                 return@launch
             }
 
-            val role = _dataRepository.getCurrentUserRole()
-            _persistenceRepository.saveRole(role)
-
-            val destination = if (role == UserRole.VOLUNTEER) {
-                val isOnboardingCompleted = _persistenceRepository.onboardingCompletedFlow.first()
-                if (isOnboardingCompleted) Destinations.VolunteerHome else Destinations.Onboarding
-            } else {
-                Destinations.mapRole(role)
-            }
+            val role = getCurrentUserRoleUseCase().first()
+            saveUserRoleUseCase(role)
+            val destination = Destinations.mapRole(role)
 
             withContext(Dispatchers.Main) {
                 navController.navigate(destination) {

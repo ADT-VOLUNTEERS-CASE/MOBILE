@@ -1,0 +1,20 @@
+# Never wipe emulator data without asking
+prefix_rule(
+  pattern = ["adb", "emu", "kill"],
+  decision = "prompt",
+  justification = "Killing the emulator will end the session. Confirm first."
+)
+
+# Never run clean without asking
+prefix_rule(
+  pattern = ["./gradlew", "clean"],
+  decision = "prompt",
+  justification = "Clean build takes 3+ minutes. Use incremental builds when possible."
+)
+
+# Force lint before commits
+prefix_rule(
+  pattern = ["git", "commit"],
+  decision = "prompt",
+  justification = "Run ./gradlew lint before committing."
+)

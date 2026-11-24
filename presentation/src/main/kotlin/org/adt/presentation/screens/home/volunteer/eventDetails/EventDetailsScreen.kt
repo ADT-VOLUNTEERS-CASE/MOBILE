@@ -56,11 +56,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
-import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.adt.core.entities.EventStatus
 import org.adt.core.entities.event.EventLocation
 import org.adt.presentation.R
+import org.adt.presentation.components.cards.EventCoverImage
 import org.adt.presentation.components.buttons.ButtonDefaultsProvider
 import org.adt.presentation.components.buttons.ButtonStyle
 import org.adt.presentation.components.buttons.ButtonVariant
@@ -150,11 +150,9 @@ fun EventDetailsScreenContent(
                         contentScale = ContentScale.Crop
                     )
                 } else {
-                    AsyncImage(
-                        model = uiState.cover?.link,
-                        contentDescription = null,
+                    EventCoverImage(
+                        cover = uiState.cover,
                         modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
                     )
                 }
                 Box(
